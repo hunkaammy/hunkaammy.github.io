@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Firebase Notification Example</title>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
+</head>
+<body>
+  <h1>Firebase Notification Example</h1>
+
+  <script>
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAMFjDnZaszneoR6nO8bmXUxwZJplLvNfU",
+      authDomain: "notes-12519.firebaseapp.com",
+      databaseURL: "https://notes-12519-default-rtdb.firebaseio.com",
+      projectId: "notes-12519",
+      storageBucket: "notes-12519.appspot.com",
+      messagingSenderId: "1073774450189",
+      appId: "1:1073774450189:web:0b6d4a9f95823abbf36744",
+      measurementId: "G-GZXYCJ33TR"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // Function to show browser notification
+    function showNotification(title, body) {
+      // Check if the browser supports notifications
+      if ('Notification' in window) {
+        // Request permission to show notifications
+        if (Notification.permission === 'granted') {
+          // Create and show the notification
+          new Notification(title, { body });
+        } else if (Notification.permission !== 'denied') {
+          Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+              new Notification(title, { body });
+            }
+          });
+        }
+      }
+    }
+
+    // Listen for changes in the Firebase Realtime Database
+    const notesRef = database.ref('notes');
+    notesRef.on('value', (snapshot) => {
+      const data = snapshot.val();
+      showNotification('Database Change', 'A change was detected in the database.');
+      console.log(data); // You can process the data as needed
+    });
+  </script>
+</body>
+</html>
