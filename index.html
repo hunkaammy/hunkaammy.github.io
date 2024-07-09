@@ -594,7 +594,10 @@ function scrollToTop() {
 
 
   <div class="tab-btns" onclick="scrollToTop()">
-  <div class="tab-btn"  ng-click="productNameFilter = ''; activeTab = 0; searchQuery = '';" ng-class="{ 'active': activeTab === 0 }">ALL PRODUCTS</div>
+  
+<div class="tab-btn"  ng-click="productNameFilter = ''; activeTab = 0; searchQuery = '';" ng-class="{ 'active': activeTab === 0 }">ALL PRODUCTS</div>
+ <div class="tab-btn" ng-click="productNameFilter = 'PENCIL BOX'; activeTab = 27; searchQuery = '';" ng-class="{ 'active': activeTab === 27}">PENCIL BOX</div>  
+ 
     <div class="tab-btn" ng-click="productNameFilter = 'HIGH QUALITY'; activeTab = 25; searchQuery = '';" ng-class="{ 'active': activeTab === 25 }">HIGH QUALITY INDIAN TOYS</div>  
  <div class="tab-btn" ng-click="productNameFilter = 'BOARD GAME'; activeTab = 26; searchQuery = '';" ng-class="{ 'active': activeTab === 26 }">BOARD GAME</div>  
  
