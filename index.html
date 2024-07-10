@@ -596,9 +596,9 @@ function scrollToTop() {
   <div class="tab-btns" onclick="scrollToTop()">
   
 <div class="tab-btn"  ng-click="productNameFilter = ''; activeTab = 0; searchQuery = '';" ng-class="{ 'active': activeTab === 0 }">ALL PRODUCTS</div>
-<div class="tab-btn" ng-click="productNameFilter = 'LUNCH BOX'; activeTab = 27; searchQuery = '';" ng-class="{ 'active': activeTab === 28}">LUNCH BOX</div>  
+<div class="tab-btn" ng-click="productNameFilter = 'LUNCH BOX'; activeTab = 28; searchQuery = '';" ng-class="{ 'active': activeTab === 28}">LUNCH BOX</div>  
  <div class="tab-btn" ng-click="productNameFilter = 'PENCIL BOX'; activeTab = 27; searchQuery = '';" ng-class="{ 'active': activeTab === 27}">PENCIL BOX</div>  
- 
+  <div class="tab-btn" ng-click="productNameFilter = 'BOTTEL'; activeTab = 23; searchQuery = '';" ng-class="{ 'active': activeTab === 23 }">WATER BOTTEL</div> 
     <div class="tab-btn" ng-click="productNameFilter = 'HIGH QUALITY'; activeTab = 25; searchQuery = '';" ng-class="{ 'active': activeTab === 25 }">HIGH QUALITY INDIAN TOYS</div>  
  <div class="tab-btn" ng-click="productNameFilter = 'BOARD GAME'; activeTab = 26; searchQuery = '';" ng-class="{ 'active': activeTab === 26 }">BOARD GAME</div>  
  
@@ -607,7 +607,7 @@ function scrollToTop() {
   <div class="tab-btn" ng-click="productNameFilter = 'UMBRELLA'; activeTab = 24; searchQuery = '';" ng-class="{ 'active': activeTab === 24 }">UMBRELLA</div>  
  <div class="tab-btn" ng-click="productNameFilter = 'MIX'; activeTab = 9; searchQuery = '';" ng-class="{ 'active': activeTab === 9 }">MIX TOYS</div> 
    <div class="tab-btn" ng-click="productNameFilter = 'BATTERY'; activeTab = 13; searchQuery = '';" ng-class="{ 'active': activeTab === 13 }">BATTERY OPERATED</div>
- <div class="tab-btn" ng-click="productNameFilter = 'BOTTEL'; activeTab = 23; searchQuery = '';" ng-class="{ 'active': activeTab === 23 }">WATER BOTTEL</div> 
+
     <div class="tab-btn" ng-click="productNameFilter = 'REMOTE'; activeTab = 7; searchQuery = '';" ng-class="{ 'active': activeTab === 7 }">REMOTE CAR</div>
  <div class="tab-btn" ng-click="productNameFilter = 'EDUCATIONAL'; activeTab = 22; searchQuery = '';" ng-class="{ 'active': activeTab === 22 }">EDUCATIONAL TOYS</div> 
 	<div class="tab-btn" ng-click="productNameFilter = 'INTEX'; activeTab = 21; searchQuery = '';" ng-class="{ 'active': activeTab === 21 }">INTEX ITEMS</div>  
@@ -636,27 +636,23 @@ function scrollToTop() {
 
 <body ng-controller="imagesController as vm">
 
-    <!-- Search Input (optional, if you want to allow changing the search query from the page itself) -->
-    <div class="search-container">
-        <input type="text" ng-model="vm.searchQuery" placeholder="Search products by name...">
-    </div>
 
-    <div ng-repeat="image in vm.images | orderBy: sortOrder | filter: { name: vm.searchQuery }">
+    <div ng-repeat="image in vm.images | orderBy: sortOrder | filter: { name: productNameFilter } | filter:searchQuery">
         <div id="containers" ng-if="!image.outOfStock">
             <div class="card">
                 <img src="{{image.url}}" alt="Sample Image" onclick="enlargeImage(this.src)" loading="lazy" width="350" height="350">
 
-                <div id="enlarged-image-container" class="enlarged-image-container" style="display: none;">
-                    <div class="enlarged-image">
+                  <div id="enlarged-image-container" class="enlarged-image-container" style="display: none;">
+        <div class="enlarged-image">
                         <img id="enlarged-img" src="" alt="Enlarged Image">
-                        <button onclick="closeEnlarged()">Close</button>
+                        <button onclick="closeEnlarged()"><!--Close--></button>
                     </div>
                 </div>
 
                 <div class="containers">
-                    <h4><b><p>{{image.price}} Rs.</p></b></h4>
+                    <h4><b> <p>{{image.price}} Rs.</p> </b> </h4>
                     <p>{{image.name}}</p>
-                    <p><a href="https://hunkaammy.github.io/mywebsite/videos/{{image.videourl}}.mp4" target="_blank">{{ image.videourl ? 'Watch Video' : '' }}</a></p>
+					<p><a href="https://hunkaammy.github.io/mywebsite/videos/{{image.videourl}}.mp4" target="_blank">{{ image.videourl ? 'Watch Video' : '' }}</a></p>
 
                     <input type="hidden" id="{{'inputa' + $index}}" ng-model="image.url">
                     <input type="hidden" id="{{'inputb' + $index}}" ng-model="dynamicField2Value" ng-value="dynamicField2Value">
@@ -668,9 +664,6 @@ function scrollToTop() {
             </div>
         </div>
     </div>
-
-</body>
-
 
 
 
@@ -744,19 +737,16 @@ for(let img of images) {
     <script>
 var app = angular.module('myApp', ['firebase']);
 
-app.controller('imagesController', function ($scope, $firebaseArray, $location) {
-    $scope.vm = this;
+app.controller('imagesController', function ($scope, $firebaseArray, $window) {
+      $scope.vm = this;
     $scope.vm.images = [];
-    
-    // Read 'q' parameter from URL or default to an empty string
-    $scope.vm.searchQuery = $location.search().q || '';
+    // Set dynamicField2Value to the logged user's name retrieved from local storage
+$scope.sortOrder = ''; // No default sorting order 
+   $scope.dynamicField2Value = localStorage.getItem('name');
 
-    // Default sorting order
-    $scope.sortOrder = '';
-    // Retrieve user's name from local storage
-    $scope.dynamicField2Value = localStorage.getItem('name');
 
-    // Firebase configuration for fetching data
+
+
     var firebaseConfigFetch = {
         apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
         authDomain: "htshop-e9c51.firebaseapp.com",
@@ -768,7 +758,6 @@ app.controller('imagesController', function ($scope, $firebaseArray, $location) 
         measurementId: "G-FJ4Q0FHBEG"
     };
 
-    // Firebase configuration for submitting data
     var firebaseConfigSubmit = {
         apiKey: "AIzaSyAMFjDnZaszneoR6nO8bmXUxwZJplLvNfU",
         authDomain: "notes-12519.firebaseapp.com",
@@ -780,26 +769,27 @@ app.controller('imagesController', function ($scope, $firebaseArray, $location) 
         measurementId: "G-GZXYCJ33TR"
     };
 
-    // Initialize Firebase apps
-    var firebaseFetch = firebase.initializeApp(firebaseConfigFetch, 'fetchApp');
-    var firebaseSubmit = firebase.initializeApp(firebaseConfigSubmit, 'submitApp');
+            var firebaseFetch = firebase.initializeApp(firebaseConfigFetch, 'fetchApp');
+            var firebaseSubmit = firebase.initializeApp(firebaseConfigSubmit, 'submitApp');
 
-    // Fetch data from Firebase
-    var databaseFetch = firebaseFetch.database().ref();
-    var listFetch = $firebaseArray(databaseFetch);
-    $scope.vm.images = listFetch;
+            
+            var databaseFetch = firebaseFetch.database().ref();
+            var listFetch = $firebaseArray(databaseFetch);
+            $scope.vm.images = listFetch;
 
-    // Reference for submitting data to Firebase
-    var databaseSubmit = firebaseSubmit.database().ref();
+            
+            var databaseSubmit = firebaseSubmit.database().ref();
+            var listSubmit = $firebaseArray(databaseSubmit);
+			
+			
 
-    // Submit data function
-    $scope.submitData = function(image, index) {
+ $scope.submitData = function(image, index) {
         var inputa = image.url;
-        var inputb = $scope.dynamicField2Value;
+        var inputb = $scope.dynamicField2Value; // Use dynamicField2Value
         var inputc = image.field3;
         var inputName = image.name;
         var inputPrice = image.price;
-        var inputvideourl = image.videourl;
+		var inputvideourl = image.videourl;
         var inputoutofstock = image.outOfStock;
 
         var newDataKey = databaseSubmit.push().key;
@@ -814,6 +804,9 @@ app.controller('imagesController', function ($scope, $firebaseArray, $location) 
 
         console.log("Data submitted to Firebase");
     };
+	
+	
+	
 
 
  // Function to logout the user
@@ -825,6 +818,20 @@ app.controller('imagesController', function ($scope, $firebaseArray, $location) 
         // Redirect the user to the login page or any other page
         // For example, redirecting to the homepage
         $window.location.href = '/mywebsite/index.html'; // Change the URL as needed
+    };
+
+// Watch for changes in URL parameter 'search' and update searchQuery
+    $scope.$watch(function () {
+        return $location.search().search;
+    }, function (newVal, oldVal) {
+        if (newVal !== oldVal) {
+            $scope.searchQuery = newVal || '';
+        }
+    });
+
+    // Function to update URL parameter 'search' based on searchQuery changes
+    $scope.updateSearch = function () {
+        $location.search('search', $scope.searchQuery);
     };
 
 
