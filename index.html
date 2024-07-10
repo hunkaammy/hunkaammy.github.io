@@ -547,6 +547,72 @@ button, input, select, textarea {
 
 </style>
 
+<style>
+    .skeleton-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .skeleton-item {
+        width: 350px;
+        height: 350px;
+        background-color: #f0f0f0; /* Light gray background */
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+        animation: skeleton-pulse 1.5s ease-in-out infinite; /* Animation for pulse effect */
+    }
+
+    @keyframes skeleton-pulse {
+        0% {
+            opacity: 0.6;
+        }
+        50% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 0.6;
+        }
+    }
+
+    .skeleton-item img {
+        display: none; /* Hide image initially */
+    }
+
+    .skeleton-item .skeleton-text {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 20px;
+        animation: skeleton-fade 1.5s ease-in-out infinite; /* Animation for fade effect */
+    }
+
+    @keyframes skeleton-fade {
+        0% {
+            opacity: 0.4;
+        }
+        50% {
+            opacity: 0.8;
+        }
+        100% {
+            opacity: 0.4;
+        }
+    }
+
+    .skeleton-item .skeleton-text .skeleton-line {
+        width: 100%;
+        height: 16px;
+        background-color: #e0e0e0; /* Lighter gray for text lines */
+        margin-bottom: 10px;
+        border-radius: 4px;
+    }
+</style>
+
+
+
 <script>
 function startVoiceRecognition() {
     const micIcon = document.getElementById('micIcon');
@@ -639,33 +705,45 @@ function scrollToTop() {
 <body ng-controller="imagesController as vm">
 
 
-    <div ng-repeat="image in vm.images | orderBy: sortOrder | filter: { name: productNameFilter } | filter:searchQuery">
-        <div id="containers" ng-if="!image.outOfStock">
-            <div class="card">
-                <img src="{{image.url}}" alt="Sample Image" onclick="enlargeImage(this.src)" loading="lazy" width="350" height="350">
+  <div class="skeleton-wrapper" ng-if="vm.images.length === 0">
+    <!-- Skeleton items based on the number you want to show -->
+    <div class="skeleton-item" ng-repeat="n in [].constructor(4) track by $index">
+        <div class="skeleton-text">
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line" style="width: 80%;"></div>
+            <div class="skeleton-line" style="width: 50%;"></div>
+        </div>
+    </div>
+</div>
 
-                  <div id="enlarged-image-container" class="enlarged-image-container" style="display: none;">
-        <div class="enlarged-image">
-                        <img id="enlarged-img" src="" alt="Enlarged Image">
-                        <button onclick="closeEnlarged()"><!--Close--></button>
-                    </div>
+<div ng-repeat="image in vm.images | orderBy: sortOrder | filter: { name: productNameFilter } | filter:searchQuery">
+    <div id="containers" ng-if="!image.outOfStock">
+        <div class="card">
+            <img src="{{image.url}}" alt="Sample Image" onclick="enlargeImage(this.src)" loading="lazy" width="350" height="350">
+
+            <div id="enlarged-image-container" class="enlarged-image-container" style="display: none;">
+                <div class="enlarged-image">
+                    <img id="enlarged-img" src="" alt="Enlarged Image">
+                    <button onclick="closeEnlarged()"><!--Close--></button>
                 </div>
+            </div>
 
-                <div class="containers">
-                    <h4><b> <p>{{image.price}} Rs.</p> </b> </h4>
-                    <p>{{image.name}}</p>
-					<p><a href="https://hunkaammy.github.io/mywebsite/videos/{{image.videourl}}.mp4" target="_blank">{{ image.videourl ? 'Watch Video' : '' }}</a></p>
+            <div class="containers">
+                <h4><b><p>{{image.price}} Rs.</p></b></h4>
+                <p>{{image.name}}</p>
+                <p><a href="https://hunkaammy.github.io/mywebsite/videos/{{image.videourl}}.mp4" target="_blank">{{ image.videourl ? 'Watch Video' : '' }}</a></p>
 
-                    <input type="hidden" id="{{'inputa' + $index}}" ng-model="image.url">
-                    <input type="hidden" id="{{'inputb' + $index}}" ng-model="dynamicField2Value" ng-value="dynamicField2Value">
+                <input type="hidden" id="{{'inputa' + $index}}" ng-model="image.url">
+                <input type="hidden" id="{{'inputb' + $index}}" ng-model="dynamicField2Value" ng-value="dynamicField2Value">
 
-                    <input type="number" class="qtyclass" id="{{'inputc' + $index}}" placeholder="Qty" ng-model="image.field3" ng-change="submitData(image, $index)" ng-model-options="{ debounce: 4500 }">
-                    
-                    <p ng-show="showItemAdded">Item Added</p>
-                </div>
+                <input type="number" class="qtyclass" id="{{'inputc' + $index}}" placeholder="Qty" ng-model="image.field3" ng-change="submitData(image, $index)" ng-model-options="{ debounce: 4500 }">
+                
+                <p ng-show="showItemAdded">Item Added</p>
             </div>
         </div>
     </div>
+</div>
 
 
 
