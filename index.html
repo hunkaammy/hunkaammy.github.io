@@ -641,7 +641,7 @@ function scrollToTop() {
         <input type="text" ng-model="vm.searchQuery" placeholder="Search products by name...">
     </div>
 
-    <div ng-repeat="image in vm.images | orderBy: sortOrder | filter: { name: vm.searchQuery } | filter:searchQuery">
+    <div ng-repeat="image in vm.images | orderBy: sortOrder | filter: { name: vm.searchQuery }">
         <div id="containers" ng-if="!image.outOfStock">
             <div class="card">
                 <img src="{{image.url}}" alt="Sample Image" onclick="enlargeImage(this.src)" loading="lazy" width="350" height="350">
@@ -670,6 +670,7 @@ function scrollToTop() {
     </div>
 
 </body>
+
 
 
 
@@ -743,14 +744,19 @@ for(let img of images) {
     <script>
 var app = angular.module('myApp', ['firebase']);
 
-app.controller('imagesController', function ($scope, $firebaseArray, $window, $location) {
+app.controller('imagesController', function ($scope, $firebaseArray, $location) {
     $scope.vm = this;
     $scope.vm.images = [];
-    $scope.vm.searchQuery = $location.search().q || ''; // Read 'q' parameter from URL or default to an empty string
+    
+    // Read 'q' parameter from URL or default to an empty string
+    $scope.vm.searchQuery = $location.search().q || '';
 
-    $scope.sortOrder = ''; // No default sorting order
+    // Default sorting order
+    $scope.sortOrder = '';
+    // Retrieve user's name from local storage
     $scope.dynamicField2Value = localStorage.getItem('name');
 
+    // Firebase configuration for fetching data
     var firebaseConfigFetch = {
         apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
         authDomain: "htshop-e9c51.firebaseapp.com",
@@ -762,6 +768,7 @@ app.controller('imagesController', function ($scope, $firebaseArray, $window, $l
         measurementId: "G-FJ4Q0FHBEG"
     };
 
+    // Firebase configuration for submitting data
     var firebaseConfigSubmit = {
         apiKey: "AIzaSyAMFjDnZaszneoR6nO8bmXUxwZJplLvNfU",
         authDomain: "notes-12519.firebaseapp.com",
@@ -773,19 +780,22 @@ app.controller('imagesController', function ($scope, $firebaseArray, $window, $l
         measurementId: "G-GZXYCJ33TR"
     };
 
+    // Initialize Firebase apps
     var firebaseFetch = firebase.initializeApp(firebaseConfigFetch, 'fetchApp');
     var firebaseSubmit = firebase.initializeApp(firebaseConfigSubmit, 'submitApp');
 
+    // Fetch data from Firebase
     var databaseFetch = firebaseFetch.database().ref();
     var listFetch = $firebaseArray(databaseFetch);
     $scope.vm.images = listFetch;
 
+    // Reference for submitting data to Firebase
     var databaseSubmit = firebaseSubmit.database().ref();
-    var listSubmit = $firebaseArray(databaseSubmit);
 
+    // Submit data function
     $scope.submitData = function(image, index) {
         var inputa = image.url;
-        var inputb = $scope.dynamicField2Value; // Use dynamicField2Value
+        var inputb = $scope.dynamicField2Value;
         var inputc = image.field3;
         var inputName = image.name;
         var inputPrice = image.price;
@@ -804,8 +814,6 @@ app.controller('imagesController', function ($scope, $firebaseArray, $window, $l
 
         console.log("Data submitted to Firebase");
     };
-
-	
 
 
  // Function to logout the user
