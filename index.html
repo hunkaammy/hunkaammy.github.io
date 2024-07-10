@@ -498,7 +498,7 @@ button, input, select, textarea {
     <!-- Input field for search with voice recognition -->
     <input type="text" ng-model="searchQuery" placeholder="Search by product" id="topBtn" ng-click="productNameFilter = ''; activeTab = 0; searchQuery = '';">
 	
-	<input type="text" ng-model="searchQuery" placeholder="Search by product">
+<input type="text" ng-model="searchQuery" placeholder="Search by product" ng-change="updateUrlParameter()">
     
     <!-- Use a microphone icon with animation instead of the button -->
     <!-- Logout button -->
@@ -640,6 +640,7 @@ function scrollToTop() {
 
 
     <div ng-repeat="image in vm.images | orderBy: sortOrder | filter: { name: productNameFilter } | filter:searchQuery">
+	<div ng-repeat="image in vm.images | orderBy: sortOrder | filter: { name: productNameFilter } | filter: searchQuery">
         <div id="containers" ng-if="!image.outOfStock">
             <div class="card">
                 <img src="{{image.url}}" alt="Sample Image" onclick="enlargeImage(this.src)" loading="lazy" width="350" height="350">
@@ -788,6 +789,10 @@ var queryParam = $location.search().query;
 if (queryParam) {
   $scope.searchQuery = queryParam;
 }		
+
+$scope.updateUrlParameter = function() {
+  $location.search('query', $scope.searchQuery);
+};
 
 $scope.submitData = function(image, index) {
   if ($scope.searchQuery && image.name.toLowerCase().includes($scope.searchQuery.toLowerCase())) {
