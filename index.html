@@ -590,12 +590,13 @@ function scrollToTop() {
     window.scrollTo(0, 0);
 }
 </script>
-
+ 
 
 
   <div class="tab-btns" onclick="scrollToTop()">
   
 <div class="tab-btn"  ng-click="productNameFilter = ''; activeTab = 0; searchQuery = '';" ng-class="{ 'active': activeTab === 0 }">ALL PRODUCTS</div>
+<div class="tab-btn" ng-click="productNameFilter = 'LUNCH BOX'; activeTab = 27; searchQuery = '';" ng-class="{ 'active': activeTab === 28}">LUNCH BOX</div>  
  <div class="tab-btn" ng-click="productNameFilter = 'PENCIL BOX'; activeTab = 27; searchQuery = '';" ng-class="{ 'active': activeTab === 27}">PENCIL BOX</div>  
  
     <div class="tab-btn" ng-click="productNameFilter = 'HIGH QUALITY'; activeTab = 25; searchQuery = '';" ng-class="{ 'active': activeTab === 25 }">HIGH QUALITY INDIAN TOYS</div>  
@@ -635,23 +636,27 @@ function scrollToTop() {
 
 <body ng-controller="imagesController as vm">
 
+    <!-- Search Input (optional, if you want to allow changing the search query from the page itself) -->
+    <div class="search-container">
+        <input type="text" ng-model="vm.searchQuery" placeholder="Search products by name...">
+    </div>
 
-    <div ng-repeat="image in vm.images | orderBy: sortOrder | filter: { name: productNameFilter } | filter:searchQuery">
+    <div ng-repeat="image in vm.images | orderBy: sortOrder | filter: { name: vm.searchQuery } | filter:searchQuery">
         <div id="containers" ng-if="!image.outOfStock">
             <div class="card">
                 <img src="{{image.url}}" alt="Sample Image" onclick="enlargeImage(this.src)" loading="lazy" width="350" height="350">
 
-                  <div id="enlarged-image-container" class="enlarged-image-container" style="display: none;">
-        <div class="enlarged-image">
+                <div id="enlarged-image-container" class="enlarged-image-container" style="display: none;">
+                    <div class="enlarged-image">
                         <img id="enlarged-img" src="" alt="Enlarged Image">
-                        <button onclick="closeEnlarged()"><!--Close--></button>
+                        <button onclick="closeEnlarged()">Close</button>
                     </div>
                 </div>
 
                 <div class="containers">
-                    <h4><b> <p>{{image.price}} Rs.</p> </b> </h4>
+                    <h4><b><p>{{image.price}} Rs.</p></b></h4>
                     <p>{{image.name}}</p>
-					<p><a href="https://hunkaammy.github.io/mywebsite/videos/{{image.videourl}}.mp4" target="_blank">{{ image.videourl ? 'Watch Video' : '' }}</a></p>
+                    <p><a href="https://hunkaammy.github.io/mywebsite/videos/{{image.videourl}}.mp4" target="_blank">{{ image.videourl ? 'Watch Video' : '' }}</a></p>
 
                     <input type="hidden" id="{{'inputa' + $index}}" ng-model="image.url">
                     <input type="hidden" id="{{'inputb' + $index}}" ng-model="dynamicField2Value" ng-value="dynamicField2Value">
@@ -663,6 +668,8 @@ function scrollToTop() {
             </div>
         </div>
     </div>
+
+</body>
 
 
 
@@ -736,15 +743,13 @@ for(let img of images) {
     <script>
 var app = angular.module('myApp', ['firebase']);
 
-app.controller('imagesController', function ($scope, $firebaseArray, $window) {
-      $scope.vm = this;
+app.controller('imagesController', function ($scope, $firebaseArray, $window, $location) {
+    $scope.vm = this;
     $scope.vm.images = [];
-    // Set dynamicField2Value to the logged user's name retrieved from local storage
-$scope.sortOrder = ''; // No default sorting order 
-   $scope.dynamicField2Value = localStorage.getItem('name');
+    $scope.vm.searchQuery = $location.search().q || ''; // Read 'q' parameter from URL or default to an empty string
 
-
-
+    $scope.sortOrder = ''; // No default sorting order
+    $scope.dynamicField2Value = localStorage.getItem('name');
 
     var firebaseConfigFetch = {
         apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
@@ -768,27 +773,23 @@ $scope.sortOrder = ''; // No default sorting order
         measurementId: "G-GZXYCJ33TR"
     };
 
-            var firebaseFetch = firebase.initializeApp(firebaseConfigFetch, 'fetchApp');
-            var firebaseSubmit = firebase.initializeApp(firebaseConfigSubmit, 'submitApp');
+    var firebaseFetch = firebase.initializeApp(firebaseConfigFetch, 'fetchApp');
+    var firebaseSubmit = firebase.initializeApp(firebaseConfigSubmit, 'submitApp');
 
-            
-            var databaseFetch = firebaseFetch.database().ref();
-            var listFetch = $firebaseArray(databaseFetch);
-            $scope.vm.images = listFetch;
+    var databaseFetch = firebaseFetch.database().ref();
+    var listFetch = $firebaseArray(databaseFetch);
+    $scope.vm.images = listFetch;
 
-            
-            var databaseSubmit = firebaseSubmit.database().ref();
-            var listSubmit = $firebaseArray(databaseSubmit);
-			
-			
+    var databaseSubmit = firebaseSubmit.database().ref();
+    var listSubmit = $firebaseArray(databaseSubmit);
 
- $scope.submitData = function(image, index) {
+    $scope.submitData = function(image, index) {
         var inputa = image.url;
         var inputb = $scope.dynamicField2Value; // Use dynamicField2Value
         var inputc = image.field3;
         var inputName = image.name;
         var inputPrice = image.price;
-		var inputvideourl = image.videourl;
+        var inputvideourl = image.videourl;
         var inputoutofstock = image.outOfStock;
 
         var newDataKey = databaseSubmit.push().key;
@@ -803,8 +804,7 @@ $scope.sortOrder = ''; // No default sorting order
 
         console.log("Data submitted to Firebase");
     };
-	
-	
+
 	
 
 
