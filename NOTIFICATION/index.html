@@ -10,45 +10,32 @@
 <body>
   <!-- Your PWA content -->
   <script src="firebase-config.js"></script>
-  <script src="firebase-messaging-sw.js"></script>
   <script src="main.js"></script>
   <link rel="manifest" href="/manifest.json">
 
-<button id="install-button" style="display:none;">Install PWA</button>
 
+<script>
+// firebase-config.js
 
-  
- <script> 
-  // Add this to your existing AngularJS controller
-var app = angular.module('yourApp', []);
+// Your web app's Firebase configuration
+var firebaseConfig = {
+   apiKey: "AIzaSyAMFjDnZaszneoR6nO8bmXUxwZJplLvNfU",
+  authDomain: "notes-12519.firebaseapp.com",
+  databaseURL: "https://notes-12519-default-rtdb.firebaseio.com",
+  projectId: "notes-12519",
+  storageBucket: "notes-12519.appspot.com",
+  messagingSenderId: "1073774450189",
+  appId: "1:1073774450189:web:0b6d4a9f95823abbf36744",
+  measurementId: "G-GZXYCJ33TR"
+};
 
-app.controller('yourController', function($scope) {
-    var database = firebase.database();
-    var ref = database.ref('path/to/your/data');
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
 
-    ref.on('value', function(snapshot) {
-        var data = snapshot.val();
-        // Perform any actions based on the new data
-        // For example, send a notification
-        messaging.getToken().then((token) => {
-            fetch('https://fcm.googleapis.com/fcm/send', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'key=YOUR_SERVER_KEY'  // Your FCM server key
-                },
-                body: JSON.stringify({
-                    to: token,
-                    notification: {
-                        title: 'Data Changed',
-                        body: 'The data in your Firebase Realtime Database has changed.'
-                    }
-                })
-            });
-        });
-    });
-});
+// Initialize Firebase Cloud Messaging
+const messaging = firebase.messaging();
+
 </script>
-  
+
 </body>
 </html>
