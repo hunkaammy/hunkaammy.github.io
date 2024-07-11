@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Your PWA</title>
+  <!-- Add Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-messaging.js"></script>
+</head>
+<body>
+  <!-- Your PWA content -->
+  <script src="firebase-config.js"></script>
+  <script src="firebase-messaging-sw.js"></script>
+  <script src="main.js"></script>
+  
+ <script> 
+  // Add this to your existing AngularJS controller
+var app = angular.module('yourApp', []);
+
+app.controller('yourController', function($scope) {
+    var database = firebase.database();
+    var ref = database.ref('path/to/your/data');
+
+    ref.on('value', function(snapshot) {
+        var data = snapshot.val();
+        // Perform any actions based on the new data
+        // For example, send a notification
+        messaging.getToken().then((token) => {
+            fetch('https://fcm.googleapis.com/fcm/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'key=YOUR_SERVER_KEY'  // Your FCM server key
+                },
+                body: JSON.stringify({
+                    to: token,
+                    notification: {
+                        title: 'Data Changed',
+                        body: 'The data in your Firebase Realtime Database has changed.'
+                    }
+                })
+            });
+        });
+    });
+});
+</script>
+  
+</body>
+</html>
