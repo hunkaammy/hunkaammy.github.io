@@ -719,7 +719,7 @@ function scrollToTop() {
     </div>
 </div>
 
-<div ng-repeat="image in vm.images | orderBy: sortOrder | filter: { name: productNameFilter } | filter:searchQuery">
+<div ng-repeat="image in vm.images | orderBy: sortOrder | filter: { name: productNameFilter } | filter: searchQuery">
     <div id="containers" ng-if="!image.outOfStock">
         <div class="card">
             <img src="{{image.url}}" alt="Sample Image" onclick="enlargeImage(this.src)" loading="lazy" width="350" height="350">
@@ -816,18 +816,33 @@ for(let img of images) {
 
 
 
-    <script>
+   <script>
 var app = angular.module('myApp', ['firebase']);
 
-app.controller('imagesController', function ($scope, $firebaseArray, $window) {
-      $scope.vm = this;
+app.controller('YourController', ['$scope', '$location', '$routeParams', '$firebaseArray', '$window', function($scope, $location, $routeParams, $firebaseArray, $window) {
+    // Function to update the search query
+    function updateSearchQuery() {
+        var searchParam = $location.search().search;
+        $scope.searchQuery = searchParam ? { name: searchParam } : {};
+    }
+
+    // Initialize searchQuery based on URL parameter 'search'
+    updateSearchQuery();
+
+    // Watch for changes in URL parameters
+    $scope.$watch(function() {
+        return $location.search().search;
+    }, function(newSearch, oldSearch) {
+        if (newSearch !== oldSearch) {
+            updateSearchQuery();
+        }
+    });
+
+    $scope.vm = this;
     $scope.vm.images = [];
     // Set dynamicField2Value to the logged user's name retrieved from local storage
-$scope.sortOrder = ''; // No default sorting order 
-   $scope.dynamicField2Value = localStorage.getItem('name');
-
-
-
+    $scope.sortOrder = ''; // No default sorting order 
+    $scope.dynamicField2Value = localStorage.getItem('name');
 
     var firebaseConfigFetch = {
         apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
@@ -851,27 +866,23 @@ $scope.sortOrder = ''; // No default sorting order
         measurementId: "G-GZXYCJ33TR"
     };
 
-            var firebaseFetch = firebase.initializeApp(firebaseConfigFetch, 'fetchApp');
-            var firebaseSubmit = firebase.initializeApp(firebaseConfigSubmit, 'submitApp');
+    var firebaseFetch = firebase.initializeApp(firebaseConfigFetch, 'fetchApp');
+    var firebaseSubmit = firebase.initializeApp(firebaseConfigSubmit, 'submitApp');
 
-            
-            var databaseFetch = firebaseFetch.database().ref();
-            var listFetch = $firebaseArray(databaseFetch);
-            $scope.vm.images = listFetch;
+    var databaseFetch = firebaseFetch.database().ref();
+    var listFetch = $firebaseArray(databaseFetch);
+    $scope.vm.images = listFetch;
 
-            
-            var databaseSubmit = firebaseSubmit.database().ref();
-            var listSubmit = $firebaseArray(databaseSubmit);
-			
-			
+    var databaseSubmit = firebaseSubmit.database().ref();
+    var listSubmit = $firebaseArray(databaseSubmit);
 
- $scope.submitData = function(image, index) {
+    $scope.submitData = function(image, index) {
         var inputa = image.url;
         var inputb = $scope.dynamicField2Value; // Use dynamicField2Value
         var inputc = image.field3;
         var inputName = image.name;
         var inputPrice = image.price;
-		var inputvideourl = image.videourl;
+        var inputvideourl = image.videourl;
         var inputoutofstock = image.outOfStock;
 
         var newDataKey = databaseSubmit.push().key;
@@ -886,66 +897,60 @@ $scope.sortOrder = ''; // No default sorting order
 
         console.log("Data submitted to Firebase");
     };
-	
-	
-	
 
-
- // Function to logout the user
+    // Function to logout the user
     $scope.logout = function() {
         // Clear user session data (e.g., name stored in local storage)
         localStorage.removeItem('name');
-		localStorage.removeItem('mobile');
+        localStorage.removeItem('mobile');
 
         // Redirect the user to the login page or any other page
         // For example, redirecting to the homepage
         $window.location.href = '/mywebsite/index.html'; // Change the URL as needed
     };
 
+    $scope.image = function (event) {
+        event.preventDefault();
+        var file = event.target.files[0];
+        uploadImage(file);
+    };
 
-            $scope.image = function (event) {
-                event.preventDefault();
-                var file = event.target.files[0];
-                uploadImage(file);
-            };
+    function uploadImage(file) {
+        var random = parseInt(Math.random() * 1000000);
+        var refStorageSubmit = storageServiceSubmit.ref('uploads').child(random.toString()).child(file.name);
+        var uploadTask = refStorageSubmit.put(file);
 
-            function uploadImage(file) {
-                var random = parseInt(Math.random() * 1000000);
-                var refStorageSubmit = storageServiceSubmit.ref('uploads').child(random.toString()).child(file.name);
-                var uploadTask = refStorageSubmit.put(file);
-
-                uploadTask.on('state_changed', null, function (error) {
-                    console.error('Upload error:', error);
-                }, function () {
-                  3
-
-                    listSubmit.$add(imageData).then(function (ref) {
-                        swal("Success", "Your image has been uploaded", "success");
-                    });
-                });
-            }
+        uploadTask.on('state_changed', null, function (error) {
+            console.error('Upload error:', error);
+        }, function () {
+            listSubmit.$add(imageData).then(function (ref) {
+                swal("Success", "Your image has been uploaded", "success");
+            });
         });
-    </script>
+    }
+}]);
+</script>
 
-    <script>
-        (function () {
-            'use strict';
+<script>
+    (function () {
+        'use strict';
 
-            angular
-                .module('myApp')
-                .directive('customOnChange', customOnChange);
+        angular
+            .module('myApp')
+            .directive('customOnChange', customOnChange);
 
-            function customOnChange() {
-                return {
-                    restrict: 'A',
-                    link: function (scope, element, attrs) {
-                        var onChangeHandler = scope.$eval(attrs.customOnChange);
-                        element.bind('change', onChangeHandler);
-                    }
-                };
-            }
-        })();
-    </script>
+        function customOnChange() {
+            return {
+                restrict: 'A',
+                link: function (scope, element, attrs) {
+                    var onChangeHandler = scope.$eval(attrs.customOnChange);
+                    element.bind('change', onChangeHandler);
+                }
+            };
+        }
+    })();
+</script>
+
 
 </body>
 
