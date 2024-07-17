@@ -815,17 +815,16 @@ for(let img of images) {
 
 
 
-<script>
+
+    <script>
 var app = angular.module('myApp', ['firebase']);
 
-app.controller('imagesController', function ($scope, $firebaseArray, $window, $location) {
-    // Retrieve search query from URL parameter
-    var urlParams = new URLSearchParams($location.url());
-    $scope.searchQuery = urlParams.get('search') || '';
+app.controller('imagesController', function ($scope, $firebaseArray, $window) {
       $scope.vm = this;
     $scope.vm.images = [];
     // Set dynamicField2Value to the logged user's name retrieved from local storage
-    $scope.dynamicField2Value = localStorage.getItem('name');
+$scope.sortOrder = ''; // No default sorting order 
+   $scope.dynamicField2Value = localStorage.getItem('name');
 
 
 
