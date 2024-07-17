@@ -496,8 +496,8 @@ button, input, select, textarea {
 <!-- Container for search input and microphone icon -->
 <div style="display: flex; align-items: center;">
     <!-- Input field for search with voice recognition -->
-   <input type="text" ng-model="searchQuery" placeholder="Search by product" id="topBtn" ng-click="productNameFilter = ''; activeTab = 0; searchQuery = '';">
- 
+    <input type="text" ng-model="searchQuery" placeholder="Search by product" id="topBtn" ng-click="productNameFilter = ''; activeTab = 0; searchQuery = '';">
+    
     <!-- Use a microphone icon with animation instead of the button -->
     <!-- Logout button -->
     <div style="    color: black;
@@ -819,10 +819,7 @@ for(let img of images) {
     <script>
 var app = angular.module('myApp', ['firebase']);
 
-app.controller('imagesController', function ($scope, $firebaseArray, $window, $location) {
-    // Retrieve search query from URL parameter
-    var urlParams = new URLSearchParams($location.url());
-    $scope.searchQuery = urlParams.get('search') || '';
+app.controller('imagesController', function ($scope, $firebaseArray, $window) {
       $scope.vm = this;
     $scope.vm.images = [];
     // Set dynamicField2Value to the logged user's name retrieved from local storage
