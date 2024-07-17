@@ -880,6 +880,18 @@ for(let img of images) {
             console.log("Data submitted to Firebase");
         };
 
+
+   $scope.searchByURL = function (url) {
+        if (url) {
+            $scope.vm.images = $scope.vm.images.filter(function (image) {
+                return image.url.toLowerCase().includes(url.toLowerCase());
+            });
+        } else {
+            var listFetch = $firebaseArray(databaseFetch);
+            $scope.vm.images = listFetch;
+        }
+    };
+
         $scope.logout = function () {
             localStorage.removeItem('name');
             localStorage.removeItem('mobile');
