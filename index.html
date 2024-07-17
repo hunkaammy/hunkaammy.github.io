@@ -816,92 +816,74 @@ for(let img of images) {
 
 
 
-    <script>
-var app = angular.module('myApp', ['firebase']);
+   <script>
+        var app = angular.module('myApp', ['firebase']);
 
-app.controller('imagesController', function ($scope, $firebaseArray, $window) {
-      $scope.vm = this;
-    $scope.vm.images = [];
-    // Set dynamicField2Value to the logged user's name retrieved from local storage
-$scope.sortOrder = ''; // No default sorting order 
-   $scope.dynamicField2Value = localStorage.getItem('name');
+        app.controller('imagesController', function ($scope, $firebaseArray, $window, $location) {
+            $scope.vm = this;
+            $scope.vm.images = [];
+            $scope.sortOrder = ''; // No default sorting order 
+            $scope.dynamicField2Value = localStorage.getItem('name');
 
+            var firebaseConfigFetch = {
+                apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
+                authDomain: "htshop-e9c51.firebaseapp.com",
+                databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com",
+                projectId: "htshop-e9c51",
+                storageBucket: "htshop-e9c51.appspot.com",
+                messagingSenderId: "653137640907",
+                appId: "1:653137640907:web:672fd6a9e85ca448a70a4e",
+                measurementId: "G-FJ4Q0FHBEG"
+            };
 
-
-
-    var firebaseConfigFetch = {
-        apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
-        authDomain: "htshop-e9c51.firebaseapp.com",
-        databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com",
-        projectId: "htshop-e9c51",
-        storageBucket: "htshop-e9c51.appspot.com",
-        messagingSenderId: "653137640907",
-        appId: "1:653137640907:web:672fd6a9e85ca448a70a4e",
-        measurementId: "G-FJ4Q0FHBEG"
-    };
-
-    var firebaseConfigSubmit = {
-        apiKey: "AIzaSyAMFjDnZaszneoR6nO8bmXUxwZJplLvNfU",
-        authDomain: "notes-12519.firebaseapp.com",
-        databaseURL: "https://notes-12519-default-rtdb.firebaseio.com",
-        projectId: "notes-12519",
-        storageBucket: "notes-12519.appspot.com",
-        messagingSenderId: "1073774450189",
-        appId: "1:1073774450189:web:0b6d4a9f95823abbf36744",
-        measurementId: "G-GZXYCJ33TR"
-    };
+            var firebaseConfigSubmit = {
+                apiKey: "AIzaSyAMFjDnZaszneoR6nO8bmXUxwZJplLvNfU",
+                authDomain: "notes-12519.firebaseapp.com",
+                databaseURL: "https://notes-12519-default-rtdb.firebaseio.com",
+                projectId: "notes-12519",
+                storageBucket: "notes-12519.appspot.com",
+                messagingSenderId: "1073774450189",
+                appId: "1:1073774450189:web:0b6d4a9f95823abbf36744",
+                measurementId: "G-GZXYCJ33TR"
+            };
 
             var firebaseFetch = firebase.initializeApp(firebaseConfigFetch, 'fetchApp');
             var firebaseSubmit = firebase.initializeApp(firebaseConfigSubmit, 'submitApp');
 
-            
             var databaseFetch = firebaseFetch.database().ref();
             var listFetch = $firebaseArray(databaseFetch);
             $scope.vm.images = listFetch;
 
-            
             var databaseSubmit = firebaseSubmit.database().ref();
             var listSubmit = $firebaseArray(databaseSubmit);
-			
-			
 
- $scope.submitData = function(image, index) {
-        var inputa = image.url;
-        var inputb = $scope.dynamicField2Value; // Use dynamicField2Value
-        var inputc = image.field3;
-        var inputName = image.name;
-        var inputPrice = image.price;
-		var inputvideourl = image.videourl;
-        var inputoutofstock = image.outOfStock;
+            $scope.submitData = function (image, index) {
+                var inputa = image.url;
+                var inputb = $scope.dynamicField2Value;
+                var inputc = image.field3;
+                var inputName = image.name;
+                var inputPrice = image.price;
+                var inputvideourl = image.videourl;
+                var inputoutofstock = image.outOfStock;
 
-        var newDataKey = databaseSubmit.push().key;
+                var newDataKey = databaseSubmit.push().key;
 
-        databaseSubmit.child(newDataKey).set({
-            field1: inputa,
-            field2: inputb,
-            field3: inputc,
-            productName: inputName,
-            productPrice: inputPrice
-        });
+                databaseSubmit.child(newDataKey).set({
+                    field1: inputa,
+                    field2: inputb,
+                    field3: inputc,
+                    productName: inputName,
+                    productPrice: inputPrice
+                });
 
-        console.log("Data submitted to Firebase");
-    };
-	
-	
-	
+                console.log("Data submitted to Firebase");
+            };
 
-
- // Function to logout the user
-    $scope.logout = function() {
-        // Clear user session data (e.g., name stored in local storage)
-        localStorage.removeItem('name');
-		localStorage.removeItem('mobile');
-
-        // Redirect the user to the login page or any other page
-        // For example, redirecting to the homepage
-        $window.location.href = '/mywebsite/index.html'; // Change the URL as needed
-    };
-
+            $scope.logout = function () {
+                localStorage.removeItem('name');
+                localStorage.removeItem('mobile');
+                $window.location.href = '/mywebsite/index.html';
+            };
 
             $scope.image = function (event) {
                 event.preventDefault();
@@ -917,17 +899,35 @@ $scope.sortOrder = ''; // No default sorting order
                 uploadTask.on('state_changed', null, function (error) {
                     console.error('Upload error:', error);
                 }, function () {
-                  3
-
                     listSubmit.$add(imageData).then(function (ref) {
                         swal("Success", "Your image has been uploaded", "success");
                     });
                 });
             }
-        });
-    </script>
 
-    <script>
+            function applyFilters() {
+                var filterParams = $location.search();
+                var filteredImages = listFetch;
+
+                if (filterParams.productName) {
+                    filteredImages = filteredImages.filter(image => image.productName.toLowerCase().includes(filterParams.productName.toLowerCase()));
+                }
+                if (filterParams.minPrice) {
+                    filteredImages = filteredImages.filter(image => image.productPrice >= parseFloat(filterParams.minPrice));
+                }
+                if (filterParams.maxPrice) {
+                    filteredImages = filteredImages.filter(image => image.productPrice <= parseFloat(filterParams.maxPrice));
+                }
+
+                $scope.vm.images = filteredImages;
+            }
+
+            listFetch.$loaded().then(function() {
+                applyFilters();
+            });
+
+        });
+
         (function () {
             'use strict';
 
@@ -947,18 +947,13 @@ $scope.sortOrder = ''; // No default sorting order
         })();
     </script>
 
-</body>
-
-</html>
-<!-- partial -->
-  <script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js'></script>
-<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js'></script>
-<script src='https://fezvrasta.github.io/bootstrap-material-design/dist/js/material.min.js'></script>
-
-<script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js'></script>
-<script src='https://www.gstatic.com/firebasejs/3.4.1/firebase.js'></script>
-<script src='https://cdn.firebase.com/libs/angularfire/2.1.0/angularfire.min.js'></script>
+    <script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js'></script>
+    <script src='https://fezvrasta.github.io/bootstrap-material-design/dist/js/material.min.js'></script>
+    <script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js'></script>
+    <script src='https://www.gstatic.com/firebasejs/3.4.1/firebase.js'></script>
+    <script src='https://cdn.firebase.com/libs/angularfire/2.1.0/angularfire.min.js'></script>
 </body>
 </html>
 
