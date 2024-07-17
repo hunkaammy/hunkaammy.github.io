@@ -906,21 +906,21 @@ for(let img of images) {
             }
 
             function applyFilters() {
-                var filterParams = $location.search();
-                var filteredImages = listFetch;
+    var filterParams = $location.search();
+    var filteredImages = listFetch;
 
-                if (filterParams.productName) {
-                    filteredImages = filteredImages.filter(image => image.productName.toLowerCase().includes(filterParams.productName.toLowerCase()));
-                }
-                if (filterParams.minPrice) {
-                    filteredImages = filteredImages.filter(image => image.productPrice >= parseFloat(filterParams.minPrice));
-                }
-                if (filterParams.maxPrice) {
-                    filteredImages = filteredImages.filter(image => image.productPrice <= parseFloat(filterParams.maxPrice));
-                }
+    if (filterParams.productName && filterParams.productName !== '') {
+        filteredImages = filteredImages.filter(image => image.productName.toLowerCase().includes(filterParams.productName.toLowerCase()));
+    }
+    if (filterParams.minPrice) {
+        filteredImages = filteredImages.filter(image => image.productPrice >= parseFloat(filterParams.minPrice));
+    }
+    if (filterParams.maxPrice) {
+        filteredImages = filteredImages.filter(image => image.productPrice <= parseFloat(filterParams.maxPrice));
+    }
 
-                $scope.vm.images = filteredImages;
-            }
+    $scope.vm.images = filteredImages;
+}
 
             listFetch.$loaded().then(function() {
                 applyFilters();
