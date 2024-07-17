@@ -497,7 +497,8 @@ button, input, select, textarea {
 <div style="display: flex; align-items: center;">
     <!-- Input field for search with voice recognition -->
     <input type="text" ng-model="searchQuery" placeholder="Search by product" id="topBtn" ng-click="productNameFilter = ''; activeTab = 0; searchQuery = '';">
-    
+    <input type="text" ng-model="searchQuery" placeholder="Search by product" id="topBtn" ng-click="searchProduct(searchQuery)">
+
     <!-- Use a microphone icon with animation instead of the button -->
     <!-- Logout button -->
     <div style="    color: black;
@@ -862,7 +863,27 @@ $scope.sortOrder = ''; // No default sorting order
             
             var databaseSubmit = firebaseSubmit.database().ref();
             var listSubmit = $firebaseArray(databaseSubmit);
-			
+	
+	
+	$scope.searchProduct = function(query) {
+  // Call the search function with the query
+};
+
+// In your routes
+app.config(['$routeProvider', function($routeProvider) {
+  $routeProvider.
+  when('/search/:query', {
+    templateUrl: 'search.html',
+    controller: 'searchController'
+  }).
+  when(...)
+}]);
+
+// In your searchController
+app.controller('searchController', function($routeParams, $scope) {
+  $scope.searchQuery = $routeParams.query;
+  // Call the search function with the query
+});		
 			
 
  $scope.submitData = function(image, index) {
