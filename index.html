@@ -662,53 +662,38 @@ function scrollToTop() {
 
 
   <div class="tab-btns" onclick="scrollToTop()">
-  
-<div class="tab-btn"  ng-click="productNameFilter = ''; activeTab = 0; searchQuery = '';" ng-class="{ 'active': activeTab === 0 }">ALL PRODUCTS</div>
- <div class="tab-btn" ng-click="productNameFilter = 'OWN'; activeTab = 30; searchQuery = '';" ng-class="{ 'active': activeTab === 30 }">HT PRODUCTS</div>  
-
- <div class="tab-btn" ng-click="productNameFilter = 'PALNA'; activeTab = 29; searchQuery = '';" ng-class="{ 'active': activeTab === 29 }">PALNA</div>  
- <div class="tab-btn" ng-click="productNameFilter = 'WALKER'; activeTab = 5; searchQuery = '';" ng-class="{ 'active': activeTab === 5 }">WALKER</div>
-  
- <div class="tab-btn" ng-click="productNameFilter = 'UMBRELLA'; activeTab = 24; searchQuery = '';" ng-class="{ 'active': activeTab === 24 }">UMBRELLA</div>  
- <div class="tab-btn" ng-click="productNameFilter = 'LUNCH BOX'; activeTab = 28; searchQuery = '';" ng-class="{ 'active': activeTab === 28}">LUNCH BOX</div> 
- <div class="tab-btn" ng-click="productNameFilter = 'PENCIL BOX'; activeTab = 27; searchQuery = '';" ng-class="{ 'active': activeTab === 27}">PENCIL BOX</div>
-<div class="tab-btn" ng-click="productNameFilter = 'BOTTLE'; activeTab = 23; searchQuery = '';" ng-class="{ 'active': activeTab === 23 }">WATER BOTTLE</div>  
- 
-    <div class="tab-btn" ng-click="productNameFilter = 'HIGH QUALITY'; activeTab = 25; searchQuery = '';" ng-class="{ 'active': activeTab === 25 }">HIGH QUALITY INDIAN TOYS</div>  
- <div class="tab-btn" ng-click="productNameFilter = 'BOARD GAME'; activeTab = 26; searchQuery = '';" ng-class="{ 'active': activeTab === 26 }">BOARD GAME</div>  
- 
- <div class="tab-btn" ng-click="productNameFilter = 'INDIAN TOYS'; activeTab = 2; searchQuery = '';" ng-class="{ 'active': activeTab === 2 }">INDIAN TOYS</div>
- 
- 
- <div class="tab-btn" ng-click="productNameFilter = 'MIX'; activeTab = 9; searchQuery = '';" ng-class="{ 'active': activeTab === 9 }">MIX TOYS</div> 
-   <div class="tab-btn" ng-click="productNameFilter = 'BATTERY'; activeTab = 13; searchQuery = '';" ng-class="{ 'active': activeTab === 13 }">BATTERY OPERATED</div>
- 
-    <div class="tab-btn" ng-click="productNameFilter = 'REMOTE'; activeTab = 7; searchQuery = '';" ng-class="{ 'active': activeTab === 7 }">REMOTE CAR</div>
- <div class="tab-btn" ng-click="productNameFilter = 'EDUCATIONAL'; activeTab = 22; searchQuery = '';" ng-class="{ 'active': activeTab === 22 }">EDUCATIONAL TOYS</div> 
-	<div class="tab-btn" ng-click="productNameFilter = 'INTEX'; activeTab = 21; searchQuery = '';" ng-class="{ 'active': activeTab === 21 }">INTEX ITEMS</div>  
- 
-
-	<div class="tab-btn" ng-click="productNameFilter = 'STUDY TABLE'; activeTab = 20; searchQuery = '';" ng-class="{ 'active': activeTab === 20 }">STUDY TABLE</div>
-    <div class="tab-btn" ng-click="productNameFilter = 'SOFT TOY'; activeTab = 19; searchQuery = '';" ng-class="{ 'active': activeTab === 19 }">SOFT TOY</div>
-  <div class="tab-btn" ng-click="productNameFilter = 'SPORTS'; activeTab = 18; searchQuery = '';" ng-class="{ 'active': activeTab === 18 }">SPORTS ITEM</div>
-  <div class="tab-btn" ng-click="productNameFilter = 'LUMO'; activeTab = 10; searchQuery = '';" ng-class="{ 'active': activeTab === 10 }">LUMO PRODUCTS</div>
-    <div class="tab-btn" ng-click="productNameFilter = 'PATTA'; activeTab = 17; searchQuery = '';" ng-class="{ 'active': activeTab === 17 }">PATTA ITEMS</div>
-  <div class="tab-btn" ng-click="productNameFilter = 'GUN'; activeTab = 15; searchQuery = '';" ng-class="{ 'active': activeTab === 15 }">GUNS VARIETY</div>
-
-   <div class="tab-btn" ng-click="productNameFilter = 'STATIONERY'; activeTab = 1; searchQuery = '';" ng-class="{ 'active': activeTab === 1 }">STATIONERY ITEMS</div>
-
-  <div class="tab-btn" ng-click="productNameFilter = 'BLOCKS'; activeTab = 3; searchQuery = '';" ng-class="{ 'active': activeTab === 3 }">BLOCKS</div>
-  <div class="tab-btn" ng-click="productNameFilter = 'PALNA WALKER'; activeTab = 5; searchQuery = '';" ng-class="{ 'active': activeTab === 5 }">WALKER & PALNA</div>
-  <div class="tab-btn" ng-click="productNameFilter = 'RACKET'; activeTab = 6; searchQuery = '';" ng-class="{ 'active': activeTab === 6 }">RACKET</div>
-  <div class="tab-btn" ng-click="productNameFilter = 'DOLL'; activeTab = 8; searchQuery = '';" ng-class="{ 'active': activeTab === 8 }">DOLL</div>
- 
-  <div class="tab-btn" ng-click="productNameFilter = 'RIDDER'; activeTab = 11; searchQuery = '';" ng-class="{ 'active': activeTab === 11 }">MAGIC RIDDER</div>
-  <div class="tab-btn" ng-click="productNameFilter = 'FANCY'; activeTab = 12; searchQuery = '';" ng-class="{ 'active': activeTab === 12 }">FANCY ITEMS</div>
-
-  <div class="tab-btn" ng-click="productNameFilter = 'DOZEN'; activeTab = 14; searchQuery = '';" ng-class="{ 'active': activeTab === 14 }">DOZEN PACKING ITEMS</div>
-  <div class="tab-btn" ng-click="productNameFilter = 'GUN'; activeTab = 16; searchQuery = '';" ng-class="{ 'active': activeTab === 16 }">EMPTY</div>
-    </div>
-
+    <div class="tab-btn" ng-click="setTab('', 0)" ng-class="{ 'active': activeTab === 0 }">ALL PRODUCTS</div>
+    <div class="tab-btn" ng-click="setTab('OWN', 30)" ng-class="{ 'active': activeTab === 30 }">HT PRODUCTS</div>  
+    <div class="tab-btn" ng-click="setTab('PALNA', 29)" ng-class="{ 'active': activeTab === 29 }">PALNA</div>  
+    <div class="tab-btn" ng-click="setTab('WALKER', 5)" ng-class="{ 'active': activeTab === 5 }">WALKER</div>
+    <div class="tab-btn" ng-click="setTab('UMBRELLA', 24)" ng-class="{ 'active': activeTab === 24 }">UMBRELLA</div>  
+    <div class="tab-btn" ng-click="setTab('LUNCH BOX', 28)" ng-class="{ 'active': activeTab === 28}">LUNCH BOX</div> 
+    <div class="tab-btn" ng-click="setTab('PENCIL BOX', 27)" ng-class="{ 'active': activeTab === 27}">PENCIL BOX</div>
+    <div class="tab-btn" ng-click="setTab('BOTTLE', 23)" ng-class="{ 'active': activeTab === 23 }">WATER BOTTLE</div>  
+    <div class="tab-btn" ng-click="setTab('HIGH QUALITY', 25)" ng-class="{ 'active': activeTab === 25 }">HIGH QUALITY INDIAN TOYS</div>  
+    <div class="tab-btn" ng-click="setTab('BOARD GAME', 26)" ng-class="{ 'active': activeTab === 26 }">BOARD GAME</div>  
+    <div class="tab-btn" ng-click="setTab('INDIAN TOYS', 2)" ng-class="{ 'active': activeTab === 2 }">INDIAN TOYS</div>
+    <div class="tab-btn" ng-click="setTab('MIX', 9)" ng-class="{ 'active': activeTab === 9 }">MIX TOYS</div> 
+    <div class="tab-btn" ng-click="setTab('BATTERY', 13)" ng-class="{ 'active': activeTab === 13 }">BATTERY OPERATED</div>
+    <div class="tab-btn" ng-click="setTab('REMOTE', 7)" ng-class="{ 'active': activeTab === 7 }">REMOTE CAR</div>
+    <div class="tab-btn" ng-click="setTab('EDUCATIONAL', 22)" ng-class="{ 'active': activeTab === 22 }">EDUCATIONAL TOYS</div> 
+    <div class="tab-btn" ng-click="setTab('INTEX', 21)" ng-class="{ 'active': activeTab === 21 }">INTEX ITEMS</div>  
+    <div class="tab-btn" ng-click="setTab('STUDY TABLE', 20)" ng-class="{ 'active': activeTab === 20 }">STUDY TABLE</div>
+    <div class="tab-btn" ng-click="setTab('SOFT TOY', 19)" ng-class="{ 'active': activeTab === 19 }">SOFT TOY</div>
+    <div class="tab-btn" ng-click="setTab('SPORTS', 18)" ng-class="{ 'active': activeTab === 18 }">SPORTS ITEM</div>
+    <div class="tab-btn" ng-click="setTab('LUMO', 10)" ng-class="{ 'active': activeTab === 10 }">LUMO PRODUCTS</div>
+    <div class="tab-btn" ng-click="setTab('PATTA', 17)" ng-class="{ 'active': activeTab === 17 }">PATTA ITEMS</div>
+    <div class="tab-btn" ng-click="setTab('GUN', 15)" ng-class="{ 'active': activeTab === 15 }">GUNS VARIETY</div>
+    <div class="tab-btn" ng-click="setTab('STATIONERY', 1)" ng-class="{ 'active': activeTab === 1 }">STATIONERY ITEMS</div>
+    <div class="tab-btn" ng-click="setTab('BLOCKS', 3)" ng-class="{ 'active': activeTab === 3 }">BLOCKS</div>
+    <div class="tab-btn" ng-click="setTab('PALNA WALKER', 5)" ng-class="{ 'active': activeTab === 5 }">WALKER & PALNA</div>
+    <div class="tab-btn" ng-click="setTab('RACKET', 6)" ng-class="{ 'active': activeTab === 6 }">RACKET</div>
+    <div class="tab-btn" ng-click="setTab('DOLL', 8)" ng-class="{ 'active': activeTab === 8 }">DOLL</div>
+    <div class="tab-btn" ng-click="setTab('RIDDER', 11)" ng-class="{ 'active': activeTab === 11 }">MAGIC RIDDER</div>
+    <div class="tab-btn" ng-click="setTab('FANCY', 12)" ng-class="{ 'active': activeTab === 12 }">FANCY ITEMS</div>
+    <div class="tab-btn" ng-click="setTab('DOZEN', 14)" ng-class="{ 'active': activeTab === 14 }">DOZEN PACKING ITEMS</div>
+    <div class="tab-btn" ng-click="setTab('GUN', 16)" ng-class="{ 'active': activeTab === 16 }">EMPTY</div>
+</div>
 <body ng-controller="imagesController as vm">
 
 
@@ -824,15 +809,11 @@ for(let img of images) {
     <script>
 var app = angular.module('myApp', ['firebase']);
 
-app.controller('imagesController', function ($scope, $firebaseArray, $window) {
-      $scope.vm = this;
+app.controller('imagesController', function ($scope, $firebaseArray, $window, $location) {
+    $scope.vm = this;
     $scope.vm.images = [];
-    // Set dynamicField2Value to the logged user's name retrieved from local storage
-$scope.sortOrder = ''; // No default sorting order 
-   $scope.dynamicField2Value = localStorage.getItem('name');
-
-
-
+    $scope.sortOrder = ''; // No default sorting order 
+    $scope.dynamicField2Value = localStorage.getItem('name');
 
     var firebaseConfigFetch = {
         apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
@@ -856,62 +837,82 @@ $scope.sortOrder = ''; // No default sorting order
         measurementId: "G-GZXYCJ33TR"
     };
 
-            var firebaseFetch = firebase.initializeApp(firebaseConfigFetch, 'fetchApp');
-            var firebaseSubmit = firebase.initializeApp(firebaseConfigSubmit, 'submitApp');
+    var firebaseFetch = firebase.initializeApp(firebaseConfigFetch, 'fetchApp');
+    var firebaseSubmit = firebase.initializeApp(firebaseConfigSubmit, 'submitApp');
 
-            
-            var databaseFetch = firebaseFetch.database().ref();
-            var listFetch = $firebaseArray(databaseFetch);
-            $scope.vm.images = listFetch;
+    var databaseFetch = firebaseFetch.database().ref();
+    var listFetch = $firebaseArray(databaseFetch);
+    $scope.vm.images = listFetch;
 
-            
-            var databaseSubmit = firebaseSubmit.database().ref();
-            var listSubmit = $firebaseArray(databaseSubmit);
-			
-			
+    var databaseSubmit = firebaseSubmit.database().ref();
+    var listSubmit = $firebaseArray(databaseSubmit);
 
- $scope.submitData = function(image, index) {
-    var inputa = image.url;
-    var inputb = $scope.dynamicField2Value; // Use dynamicField2Value
-    var inputc = image.field3;
-    var inputName = image.name;
-    var inputPrice = image.price;
-    var inputvideourl = image.videourl;
-    var inputoutofstock = image.outOfStock;
+    // Function to parse URL parameters
+    function getUrlParameter(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        var results = regex.exec($location.absUrl());
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
 
-    // Get the current date and time
-    var currentDate = new Date();
+    // Get URL parameters
+    var filterParam = getUrlParameter('filter');
+    var tabParam = getUrlParameter('tab');
 
-    // Format date as DD-MM-YYYY
-    var day = String(currentDate.getDate()).padStart(2, '0');
-    var month = String(currentDate.getMonth() + 1).padStart(2, '0'); // January is 0!
-    var year = currentDate.getFullYear();
-    var submitDate = day + '-' + month + '-' + year;
+    // Set the scope variables based on URL parameters
+    if (filterParam && tabParam) {
+        $scope.productNameFilter = filterParam;
+        $scope.activeTab = parseInt(tabParam, 10);
+    }
 
-    // Format time as HH:MM AM/PM
-    var hours = currentDate.getHours();
-    var minutes = String(currentDate.getMinutes()).padStart(2, '0');
-    var ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    hours = hours ? hours : 12; // The hour '0' should be '12'
-    var submitTime = hours + ':' + minutes + ' ' + ampm;
+    // Define your tab click functions
+    $scope.setTab = function(filter, tab) {
+        $scope.productNameFilter = filter;
+        $scope.activeTab = tab;
+        $location.search('filter', filter);
+        $location.search('tab', tab);
+    };
 
-    var newDataKey = databaseSubmit.push().key;
+    $scope.submitData = function(image, index) {
+        var inputa = image.url;
+        var inputb = $scope.dynamicField2Value; // Use dynamicField2Value
+        var inputc = image.field3;
+        var inputName = image.name;
+        var inputPrice = image.price;
+        var inputvideourl = image.videourl;
+        var inputoutofstock = image.outOfStock;
 
+        // Get the current date and time
+        var currentDate = new Date();
 
+        // Format date as DD-MM-YYYY
+        var day = String(currentDate.getDate()).padStart(2, '0');
+        var month = String(currentDate.getMonth() + 1).padStart(2, '0'); // January is 0!
+        var year = currentDate.getFullYear();
+        var submitDate = day + '-' + month + '-' + year;
 
-    databaseSubmit.child(newDataKey).set({
-        field1: inputa,
-        field2: inputb,
-        field3: inputc,
-        productName: inputName,
-        productPrice: inputPrice,
-        submitDate: submitDate,
-        submitTime: submitTime
-    });
+        // Format time as HH:MM AM/PM
+        var hours = currentDate.getHours();
+        var minutes = String(currentDate.getMinutes()).padStart(2, '0');
+        var ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // The hour '0' should be '12'
+        var submitTime = hours + ':' + minutes + ' ' + ampm;
 
-    console.log("Data submitted to Firebase with date and time");
-};
+        var newDataKey = databaseSubmit.push().key;
+
+        databaseSubmit.child(newDataKey).set({
+            field1: inputa,
+            field2: inputb,
+            field3: inputc,
+            productName: inputName,
+            productPrice: inputPrice,
+            submitDate: submitDate,
+            submitTime: submitTime
+        });
+
+        console.log("Data submitted to Firebase with date and time");
+    };
 	
 	
 
