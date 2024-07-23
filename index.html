@@ -859,7 +859,7 @@ app.controller('imagesController', function ($scope, $firebaseArray, $window, $l
     var filterParam = getUrlParameter('filter');
     var tabParam = getUrlParameter('tab');
 
-    // Set default values if the parameters are not valid
+    // Apply URL parameters or set defaults
     $scope.productNameFilter = filterParam || ''; // Default to empty string if no filter
     $scope.activeTab = tabParam ? parseInt(tabParam, 10) : 0; // Default to tab 0 if no tab
 
