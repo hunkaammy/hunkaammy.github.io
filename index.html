@@ -869,27 +869,47 @@ $scope.sortOrder = ''; // No default sorting order
 			
 
  $scope.submitData = function(image, index) {
-        var inputa = image.url;
-        var inputb = $scope.dynamicField2Value; // Use dynamicField2Value
-        var inputc = image.field3;
-        var inputName = image.name;
-        var inputPrice = image.price;
-		var inputvideourl = image.videourl;
-        var inputoutofstock = image.outOfStock;
+    var inputa = image.url;
+    var inputb = $scope.dynamicField2Value; // Use dynamicField2Value
+    var inputc = image.field3;
+    var inputName = image.name;
+    var inputPrice = image.price;
+    var inputvideourl = image.videourl;
+    var inputoutofstock = image.outOfStock;
 
-        var newDataKey = databaseSubmit.push().key;
+    // Get the current date and time
+    var currentDate = new Date();
 
-        databaseSubmit.child(newDataKey).set({
-            field1: inputa,
-            field2: inputb,
-            field3: inputc,
-            productName: inputName,
-            productPrice: inputPrice
-        });
+    // Format date as DD-MM-YYYY
+    var day = String(currentDate.getDate()).padStart(2, '0');
+    var month = String(currentDate.getMonth() + 1).padStart(2, '0'); // January is 0!
+    var year = currentDate.getFullYear();
+    var submitDate = day + '-' + month + '-' + year;
 
-        console.log("Data submitted to Firebase");
-    };
-	
+    // Format time as HH:MM AM/PM
+    var hours = currentDate.getHours();
+    var minutes = String(currentDate.getMinutes()).padStart(2, '0');
+    var ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // The hour '0' should be '12'
+    var submitTime = hours + ':' + minutes + ' ' + ampm;
+
+    var newDataKey = databaseSubmit.push().key;
+
+
+
+    databaseSubmit.child(newDataKey).set({
+        field1: inputa,
+        field2: inputb,
+        field3: inputc,
+        productName: inputName,
+        productPrice: inputPrice,
+        submitDate: submitDate,
+        submitTime: submitTime
+    });
+
+    console.log("Data submitted to Firebase with date and time");
+};
 	
 	
 
