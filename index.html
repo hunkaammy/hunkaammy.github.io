@@ -859,11 +859,9 @@ app.controller('imagesController', function ($scope, $firebaseArray, $window, $l
     var filterParam = getUrlParameter('filter');
     var tabParam = getUrlParameter('tab');
 
-    // Set the scope variables based on URL parameters
-    if (filterParam && tabParam) {
-        $scope.productNameFilter = filterParam;
-        $scope.activeTab = parseInt(tabParam, 10);
-    }
+    // Set default values if the parameters are not valid
+    $scope.productNameFilter = filterParam || ''; // Default to empty string if no filter
+    $scope.activeTab = tabParam ? parseInt(tabParam, 10) : 0; // Default to tab 0 if no tab
 
     // Define your tab click functions
     $scope.setTab = function(filter, tab) {
