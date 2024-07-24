@@ -859,11 +859,9 @@ app.controller('imagesController', function ($scope, $firebaseArray, $window, $l
     var filterParam = getUrlParameter('filter');
     var tabParam = getUrlParameter('tab');
 
-    // Set the scope variables based on URL parameters
-    if (filterParam && tabParam) {
-        $scope.productNameFilter = filterParam;
-        $scope.activeTab = parseInt(tabParam, 10);
-    }
+    // Set default values and scope variables based on URL parameters
+    $scope.productNameFilter = filterParam || ''; // Default to empty string if no filter
+    $scope.activeTab = isNaN(tabParam) ? 0 : parseInt(tabParam, 10); // Default to 0 if invalid tab
 
     // Define your tab click functions
     $scope.setTab = function(filter, tab) {
@@ -872,6 +870,8 @@ app.controller('imagesController', function ($scope, $firebaseArray, $window, $l
         $location.search('filter', filter);
         $location.search('tab', tab);
     };
+
+    // Optionally, you can add logic to filter `vm.images` based on `productNameFilter` and `activeTab` here
 
     $scope.submitData = function(image, index) {
         var inputa = image.url;
