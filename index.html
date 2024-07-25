@@ -486,6 +486,21 @@ button, input, select, textarea {
     cursor: pointer;
     font-size: 16px;
 }
+
+
+
+
+    #topBtn {
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+
+    /* Style the datalist options */
+    option {
+      padding: 10px;
+    }
     </style>
 
 
@@ -496,8 +511,19 @@ button, input, select, textarea {
 <!-- Container for search input and microphone icon -->
 <div style="display: flex; align-items: center;">
     <!-- Input field for search with voice recognition -->
-    <input type="text" ng-model="searchQuery" placeholder="Search by product" id="topBtn" ng-click="productNameFilter = ''; activeTab = 0; searchQuery = '';">
-    
+    <!-- Input field with datalist for autocomplete -->
+  <input type="text" ng-model="searchQuery" placeholder="Search by product" id="topBtn" 
+         ng-click="resetFilters()" list="productNames">
+
+  <!-- Datalist element with hardcoded options -->
+  <datalist id="productNames">
+    <option value="REMOTE CAR"></option>
+    <option value="JCB"></option>
+    <option value="CLAY"></option>
+    <option value="SLIME"></option>
+    <option value="GUN"></option>
+	<option value="BASKET BALL"></option>
+  </datalist> 
     <!-- Use a microphone icon with animation instead of the button -->
     <!-- Logout button -->
     <div style="    color: black;
@@ -870,6 +896,12 @@ app.controller('imagesController', function ($scope, $firebaseArray, $window, $l
         $location.search('filter', filter);
         $location.search('tab', tab);
     };
+	
+	    $scope.resetFilters = function() {
+          $scope.productNameFilter = '';
+          $scope.activeTab = 0;
+          $scope.searchQuery = '';
+        };
 
     // Optionally, you can add logic to filter `vm.images` based on `productNameFilter` and `activeTab` here
 
