@@ -1,0 +1,255 @@
+[
+  {
+    "invoiceNumber": "1",
+    "date": "2024-09-06",
+    "customerName": "sameer (janjgir)",
+    "customerTownVillage": "janjgir",
+    "customerMobileNumber": "9827734802",
+    "customerTransport": "jivesh",
+    "transportCharge": 0,
+    "comment": "",
+    "timestamp": "",
+    "items": [
+      {
+        "description": "CAR",
+        "quantity": 2,
+        "unit": "",
+        "price": 220,
+        "discount": 2
+      },
+      {
+        "description": "jcb",
+        "quantity": 4,
+        "unit": "",
+        "price": 440,
+        "discount": 0
+      },
+      {
+        "description": "",
+        "quantity": 1,
+        "unit": "",
+        "price": 0,
+        "discount": 0
+      }
+    ],
+    "totalAmount": 2191.2
+  },
+  {
+    "invoiceNumber": "2",
+    "customerName": "sameer (janjgir)",
+    "date": "2024-09-07",
+    "time": "14:54",
+    "customerTownVillage": "janjgir",
+    "customerMobileNumber": "9827734802",
+    "customerTransport": "jivesh",
+    "transportCharge": 0,
+    "overallDiscount": 0,
+    "comment": "",
+    "items": []
+  },
+  {
+    "invoiceNumber": "3",
+    "customerName": "sameer (janjgir)",
+    "date": "2024-09-07",
+    "time": "14:58",
+    "customerTownVillage": "janjgir",
+    "customerMobileNumber": "9827734802",
+    "customerTransport": "jivesh",
+    "transportCharge": 0,
+    "overallDiscount": 0,
+    "comment": "",
+    "items": [
+      {
+        "hsn": "",
+        "description": "BIKE",
+        "quantity": "2",
+        "unit": "pc",
+        "price": "440",
+        "discount": "",
+        "total": " 880"
+      },
+      {
+        "hsn": "",
+        "description": "TRUCK",
+        "quantity": "2",
+        "unit": "PC",
+        "price": "220",
+        "discount": "",
+        "total": " 440"
+      },
+      {
+        "hsn": "",
+        "description": "DOCTOR SET",
+        "quantity": "3",
+        "unit": "PC",
+        "price": "440",
+        "discount": "",
+        "total": " 1320"
+      }
+    ]
+  },
+  {
+    "invoiceNumber": "4",
+    "customerName": "sameer (janjgir)",
+    "date": "2024-09-07",
+    "time": "15:08",
+    "customerTownVillage": "janjgir",
+    "customerMobileNumber": "9827734802",
+    "customerTransport": "jivesh",
+    "transportCharge": 0,
+    "overallDiscount": 0,
+    "comment": "",
+    "items": [
+      {
+        "hsn": "",
+        "description": "car",
+        "quantity": "2",
+        "unit": "pc",
+        "price": "100",
+        "discount": "",
+        "total": " 200"
+      },
+      {
+        "hsn": "",
+        "description": "bike",
+        "quantity": "6",
+        "unit": "pc",
+        "price": "440",
+        "discount": "",
+        "total": " 2640"
+      }
+    ]
+  },
+  {
+    "invoiceNumber": "5",
+    "customerName": "sameer (janjgir)",
+    "date": "2024-09-07",
+    "time": "15:20",
+    "customerTownVillage": "janjgir",
+    "customerMobileNumber": "9827734802",
+    "customerTransport": "jivesh",
+    "transportCharge": 0,
+    "overallDiscount": 0,
+    "comment": "",
+    "items": [
+      {
+        "hsn": "",
+        "description": "remote car",
+        "quantity": "2",
+        "unit": "pc",
+        "price": "100",
+        "discount": "",
+        "total": " 200"
+      },
+      {
+        "hsn": "",
+        "description": "",
+        "quantity": "",
+        "unit": "",
+        "price": "",
+        "discount": "",
+        "total": ""
+      }
+    ]
+  },
+  {
+    "invoiceNumber": "6",
+    "customerName": "sameer (janjgir)",
+    "date": "2024-09-07",
+    "time": "15:20",
+    "customerTownVillage": "janjgir",
+    "customerMobileNumber": "9827734802",
+    "customerTransport": "jivesh",
+    "transportCharge": 0,
+    "overallDiscount": 0,
+    "comment": "",
+    "items": [
+      {
+        "hsn": "",
+        "description": "truckl",
+        "quantity": "2",
+        "unit": "pc",
+        "price": "100",
+        "discount": "2",
+        "total": " 196"
+      }
+    ]
+  },
+  {
+    "invoiceNumber": "7",
+    "date": "2024-09-07",
+    "customerName": "sameer (janjgir)",
+    "customerTownVillage": "janjgir",
+    "customerMobileNumber": "9827734802",
+    "customerTransport": "jivesh",
+    "transportCharge": 100,
+    "comment": "",
+    "timestamp": "",
+    "items": [],
+    "totalAmount": 496
+  },
+  {
+    "invoiceNumber": "8",
+    "date": "2024-09-07",
+    "customerName": "sameer (janjgir)",
+    "customerTownVillage": "janjgir",
+    "customerMobileNumber": "9827734802",
+    "customerTransport": "jivesh",
+    "transportCharge": 0,
+    "comment": "",
+    "timestamp": "",
+    "items": [
+      {
+        "description": "remote car",
+        "quantity": 2,
+        "unit": "pc",
+        "price": 100,
+        "discount": 0
+      }
+    ],
+    "totalAmount": 200
+  },
+  {
+    "invoiceNumber": "9",
+    "customerName": "MANOJ GIFT GALLERY (AMBIKAPUR)",
+    "date": "2024-09-07",
+    "time": "18:03",
+    "customerTownVillage": "AMBIKAPUR",
+    "customerMobileNumber": "9827734802",
+    "customerTransport": "JAISHREE",
+    "transportCharge": 100,
+    "overallDiscount": 2,
+    "comment": "",
+    "items": [
+      {
+        "hsn": "",
+        "description": "remote car",
+        "quantity": 2,
+        "unit": "",
+        "price": 100,
+        "discount": 0,
+        "total": 200
+      },
+      {
+        "hsn": "",
+        "description": "train",
+        "quantity": 2,
+        "unit": "",
+        "price": 200,
+        "discount": 0,
+        "total": 400
+      },
+      {
+        "hsn": "",
+        "description": "jcb",
+        "quantity": 2,
+        "unit": "",
+        "price": 3300,
+        "discount": 0,
+        "total": 6600
+      }
+    ],
+    "totalAmount": 7200,
+    "grandTotal": 7298
+  }
+]
