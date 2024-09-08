@@ -7,26 +7,6 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Custom styles for better mobile responsiveness */
-        .table-responsive {
-            overflow-x: auto;
-        }
-        .modal-dialog {
-            max-width: 100%;
-            margin: 0;
-        }
-        .modal-content {
-            border-radius: 0;
-        }
-        @media (max-width: 767.98px) {
-            .modal-dialog {
-                margin: 0;
-                padding: 0;
-            }
-            .modal-content {
-                border-radius: 0;
-            }
-        }
         .modal-header-info {
             text-align: center;
             margin-bottom: 20px;
@@ -40,7 +20,7 @@
             font-size: 1rem;
         }
         .discount-section {
-            display: none; /* Hidden by default */
+            /* Always show the discount section */
         }
     </style>
 </head>
@@ -72,6 +52,9 @@
           <p><strong>Customer Name:</strong> <span id="customerName"></span></p>
           <p><strong>Date:</strong> <span id="invoiceDate"></span></p>
           <p><strong>Time:</strong> <span id="invoiceTime"></span></p>
+          <p><strong>Customer Town/Village:</strong> <span id="customerTownVillage"></span></p>
+          <p><strong>Customer Mobile Number:</strong> <span id="customerMobileNumber"></span></p>
+          <p><strong>Customer Transport:</strong> <span id="customerTransport"></span></p>
         </div>
 
         <!-- Invoice Items Table -->
@@ -93,7 +76,7 @@
           </table>
         </div>
 
-        <!-- Conditional Sections -->
+        <!-- Always Show Discount Section -->
         <div class="discount-section" id="discountSection">
             <p><strong>Overall Discount:</strong> <span id="overallDiscount"></span></p>
         </div>
@@ -140,9 +123,10 @@
     function showInvoiceDetails(invoice) {
         const invoiceItems = document.getElementById('invoiceItems');
         const priceAfterDiscountHeader = document.getElementById('priceAfterDiscountHeader');
-        const transportChargeElem = document.getElementById('transportCharge');
-        const overallDiscountSection = document.getElementById('discountSection');
         const overallDiscountElem = document.getElementById('overallDiscount');
+        const discountSection = document.getElementById('discountSection');
+        const transportChargeElem = document.getElementById('transportCharge');
+        
         invoiceItems.innerHTML = '';
         
         // Check if there is any priceAfterDiscount data to display
@@ -151,8 +135,13 @@
         // Conditionally show the Price After Discount column
         priceAfterDiscountHeader.style.display = hasPriceAfterDiscount ? '' : 'none';
 
-        // Conditionally show the Overall Discount section
-        overallDiscountSection.style.display = (invoice.overallDiscount && invoice.overallDiscount > 0) ? '' : 'none';
+        // Show the Overall Discount section if discount is greater than 0
+        if (parseFloat(invoice.overallDiscount) > 0) {
+            overallDiscountElem.textContent = formatPercentage(invoice.overallDiscount) || 'N/A';
+            discountSection.style.display = '';
+        } else {
+            discountSection.style.display = 'none';
+        }
 
         invoice.items.forEach((item, index) => {
             const row = document.createElement('tr');
@@ -174,8 +163,10 @@
         document.getElementById('customerName').textContent = invoice.customerName || 'N/A';
         document.getElementById('invoiceDate').textContent = invoice.date || 'N/A';
         document.getElementById('invoiceTime').textContent = invoice.time || 'N/A';
-        transportChargeElem.textContent = formatCurrency(invoice.transportCharge) || 'N/A'; // Use transportCharge from JSON
-        overallDiscountElem.textContent = formatCurrency(invoice.overallDiscount) || 'N/A'; // Use overallDiscount from JSON
+        document.getElementById('customerTownVillage').textContent = invoice.customerTownVillage || 'N/A';
+        document.getElementById('customerMobileNumber').textContent = invoice.customerMobileNumber || 'N/A';
+        document.getElementById('customerTransport').textContent = invoice.customerTransport || 'N/A';
+        document.getElementById('transportCharge').textContent = formatCurrency(invoice.transportCharge) || 'N/A';
         document.getElementById('totalAmount').textContent = formatCurrency(invoice.totalAmount) || 'N/A'; // Use totalAmount from JSON
         document.getElementById('grandTotal').textContent = formatCurrency(invoice.grandTotal) || 'N/A';
     }
@@ -183,6 +174,11 @@
     // Function to format numbers as currency with RS.
     function formatCurrency(amount) {
         return `RS. ${parseFloat(amount).toFixed(2)}`;
+    }
+
+    // Function to format numbers as percentages.
+    function formatPercentage(amount) {
+        return `${parseFloat(amount).toFixed(2)}%`;
     }
 
     // Function to calculate the "Number" column (price * 2) and add "NO." prefix after numeric value
