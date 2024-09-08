@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Viewer</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom styles for better mobile responsiveness */
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .modal-dialog {
+            max-width: 100%;
+            margin: 0;
+        }
+        .modal-content {
+            border-radius: 0;
+        }
+        @media (max-width: 767.98px) {
+            .modal-dialog {
+                margin: 0;
+                padding: 0;
+            }
+            .modal-content {
+                border-radius: 0;
+            }
+        }
+        .modal-header-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .modal-header-info .store {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        .modal-header-info .storedisc,
+        .modal-header-info .gst {
+            font-size: 1rem;
+        }
+        .discount-section {
+            display: none; /* Hidden by default */
+        }
+    </style>
+</head>
+<body>
+
+<h1 class="text-center my-4">Invoice List</h1>
+<ul id="customerList" class="list-group mb-4"></ul>
+
+<!-- Modal -->
+<div class="modal fade" id="invoiceModal" tabindex="-1" aria-labelledby="invoiceModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="invoiceModalLabel">Invoice Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Header Information Inside Modal -->
+        <div class="modal-header-info">
+            <div class="store">HINDUSTAN TOYS</div>
+            <div class="storedisc">SHOP NO. E-4, VRINDAVAN PARISAR, <br> TELIPARA, BILASPUR (C.G)</div>
+            <br>
+            <div class="gst"><b>GSTIN: 22AKMPM8309A1ZG</b> <br> Composition Dealer - <br> Not eligible to collect tax on supplies.</div>
+        </div>
+
+        <!-- Invoice Info -->
+        <div class="mb-3">
+          <p><strong>Invoice Number:</strong> <span id="invoiceNumber"></span></p>
+          <p><strong>Customer Name:</strong> <span id="customerName"></span></p>
+          <p><strong>Date:</strong> <span id="invoiceDate"></span></p>
+          <p><strong>Time:</strong> <span id="invoiceTime"></span></p>
+        </div>
+
+        <!-- Invoice Items Table -->
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th>Description</th>
+                <th>Quantity</th>
+                <th>Unit</th>
+                <th>Price</th>
+                <th>Number</th> <!-- Column for Number -->
+                <th id="priceAfterDiscountHeader">Price After Discount</th> <!-- Conditionally shown column -->
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody id="invoiceItems"></tbody>
+          </table>
+        </div>
+
+        <!-- Conditional Sections -->
+        <div class="discount-section" id="discountSection">
+            <p><strong>Overall Discount:</strong> <span id="overallDiscount"></span></p>
+        </div>
+        
+        <p><strong>Transport Charge:</strong> <span id="transportCharge"></span></p> <!-- Added Transport Charge -->
+        <p><strong>Total Amount:</strong> <span id="totalAmount"></span></p>
+        <p><strong>Grand Total:</strong> <span id="grandTotal"></span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS and dependencies -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Fetch the JSON data from the URL
+    fetch('https://www.hindustantoys.in/invoices.json')
+    .then(response => response.json())
+    .then(data => {
+        const customerList = document.getElementById('customerList');
+        customerList.innerHTML = ''; // Clear any existing list items
+
+        // Loop through each invoice and add customer names to the list
+        data.forEach(invoice => {
+            const listItem = document.createElement('li');
+            listItem.textContent = invoice.customerName;
+            listItem.classList.add('list-group-item');
+            listItem.style.cursor = 'pointer';
+            
+            // On click, show full invoice details in modal
+            listItem.addEventListener('click', () => {
+                showInvoiceDetails(invoice);
+                const modal = new bootstrap.Modal(document.getElementById('invoiceModal'));
+                modal.show();
+            });
+            
+            customerList.appendChild(listItem);
+        });
+    })
+    .catch(error => console.error('Error fetching data:', error));
+
+    // Function to display invoice details in the modal
+    function showInvoiceDetails(invoice) {
+        const invoiceItems = document.getElementById('invoiceItems');
+        const priceAfterDiscountHeader = document.getElementById('priceAfterDiscountHeader');
+        const transportChargeElem = document.getElementById('transportCharge');
+        const overallDiscountSection = document.getElementById('discountSection');
+        const overallDiscountElem = document.getElementById('overallDiscount');
+        invoiceItems.innerHTML = '';
+        
+        // Check if there is any priceAfterDiscount data to display
+        const hasPriceAfterDiscount = invoice.items.some(item => item.priceAfterDiscount);
+
+        // Conditionally show the Price After Discount column
+        priceAfterDiscountHeader.style.display = hasPriceAfterDiscount ? '' : 'none';
+
+        // Conditionally show the Overall Discount section
+        overallDiscountSection.style.display = (invoice.overallDiscount && invoice.overallDiscount > 0) ? '' : 'none';
+
+        invoice.items.forEach((item, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${item.description || ''}</td>
+                <td>${item.quantity || ''}</td>
+                <td>${item.unit || ''}</td>
+                <td>${formatCurrency(item.price) || ''}</td>
+                <td>${addPrefixToNumber(item.price) || ''}</td> <!-- Updated Number column -->
+                ${hasPriceAfterDiscount ? `<td>${item.priceAfterDiscount || ''}</td>` : ''}
+                <td>${formatCurrency(item.total) || ''}</td> <!-- Total from JSON -->
+            `;
+            invoiceItems.appendChild(row);
+        });
+
+        // Fill in the invoice details in the modal
+        document.getElementById('invoiceNumber').textContent = invoice.invoiceNumber || 'N/A';
+        document.getElementById('customerName').textContent = invoice.customerName || 'N/A';
+        document.getElementById('invoiceDate').textContent = invoice.date || 'N/A';
+        document.getElementById('invoiceTime').textContent = invoice.time || 'N/A';
+        transportChargeElem.textContent = formatCurrency(invoice.transportCharge) || 'N/A'; // Use transportCharge from JSON
+        overallDiscountElem.textContent = formatCurrency(invoice.overallDiscount) || 'N/A'; // Use overallDiscount from JSON
+        document.getElementById('totalAmount').textContent = formatCurrency(invoice.totalAmount) || 'N/A'; // Use totalAmount from JSON
+        document.getElementById('grandTotal').textContent = formatCurrency(invoice.grandTotal) || 'N/A';
+    }
+
+    // Function to format numbers as currency with RS.
+    function formatCurrency(amount) {
+        return `RS. ${parseFloat(amount).toFixed(2)}`;
+    }
+
+    // Function to calculate the "Number" column (price * 2) and add "NO." prefix after numeric value
+    function addPrefixToNumber(price) {
+        const result = parseFloat(price) * 2;
+        return `${result} NO.`;
+    }
+</script>
+
+</body>
+</html>
