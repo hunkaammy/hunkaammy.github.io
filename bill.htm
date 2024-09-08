@@ -37,7 +37,7 @@
         <h5 class="modal-title" id="invoiceModalLabel">Invoice Details</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body" id="invoiceContent">
         <!-- Header Information Inside Modal -->
         <div class="modal-header-info">
             <div class="store">HINDUSTAN TOYS</div>
@@ -85,12 +85,18 @@
         <p><strong>Total Amount:</strong> <span id="totalAmount"></span></p>
         <p><strong>Grand Total:</strong> <span id="grandTotal"></span></p>
       </div>
+      <div class="modal-footer">
+        <!-- Button to Generate PDF -->
+        <button id="downloadPdf" class="btn btn-primary">Download PDF</button>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- Bootstrap JS and dependencies -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Include html2pdf.js library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
 
 <script>
     // Fetch the JSON data from the URL
@@ -169,22 +175,43 @@
         document.getElementById('transportCharge').textContent = formatCurrency(invoice.transportCharge) || 'N/A';
         document.getElementById('totalAmount').textContent = formatCurrency(invoice.totalAmount) || 'N/A'; // Use totalAmount from JSON
         document.getElementById('grandTotal').textContent = formatCurrency(invoice.grandTotal) || 'N/A';
+
+        // Setup the PDF generation functionality for this invoice
+        document.getElementById('downloadPdf').onclick = function() {
+            generatePdf();
+        };
     }
 
-    // Function to format numbers as currency with RS.
-    function formatCurrency(amount) {
-        return `RS. ${parseFloat(amount).toFixed(2)}`;
+    // Function to generate the PDF using html2pdf.js
+    function generatePdf() {
+        const element = document.getElementById('invoiceContent');
+        const opt = {
+            margin:       0.5,
+            filename:     'invoice.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        // Generate the PDF
+        html2pdf().from(element).set(opt).save();
     }
 
-    // Function to format numbers as percentages.
-    function formatPercentage(amount) {
-        return `${parseFloat(amount).toFixed(2)}%`;
+    // Function to format currency values
+    function formatCurrency(value) {
+        if (!value) return 'N/A';
+        return '₹' + parseFloat(value).toFixed(2);
     }
 
-    // Function to calculate the "Number" column (price * 2) and add "NO." prefix after numeric value
-    function addPrefixToNumber(price) {
-        const result = parseFloat(price) * 2;
-        return `${result} NO.`;
+    // Function to add a prefix to a number
+    function addPrefixToNumber(number) {
+        return 'No: ' + number;
+    }
+
+    // Function to format percentage values
+    function formatPercentage(value) {
+        if (!value) return '';
+        return parseFloat(value).toFixed(2) + '%';
     }
 </script>
 
