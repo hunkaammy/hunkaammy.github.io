@@ -48,47 +48,6 @@
     "items": []
   },
   {
-    "invoiceNumber": "3",
-    "customerName": "sameer (janjgir)",
-    "date": "2024-09-07",
-    "time": "14:58",
-    "customerTownVillage": "janjgir",
-    "customerMobileNumber": "9827734802",
-    "customerTransport": "jivesh",
-    "transportCharge": 0,
-    "overallDiscount": 0,
-    "comment": "",
-    "items": [
-      {
-        "hsn": "",
-        "description": "BIKE",
-        "quantity": "2",
-        "unit": "pc",
-        "price": "440",
-        "discount": "",
-        "total": " 880"
-      },
-      {
-        "hsn": "",
-        "description": "TRUCK",
-        "quantity": "2",
-        "unit": "PC",
-        "price": "220",
-        "discount": "",
-        "total": " 440"
-      },
-      {
-        "hsn": "",
-        "description": "DOCTOR SET",
-        "quantity": "3",
-        "unit": "PC",
-        "price": "440",
-        "discount": "",
-        "total": " 1320"
-      }
-    ]
-  },
-  {
     "invoiceNumber": "4",
     "customerName": "sameer (janjgir)",
     "date": "2024-09-07",
@@ -321,5 +280,31 @@
     ],
     "totalAmount": 2329,
     "grandTotal": 2329
+  },
+  {
+    "invoiceNumber": "12",
+    "customerName": "sameer (janjgir)",
+    "date": "2024-09-08",
+    "time": "18:50",
+    "customerTownVillage": "janjgir",
+    "customerMobileNumber": "9827734802",
+    "customerTransport": "jivesh",
+    "transportCharge": 100,
+    "overallDiscount": 0,
+    "comment": "",
+    "items": [
+      {
+        "hsn": "",
+        "description": "remote car",
+        "quantity": 2,
+        "unit": "pc",
+        "price": 100,
+        "discount": 0,
+        "priceAfterDiscount": "100.00",
+        "total": 200
+      }
+    ],
+    "totalAmount": 200,
+    "grandTotal": 300
   }
 ]
