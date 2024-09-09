@@ -1,0 +1,283 @@
+[
+  {
+    "invoiceNumber": "1",
+    "customerName": "sameer (janjgir)",
+    "date": "2024-09-09",
+    "time": "15:30",
+    "customerTownVillage": "janjgir",
+    "customerMobileNumber": "9827734802",
+    "customerTransport": "jivesh",
+    "transportCharge": 0,
+    "overallDiscount": 10,
+    "comment": "",
+    "items": [
+      {
+        "hsn": "",
+        "description": "remote car",
+        "quantity": 2,
+        "unit": "pc",
+        "price": 100,
+        "discount": 0,
+        "total": 200
+      }
+    ],
+    "totalAmount": 200,
+    "grandTotal": 190
+  },
+  {
+    "invoiceNumber": "2",
+    "customerName": "",
+    "date": "2024-09-09",
+    "time": "15:36",
+    "customerTownVillage": "Town/Village",
+    "customerMobileNumber": "Mobile Number",
+    "customerTransport": "Transport",
+    "transportCharge": 100,
+    "overallDiscountPercentage": 2,
+    "overallDiscountAmount": 4,
+    "comment": "",
+    "items": [
+      {
+        "hsn": "",
+        "description": "remote car",
+        "quantity": 2,
+        "unit": "",
+        "price": 100,
+        "discount": 0,
+        "total": 200
+      },
+      {
+        "hsn": "",
+        "description": "",
+        "quantity": 0,
+        "unit": "",
+        "price": 0,
+        "discount": 0,
+        "total": 0
+      }
+    ],
+    "totalAmount": 200,
+    "grandTotal": 296
+  },
+  {
+    "invoiceNumber": "3",
+    "customerName": "",
+    "date": "2024-09-09",
+    "time": "15:38",
+    "customerTownVillage": "Town/Village",
+    "customerMobileNumber": "Mobile Number",
+    "customerTransport": "Transport",
+    "transportCharge": 100,
+    "overallDiscountPercentage": 2,
+    "overallDiscountAmount": 4,
+    "comment": "",
+    "items": [
+      {
+        "hsn": "",
+        "description": "remote car",
+        "quantity": 2,
+        "unit": "pc",
+        "price": 100,
+        "discount": 0,
+        "total": 200
+      }
+    ],
+    "totalAmount": 196,
+    "grandTotal": 296
+  },
+  {
+    "invoiceNumber": "4",
+    "customerName": "sameer (janjgir)",
+    "date": "2024-09-09",
+    "time": "15:38",
+    "customerTownVillage": "janjgir",
+    "customerMobileNumber": "9827734802",
+    "customerTransport": "jivesh",
+    "transportCharge": 0,
+    "overallDiscountPercentage": 0,
+    "overallDiscountAmount": 0,
+    "comment": "",
+    "items": [
+      {
+        "hsn": "",
+        "description": "",
+        "quantity": 0,
+        "unit": "",
+        "price": 0,
+        "discount": 0,
+        "total": 0
+      }
+    ],
+    "totalAmount": 0,
+    "grandTotal": 0
+  },
+  {
+    "invoiceNumber": "5",
+    "customerName": "",
+    "date": "2024-09-09",
+    "time": "15:42",
+    "customerTownVillage": "Town/Village",
+    "customerMobileNumber": "Mobile Number",
+    "customerTransport": "Transport",
+    "transportCharge": 0,
+    "overallDiscountPercentage": 0,
+    "overallDiscountAmount": 0,
+    "comment": "",
+    "items": [
+      {
+        "hsn": "",
+        "description": "remote car",
+        "quantity": 2,
+        "unit": "pc",
+        "price": 100,
+        "discount": 2,
+        "total": 196
+      }
+    ],
+    "totalAmount": 196,
+    "grandTotal": 196
+  },
+  {
+    "invoiceNumber": "6",
+    "customerName": "",
+    "date": "2024-09-09",
+    "time": "15:43",
+    "customerTownVillage": "Town/Village",
+    "customerMobileNumber": "Mobile Number",
+    "customerTransport": "Transport",
+    "transportCharge": 0,
+    "overallDiscountPercentage": 0,
+    "overallDiscountAmount": 0,
+    "comment": "",
+    "items": [
+      {
+        "hsn": "",
+        "description": "remote car",
+        "quantity": 2,
+        "unit": "pc",
+        "price": 100,
+        "discount": 2,
+        "total": 196
+      },
+      {
+        "hsn": "",
+        "description": "bike",
+        "quantity": 6,
+        "unit": "pc",
+        "price": 440,
+        "discount": 2,
+        "total": 2587
+      },
+      {
+        "hsn": "",
+        "description": "tanker",
+        "quantity": 2,
+        "unit": "pc",
+        "price": 330,
+        "discount": 0.1,
+        "total": 659
+      },
+      {
+        "hsn": "",
+        "description": "sketch pen",
+        "quantity": 2,
+        "unit": "pc",
+        "price": 60,
+        "discount": 10,
+        "total": 108
+      }
+    ],
+    "totalAmount": 3550,
+    "grandTotal": 3550
+  },
+  {
+    "invoiceNumber": "7",
+    "customerName": "",
+    "date": "2024-09-09",
+    "time": "15:47",
+    "customerTownVillage": "Town/Village",
+    "customerMobileNumber": "Mobile Number",
+    "customerTransport": "Transport",
+    "transportCharge": 0,
+    "overallDiscountPercentage": 0,
+    "overallDiscountAmount": 0,
+    "comment": "",
+    "items": [
+      {
+        "hsn": "",
+        "description": "remote car",
+        "quantity": 2,
+        "unit": "pc",
+        "price": 100,
+        "discount": 2,
+        "total": 196,
+        "priceAfterDiscount": 192.08
+      }
+    ],
+    "totalAmount": 196,
+    "grandTotal": 196,
+    "priceAfterDiscount": 196
+  },
+  {
+    "invoiceNumber": "8",
+    "customerName": "",
+    "date": "2024-09-09",
+    "time": "15:49",
+    "customerTownVillage": "Town/Village",
+    "customerMobileNumber": "Mobile Number",
+    "customerTransport": "Transport",
+    "transportCharge": 0,
+    "overallDiscountPercentage": 0,
+    "overallDiscountAmount": 0,
+    "comment": "",
+    "items": [
+      {
+        "hsn": "",
+        "description": "remote car",
+        "quantity": 2,
+        "unit": "pc",
+        "price": 100,
+        "discount": 2,
+        "total": 196
+      },
+      {
+        "hsn": "",
+        "description": "bike",
+        "quantity": 2,
+        "unit": "pc",
+        "price": 660,
+        "discount": 2,
+        "total": 1294
+      }
+    ],
+    "totalAmount": 1490,
+    "grandTotal": 1490
+  },
+  {
+    "invoiceNumber": "9",
+    "customerName": "",
+    "date": "2024-09-09",
+    "time": "15:52",
+    "customerTownVillage": "Town/Village",
+    "customerMobileNumber": "Mobile Number",
+    "customerTransport": "Transport",
+    "transportCharge": "100.00",
+    "overallDiscountPercentage": 2,
+    "overallDiscountAmount": "3.52",
+    "comment": "",
+    "items": [
+      {
+        "hsn": "",
+        "description": "remote car",
+        "quantity": 2,
+        "unit": "pc",
+        "price": "100.00",
+        "discount": "12.00",
+        "priceAfterDiscount": "88.00",
+        "total": "176.00"
+      }
+    ],
+    "totalAmount": "172.48",
+    "grandTotal": "272.48"
+  }
+]
