@@ -2,320 +2,49 @@
   {
     "invoiceNumber": "1",
     "date": "2024-09-10",
-    "time": "11:54",
-    "customerName": "MANOJ GIFT GALLERY (AMBIKAPUR)",
-    "customerTownVillage": "AMBIKAPUR",
-    "customerMobileNumber": "N/A",
-    "customerTransport": "JAISHREE",
-    "transportCharge": 100,
+    "time": "15:26",
+    "customerName": "RINKU (BELGEHNA)",
+    "customerTownVillage": "BELGEHNA",
+    "customerMobileNumber": "7999038203",
+    "customerTransport": "MISHRA",
+    "transportCharge": 0,
     "comment": "",
-    "timestamp": "2024-09-10T11:54",
+    "timestamp": "2024-09-10T15:26",
     "items": [
       {
-        "description": "remote car",
-        "quantity": 2,
-        "unit": "pc",
-        "price": 200,
-        "discount": 2
-      },
-      {
-        "description": "",
-        "quantity": 0,
+        "description": "BULLET TRICYCLE",
+        "quantity": 4,
         "unit": "",
-        "price": 0,
+        "price": 985,
         "discount": 0
       }
     ],
-    "totalAmount": 392,
-    "grandTotal": 492,
+    "totalAmount": 3940,
+    "grandTotal": 3940,
     "overallDiscount": 0
   },
   {
     "invoiceNumber": "2",
     "date": "2024-09-10",
-    "time": "12:12",
-    "customerName": "MAYUR GENERAL (TAKHATPUR)",
-    "customerTownVillage": "TAKHATPUR",
-    "customerMobileNumber": "N/A",
-    "customerTransport": "JAI MATA DI",
-    "transportCharge": 100,
-    "comment": "",
-    "timestamp": "2024-09-10T12:12",
+    "time": "16:05",
+    "customerName": "SANJAY GENERAL (PENDRA)",
+    "customerTownVillage": "PENDRA",
+    "customerMobileNumber": "6265609872",
+    "customerTransport": "SHARDDHA",
+    "transportCharge": 0,
+    "comment": "SUPER NET",
+    "timestamp": "2024-09-10T16:05",
     "items": [
       {
-        "description": "remote car",
+        "description": "BIG THAR",
         "quantity": 1,
-        "unit": "pc",
-        "price": 100,
-        "discount": 2
-      },
-      {
-        "description": "jcb",
-        "quantity": 2,
-        "unit": "pc",
-        "price": 200,
-        "discount": 2
-      },
-      {
-        "description": "",
-        "quantity": 0,
         "unit": "",
-        "price": 0,
+        "price": 8000,
         "discount": 0
       }
     ],
-    "totalAmount": 490,
-    "grandTotal": 590,
+    "totalAmount": 8000,
+    "grandTotal": 8000,
     "overallDiscount": 0
-  },
-  {
-    "invoiceNumber": "3",
-    "date": "2024-09-10",
-    "time": "12:28",
-    "customerName": "MANOJ GIFT GALLERY (AMBIKAPUR)",
-    "customerTownVillage": "AMBIKAPUR",
-    "customerMobileNumber": "9827734802",
-    "customerTransport": "JAISHREE",
-    "transportCharge": 100,
-    "comment": "",
-    "timestamp": "2024-09-10T12:28",
-    "items": [
-      {
-        "description": "remote car",
-        "quantity": 2,
-        "unit": "pc",
-        "price": 100,
-        "discount": 2
-      },
-      {
-        "description": "bike",
-        "quantity": 4,
-        "unit": "pc",
-        "price": 440,
-        "discount": 2
-      },
-      {
-        "description": "",
-        "quantity": 0,
-        "unit": "",
-        "price": 0,
-        "discount": 0
-      }
-    ],
-    "totalAmount": 1843.97,
-    "grandTotal": 1943.97,
-    "overallDiscount": 4
-  },
-  {
-    "invoiceNumber": "4",
-    "date": "2024-09-10",
-    "time": "12:56",
-    "customerName": "sameer (janjgir)",
-    "customerTownVillage": "janjgir",
-    "customerMobileNumber": "N/A",
-    "customerTransport": "jivesh",
-    "transportCharge": 0,
-    "comment": "",
-    "timestamp": "2024-09-10T12:56",
-    "items": [
-      {
-        "description": "",
-        "quantity": 2,
-        "unit": "",
-        "price": 440,
-        "discount": 0
-      },
-      {
-        "description": "",
-        "quantity": 0,
-        "unit": "",
-        "price": 0,
-        "discount": 0
-      }
-    ],
-    "totalAmount": 880,
-    "grandTotal": 880,
-    "overallDiscount": 0
-  },
-  {
-    "invoiceNumber": "5",
-    "date": "2024-09-10",
-    "time": "12:57",
-    "customerName": "MAYUR GENERAL (TAKHATPUR)",
-    "customerTownVillage": "TAKHATPUR",
-    "customerMobileNumber": "N/A",
-    "customerTransport": "JAI MATA DI",
-    "transportCharge": 100,
-    "comment": "",
-    "timestamp": "2024-09-10T12:57",
-    "items": [
-      {
-        "description": "remote car",
-        "quantity": 2,
-        "unit": "pc",
-        "price": 100,
-        "discount": 2
-      },
-      {
-        "description": "bike",
-        "quantity": 3,
-        "unit": "pc",
-        "price": 30,
-        "discount": 2
-      },
-      {
-        "description": "jcb",
-        "quantity": 4,
-        "unit": "pc",
-        "price": 440,
-        "discount": 12
-      },
-      {
-        "description": "jcb",
-        "quantity": 6,
-        "unit": "pc",
-        "price": 200,
-        "discount": 2
-      }
-    ],
-    "totalAmount": 2978.91,
-    "grandTotal": 3078.91,
-    "overallDiscount": 1
-  },
-  {
-    "invoiceNumber": "6",
-    "customerName": "",
-    "date": "2024-09-10",
-    "time": "13:24",
-    "customerTownVillage": "Town/Village",
-    "customerMobileNumber": "Mobile Number",
-    "customerTransport": "Transport",
-    "transportCharge": "0.00",
-    "overallDiscountPercentage": 0,
-    "overallDiscountAmount": "0.00",
-    "comment": "",
-    "items": [
-      {
-        "hsn": "",
-        "description": "remtoe car",
-        "quantity": 2,
-        "unit": "pc",
-        "price": "300.00",
-        "discount": "0.00",
-        "priceAfterDiscount": "300.00",
-        "total": "600.00"
-      }
-    ],
-    "totalAmount": "600.00",
-    "grandTotal": "600.00"
-  },
-  {
-    "invoiceNumber": "7",
-    "date": "2024-09-10",
-    "time": "13:29",
-    "customerName": "sameer (janjgir)",
-    "customerTownVillage": "janjgir",
-    "customerMobileNumber": "N/A",
-    "customerTransport": "jivesh",
-    "transportCharge": 100,
-    "comment": "test working fine",
-    "timestamp": "2024-09-10T13:29",
-    "items": [
-      {
-        "description": "remote car",
-        "quantity": 3,
-        "unit": "pc",
-        "price": 200,
-        "discount": 0
-      }
-    ],
-    "totalAmount": 594,
-    "grandTotal": 694,
-    "overallDiscount": 1
-  },
-  {
-    "invoiceNumber": "8",
-    "date": "2024-09-10",
-    "time": "13:57",
-    "customerName": "sameer (janjgir)",
-    "customerTownVillage": "janjgir",
-    "customerMobileNumber": "N/A",
-    "customerTransport": "jivesh",
-    "transportCharge": 0,
-    "comment": "",
-    "timestamp": "2024-09-10T13:57",
-    "items": [
-      {
-        "description": "remote car",
-        "quantity": 2,
-        "unit": "pc",
-        "price": 100,
-        "discount": 10.2
-      },
-      {
-        "description": "jcb",
-        "quantity": 2,
-        "unit": "pc",
-        "price": 100,
-        "discount": 10.2
-      }
-    ],
-    "totalAmount": 359.2,
-    "grandTotal": 359.2,
-    "overallDiscount": 0
-  },
-  {
-    "invoiceNumber": "9",
-    "customerName": "RINKU GENERAL (BELGEHNA)",
-    "date": "2024-09-10",
-    "time": "13:59",
-    "customerTownVillage": "BELGEHNA",
-    "customerMobileNumber": "9827734802",
-    "customerTransport": "JAI MATA DI ",
-    "transportCharge": 0,
-    "overallDiscountPercentage": 0,
-    "overallDiscountAmount": 0,
-    "comment": "",
-    "items": [
-      {
-        "hsn": "",
-        "description": "TRICYCLE BUBBLET",
-        "quantity": 4,
-        "unit": "PC",
-        "price": 985,
-        "discount": 0,
-        "priceAfterDiscount": 985,
-        "total": 3940
-      }
-    ],
-    "totalAmount": 3940,
-    "grandTotal": 3940
-  },
-  {
-    "invoiceNumber": "10",
-    "customerName": "MANOJ GIFT GALLERY (AMBIKAPUR)",
-    "date": "2024-09-10",
-    "time": "14:12",
-    "customerTownVillage": "AMBIKAPUR",
-    "customerMobileNumber": "9827734802",
-    "customerTransport": "JAISHREE",
-    "transportCharge": 0,
-    "overallDiscountPercentage": 0,
-    "overallDiscountAmount": 0,
-    "comment": "",
-    "items": [
-      {
-        "hsn": "",
-        "description": "REMOTE CAR",
-        "quantity": 12,
-        "unit": "PC",
-        "price": 200,
-        "discount": 12,
-        "priceAfterDiscount": 176,
-        "total": 2112
-      }
-    ],
-    "totalAmount": 2112,
-    "grandTotal": 2112
   }
 ]
