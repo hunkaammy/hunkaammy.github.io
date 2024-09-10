@@ -290,5 +290,32 @@
     ],
     "totalAmount": 3940,
     "grandTotal": 3940
+  },
+  {
+    "invoiceNumber": "10",
+    "customerName": "MANOJ GIFT GALLERY (AMBIKAPUR)",
+    "date": "2024-09-10",
+    "time": "14:12",
+    "customerTownVillage": "AMBIKAPUR",
+    "customerMobileNumber": "9827734802",
+    "customerTransport": "JAISHREE",
+    "transportCharge": 0,
+    "overallDiscountPercentage": 0,
+    "overallDiscountAmount": 0,
+    "comment": "",
+    "items": [
+      {
+        "hsn": "",
+        "description": "REMOTE CAR",
+        "quantity": 12,
+        "unit": "PC",
+        "price": 200,
+        "discount": 12,
+        "priceAfterDiscount": 176,
+        "total": 2112
+      }
+    ],
+    "totalAmount": 2112,
+    "grandTotal": 2112
   }
 ]
