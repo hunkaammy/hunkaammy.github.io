@@ -52,9 +52,7 @@
           <p><strong>Customer Name:</strong> <span id="customerName"></span></p>
           <p><strong>Date:</strong> <span id="invoiceDate"></span></p>
           <p><strong>Time:</strong> <span id="invoiceTime"></span></p>
-          <p><strong>Customer Town/Village:</strong> <span id="customerTownVillage"></span></p>
-          <p><strong>Customer Mobile Number:</strong> <span id="customerMobileNumber"></span></p>
-          <p><strong>Customer Transport:</strong> <span id="customerTransport"></span></p>
+        
         </div>
 
         <!-- Invoice Items Table -->
@@ -68,7 +66,7 @@
                 <th>Unit</th>
                 <th>Price</th>
                 <th>Number</th> <!-- Column for Number -->
-                <th id="priceAfterDiscountHeader">Price After Discount</th> <!-- Conditionally shown column -->
+                <th id="priceAfterDiscountHeader">A/D</th> <!-- Conditionally shown column -->
                 <th>Total</th>
               </tr>
             </thead>
@@ -127,60 +125,58 @@
 
     // Function to display invoice details in the modal
     function showInvoiceDetails(invoice) {
-        const invoiceItems = document.getElementById('invoiceItems');
-        const priceAfterDiscountHeader = document.getElementById('priceAfterDiscountHeader');
-        const overallDiscountElem = document.getElementById('overallDiscount');
-        const discountSection = document.getElementById('discountSection');
-        const transportChargeElem = document.getElementById('transportCharge');
-        
-        invoiceItems.innerHTML = '';
-        
-        // Check if there is any priceAfterDiscount data to display
-        const hasPriceAfterDiscount = invoice.items.some(item => item.priceAfterDiscount);
+    const invoiceItems = document.getElementById('invoiceItems');
+    const priceAfterDiscountHeader = document.getElementById('priceAfterDiscountHeader');
+    const overallDiscountElem = document.getElementById('overallDiscount');
+    const discountSection = document.getElementById('discountSection');
+    const transportChargeElem = document.getElementById('transportCharge');
 
-        // Conditionally show the Price After Discount column
-        priceAfterDiscountHeader.style.display = hasPriceAfterDiscount ? '' : 'none';
+    invoiceItems.innerHTML = '';
+    
+    // Check if there is any priceAfterDiscount data and if it's different from the price
+    const hasPriceAfterDiscount = invoice.items.some(item => item.priceAfterDiscount && item.price !== item.priceAfterDiscount);
+    
+    // Conditionally show the Price After Discount column
+    priceAfterDiscountHeader.style.display = hasPriceAfterDiscount ? '' : 'none';
 
-        // Show the Overall Discount section if discount is greater than 0
-        if (parseFloat(invoice.overallDiscount) > 0) {
-            overallDiscountElem.textContent = formatPercentage(invoice.overallDiscount) || 'N/A';
-            discountSection.style.display = '';
-        } else {
-            discountSection.style.display = 'none';
-        }
-
-        invoice.items.forEach((item, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${index + 1}</td>
-                <td>${item.description || ''}</td>
-                <td>${item.quantity || ''}</td>
-                <td>${item.unit || ''}</td>
-                <td>${formatCurrency(item.price) || ''}</td>
-                <td>${addPrefixToNumber(item.price) || ''}</td> <!-- Updated Number column -->
-                ${hasPriceAfterDiscount ? `<td>${item.priceAfterDiscount || ''}</td>` : ''}
-                <td>${formatCurrency(item.total) || ''}</td> <!-- Total from JSON -->
-            `;
-            invoiceItems.appendChild(row);
-        });
-
-        // Fill in the invoice details in the modal
-        document.getElementById('invoiceNumber').textContent = invoice.invoiceNumber || 'N/A';
-        document.getElementById('customerName').textContent = invoice.customerName || 'N/A';
-        document.getElementById('invoiceDate').textContent = invoice.date || 'N/A';
-        document.getElementById('invoiceTime').textContent = invoice.time || 'N/A';
-        document.getElementById('customerTownVillage').textContent = invoice.customerTownVillage || 'N/A';
-        document.getElementById('customerMobileNumber').textContent = invoice.customerMobileNumber || 'N/A';
-        document.getElementById('customerTransport').textContent = invoice.customerTransport || 'N/A';
-        document.getElementById('transportCharge').textContent = formatCurrency(invoice.transportCharge) || 'N/A';
-        document.getElementById('totalAmount').textContent = formatCurrency(invoice.totalAmount) || 'N/A'; // Use totalAmount from JSON
-        document.getElementById('grandTotal').textContent = formatCurrency(invoice.grandTotal) || 'N/A';
-
-        // Setup the PDF generation functionality for this invoice
-        document.getElementById('downloadPdf').onclick = function() {
-            generatePdf();
-        };
+    // Show the Overall Discount section if discount is greater than 0
+    if (parseFloat(invoice.overallDiscount) > 0) {
+        overallDiscountElem.textContent = formatPercentage(invoice.overallDiscount) || 'N/A';
+        discountSection.style.display = '';
+    } else {
+        discountSection.style.display = 'none';
     }
+
+    invoice.items.forEach((item, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${item.description || ''}</td>
+            <td>${item.quantity || ''}</td>
+            <td>${item.unit || ''}</td>
+            <td>${formatCurrency(item.price) || ''}</td>
+            <td>${addPrefixToNumber(item.price) || ''}</td> <!-- Updated Number column -->
+            ${hasPriceAfterDiscount ? `<td>${item.priceAfterDiscount || ''}</td>` : ''}
+            <td>${formatCurrency(item.quantity * item.price) || ''}</td> <!-- Calculated Total -->
+        `;
+        invoiceItems.appendChild(row);
+    });
+
+    // Fill in the invoice details in the modal
+    document.getElementById('invoiceNumber').textContent = invoice.invoiceNumber || 'N/A';
+    document.getElementById('customerName').textContent = invoice.customerName || 'N/A';
+    document.getElementById('invoiceDate').textContent = invoice.date || 'N/A';
+    document.getElementById('invoiceTime').textContent = invoice.time || 'N/A';
+    document.getElementById('transportCharge').textContent = formatCurrency(invoice.transportCharge) || '₹0.00';
+    document.getElementById('totalAmount').textContent = formatCurrency(invoice.totalAmount || 0); // Use totalAmount from JSON
+    document.getElementById('grandTotal').textContent = formatCurrency(invoice.grandTotal || 0); // Use grandTotal from JSON
+
+    // Setup the PDF generation functionality for this invoice
+    document.getElementById('downloadPdf').onclick = function() {
+        generatePdf();
+    };
+}
+
 
     // Function to generate the PDF using html2pdf.js
     function generatePdf() {
