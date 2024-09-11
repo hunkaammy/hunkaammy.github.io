@@ -586,7 +586,7 @@
     "customerMobileNumber": "9179507894",
     "customerTransport": "JIVESH",
     "transportCharge": 0,
-    "comment": "",
+    "comment": "self",
     "timestamp": "2024-09-10T20:37",
     "items": [
       {
@@ -795,6 +795,65 @@
     ],
     "totalAmount": 8298,
     "grandTotal": 8298,
+    "overallDiscount": 0
+  },
+  {
+    "invoiceNumber": "8",
+    "date": "2024-09-11",
+    "time": "15:07",
+    "customerName": "CASH (.)",
+    "customerTownVillage": ".",
+    "customerMobileNumber": ".",
+    "customerTransport": ".",
+    "transportCharge": 0,
+    "comment": "UPI",
+    "timestamp": "2024-09-11T15:07",
+    "items": [
+      {
+        "description": "RIDDER",
+        "quantity": 1,
+        "unit": "",
+        "price": 1300,
+        "discount": 0
+      },
+      {
+        "description": "RACKET",
+        "quantity": 2,
+        "unit": "",
+        "price": 280,
+        "discount": 0
+      },
+      {
+        "description": "CYCLE BOY",
+        "quantity": 1,
+        "unit": "",
+        "price": 174,
+        "discount": 0
+      },
+      {
+        "description": "TAB",
+        "quantity": 1,
+        "unit": "",
+        "price": 156,
+        "discount": 0
+      },
+      {
+        "description": "PENCIL SET",
+        "quantity": 1,
+        "unit": "",
+        "price": 36,
+        "discount": 0
+      },
+      {
+        "description": "ERASER",
+        "quantity": 1,
+        "unit": "",
+        "price": 42,
+        "discount": 0
+      }
+    ],
+    "totalAmount": 2268,
+    "grandTotal": 2268,
     "overallDiscount": 0
   }
 ]
