@@ -855,5 +855,232 @@
     "totalAmount": 2268,
     "grandTotal": 2268,
     "overallDiscount": 0
+  },
+  {
+    "invoiceNumber": "9",
+    "customerName": "PREETAM  (PATHARIYA)",
+    "date": "2024-09-11",
+    "time": "18:27",
+    "customerTownVillage": "PATHARIYA",
+    "customerMobileNumber": "7987069848",
+    "customerTransport": "CHANDA AUTO",
+    "transportCharge": 0,
+    "overallDiscountPercentage": 0,
+    "overallDiscountAmount": 0,
+    "comment": "",
+    "items": [
+      {
+        "hsn": "",
+        "description": "JEEP",
+        "quantity": 6,
+        "unit": "",
+        "price": 85,
+        "discount": 0,
+        "priceAfterDiscount": 85,
+        "total": 510
+      },
+      {
+        "hsn": "",
+        "description": "'",
+        "quantity": 6,
+        "unit": "",
+        "price": 90,
+        "discount": 0,
+        "priceAfterDiscount": 90,
+        "total": 540
+      },
+      {
+        "hsn": "",
+        "description": "TRACTOR TROLLY",
+        "quantity": 6,
+        "unit": "",
+        "price": 90,
+        "discount": 0,
+        "priceAfterDiscount": 90,
+        "total": 540
+      },
+      {
+        "hsn": "",
+        "description": "JCB",
+        "quantity": 12,
+        "unit": "",
+        "price": 50,
+        "discount": 0,
+        "priceAfterDiscount": 50,
+        "total": 600
+      },
+      {
+        "hsn": "",
+        "description": "''",
+        "quantity": 3,
+        "unit": "",
+        "price": 125,
+        "discount": 0,
+        "priceAfterDiscount": 125,
+        "total": 375
+      },
+      {
+        "hsn": "",
+        "description": "DUMPER",
+        "quantity": 3,
+        "unit": "",
+        "price": 93,
+        "discount": 0,
+        "priceAfterDiscount": 93,
+        "total": 279
+      },
+      {
+        "hsn": "",
+        "description": "'",
+        "quantity": 3,
+        "unit": "",
+        "price": 90,
+        "discount": 0,
+        "priceAfterDiscount": 90,
+        "total": 270
+      },
+      {
+        "hsn": "",
+        "description": "'",
+        "quantity": 3,
+        "unit": "",
+        "price": 58,
+        "discount": 0,
+        "priceAfterDiscount": 58,
+        "total": 174
+      },
+      {
+        "hsn": "",
+        "description": "CAR",
+        "quantity": 3,
+        "unit": "",
+        "price": 120,
+        "discount": 0,
+        "priceAfterDiscount": 120,
+        "total": 360
+      },
+      {
+        "hsn": "",
+        "description": "'",
+        "quantity": 1,
+        "unit": "",
+        "price": 165,
+        "discount": 0,
+        "priceAfterDiscount": 165,
+        "total": 165
+      },
+      {
+        "hsn": "",
+        "description": "'",
+        "quantity": 2,
+        "unit": "",
+        "price": 150,
+        "discount": 0,
+        "priceAfterDiscount": 150,
+        "total": 300
+      },
+      {
+        "hsn": "",
+        "description": "TRACTOR",
+        "quantity": 3,
+        "unit": "",
+        "price": 120,
+        "discount": 0,
+        "priceAfterDiscount": 120,
+        "total": 360
+      },
+      {
+        "hsn": "",
+        "description": "TRACTOR TROLLY",
+        "quantity": 6,
+        "unit": "",
+        "price": 49,
+        "discount": 0,
+        "priceAfterDiscount": 49,
+        "total": 294
+      },
+      {
+        "hsn": "",
+        "description": "VAN",
+        "quantity": 3,
+        "unit": "",
+        "price": 48,
+        "discount": 0,
+        "priceAfterDiscount": 48,
+        "total": 144
+      },
+      {
+        "hsn": "",
+        "description": "KITCHEN SET",
+        "quantity": 4,
+        "unit": "",
+        "price": 45,
+        "discount": 0,
+        "priceAfterDiscount": 45,
+        "total": 180
+      },
+      {
+        "hsn": "",
+        "description": "''",
+        "quantity": 4,
+        "unit": "",
+        "price": 57,
+        "discount": 0,
+        "priceAfterDiscount": 57,
+        "total": 228
+      },
+      {
+        "hsn": "",
+        "description": "BALL",
+        "quantity": 12,
+        "unit": "",
+        "price": 17,
+        "discount": 0,
+        "priceAfterDiscount": 17,
+        "total": 204
+      },
+      {
+        "hsn": "",
+        "description": "''",
+        "quantity": 12,
+        "unit": "",
+        "price": 18,
+        "discount": 0,
+        "priceAfterDiscount": 18,
+        "total": 216
+      },
+      {
+        "hsn": "",
+        "description": "TRACTOR",
+        "quantity": 12,
+        "unit": "",
+        "price": 42,
+        "discount": 0,
+        "priceAfterDiscount": 42,
+        "total": 504
+      },
+      {
+        "hsn": "",
+        "description": "''",
+        "quantity": 12,
+        "unit": "",
+        "price": 50,
+        "discount": 0,
+        "priceAfterDiscount": 50,
+        "total": 600
+      },
+      {
+        "hsn": "",
+        "description": "JCB SET",
+        "quantity": 2,
+        "unit": "",
+        "price": 175,
+        "discount": 0,
+        "priceAfterDiscount": 175,
+        "total": 350
+      }
+    ],
+    "totalAmount": 7193,
+    "grandTotal": 7193
   }
 ]
