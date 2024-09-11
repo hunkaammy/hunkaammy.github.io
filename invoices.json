@@ -858,229 +858,344 @@
   },
   {
     "invoiceNumber": "9",
-    "customerName": "PREETAM  (PATHARIYA)",
     "date": "2024-09-11",
     "time": "18:27",
+    "customerName": "PREETAM (PATHARIYA)",
     "customerTownVillage": "PATHARIYA",
     "customerMobileNumber": "7987069848",
     "customerTransport": "CHANDA AUTO",
     "transportCharge": 0,
-    "overallDiscountPercentage": 0,
-    "overallDiscountAmount": 0,
     "comment": "",
+    "timestamp": "2024-09-11T18:27",
     "items": [
       {
-        "hsn": "",
         "description": "JEEP",
         "quantity": 6,
         "unit": "",
         "price": 85,
-        "discount": 0,
-        "priceAfterDiscount": 85,
-        "total": 510
+        "discount": 0
       },
       {
-        "hsn": "",
         "description": "'",
         "quantity": 6,
         "unit": "",
         "price": 90,
-        "discount": 0,
-        "priceAfterDiscount": 90,
-        "total": 540
+        "discount": 0
       },
       {
-        "hsn": "",
         "description": "TRACTOR TROLLY",
         "quantity": 6,
         "unit": "",
         "price": 90,
-        "discount": 0,
-        "priceAfterDiscount": 90,
-        "total": 540
+        "discount": 0
       },
       {
-        "hsn": "",
         "description": "JCB",
         "quantity": 12,
         "unit": "",
         "price": 50,
-        "discount": 0,
-        "priceAfterDiscount": 50,
-        "total": 600
+        "discount": 0
       },
       {
-        "hsn": "",
         "description": "''",
         "quantity": 3,
         "unit": "",
         "price": 125,
-        "discount": 0,
-        "priceAfterDiscount": 125,
-        "total": 375
+        "discount": 0
       },
       {
-        "hsn": "",
         "description": "DUMPER",
         "quantity": 3,
         "unit": "",
         "price": 93,
-        "discount": 0,
-        "priceAfterDiscount": 93,
-        "total": 279
+        "discount": 0
       },
       {
-        "hsn": "",
         "description": "'",
         "quantity": 3,
         "unit": "",
         "price": 90,
-        "discount": 0,
-        "priceAfterDiscount": 90,
-        "total": 270
+        "discount": 0
       },
       {
-        "hsn": "",
         "description": "'",
         "quantity": 3,
         "unit": "",
         "price": 58,
-        "discount": 0,
-        "priceAfterDiscount": 58,
-        "total": 174
+        "discount": 0
       },
       {
-        "hsn": "",
         "description": "CAR",
         "quantity": 3,
         "unit": "",
         "price": 120,
-        "discount": 0,
-        "priceAfterDiscount": 120,
-        "total": 360
+        "discount": 0
       },
       {
-        "hsn": "",
         "description": "'",
         "quantity": 1,
         "unit": "",
         "price": 165,
-        "discount": 0,
-        "priceAfterDiscount": 165,
-        "total": 165
+        "discount": 0
       },
       {
-        "hsn": "",
         "description": "'",
         "quantity": 2,
         "unit": "",
         "price": 150,
-        "discount": 0,
-        "priceAfterDiscount": 150,
-        "total": 300
+        "discount": 0
       },
       {
-        "hsn": "",
         "description": "TRACTOR",
         "quantity": 3,
         "unit": "",
         "price": 120,
-        "discount": 0,
-        "priceAfterDiscount": 120,
-        "total": 360
+        "discount": 0
       },
       {
-        "hsn": "",
         "description": "TRACTOR TROLLY",
         "quantity": 6,
         "unit": "",
         "price": 49,
-        "discount": 0,
-        "priceAfterDiscount": 49,
-        "total": 294
+        "discount": 0
       },
       {
-        "hsn": "",
         "description": "VAN",
         "quantity": 3,
         "unit": "",
         "price": 48,
-        "discount": 0,
-        "priceAfterDiscount": 48,
-        "total": 144
+        "discount": 0
       },
       {
-        "hsn": "",
         "description": "KITCHEN SET",
         "quantity": 4,
         "unit": "",
         "price": 45,
-        "discount": 0,
-        "priceAfterDiscount": 45,
-        "total": 180
+        "discount": 0
       },
       {
-        "hsn": "",
         "description": "''",
         "quantity": 4,
         "unit": "",
         "price": 57,
-        "discount": 0,
-        "priceAfterDiscount": 57,
-        "total": 228
+        "discount": 0
       },
       {
-        "hsn": "",
         "description": "BALL",
         "quantity": 12,
         "unit": "",
         "price": 17,
-        "discount": 0,
-        "priceAfterDiscount": 17,
-        "total": 204
+        "discount": 0
       },
       {
-        "hsn": "",
         "description": "''",
         "quantity": 12,
         "unit": "",
         "price": 18,
-        "discount": 0,
-        "priceAfterDiscount": 18,
-        "total": 216
+        "discount": 0
       },
       {
-        "hsn": "",
         "description": "TRACTOR",
         "quantity": 12,
         "unit": "",
         "price": 42,
-        "discount": 0,
-        "priceAfterDiscount": 42,
-        "total": 504
+        "discount": 0
       },
       {
-        "hsn": "",
         "description": "''",
         "quantity": 12,
         "unit": "",
         "price": 50,
-        "discount": 0,
-        "priceAfterDiscount": 50,
-        "total": 600
+        "discount": 0
       },
       {
-        "hsn": "",
         "description": "JCB SET",
         "quantity": 2,
         "unit": "",
         "price": 175,
-        "discount": 0,
-        "priceAfterDiscount": 175,
-        "total": 350
+        "discount": 0
       }
     ],
     "totalAmount": 7193,
-    "grandTotal": 7193
+    "grandTotal": 7193,
+    "overallDiscount": 0
+  },
+  {
+    "invoiceNumber": "10",
+    "date": "2024-09-11",
+    "time": "19:21",
+    "customerName": "SUPER BAG (JANJGIR)",
+    "customerTownVillage": "JANJGIR",
+    "customerMobileNumber": "6263745840",
+    "customerTransport": "jivesh",
+    "transportCharge": 90,
+    "comment": "super net",
+    "timestamp": "2024-09-11T19:21",
+    "items": [
+      {
+        "description": "PIANO",
+        "quantity": 1,
+        "unit": "",
+        "price": 495,
+        "discount": 12
+      },
+      {
+        "description": "WATER GAME",
+        "quantity": 6,
+        "unit": "",
+        "price": 59,
+        "discount": 12
+      },
+      {
+        "description": "METAL CAR",
+        "quantity": 3,
+        "unit": "",
+        "price": 143,
+        "discount": 12
+      },
+      {
+        "description": "''",
+        "quantity": 3,
+        "unit": "",
+        "price": 195,
+        "discount": 12
+      },
+      {
+        "description": "SOAP",
+        "quantity": 24,
+        "unit": "",
+        "price": 30,
+        "discount": 11
+      },
+      {
+        "description": "MOON BALL",
+        "quantity": 20,
+        "unit": "",
+        "price": 57,
+        "discount": 12.2
+      },
+      {
+        "description": "HUNGRY FROG",
+        "quantity": 2,
+        "unit": "",
+        "price": 415,
+        "discount": 12
+      },
+      {
+        "description": "WATCH REMOTE CAR",
+        "quantity": 3,
+        "unit": "",
+        "price": 430,
+        "discount": 12.3
+      },
+      {
+        "description": "MAGNET BLOCK",
+        "quantity": 2,
+        "unit": "",
+        "price": 300,
+        "discount": 12
+      },
+      {
+        "description": "JENGA",
+        "quantity": 2,
+        "unit": "",
+        "price": 240,
+        "discount": 12
+      },
+      {
+        "description": "BABY GYM MUSICAL",
+        "quantity": 2,
+        "unit": "",
+        "price": 580,
+        "discount": 12
+      },
+      {
+        "description": "FOOTBALL",
+        "quantity": 3,
+        "unit": "",
+        "price": 156,
+        "discount": 11
+      },
+      {
+        "description": "KITCHEN SET",
+        "quantity": 3,
+        "unit": "",
+        "price": 90,
+        "discount": 12.2
+      },
+      {
+        "description": "'",
+        "quantity": 3,
+        "unit": "",
+        "price": 65,
+        "discount": 11
+      },
+      {
+        "description": "CLAY",
+        "quantity": 30,
+        "unit": "",
+        "price": 35,
+        "discount": 7.3
+      },
+      {
+        "description": "METAL CAR",
+        "quantity": 1,
+        "unit": "",
+        "price": 60,
+        "discount": 12
+      },
+      {
+        "description": "BEAUTY SET",
+        "quantity": 3,
+        "unit": "",
+        "price": 95,
+        "discount": 10
+      },
+      {
+        "description": "LAZER LIGHT",
+        "quantity": 6,
+        "unit": "",
+        "price": 27,
+        "discount": 10
+      },
+      {
+        "description": "FOOTBALL BATTERY",
+        "quantity": 2,
+        "unit": "",
+        "price": 170,
+        "discount": 12
+      },
+      {
+        "description": "SPIDER MAN CRAWLING",
+        "quantity": 2,
+        "unit": "",
+        "price": 170,
+        "discount": 12
+      },
+      {
+        "description": "MUSICAL DOG",
+        "quantity": 2,
+        "unit": "",
+        "price": 350,
+        "discount": 12
+      },
+      {
+        "description": "ROBOT",
+        "quantity": 1,
+        "unit": "",
+        "price": 455,
+        "discount": 12
+      },
+      {
+        "description": "MUSICAL COW",
+        "quantity": 2,
+        "unit": "",
+        "price": 170,
+        "discount": 12
+      }
+    ],
+    "totalAmount": 11283.9,
+    "grandTotal": 11373.9,
+    "overallDiscount": 0
   }
 ]
