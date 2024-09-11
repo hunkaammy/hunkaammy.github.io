@@ -155,7 +155,8 @@
             <td>${item.quantity || ''}</td>
             <td>${item.unit || ''}</td>
             <td>${formatCurrency(item.price) || ''}</td>
-            <td>${addPrefixToNumber(item.price) || ''}</td> <!-- Updated Number column -->
+           <td>${addPrefixToNumber(item.price * 2) || ''}</td> <!-- Updated Number column -->
+
             ${hasPriceAfterDiscount ? `<td>${item.priceAfterDiscount || ''}</td>` : ''}
             <td>${formatCurrency(item.quantity * item.price) || ''}</td> <!-- Calculated Total -->
         `;
