@@ -586,7 +586,7 @@
     "customerMobileNumber": "9179507894",
     "customerTransport": "JIVESH",
     "transportCharge": 0,
-    "comment": "self",
+    "comment": "",
     "timestamp": "2024-09-10T20:37",
     "items": [
       {
@@ -1029,7 +1029,7 @@
     "customerMobileNumber": "6263745840",
     "customerTransport": "jivesh",
     "transportCharge": 90,
-    "comment": "super net",
+    "comment": "SUPER NET INCLUDING BHADA",
     "timestamp": "2024-09-11T19:21",
     "items": [
       {
@@ -1196,6 +1196,606 @@
     ],
     "totalAmount": 11283.9,
     "grandTotal": 11373.9,
+    "overallDiscount": 0
+  },
+  {
+    "invoiceNumber": "11",
+    "date": "2024-09-11",
+    "time": "20:10",
+    "customerName": "CASH (.)",
+    "customerTownVillage": ".",
+    "customerMobileNumber": ".",
+    "customerTransport": ".",
+    "transportCharge": 0,
+    "comment": "KALU BHAIYA KATGHORA CASH",
+    "timestamp": "2024-09-11T20:10",
+    "items": [
+      {
+        "description": "TENNIS TRANING",
+        "quantity": 2,
+        "unit": "",
+        "price": 182,
+        "discount": 0
+      },
+      {
+        "description": "PLASTIC BAT",
+        "quantity": 2,
+        "unit": "",
+        "price": 132,
+        "discount": 0
+      },
+      {
+        "description": "PENCIL",
+        "quantity": 1,
+        "unit": "",
+        "price": 30,
+        "discount": 0
+      }
+    ],
+    "totalAmount": 658,
+    "grandTotal": 658,
+    "overallDiscount": 0
+  },
+  {
+    "invoiceNumber": "12",
+    "date": "2024-09-11",
+    "time": "20:15",
+    "customerName": "VICKEY GENERAL (BALODA)",
+    "customerTownVillage": "BALODA",
+    "customerMobileNumber": "8818816083",
+    "customerTransport": "ANIL COACH",
+    "transportCharge": 0,
+    "comment": "",
+    "timestamp": "2024-09-11T20:15",
+    "items": [
+      {
+        "description": "WALKER",
+        "quantity": 6,
+        "unit": "",
+        "price": 240,
+        "discount": 0
+      },
+      {
+        "description": "''",
+        "quantity": 12,
+        "unit": "",
+        "price": 275,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 6,
+        "unit": "",
+        "price": 360,
+        "discount": 0
+      }
+    ],
+    "totalAmount": 6900,
+    "grandTotal": 6900,
+    "overallDiscount": 0
+  },
+  {
+    "invoiceNumber": "13",
+    "date": "2024-09-12",
+    "time": "18:08",
+    "customerName": "CASH (.)",
+    "customerTownVillage": ".",
+    "customerMobileNumber": ".",
+    "customerTransport": ".",
+    "transportCharge": 0,
+    "comment": "",
+    "timestamp": "2024-09-12T18:08",
+    "items": [
+      {
+        "description": "key chain",
+        "quantity": 3,
+        "unit": "",
+        "price": 130,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 1,
+        "unit": "",
+        "price": 110,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 1,
+        "unit": "",
+        "price": 75,
+        "discount": 0
+      },
+      {
+        "description": "lipstic pen",
+        "quantity": 3,
+        "unit": "",
+        "price": 30,
+        "discount": 0
+      },
+      {
+        "description": "dairy set",
+        "quantity": 4,
+        "unit": "",
+        "price": 65,
+        "discount": 0
+      },
+      {
+        "description": "wet wiper",
+        "quantity": 2,
+        "unit": "",
+        "price": 47,
+        "discount": 0
+      },
+      {
+        "description": "pencil set",
+        "quantity": 1,
+        "unit": "",
+        "price": 36,
+        "discount": 0
+      }
+    ],
+    "totalAmount": 1055,
+    "grandTotal": 1055,
+    "overallDiscount": 0
+  },
+  {
+    "invoiceNumber": "14",
+    "date": "2024-09-12",
+    "time": "18:29",
+    "customerName": "PRIYA LADIES (MUNGELI)",
+    "customerTownVillage": "MUNGELI",
+    "customerMobileNumber": "7470918979",
+    "customerTransport": "JAI MATA DI",
+    "transportCharge": 0,
+    "comment": "ITEM NO. 1 TO 4 TOOK BY SELF",
+    "timestamp": "2024-09-12T18:29",
+    "items": [
+      {
+        "description": "SQUESHY BALL",
+        "quantity": 1,
+        "unit": "",
+        "price": 33,
+        "discount": 0
+      },
+      {
+        "description": "PENCIL POUCH",
+        "quantity": 1,
+        "unit": "",
+        "price": 50,
+        "discount": 0
+      },
+      {
+        "description": "KEYCHAIN",
+        "quantity": 1,
+        "unit": "",
+        "price": 60,
+        "discount": 0
+      },
+      {
+        "description": "PAPER SOAP",
+        "quantity": 1,
+        "unit": "",
+        "price": 30,
+        "discount": 0
+      },
+      {
+        "description": "SLIME",
+        "quantity": 4,
+        "unit": "",
+        "price": 16,
+        "discount": 0
+      },
+      {
+        "description": "LATTU",
+        "quantity": 2,
+        "unit": "",
+        "price": 85,
+        "discount": 0
+      },
+      {
+        "description": "CUBE",
+        "quantity": 4,
+        "unit": "",
+        "price": 44,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 4,
+        "unit": "",
+        "price": 98,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 1,
+        "unit": "",
+        "price": 91,
+        "discount": 0
+      },
+      {
+        "description": "CHUCHU",
+        "quantity": 1,
+        "unit": "",
+        "price": 163,
+        "discount": 0
+      },
+      {
+        "description": "''",
+        "quantity": 1,
+        "unit": "",
+        "price": 165,
+        "discount": 0
+      },
+      {
+        "description": "RATTLE",
+        "quantity": 1,
+        "unit": "PKT",
+        "price": 100,
+        "discount": 0
+      },
+      {
+        "description": "RING",
+        "quantity": 3,
+        "unit": "",
+        "price": 20,
+        "discount": 0
+      },
+      {
+        "description": "LAZER",
+        "quantity": 6,
+        "unit": "",
+        "price": 27,
+        "discount": 0
+      },
+      {
+        "description": "TRAIN",
+        "quantity": 1,
+        "unit": "",
+        "price": 156,
+        "discount": 0
+      },
+      {
+        "description": "REMOTE CAR",
+        "quantity": 2,
+        "unit": "",
+        "price": 117,
+        "discount": 0
+      },
+      {
+        "description": "''",
+        "quantity": 1,
+        "unit": "",
+        "price": 250,
+        "discount": 0
+      },
+      {
+        "description": "''",
+        "quantity": 1,
+        "unit": "",
+        "price": 200,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 1,
+        "unit": "",
+        "price": 340,
+        "discount": 0
+      },
+      {
+        "description": "JCB REMOTE",
+        "quantity": 1,
+        "unit": "",
+        "price": 162,
+        "discount": 0
+      },
+      {
+        "description": "SPINNER",
+        "quantity": 1,
+        "unit": "",
+        "price": 104,
+        "discount": 0
+      },
+      {
+        "description": "''",
+        "quantity": 2,
+        "unit": "",
+        "price": 47,
+        "discount": 0
+      },
+      {
+        "description": "CLAY",
+        "quantity": 3,
+        "unit": "",
+        "price": 35,
+        "discount": 0
+      },
+      {
+        "description": "PATTA CAR",
+        "quantity": 1,
+        "unit": "",
+        "price": 110,
+        "discount": 0
+      },
+      {
+        "description": "PATTA GUN",
+        "quantity": 2,
+        "unit": "",
+        "price": 65,
+        "discount": 0
+      },
+      {
+        "description": "PITHUL",
+        "quantity": 2,
+        "unit": "",
+        "price": 84,
+        "discount": 0
+      },
+      {
+        "description": "CAR SET",
+        "quantity": 1,
+        "unit": "",
+        "price": 114,
+        "discount": 0
+      },
+      {
+        "description": "PLASTIC BAT",
+        "quantity": 1,
+        "unit": "",
+        "price": 59,
+        "discount": 0
+      },
+      {
+        "description": "''",
+        "quantity": 2,
+        "unit": "",
+        "price": 51,
+        "discount": 0
+      },
+      {
+        "description": "BAT BALL + HOCKEY SET",
+        "quantity": 1,
+        "unit": "",
+        "price": 156,
+        "discount": 0
+      },
+      {
+        "description": "BAT BALL STUM SET",
+        "quantity": 2,
+        "unit": "",
+        "price": 98,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 1,
+        "unit": "`",
+        "price": 170,
+        "discount": 0
+      },
+      {
+        "description": "SQUISHY BALL",
+        "quantity": 4,
+        "unit": "",
+        "price": 33,
+        "discount": 0
+      },
+      {
+        "description": "DOCTOR SET",
+        "quantity": 2,
+        "unit": "",
+        "price": 88,
+        "discount": 0
+      },
+      {
+        "description": "PIGGY BANK",
+        "quantity": 1,
+        "unit": "",
+        "price": 35,
+        "discount": 0
+      },
+      {
+        "description": "DOLL",
+        "quantity": 1,
+        "unit": "",
+        "price": 68,
+        "discount": 0
+      },
+      {
+        "description": "''",
+        "quantity": 1,
+        "unit": "",
+        "price": 54,
+        "discount": 0
+      },
+      {
+        "description": "TEDDY BEAR",
+        "quantity": 2,
+        "unit": "",
+        "price": 78,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 3,
+        "unit": "",
+        "price": 115,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 2,
+        "unit": "",
+        "price": 150,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 3,
+        "unit": "",
+        "price": 120,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 1,
+        "unit": "",
+        "price": 240,
+        "discount": 0
+      },
+      {
+        "description": "BAT BALL",
+        "quantity": 4,
+        "unit": "",
+        "price": 38,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 4,
+        "unit": "",
+        "price": 19,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 1,
+        "unit": "",
+        "price": 120,
+        "discount": 0
+      },
+      {
+        "description": "CAR",
+        "quantity": 2,
+        "unit": "",
+        "price": 75,
+        "discount": 0
+      },
+      {
+        "description": "AUTO",
+        "quantity": 1,
+        "unit": "",
+        "price": 66,
+        "discount": 0
+      },
+      {
+        "description": "TRACTOR TROLLY",
+        "quantity": 1,
+        "unit": "",
+        "price": 90,
+        "discount": 0
+      },
+      {
+        "description": "JEEP",
+        "quantity": 1,
+        "unit": "",
+        "price": 98,
+        "discount": 0
+      },
+      {
+        "description": "MIXTURE MACHINE/ JCB",
+        "quantity": 5,
+        "unit": "",
+        "price": 50,
+        "discount": 0
+      },
+      {
+        "description": "TRACTOR",
+        "quantity": 2,
+        "unit": "",
+        "price": 42,
+        "discount": 0
+      },
+      {
+        "description": "JEEP",
+        "quantity": 2,
+        "unit": "",
+        "price": 90,
+        "discount": 0
+      },
+      {
+        "description": "''",
+        "quantity": 3,
+        "unit": "",
+        "price": 85,
+        "discount": 0
+      },
+      {
+        "description": "JCB",
+        "quantity": 2,
+        "unit": "",
+        "price": 125,
+        "discount": 0
+      },
+      {
+        "description": "TROLLY TRACTOR",
+        "quantity": 2,
+        "unit": "",
+        "price": 49,
+        "discount": 0
+      },
+      {
+        "description": "DUMPER",
+        "quantity": 3,
+        "unit": "",
+        "price": 93,
+        "discount": 0
+      },
+      {
+        "description": "CAR",
+        "quantity": 1,
+        "unit": "",
+        "price": 120,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 2,
+        "unit": "",
+        "price": 58,
+        "discount": 0
+      },
+      {
+        "description": "BIKE",
+        "quantity": 2,
+        "unit": "",
+        "price": 60,
+        "discount": 0
+      },
+      {
+        "description": "KITCHEN SET",
+        "quantity": 3,
+        "unit": "",
+        "price": 45,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 3,
+        "unit": "",
+        "price": 57,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 2,
+        "unit": "",
+        "price": 84,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 2,
+        "unit": "",
+        "price": 67,
+        "discount": 0
+      }
+    ],
+    "totalAmount": 9544,
+    "grandTotal": 9544,
     "overallDiscount": 0
   }
 ]
