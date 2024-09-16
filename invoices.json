@@ -2111,25 +2111,2387 @@
   {
     "invoiceNumber": "18",
     "date": "2024-09-13",
-    "time": "15:03",
-    "customerName": "",
-    "customerTownVillage": "",
-    "customerMobileNumber": "Mobile Number",
-    "customerTransport": "Transport",
+    "time": "16:39",
+    "customerName": "kajal general (baloda bazzar)",
+    "customerTownVillage": "baloda bazzar",
+    "customerMobileNumber": "8959292555",
+    "customerTransport": "self",
     "transportCharge": 0,
-    "comment": "",
-    "timestamp": "2024-09-13T15:03",
+    "comment": "ptm 7200",
+    "timestamp": "2024-09-13T16:39",
     "items": [
       {
-        "description": "car",
+        "description": "reda",
+        "quantity": 3,
+        "unit": "",
+        "price": 250,
+        "discount": 0
+      },
+      {
+        "description": "walker",
         "quantity": 2,
-        "unit": "pc",
-        "price": 100,
+        "unit": "",
+        "price": 380,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 2,
+        "unit": "",
+        "price": 275,
+        "discount": 0
+      },
+      {
+        "description": "rc car",
+        "quantity": 3,
+        "unit": "",
+        "price": 117,
+        "discount": 0
+      },
+      {
+        "description": "jcb set",
+        "quantity": 2,
+        "unit": "",
+        "price": 175,
+        "discount": 0
+      },
+      {
+        "description": "metal car",
+        "quantity": 3,
+        "unit": "",
+        "price": 195,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 1,
+        "unit": "",
+        "price": 143,
+        "discount": 0
+      },
+      {
+        "description": "lezar",
+        "quantity": 2,
+        "unit": "",
+        "price": 260,
+        "discount": 0
+      },
+      {
+        "description": "soap",
+        "quantity": 10,
+        "unit": "",
+        "price": 30,
+        "discount": 0
+      },
+      {
+        "description": "study book",
+        "quantity": 3,
+        "unit": "",
+        "price": 243,
+        "discount": 0
+      },
+      {
+        "description": "doll",
+        "quantity": 3,
+        "unit": "",
+        "price": 108,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 3,
+        "unit": "",
+        "price": 263,
+        "discount": 0
+      },
+      {
+        "description": "bus3",
+        "quantity": 3,
+        "unit": "",
+        "price": 82,
+        "discount": 0
+      },
+      {
+        "description": "jeep",
+        "quantity": 3,
+        "unit": "",
+        "price": 90,
+        "discount": 0
+      },
+      {
+        "description": "jcb",
+        "quantity": 6,
+        "unit": "",
+        "price": 50,
+        "discount": 0
+      },
+      {
+        "description": "tractor",
+        "quantity": 6,
+        "unit": "",
+        "price": 42,
         "discount": 0
       }
     ],
-    "totalAmount": 200,
-    "grandTotal": 200,
+    "totalAmount": 7219,
+    "grandTotal": 7219,
     "overallDiscount": 0
+  },
+  {
+    "invoiceNumber": "20",
+    "date": "2024-09-13",
+    "time": "17:49",
+    "customerName": "GHANSHYAM MAYUR GENERAL (TAKHATPUR)",
+    "customerTownVillage": "TAKHATPUR",
+    "customerMobileNumber": "9893090165",
+    "customerTransport": "JAI MATA DI",
+    "transportCharge": 0,
+    "comment": "",
+    "timestamp": "2024-09-13T17:49",
+    "items": [
+      {
+        "description": "LAZER LIGHT",
+        "quantity": 2,
+        "unit": "",
+        "price": 260,
+        "discount": 0
+      },
+      {
+        "description": "PROJECTOR",
+        "quantity": 2,
+        "unit": "",
+        "price": 85,
+        "discount": 0
+      },
+      {
+        "description": "TAB",
+        "quantity": 3,
+        "unit": "",
+        "price": 62,
+        "discount": 0
+      },
+      {
+        "description": "METAL CAR",
+        "quantity": 2,
+        "unit": "",
+        "price": 195,
+        "discount": 0
+      },
+      {
+        "description": "SUPER HERO SET",
+        "quantity": 1,
+        "unit": "",
+        "price": 195,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 1,
+        "unit": "",
+        "price": 156,
+        "discount": 0
+      },
+      {
+        "description": "BUBBLE GUN",
+        "quantity": 2,
+        "unit": "",
+        "price": 260,
+        "discount": 0
+      },
+      {
+        "description": "DOLL HOUSE",
+        "quantity": 1,
+        "unit": "",
+        "price": 305,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 1,
+        "unit": "",
+        "price": 375,
+        "discount": 0
+      },
+      {
+        "description": "TROLLY TRACTOR",
+        "quantity": 2,
+        "unit": "",
+        "price": 49,
+        "discount": 0
+      },
+      {
+        "description": "DUMPER",
+        "quantity": 2,
+        "unit": "",
+        "price": 93,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 2,
+        "unit": "",
+        "price": 59,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 2,
+        "unit": "",
+        "price": 48,
+        "discount": 0
+      }
+    ],
+    "totalAmount": 3315,
+    "grandTotal": 3315,
+    "overallDiscount": 0
+  },
+  {
+    "invoiceNumber": "21",
+    "date": "2024-09-13",
+    "time": "17:54",
+    "customerName": "ANOKHA SHRINGAR (KATGHORA)",
+    "customerTownVillage": "KATGHORA",
+    "customerMobileNumber": "8966808512",
+    "customerTransport": "SHARDA",
+    "transportCharge": 0,
+    "comment": "",
+    "timestamp": "2024-09-13T17:54",
+    "items": [
+      {
+        "description": "KTM BIKE",
+        "quantity": 1,
+        "unit": "",
+        "price": 1170,
+        "discount": 0
+      },
+      {
+        "description": "PARENTAL TRICYCLE",
+        "quantity": 1,
+        "unit": "",
+        "price": 1500,
+        "discount": 0
+      },
+      {
+        "description": "SUPER HERO",
+        "quantity": 6,
+        "unit": "",
+        "price": 65,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 3,
+        "unit": "",
+        "price": 156,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 3,
+        "unit": "",
+        "price": 195,
+        "discount": 0
+      },
+      {
+        "description": "ROBOT GEAR",
+        "quantity": 2,
+        "unit": "",
+        "price": 260,
+        "discount": 0
+      }
+    ],
+    "totalAmount": 4633,
+    "grandTotal": 4633,
+    "overallDiscount": 0
+  },
+  {
+    "invoiceNumber": "22",
+    "date": "2024-09-13",
+    "time": "18:35",
+    "customerName": "SAHELI STORE (AMBIKAPUR)",
+    "customerTownVillage": "AMBIKAPUR",
+    "customerMobileNumber": "9109161961",
+    "customerTransport": "JAI SHREE",
+    "transportCharge": 0,
+    "comment": "SUPER NET.. WE DELIVERED",
+    "timestamp": "2024-09-13T18:35",
+    "items": [
+      {
+        "description": "BEAUTY SET",
+        "quantity": 2,
+        "unit": "",
+        "price": 95,
+        "discount": 12
+      },
+      {
+        "description": "SUPER HERO SET",
+        "quantity": 3,
+        "unit": "",
+        "price": 143,
+        "discount": 10
+      },
+      {
+        "description": "''",
+        "quantity": 3,
+        "unit": "",
+        "price": 156,
+        "discount": 10
+      },
+      {
+        "description": "METAL CAR",
+        "quantity": 4,
+        "unit": "",
+        "price": 143,
+        "discount": 12
+      },
+      {
+        "description": "''",
+        "quantity": 12,
+        "unit": "",
+        "price": 40,
+        "discount": 12
+      },
+      {
+        "description": "VIDEO GAME",
+        "quantity": 3,
+        "unit": "",
+        "price": 98,
+        "discount": 12
+      },
+      {
+        "description": "GOBBLE GAME LUMO",
+        "quantity": 1,
+        "unit": "",
+        "price": 280,
+        "discount": 12
+      },
+      {
+        "description": "TUMMY TIME MAT",
+        "quantity": 1,
+        "unit": "",
+        "price": 150,
+        "discount": 12
+      },
+      {
+        "description": "WRITING TAB",
+        "quantity": 3,
+        "unit": "",
+        "price": 162,
+        "discount": 10
+      },
+      {
+        "description": "MUSICAL MOBILE",
+        "quantity": 3,
+        "unit": "",
+        "price": 150,
+        "discount": 10
+      },
+      {
+        "description": "PIPE ROBOT",
+        "quantity": 6,
+        "unit": "",
+        "price": 70,
+        "discount": 12
+      },
+      {
+        "description": "MIC",
+        "quantity": 2,
+        "unit": "",
+        "price": 390,
+        "discount": 10
+      },
+      {
+        "description": "CACTUS",
+        "quantity": 2,
+        "unit": "",
+        "price": 209,
+        "discount": 11
+      },
+      {
+        "description": "3D PEN",
+        "quantity": 1,
+        "unit": "",
+        "price": 506,
+        "discount": 12
+      },
+      {
+        "description": "STUDY BOOK",
+        "quantity": 2,
+        "unit": "",
+        "price": 243,
+        "discount": 10
+      },
+      {
+        "description": "CLAY",
+        "quantity": 7,
+        "unit": "",
+        "price": 35,
+        "discount": 8
+      },
+      {
+        "description": "DOCTOR SET",
+        "quantity": 1,
+        "unit": "",
+        "price": 275,
+        "discount": 12
+      },
+      {
+        "description": "JHOOMER",
+        "quantity": 1,
+        "unit": "",
+        "price": 325,
+        "discount": 12
+      },
+      {
+        "description": "MUSICAL MOBILE",
+        "quantity": 3,
+        "unit": "",
+        "price": 110,
+        "discount": 12
+      },
+      {
+        "description": "'",
+        "quantity": 6,
+        "unit": "",
+        "price": 23,
+        "discount": 12
+      },
+      {
+        "description": "FAN",
+        "quantity": 3,
+        "unit": "",
+        "price": 40,
+        "discount": 12
+      },
+      {
+        "description": "MAGNET GAME",
+        "quantity": 3,
+        "unit": "",
+        "price": 101,
+        "discount": 12
+      },
+      {
+        "description": "ANIMAL SET",
+        "quantity": 2,
+        "unit": "PKT",
+        "price": 170,
+        "discount": 12
+      },
+      {
+        "description": "'",
+        "quantity": 2,
+        "unit": "",
+        "price": 195,
+        "discount": 12
+      },
+      {
+        "description": "STUDY TABLE",
+        "quantity": 1,
+        "unit": "",
+        "price": 580,
+        "discount": 12
+      },
+      {
+        "description": "LUNCH BOX",
+        "quantity": 2,
+        "unit": "",
+        "price": 340,
+        "discount": 12
+      },
+      {
+        "description": "PRINTER",
+        "quantity": 1,
+        "unit": "",
+        "price": 765,
+        "discount": 12
+      }
+    ],
+    "totalAmount": 9667.96,
+    "grandTotal": 9667.96,
+    "overallDiscount": 0
+  },
+  {
+    "invoiceNumber": "23",
+    "date": "2024-09-13",
+    "time": "20:27",
+    "customerName": "RT WOMEN (ANAYA BAG) (PENDRA)",
+    "customerTownVillage": "ANAYA BAG) (PENDRA",
+    "customerMobileNumber": "6261052496",
+    "customerTransport": "SHARADDHA",
+    "transportCharge": 0,
+    "comment": "",
+    "timestamp": "2024-09-13T20:27",
+    "items": [
+      {
+        "description": "WALKER",
+        "quantity": 6,
+        "unit": "",
+        "price": 380,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 6,
+        "unit": "",
+        "price": 360,
+        "discount": 0
+      },
+      {
+        "description": "BOX WALKER (GINNI)",
+        "quantity": 1,
+        "unit": "",
+        "price": 1100,
+        "discount": 0
+      }
+    ],
+    "totalAmount": 5540,
+    "grandTotal": 5540,
+    "overallDiscount": 0
+  },
+  {
+    "invoiceNumber": "24",
+    "date": "2024-09-13",
+    "time": "20:49",
+    "customerName": "PAYAL GIFT (AMBIKAPUR)",
+    "customerTownVillage": "AMBIKAPUR",
+    "customerMobileNumber": "6866842180",
+    "customerTransport": "JAISHREE",
+    "transportCharge": 0,
+    "comment": "SUPER NET.. DELIVERED BY US",
+    "timestamp": "2024-09-13T20:49",
+    "items": [
+      {
+        "description": "TIC TAC",
+        "quantity": 2,
+        "unit": "",
+        "price": 38,
+        "discount": 12
+      },
+      {
+        "description": "CALCULATOR",
+        "quantity": 2,
+        "unit": "",
+        "price": 305,
+        "discount": 11
+      },
+      {
+        "description": "TAP LAMP",
+        "quantity": 1,
+        "unit": "",
+        "price": 550,
+        "discount": 12
+      },
+      {
+        "description": "PLAYING CARD",
+        "quantity": 2,
+        "unit": "",
+        "price": 102,
+        "discount": 12
+      }
+    ],
+    "totalAmount": 1273.3,
+    "grandTotal": 1273.3,
+    "overallDiscount": 0
+  },
+  {
+    "invoiceNumber": "25",
+    "date": "2024-09-14",
+    "time": "13:15",
+    "customerName": "SANJAY GENERAL (PENDRA)",
+    "customerTownVillage": "PENDRA",
+    "customerMobileNumber": "6265609872",
+    "customerTransport": "SHARDDHA",
+    "transportCharge": 0,
+    "comment": "EXTRA HORSE WHEEL2 2 PC GREY COLOUR",
+    "timestamp": "2024-09-14T13:15",
+    "items": [
+      {
+        "description": "MAGNETIC PAD",
+        "quantity": 3,
+        "unit": "",
+        "price": 270,
+        "discount": 0
+      },
+      {
+        "description": "BULLET BOX",
+        "quantity": 3,
+        "unit": "",
+        "price": 143,
+        "discount": 0
+      },
+      {
+        "description": "GUN",
+        "quantity": 3,
+        "unit": "",
+        "price": 175,
+        "discount": 0
+      },
+      {
+        "description": "CANDY FLOWER",
+        "quantity": 6,
+        "unit": "",
+        "price": 80,
+        "discount": 0
+      },
+      {
+        "description": "TUMBLE TOWER",
+        "quantity": 2,
+        "unit": "",
+        "price": 170,
+        "discount": 0
+      },
+      {
+        "description": "METAL BIKE",
+        "quantity": 3,
+        "unit": "",
+        "price": 195,
+        "discount": 0
+      },
+      {
+        "description": "METAL AMBULANCE",
+        "quantity": 3,
+        "unit": "",
+        "price": 210,
+        "discount": 0
+      },
+      {
+        "description": "SOAP",
+        "quantity": 24,
+        "unit": "",
+        "price": 30,
+        "discount": 0
+      },
+      {
+        "description": "WIPES",
+        "quantity": 12,
+        "unit": "",
+        "price": 39,
+        "discount": 0
+      },
+      {
+        "description": "K SET",
+        "quantity": 6,
+        "unit": "",
+        "price": 67,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 12,
+        "unit": "",
+        "price": 57,
+        "discount": 0
+      },
+      {
+        "description": "BOLL",
+        "quantity": 5,
+        "unit": "",
+        "price": 70,
+        "discount": 0
+      },
+      {
+        "description": "AMBULANCE",
+        "quantity": 6,
+        "unit": "",
+        "price": 55,
+        "discount": 0
+      },
+      {
+        "description": "SINGLE LEG SCOTTER",
+        "quantity": 1,
+        "unit": "",
+        "price": 1150,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 1,
+        "unit": "",
+        "price": 1200,
+        "discount": 0
+      },
+      {
+        "description": "BAT BOLL SET",
+        "quantity": 6,
+        "unit": "",
+        "price": 168,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 6,
+        "unit": "",
+        "price": 98,
+        "discount": 0
+      },
+      {
+        "description": "M GUN",
+        "quantity": 4,
+        "unit": "",
+        "price": 260,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 4,
+        "unit": "",
+        "price": 175,
+        "discount": 0
+      },
+      {
+        "description": "BLOCKS",
+        "quantity": 3,
+        "unit": "",
+        "price": 220,
+        "discount": 0
+      },
+      {
+        "description": "METAL K SET",
+        "quantity": 3,
+        "unit": "",
+        "price": 150,
+        "discount": 0
+      },
+      {
+        "description": "JCB",
+        "quantity": 2,
+        "unit": "",
+        "price": 245,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 4,
+        "unit": "",
+        "price": 120,
+        "discount": 0
+      },
+      {
+        "description": "DHUMPHER",
+        "quantity": 2,
+        "unit": "",
+        "price": 58,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 2,
+        "unit": "",
+        "price": 90,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 2,
+        "unit": "",
+        "price": 93,
+        "discount": 0
+      },
+      {
+        "description": "SKETCH COLOUR",
+        "quantity": 12,
+        "unit": "",
+        "price": 60,
+        "discount": 0
+      },
+      {
+        "description": "JEEP",
+        "quantity": 3,
+        "unit": "",
+        "price": 85,
+        "discount": 0
+      },
+      {
+        "description": "MILITRY DHUMPHER",
+        "quantity": 3,
+        "unit": "",
+        "price": 62,
+        "discount": 0
+      },
+      {
+        "description": "JCB",
+        "quantity": 12,
+        "unit": "",
+        "price": 50,
+        "discount": 0
+      },
+      {
+        "description": "TRACTOR",
+        "quantity": 6,
+        "unit": "",
+        "price": 42,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 6,
+        "unit": "",
+        "price": 50,
+        "discount": 0
+      },
+      {
+        "description": "TRACTOR TROLLY",
+        "quantity": 6,
+        "unit": "",
+        "price": 90,
+        "discount": 0
+      },
+      {
+        "description": "PEN",
+        "quantity": 48,
+        "unit": "",
+        "price": 25,
+        "discount": 0
+      },
+      {
+        "description": "girraf",
+        "quantity": 2,
+        "unit": "",
+        "price": 710,
+        "discount": 0
+      },
+      {
+        "description": "girraf big with ring",
+        "quantity": 1,
+        "unit": "",
+        "price": 975,
+        "discount": 0
+      }
+    ],
+    "totalAmount": 21449,
+    "grandTotal": 21449,
+    "overallDiscount": 0
+  },
+  {
+    "invoiceNumber": "26",
+    "date": "2024-09-14",
+    "time": "13:23",
+    "customerName": "ANIL GENERAL (PANTORA)",
+    "customerTownVillage": "PANTORA",
+    "customerMobileNumber": "8120738979",
+    "customerTransport": "ANIL COACH",
+    "transportCharge": 0,
+    "comment": "GOOD TO S.V",
+    "timestamp": "2024-09-14T13:23",
+    "items": [
+      {
+        "description": "RC CAR",
+        "quantity": 2,
+        "unit": "",
+        "price": 195,
+        "discount": 0
+      },
+      {
+        "description": "RC JCB",
+        "quantity": 2,
+        "unit": "",
+        "price": 162,
+        "discount": 0
+      },
+      {
+        "description": "PRESS AND GO TEDDY",
+        "quantity": 1,
+        "unit": "",
+        "price": 80,
+        "discount": 0
+      },
+      {
+        "description": "TRACTOR TROLLY",
+        "quantity": 2,
+        "unit": "",
+        "price": 90,
+        "discount": 0
+      },
+      {
+        "description": "TRACTOR",
+        "quantity": 3,
+        "unit": "",
+        "price": 42,
+        "discount": 0
+      },
+      {
+        "description": "WALKER",
+        "quantity": 2,
+        "unit": "",
+        "price": 240,
+        "discount": 0
+      },
+      {
+        "description": "''",
+        "quantity": 3,
+        "unit": "",
+        "price": 275,
+        "discount": 0
+      }
+    ],
+    "totalAmount": 2405,
+    "grandTotal": 2405,
+    "overallDiscount": 0
+  },
+  {
+    "invoiceNumber": "27",
+    "date": "2024-09-14",
+    "time": "15:33",
+    "customerName": "shri shyam wedding house (katghora)",
+    "customerTownVillage": "katghora",
+    "customerMobileNumber": "6266204992",
+    "customerTransport": "sharda",
+    "transportCharge": 90,
+    "comment": "CASH",
+    "timestamp": "2024-09-14T15:33",
+    "items": [
+      {
+        "description": "bat boll set",
+        "quantity": 2,
+        "unit": "",
+        "price": 125,
+        "discount": 0
+      },
+      {
+        "description": "pigi",
+        "quantity": 3,
+        "unit": "",
+        "price": 35,
+        "discount": 0
+      },
+      {
+        "description": "rc car",
+        "quantity": 1,
+        "unit": "",
+        "price": 390,
+        "discount": 0
+      },
+      {
+        "description": "bottle",
+        "quantity": 2,
+        "unit": "",
+        "price": 143,
+        "discount": 0
+      },
+      {
+        "description": "bike",
+        "quantity": 1,
+        "unit": "",
+        "price": 60,
+        "discount": 0
+      },
+      {
+        "description": "car set",
+        "quantity": 1,
+        "unit": "",
+        "price": 87,
+        "discount": 0
+      },
+      {
+        "description": "k set",
+        "quantity": 3,
+        "unit": "",
+        "price": 65,
+        "discount": 0
+      },
+      {
+        "description": "peepa pig",
+        "quantity": 2,
+        "unit": "",
+        "price": 115,
+        "discount": 0
+      },
+      {
+        "description": "fruit cutting",
+        "quantity": 3,
+        "unit": "",
+        "price": 195,
+        "discount": 0
+      },
+      {
+        "description": "car set",
+        "quantity": 2,
+        "unit": "",
+        "price": 114,
+        "discount": 0
+      },
+      {
+        "description": "abc pvc",
+        "quantity": 1,
+        "unit": "",
+        "price": 51,
+        "discount": 0
+      },
+      {
+        "description": "bike",
+        "quantity": 4,
+        "unit": "",
+        "price": 195,
+        "discount": 0
+      },
+      {
+        "description": "gift set pencil set",
+        "quantity": 12,
+        "unit": "",
+        "price": 17,
+        "discount": 0
+      },
+      {
+        "description": "colour set",
+        "quantity": 2,
+        "unit": "",
+        "price": 128,
+        "discount": 0
+      },
+      {
+        "description": "nail art",
+        "quantity": 2,
+        "unit": "",
+        "price": 42,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 1,
+        "unit": "",
+        "price": 45,
+        "discount": 0
+      },
+      {
+        "description": "wet wipes",
+        "quantity": 2,
+        "unit": "",
+        "price": 39,
+        "discount": 0
+      },
+      {
+        "description": "lamp",
+        "quantity": 1,
+        "unit": "",
+        "price": 235,
+        "discount": 0
+      },
+      {
+        "description": "uno",
+        "quantity": 2,
+        "unit": "",
+        "price": 39,
+        "discount": 0
+      },
+      {
+        "description": "high lighter",
+        "quantity": 2,
+        "unit": "",
+        "price": 77,
+        "discount": 0
+      },
+      {
+        "description": "cube",
+        "quantity": 3,
+        "unit": "",
+        "price": 44,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 2,
+        "unit": "",
+        "price": 91,
+        "discount": 0
+      },
+      {
+        "description": "mobile",
+        "quantity": 1,
+        "unit": "",
+        "price": 250,
+        "discount": 0
+      },
+      {
+        "description": "thar",
+        "quantity": 1,
+        "unit": "",
+        "price": 123,
+        "discount": 0
+      },
+      {
+        "description": "fast string game",
+        "quantity": 2,
+        "unit": "",
+        "price": 120,
+        "discount": 0
+      },
+      {
+        "description": "oil tanker",
+        "quantity": 1,
+        "unit": "",
+        "price": 435,
+        "discount": 0
+      },
+      {
+        "description": "teddy",
+        "quantity": 1,
+        "unit": "",
+        "price": 225,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 1,
+        "unit": "",
+        "price": 78,
+        "discount": 0
+      },
+      {
+        "description": "talwar",
+        "quantity": 1,
+        "unit": "",
+        "price": 60,
+        "discount": 0
+      },
+      {
+        "description": "army truck",
+        "quantity": 6,
+        "unit": "",
+        "price": 95,
+        "discount": 0
+      },
+      {
+        "description": "jeep",
+        "quantity": 1,
+        "unit": "",
+        "price": 98,
+        "discount": 0
+      }
+    ],
+    "totalAmount": 6774,
+    "grandTotal": 6864,
+    "overallDiscount": 0
+  },
+  {
+    "invoiceNumber": "28",
+    "customerName": "BABA GENERAL (SHIVRINARAYAN)",
+    "date": "2024-09-14",
+    "time": "16:59",
+    "customerTownVillage": "SHIVRINARAYAN",
+    "customerMobileNumber": "6263242730",
+    "customerTransport": "JIVESH ",
+    "transportCharge": 0,
+    "overallDiscountPercentage": 0,
+    "overallDiscountAmount": 0,
+    "comment": "",
+    "items": [
+      {
+        "hsn": "",
+        "description": "TEDDY",
+        "quantity": 2,
+        "unit": "",
+        "price": 150,
+        "discount": 0,
+        "priceAfterDiscount": 150,
+        "total": 300
+      },
+      {
+        "hsn": "",
+        "description": "'",
+        "quantity": 2,
+        "unit": "",
+        "price": 78,
+        "discount": 0,
+        "priceAfterDiscount": 78,
+        "total": 156
+      },
+      {
+        "hsn": "",
+        "description": "'",
+        "quantity": 2,
+        "unit": "",
+        "price": 115,
+        "discount": 0,
+        "priceAfterDiscount": 115,
+        "total": 230
+      },
+      {
+        "hsn": "",
+        "description": "HIGHLIGHTER",
+        "quantity": 2,
+        "unit": "",
+        "price": 69,
+        "discount": 0,
+        "priceAfterDiscount": 69,
+        "total": 138
+      },
+      {
+        "hsn": "",
+        "description": "'",
+        "quantity": 2,
+        "unit": "",
+        "price": 117,
+        "discount": 0,
+        "priceAfterDiscount": 117,
+        "total": 234
+      },
+      {
+        "hsn": "",
+        "description": "'",
+        "quantity": 2,
+        "unit": "",
+        "price": 77,
+        "discount": 0,
+        "priceAfterDiscount": 77,
+        "total": 154
+      },
+      {
+        "hsn": "",
+        "description": "'",
+        "quantity": 2,
+        "unit": "",
+        "price": 63,
+        "discount": 0,
+        "priceAfterDiscount": 63,
+        "total": 126
+      },
+      {
+        "hsn": "",
+        "description": "PANDA TEDDY",
+        "quantity": 2,
+        "unit": "",
+        "price": 225,
+        "discount": 0,
+        "priceAfterDiscount": 225,
+        "total": 450
+      },
+      {
+        "hsn": "",
+        "description": "CUCTUS",
+        "quantity": 6,
+        "unit": "",
+        "price": 209,
+        "discount": 0,
+        "priceAfterDiscount": 209,
+        "total": 1254
+      },
+      {
+        "hsn": "",
+        "description": "SLATE",
+        "quantity": 1,
+        "unit": "",
+        "price": 130,
+        "discount": 0,
+        "priceAfterDiscount": 130,
+        "total": 130
+      },
+      {
+        "hsn": "",
+        "description": "'",
+        "quantity": 1,
+        "unit": "",
+        "price": 91,
+        "discount": 0,
+        "priceAfterDiscount": 91,
+        "total": 91
+      },
+      {
+        "hsn": "",
+        "description": "PENCIL SET",
+        "quantity": 2,
+        "unit": "",
+        "price": 30,
+        "discount": 0,
+        "priceAfterDiscount": 30,
+        "total": 60
+      },
+      {
+        "hsn": "",
+        "description": "COLOUR KIT",
+        "quantity": 2,
+        "unit": "",
+        "price": 49,
+        "discount": 0,
+        "priceAfterDiscount": 49,
+        "total": 98
+      },
+      {
+        "hsn": "",
+        "description": "ERASER",
+        "quantity": 3,
+        "unit": "",
+        "price": 28,
+        "discount": 0,
+        "priceAfterDiscount": 28,
+        "total": 84
+      },
+      {
+        "hsn": "",
+        "description": "TABLE CHAIR SET",
+        "quantity": 1,
+        "unit": "",
+        "price": 825,
+        "discount": 0,
+        "priceAfterDiscount": 825,
+        "total": 825
+      },
+      {
+        "hsn": "",
+        "description": "STUDY BOOK",
+        "quantity": 2,
+        "unit": "",
+        "price": 243,
+        "discount": 0,
+        "priceAfterDiscount": 243,
+        "total": 486
+      },
+      {
+        "hsn": "",
+        "description": "BOTTLE",
+        "quantity": 2,
+        "unit": "",
+        "price": 175,
+        "discount": 0,
+        "priceAfterDiscount": 175,
+        "total": 350
+      },
+      {
+        "hsn": "",
+        "description": "ANGEL M DOLL",
+        "quantity": 1,
+        "unit": "",
+        "price": 273,
+        "discount": 0,
+        "priceAfterDiscount": 273,
+        "total": 273
+      },
+      {
+        "hsn": "",
+        "description": "BINOCULAR",
+        "quantity": 1,
+        "unit": "",
+        "price": 156,
+        "discount": 0,
+        "priceAfterDiscount": 156,
+        "total": 156
+      },
+      {
+        "hsn": "",
+        "description": "MOBILE",
+        "quantity": 6,
+        "unit": "",
+        "price": 23,
+        "discount": 0,
+        "priceAfterDiscount": 23,
+        "total": 138
+      },
+      {
+        "hsn": "",
+        "description": "FOOTBOLL BATTERY",
+        "quantity": 2,
+        "unit": "",
+        "price": 170,
+        "discount": 0,
+        "priceAfterDiscount": 170,
+        "total": 340
+      },
+      {
+        "hsn": "",
+        "description": "STUNT BIKE BOY",
+        "quantity": 1,
+        "unit": "",
+        "price": 270,
+        "discount": 0,
+        "priceAfterDiscount": 270,
+        "total": 270
+      },
+      {
+        "hsn": "",
+        "description": "TENNIS BAT BOLL SET",
+        "quantity": 2,
+        "unit": "",
+        "price": 182,
+        "discount": 0,
+        "priceAfterDiscount": 182,
+        "total": 364
+      },
+      {
+        "hsn": "",
+        "description": "3D PEN",
+        "quantity": 1,
+        "unit": "",
+        "price": 485,
+        "discount": 0,
+        "priceAfterDiscount": 485,
+        "total": 485
+      },
+      {
+        "hsn": "",
+        "description": "PANDA ERASER",
+        "quantity": 3,
+        "unit": "",
+        "price": 80,
+        "discount": 0,
+        "priceAfterDiscount": 80,
+        "total": 240
+      },
+      {
+        "hsn": "",
+        "description": "PIGI BANK",
+        "quantity": 2,
+        "unit": "",
+        "price": 143,
+        "discount": 0,
+        "priceAfterDiscount": 143,
+        "total": 286
+      },
+      {
+        "hsn": "",
+        "description": "'",
+        "quantity": 1,
+        "unit": "",
+        "price": 175,
+        "discount": 0,
+        "priceAfterDiscount": 175,
+        "total": 175
+      },
+      {
+        "hsn": "",
+        "description": "BOLL",
+        "quantity": 6,
+        "unit": "",
+        "price": 18,
+        "discount": 0,
+        "priceAfterDiscount": 18,
+        "total": 108
+      },
+      {
+        "hsn": "",
+        "description": "M GUN",
+        "quantity": 2,
+        "unit": "",
+        "price": 297,
+        "discount": 0,
+        "priceAfterDiscount": 297,
+        "total": 594
+      },
+      {
+        "hsn": "",
+        "description": "MIC SET",
+        "quantity": 2,
+        "unit": "",
+        "price": 390,
+        "discount": 0,
+        "priceAfterDiscount": 390,
+        "total": 780
+      },
+      {
+        "hsn": "",
+        "description": "MAGNETIC PAD",
+        "quantity": 2,
+        "unit": "",
+        "price": 270,
+        "discount": 0,
+        "priceAfterDiscount": 270,
+        "total": 540
+      },
+      {
+        "hsn": "",
+        "description": "FLOWER CANDY",
+        "quantity": 1,
+        "unit": "",
+        "price": 80,
+        "discount": 0,
+        "priceAfterDiscount": 80,
+        "total": 80
+      },
+      {
+        "hsn": "",
+        "description": "TOM",
+        "quantity": 1,
+        "unit": "",
+        "price": 162,
+        "discount": 0,
+        "priceAfterDiscount": 162,
+        "total": 162
+      },
+      {
+        "hsn": "",
+        "description": "MAGNETIC BLOCK",
+        "quantity": 1,
+        "unit": "",
+        "price": 300,
+        "discount": 0,
+        "priceAfterDiscount": 300,
+        "total": 300
+      },
+      {
+        "hsn": "",
+        "description": "GUN",
+        "quantity": 2,
+        "unit": "",
+        "price": 119,
+        "discount": 0,
+        "priceAfterDiscount": 119,
+        "total": 238
+      },
+      {
+        "hsn": "",
+        "description": "BOTTLE ERASER",
+        "quantity": 2,
+        "unit": "",
+        "price": 50,
+        "discount": 0,
+        "priceAfterDiscount": 50,
+        "total": 100
+      },
+      {
+        "hsn": "",
+        "description": "XYLO",
+        "quantity": 1,
+        "unit": "",
+        "price": 175,
+        "discount": 0,
+        "priceAfterDiscount": 175,
+        "total": 175
+      },
+      {
+        "hsn": "",
+        "description": "DRAWING BOOK",
+        "quantity": 1,
+        "unit": "",
+        "price": 175,
+        "discount": 0,
+        "priceAfterDiscount": 175,
+        "total": 175
+      },
+      {
+        "hsn": "",
+        "description": "",
+        "quantity": 0,
+        "unit": "",
+        "price": 0,
+        "discount": 0,
+        "priceAfterDiscount": 0,
+        "total": 0
+      }
+    ],
+    "totalAmount": 11145,
+    "grandTotal": 11145
+  },
+  {
+    "invoiceNumber": "29",
+    "date": "2024-09-14",
+    "time": "18:26",
+    "customerName": "PRADEEP BHAI (KATGHORA)",
+    "customerTownVillage": "KATGHORA",
+    "customerMobileNumber": "8770633695",
+    "customerTransport": "SHARDA",
+    "transportCharge": 0,
+    "comment": "",
+    "timestamp": "2024-09-14T18:26",
+    "items": [
+      {
+        "description": "BUS",
+        "quantity": 12,
+        "unit": "",
+        "price": 82,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 14,
+        "unit": "",
+        "price": 78,
+        "discount": 0
+      },
+      {
+        "description": "MILITRY DHUMPHER",
+        "quantity": 12,
+        "unit": "",
+        "price": 62,
+        "discount": 0
+      },
+      {
+        "description": "TRACTOR BIG",
+        "quantity": 12,
+        "unit": "",
+        "price": 50,
+        "discount": 0
+      },
+      {
+        "description": "OIL TANKER/MIXER TRUCK",
+        "quantity": 20,
+        "unit": "",
+        "price": 50,
+        "discount": 0
+      },
+      {
+        "description": "JEEP",
+        "quantity": 12,
+        "unit": "",
+        "price": 85,
+        "discount": 0
+      },
+      {
+        "description": "VAN",
+        "quantity": 12,
+        "unit": "",
+        "price": 48,
+        "discount": 0
+      },
+      {
+        "description": "JCB",
+        "quantity": 24,
+        "unit": "",
+        "price": 50,
+        "discount": 0
+      },
+      {
+        "description": "TRACTOR SMALL",
+        "quantity": 12,
+        "unit": "",
+        "price": 42,
+        "discount": 0
+      },
+      {
+        "description": "POINTER /JCB SMALL",
+        "quantity": 12,
+        "unit": "",
+        "price": 41,
+        "discount": 0
+      },
+      {
+        "description": "JEEP",
+        "quantity": 12,
+        "unit": "",
+        "price": 90,
+        "discount": 0
+      },
+      {
+        "description": "4 BY 4 JEEP",
+        "quantity": 12,
+        "unit": "",
+        "price": 123,
+        "discount": 0
+      },
+      {
+        "description": "K SET",
+        "quantity": 12,
+        "unit": "",
+        "price": 90,
+        "discount": 0
+      },
+      {
+        "description": "TRACTOR TROLLY",
+        "quantity": 9,
+        "unit": "",
+        "price": 90,
+        "discount": 0
+      },
+      {
+        "description": "NISSAN BOX TRACTOR",
+        "quantity": 12,
+        "unit": "",
+        "price": 135,
+        "discount": 0
+      },
+      {
+        "description": "K SET",
+        "quantity": 12,
+        "unit": "",
+        "price": 65,
+        "discount": 0
+      },
+      {
+        "description": "MOBILE",
+        "quantity": 12,
+        "unit": "",
+        "price": 23,
+        "discount": 0
+      },
+      {
+        "description": "SPINNER",
+        "quantity": 6,
+        "unit": "",
+        "price": 47,
+        "discount": 0
+      },
+      {
+        "description": "RC CAR",
+        "quantity": 1,
+        "unit": "",
+        "price": 230,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 3,
+        "unit": "",
+        "price": 117,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 3,
+        "unit": "",
+        "price": 195,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 3,
+        "unit": "",
+        "price": 175,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 3,
+        "unit": "",
+        "price": 200,
+        "discount": 0
+      },
+      {
+        "description": "CAR",
+        "quantity": 3,
+        "unit": "",
+        "price": 58,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 3,
+        "unit": "",
+        "price": 104,
+        "discount": 0
+      },
+      {
+        "description": "DHUMPHER",
+        "quantity": 3,
+        "unit": "",
+        "price": 75,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 3,
+        "unit": "",
+        "price": 58,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 3,
+        "unit": "",
+        "price": 90,
+        "discount": 0
+      },
+      {
+        "description": "TRACTOR",
+        "quantity": 3,
+        "unit": "",
+        "price": 58,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 3,
+        "unit": "",
+        "price": 38,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 3,
+        "unit": "",
+        "price": 120,
+        "discount": 0
+      },
+      {
+        "description": "TRACTOR TROLLY",
+        "quantity": 3,
+        "unit": "",
+        "price": 49,
+        "discount": 0
+      },
+      {
+        "description": "JCB",
+        "quantity": 3,
+        "unit": "",
+        "price": 245,
+        "discount": 0
+      },
+      {
+        "description": "CAR",
+        "quantity": 3,
+        "unit": "",
+        "price": 150,
+        "discount": 0
+      }
+    ],
+    "totalAmount": 21042,
+    "grandTotal": 21042,
+    "overallDiscount": 0
+  },
+  {
+    "invoiceNumber": "30",
+    "customerName": "CASH (.)",
+    "date": "2024-09-14",
+    "time": "19:12",
+    "customerTownVillage": ".",
+    "customerMobileNumber": ".",
+    "customerTransport": ".",
+    "transportCharge": 0,
+    "overallDiscountPercentage": 0,
+    "overallDiscountAmount": 0,
+    "comment": "CASH",
+    "items": [
+      {
+        "hsn": "",
+        "description": "RIDER",
+        "quantity": 1,
+        "unit": "",
+        "price": 1200,
+        "discount": 0,
+        "priceAfterDiscount": 1200,
+        "total": 1200
+      },
+      {
+        "hsn": "",
+        "description": "K CHAIN",
+        "quantity": 1,
+        "unit": "",
+        "price": 75,
+        "discount": 0,
+        "priceAfterDiscount": 75,
+        "total": 75
+      },
+      {
+        "hsn": "",
+        "description": "RABBIT M WITH BATTERY",
+        "quantity": 1,
+        "unit": "",
+        "price": 435,
+        "discount": 0,
+        "priceAfterDiscount": 435,
+        "total": 435
+      }
+    ],
+    "totalAmount": 1710,
+    "grandTotal": 1710
+  },
+  {
+    "invoiceNumber": "31",
+    "customerName": "PRADEEP BHAI (KATGHORA)",
+    "date": "2024-09-14",
+    "time": "21:01",
+    "customerTownVillage": "KATGHORA",
+    "customerMobileNumber": "8770633695",
+    "customerTransport": "SHARDA",
+    "transportCharge": 0,
+    "overallDiscountPercentage": 0,
+    "overallDiscountAmount": 0,
+    "comment": "SELF",
+    "items": [
+      {
+        "hsn": "",
+        "description": "BLANKET",
+        "quantity": 1,
+        "unit": "",
+        "price": 500,
+        "discount": 0,
+        "priceAfterDiscount": 500,
+        "total": 500
+      }
+    ],
+    "totalAmount": 500,
+    "grandTotal": 500
+  },
+  {
+    "invoiceNumber": "32",
+    "date": "2024-09-16",
+    "time": "13:13",
+    "customerName": "CASH (.)",
+    "customerTownVillage": ".",
+    "customerMobileNumber": ".",
+    "customerTransport": ".",
+    "transportCharge": 0,
+    "comment": "BHARAT / DOLLY DIDI (W-RATE)",
+    "timestamp": "2024-09-16T13:13",
+    "items": [
+      {
+        "description": "CAMERA",
+        "quantity": 1,
+        "unit": "",
+        "price": 1315,
+        "discount": 0
+      },
+      {
+        "description": "PROJECTOR",
+        "quantity": 1,
+        "unit": "",
+        "price": 85,
+        "discount": 0
+      },
+      {
+        "description": "SCOOTER",
+        "quantity": 1,
+        "unit": "",
+        "price": 1150,
+        "discount": 0
+      },
+      {
+        "description": "MAT",
+        "quantity": 1,
+        "unit": "",
+        "price": 1080,
+        "discount": 0
+      },
+      {
+        "description": "BATTERY",
+        "quantity": 2,
+        "unit": "",
+        "price": 7,
+        "discount": 0
+      }
+    ],
+    "totalAmount": 3644,
+    "grandTotal": 3644,
+    "overallDiscount": 0
+  },
+  {
+    "invoiceNumber": "33",
+    "customerName": "NAITIK GIFT  (BACHRAPODI)",
+    "date": "2024-09-16",
+    "time": "13:47",
+    "customerTownVillage": "BACHRAPODI",
+    "customerMobileNumber": "6263505560",
+    "customerTransport": "JAISWAL BUS",
+    "transportCharge": 200,
+    "overallDiscountPercentage": 0,
+    "overallDiscountAmount": 0,
+    "comment": "",
+    "items": [
+      {
+        "hsn": "",
+        "description": "JEEP",
+        "quantity": 3,
+        "unit": "",
+        "price": 85,
+        "discount": 0,
+        "priceAfterDiscount": 85,
+        "total": 255
+      },
+      {
+        "hsn": "",
+        "description": "TRACTOR TROLLY",
+        "quantity": 3,
+        "unit": "",
+        "price": 59,
+        "discount": 0,
+        "priceAfterDiscount": 59,
+        "total": 177
+      },
+      {
+        "hsn": "",
+        "description": "MILITRY TRYCK",
+        "quantity": 3,
+        "unit": "",
+        "price": 60,
+        "discount": 0,
+        "priceAfterDiscount": 60,
+        "total": 180
+      },
+      {
+        "hsn": "",
+        "description": "'",
+        "quantity": 1,
+        "unit": "",
+        "price": 95,
+        "discount": 0,
+        "priceAfterDiscount": 95,
+        "total": 95
+      },
+      {
+        "hsn": "",
+        "description": "JCB",
+        "quantity": 6,
+        "unit": "",
+        "price": 50,
+        "discount": 0,
+        "priceAfterDiscount": 50,
+        "total": 300
+      },
+      {
+        "hsn": "",
+        "description": "DUMPER",
+        "quantity": 3,
+        "unit": "",
+        "price": 62,
+        "discount": 0,
+        "priceAfterDiscount": 62,
+        "total": 186
+      },
+      {
+        "hsn": "",
+        "description": "TRACTOR TROLLY",
+        "quantity": 2,
+        "unit": "",
+        "price": 49,
+        "discount": 0,
+        "priceAfterDiscount": 49,
+        "total": 98
+      },
+      {
+        "hsn": "",
+        "description": "DUMPER",
+        "quantity": 3,
+        "unit": "",
+        "price": 41,
+        "discount": 0,
+        "priceAfterDiscount": 41,
+        "total": 123
+      },
+      {
+        "hsn": "",
+        "description": "TRACTOR",
+        "quantity": 3,
+        "unit": "",
+        "price": 42,
+        "discount": 0,
+        "priceAfterDiscount": 42,
+        "total": 126
+      },
+      {
+        "hsn": "",
+        "description": "PENCIL BOX",
+        "quantity": 1,
+        "unit": "",
+        "price": 125,
+        "discount": 0,
+        "priceAfterDiscount": 125,
+        "total": 125
+      },
+      {
+        "hsn": "",
+        "description": "FRUIIT CUTTIN",
+        "quantity": 1,
+        "unit": "",
+        "price": 195,
+        "discount": 0,
+        "priceAfterDiscount": 195,
+        "total": 195
+      },
+      {
+        "hsn": "",
+        "description": "ANIMAL SET",
+        "quantity": 1,
+        "unit": "",
+        "price": 170,
+        "discount": 0,
+        "priceAfterDiscount": 170,
+        "total": 170
+      },
+      {
+        "hsn": "",
+        "description": "PROJECTOR",
+        "quantity": 1,
+        "unit": "",
+        "price": 85,
+        "discount": 0,
+        "priceAfterDiscount": 85,
+        "total": 85
+      },
+      {
+        "hsn": "",
+        "description": "SPINNER",
+        "quantity": 2,
+        "unit": "",
+        "price": 47,
+        "discount": 0,
+        "priceAfterDiscount": 47,
+        "total": 94
+      },
+      {
+        "hsn": "",
+        "description": "LIGHT POUCH",
+        "quantity": 1,
+        "unit": "",
+        "price": 91,
+        "discount": 0,
+        "priceAfterDiscount": 91,
+        "total": 91
+      },
+      {
+        "hsn": "",
+        "description": "METAL KITCHEN SET",
+        "quantity": 1,
+        "unit": "",
+        "price": 150,
+        "discount": 0,
+        "priceAfterDiscount": 150,
+        "total": 150
+      },
+      {
+        "hsn": "",
+        "description": "KITCHEN SET",
+        "quantity": 1,
+        "unit": "",
+        "price": 65,
+        "discount": 0,
+        "priceAfterDiscount": 65,
+        "total": 65
+      },
+      {
+        "hsn": "",
+        "description": "PATTA CAKE SET",
+        "quantity": 1,
+        "unit": "",
+        "price": 104,
+        "discount": 0,
+        "priceAfterDiscount": 104,
+        "total": 104
+      },
+      {
+        "hsn": "",
+        "description": "AMBULANCE",
+        "quantity": 2,
+        "unit": "",
+        "price": 55,
+        "discount": 0,
+        "priceAfterDiscount": 55,
+        "total": 110
+      },
+      {
+        "hsn": "",
+        "description": "TRACTOR TROLLY",
+        "quantity": 3,
+        "unit": "",
+        "price": 90,
+        "discount": 0,
+        "priceAfterDiscount": 90,
+        "total": 270
+      },
+      {
+        "hsn": "",
+        "description": "JCB",
+        "quantity": 2,
+        "unit": "",
+        "price": 57,
+        "discount": 0,
+        "priceAfterDiscount": 57,
+        "total": 114
+      },
+      {
+        "hsn": "",
+        "description": "'",
+        "quantity": 1,
+        "unit": "",
+        "price": 35,
+        "discount": 0,
+        "priceAfterDiscount": 35,
+        "total": 35
+      },
+      {
+        "hsn": "",
+        "description": "RATTLE SET",
+        "quantity": 1,
+        "unit": "",
+        "price": 98,
+        "discount": 0,
+        "priceAfterDiscount": 98,
+        "total": 98
+      },
+      {
+        "hsn": "",
+        "description": "UNO FLIP",
+        "quantity": 1,
+        "unit": "",
+        "price": 50,
+        "discount": 0,
+        "priceAfterDiscount": 50,
+        "total": 50
+      },
+      {
+        "hsn": "",
+        "description": "WATER GAME",
+        "quantity": 3,
+        "unit": "",
+        "price": 59,
+        "discount": 0,
+        "priceAfterDiscount": 59,
+        "total": 177
+      },
+      {
+        "hsn": "",
+        "description": "COLOR KIT",
+        "quantity": 2,
+        "unit": "",
+        "price": 49,
+        "discount": 0,
+        "priceAfterDiscount": 49,
+        "total": 98
+      },
+      {
+        "hsn": "",
+        "description": "PENCIL SET",
+        "quantity": 2,
+        "unit": "",
+        "price": 49,
+        "discount": 0,
+        "priceAfterDiscount": 49,
+        "total": 98
+      },
+      {
+        "hsn": "",
+        "description": "DRAWING SET",
+        "quantity": 1,
+        "unit": "",
+        "price": 154,
+        "discount": 0,
+        "priceAfterDiscount": 154,
+        "total": 154
+      },
+      {
+        "hsn": "",
+        "description": "JCB 3 PCS SET",
+        "quantity": 2,
+        "unit": "",
+        "price": 175,
+        "discount": 0,
+        "priceAfterDiscount": 175,
+        "total": 350
+      },
+      {
+        "hsn": "",
+        "description": "PENCIL GIFT SET",
+        "quantity": 2,
+        "unit": "",
+        "price": 17,
+        "discount": 0,
+        "priceAfterDiscount": 17,
+        "total": 34
+      },
+      {
+        "hsn": "",
+        "description": "BOX JCB",
+        "quantity": 1,
+        "unit": "",
+        "price": 210,
+        "discount": 0,
+        "priceAfterDiscount": 210,
+        "total": 210
+      },
+      {
+        "hsn": "",
+        "description": "'",
+        "quantity": 1,
+        "unit": "",
+        "price": 275,
+        "discount": 0,
+        "priceAfterDiscount": 275,
+        "total": 275
+      },
+      {
+        "hsn": "",
+        "description": "TRACTOR BOX",
+        "quantity": 1,
+        "unit": "",
+        "price": 190,
+        "discount": 0,
+        "priceAfterDiscount": 190,
+        "total": 190
+      },
+      {
+        "hsn": "",
+        "description": "PITHUL",
+        "quantity": 1,
+        "unit": "",
+        "price": 84,
+        "discount": 0,
+        "priceAfterDiscount": 84,
+        "total": 84
+      },
+      {
+        "hsn": "",
+        "description": "TRACTOR",
+        "quantity": 1,
+        "unit": "",
+        "price": 42,
+        "discount": 0,
+        "priceAfterDiscount": 42,
+        "total": 42
+      },
+      {
+        "hsn": "",
+        "description": "CAR DANCING",
+        "quantity": 1,
+        "unit": "",
+        "price": 104,
+        "discount": 0,
+        "priceAfterDiscount": 104,
+        "total": 104
+      },
+      {
+        "hsn": "",
+        "description": "BALL",
+        "quantity": 6,
+        "unit": "",
+        "price": 18,
+        "discount": 0,
+        "priceAfterDiscount": 18,
+        "total": 108
+      },
+      {
+        "hsn": "",
+        "description": "''",
+        "quantity": 6,
+        "unit": "",
+        "price": 17,
+        "discount": 0,
+        "priceAfterDiscount": 17,
+        "total": 102
+      }
+    ],
+    "totalAmount": 5322,
+    "grandTotal": 5522
+  },
+  {
+    "invoiceNumber": "34",
+    "customerName": "JEET SUHAG (CHAITMA)",
+    "date": "2024-09-16",
+    "time": "14:23",
+    "customerTownVillage": "CHAITMA",
+    "customerMobileNumber": "9981551024",
+    "customerTransport": "SHARDA",
+    "transportCharge": 0,
+    "overallDiscountPercentage": 0,
+    "overallDiscountAmount": 0,
+    "comment": "",
+    "items": [
+      {
+        "hsn": "",
+        "description": "WALKER",
+        "quantity": 2,
+        "unit": "",
+        "price": 240,
+        "discount": 0,
+        "priceAfterDiscount": 240,
+        "total": 480
+      },
+      {
+        "hsn": "",
+        "description": "'",
+        "quantity": 2,
+        "unit": "",
+        "price": 275,
+        "discount": 0,
+        "priceAfterDiscount": 275,
+        "total": 550
+      },
+      {
+        "hsn": "",
+        "description": "'",
+        "quantity": 1,
+        "unit": "",
+        "price": 360,
+        "discount": 0,
+        "priceAfterDiscount": 360,
+        "total": 360
+      }
+    ],
+    "totalAmount": 1390,
+    "grandTotal": 1390
   }
 ]
