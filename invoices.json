@@ -4493,5 +4493,57 @@
     ],
     "totalAmount": 1390,
     "grandTotal": 1390
+  },
+  {
+    "invoiceNumber": "35",
+    "date": "2024-09-16",
+    "time": "15:05",
+    "customerName": "RK SHOPPING CENTER (KHAIRTAL)",
+    "customerTownVillage": "KHAIRTAL",
+    "customerMobileNumber": "6261721493",
+    "customerTransport": "JIVESH",
+    "transportCharge": 90,
+    "comment": "",
+    "timestamp": "2024-09-16T15:05",
+    "items": [
+      {
+        "description": "WALKER",
+        "quantity": 6,
+        "unit": "",
+        "price": 240,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 1,
+        "unit": "",
+        "price": 275,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 3,
+        "unit": "",
+        "price": 360,
+        "discount": 0
+      },
+      {
+        "description": "'",
+        "quantity": 3,
+        "unit": "",
+        "price": 380,
+        "discount": 0
+      },
+      {
+        "description": "BOX WALKER",
+        "quantity": 1,
+        "unit": "",
+        "price": 750,
+        "discount": 0
+      }
+    ],
+    "totalAmount": 4685,
+    "grandTotal": 4775,
+    "overallDiscount": 0
   }
 ]
