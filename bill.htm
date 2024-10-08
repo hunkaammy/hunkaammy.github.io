@@ -3,214 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice Viewer</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Fetch Customer Names</title>
     <style>
-        .modal-header-info {
-            text-align: center;
-            margin-bottom: 20px;
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
         }
-        .modal-header-info .store {
+        #customer-names {
             font-weight: bold;
-            font-size: 1.5rem;
-        }
-        .modal-header-info .storedisc,
-        .modal-header-info .gst {
-            font-size: 1rem;
-        }
-        .discount-section {
-            /* Always show the discount section */
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
+    <h1>Customer Names</h1>
+    <div id="customer-names">Loading...</div>
 
-<h1 class="text-center my-4">Invoice List</h1>
-<ul id="customerList" class="list-group mb-4"></ul>
+    <script>
+        // Fetch the data using CORS Anywhere
+        fetch('https://cors-anywhere.herokuapp.com/https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/invoices.json?alt=media')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const invoices = data; // Use 'data' directly if the JSON structure is not nested
+                const customerNamesContainer = document.getElementById('customer-names');
+                
+                // Clear the loading message
+                customerNamesContainer.innerHTML = '';
 
-<!-- Modal -->
-<div class="modal fade" id="invoiceModal" tabindex="-1" aria-labelledby="invoiceModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="invoiceModalLabel">Invoice Details</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body" id="invoiceContent">
-        <!-- Header Information Inside Modal -->
-        <div class="modal-header-info">
-            <div class="store">HINDUSTAN TOYS</div>
-            <div class="storedisc">SHOP NO. E-4, VRINDAVAN PARISAR, <br> TELIPARA, BILASPUR (C.G)</div>
-            <br>
-            <div class="gst"><b>GSTIN: 22AKMPM8309A1ZG</b> <br> Composition Dealer - <br> Not eligible to collect tax on supplies.</div>
-        </div>
-
-        <!-- Invoice Info -->
-        <div class="mb-3">
-          <p><strong>Invoice Number:</strong> <span id="invoiceNumber"></span></p>
-          <p><strong>Customer Name:</strong> <span id="customerName"></span></p>
-          <p><strong>Date:</strong> <span id="invoiceDate"></span></p>
-          <p><strong>Time:</strong> <span id="invoiceTime"></span></p>
-        
-        </div>
-
-        <!-- Invoice Items Table -->
-        <div class="table-responsive">
-          <table class="table table-bordered">
-            <thead>
-              <tr>
-                <th>No.</th>
-                <th>Description</th>
-                <th>Quantity</th>
-                <th>Unit</th>
-                <th>Price</th>
-                <th>Number</th> <!-- Column for Number -->
-                <th id="priceAfterDiscountHeader">A/D</th> <!-- Conditionally shown column -->
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody id="invoiceItems"></tbody>
-          </table>
-        </div>
-
-        <!-- Always Show Discount Section -->
-        <div class="discount-section" id="discountSection">
-            <p><strong>Overall Discount:</strong> <span id="overallDiscount"></span></p>
-        </div>
-        
-        <p><strong>Transport Charge:</strong> <span id="transportCharge"></span></p> <!-- Added Transport Charge -->
-        <p><strong>Total Amount:</strong> <span id="totalAmount"></span></p>
-        <p><strong>Grand Total:</strong> <span id="grandTotal"></span></p>
-      </div>
-      <div class="modal-footer">
-        <!-- Button to Generate PDF -->
-        <button id="downloadPdf" class="btn btn-primary">Download PDF</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Bootstrap JS and dependencies -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Include html2pdf.js library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
-
-<script>
-    // Fetch the JSON data from the URL
-    fetch('https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/invoices.json?alt=media&token=728c5150-642f-4c21-adb4-8bc887e41034')
-    .then(response => response.json())
-    .then(data => {
-        const customerList = document.getElementById('customerList');
-        customerList.innerHTML = ''; // Clear any existing list items
-
-        // Loop through each invoice and add customer names to the list
-        data.forEach(invoice => {
-            const listItem = document.createElement('li');
-            listItem.textContent = invoice.customerName;
-            listItem.classList.add('list-group-item');
-            listItem.style.cursor = 'pointer';
-            
-            // On click, show full invoice details in modal
-            listItem.addEventListener('click', () => {
-                showInvoiceDetails(invoice);
-                const modal = new bootstrap.Modal(document.getElementById('invoiceModal'));
-                modal.show();
+                if (invoices && invoices.length > 0) {
+                    // Create a list to hold customer names
+                    invoices.forEach(invoice => {
+                        const customerName = invoice.customerName; // Get customer name from each invoice
+                        const nameElement = document.createElement('p'); // Create a new paragraph element
+                        nameElement.textContent = customerName; // Set the customer name as text
+                        customerNamesContainer.appendChild(nameElement); // Append it to the container
+                    });
+                } else {
+                    customerNamesContainer.textContent = 'No invoices found.';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching the data:', error);
+                document.getElementById('customer-names').textContent = 'Error fetching data.';
             });
-            
-            customerList.appendChild(listItem);
-        });
-    })
-    .catch(error => console.error('Error fetching data:', error));
-
-    // Function to display invoice details in the modal
-    function showInvoiceDetails(invoice) {
-    const invoiceItems = document.getElementById('invoiceItems');
-    const priceAfterDiscountHeader = document.getElementById('priceAfterDiscountHeader');
-    const overallDiscountElem = document.getElementById('overallDiscount');
-    const discountSection = document.getElementById('discountSection');
-    const transportChargeElem = document.getElementById('transportCharge');
-
-    invoiceItems.innerHTML = '';
-    
-    // Check if there is any priceAfterDiscount data and if it's different from the price
-    const hasPriceAfterDiscount = invoice.items.some(item => item.priceAfterDiscount && item.price !== item.priceAfterDiscount);
-    
-    // Conditionally show the Price After Discount column
-    priceAfterDiscountHeader.style.display = hasPriceAfterDiscount ? '' : 'none';
-
-    // Show the Overall Discount section if discount is greater than 0
-    if (parseFloat(invoice.overallDiscount) > 0) {
-        overallDiscountElem.textContent = formatPercentage(invoice.overallDiscount) || 'N/A';
-        discountSection.style.display = '';
-    } else {
-        discountSection.style.display = 'none';
-    }
-
-    invoice.items.forEach((item, index) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${item.description || ''}</td>
-            <td>${item.quantity || ''}</td>
-            <td>${item.unit || ''}</td>
-            <td>${formatCurrency(item.price) || ''}</td>
-           <td>${addPrefixToNumber(item.price * 2) || ''}</td> <!-- Updated Number column -->
-
-            ${hasPriceAfterDiscount ? `<td>${item.priceAfterDiscount || ''}</td>` : ''}
-            <td>${formatCurrency(item.quantity * item.price) || ''}</td> <!-- Calculated Total -->
-        `;
-        invoiceItems.appendChild(row);
-    });
-
-    // Fill in the invoice details in the modal
-    document.getElementById('invoiceNumber').textContent = invoice.invoiceNumber || 'N/A';
-    document.getElementById('customerName').textContent = invoice.customerName || 'N/A';
-    document.getElementById('invoiceDate').textContent = invoice.date || 'N/A';
-    document.getElementById('invoiceTime').textContent = invoice.time || 'N/A';
-    document.getElementById('transportCharge').textContent = formatCurrency(invoice.transportCharge) || '₹0.00';
-    document.getElementById('totalAmount').textContent = formatCurrency(invoice.totalAmount || 0); // Use totalAmount from JSON
-    document.getElementById('grandTotal').textContent = formatCurrency(invoice.grandTotal || 0); // Use grandTotal from JSON
-
-    // Setup the PDF generation functionality for this invoice
-    document.getElementById('downloadPdf').onclick = function() {
-        generatePdf();
-    };
-}
-
-
-    // Function to generate the PDF using html2pdf.js
-    function generatePdf() {
-        const element = document.getElementById('invoiceContent');
-        const opt = {
-            margin:       0.5,
-            filename:     'invoice.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-        };
-
-        // Generate the PDF
-        html2pdf().from(element).set(opt).save();
-    }
-
-    // Function to format currency values
-    function formatCurrency(value) {
-        if (!value) return 'N/A';
-        return '₹' + parseFloat(value).toFixed(2);
-    }
-
-    // Function to add a prefix to a number
-    function addPrefixToNumber(number) {
-        return 'No: ' + number;
-    }
-
-    // Function to format percentage values
-    function formatPercentage(value) {
-        if (!value) return '';
-        return parseFloat(value).toFixed(2) + '%';
-    }
-</script>
-
+    </script>
 </body>
 </html>
