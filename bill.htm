@@ -21,7 +21,7 @@
 
     <script>
         // Fetch the data using CORS Anywhere
-        fetch('https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/invoices.json?alt=media')
+        fetch('https://cors-anywhere.herokuapp.com/https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/invoices.json?alt=media')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok: ' + response.statusText);
