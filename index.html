@@ -1063,87 +1063,98 @@ $('document').ready(function(){
 
 </div>
 
- <script>
-        var firebaseConfig = {
-            apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
-            authDomain: "shop-reminder-3ce10.firebaseapp.com",
-            databaseURL: "https://shop-reminder-3ce10-default-rtdb.firebaseio.com",
-            projectId: "shop-reminder-3ce10",
-            storageBucket: "shop-reminder-3ce10.appspot.com",
-            messagingSenderId: "555627569260",
-            appId: "1:555627569260:web:3948ae391eab6eb5ea7849",
-            measurementId: "G-BP5EYR6ET1"
-        };
+<script>
+    var firebaseConfig = {
+        apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
+        authDomain: "shop-reminder-3ce10.firebaseapp.com",
+        databaseURL: "https://shop-reminder-3ce10-default-rtdb.firebaseio.com",
+        projectId: "shop-reminder-3ce10",
+        storageBucket: "shop-reminder-3ce10.appspot.com",
+        messagingSenderId: "555627569260",
+        appId: "1:555627569260:web:3948ae391eab6eb5ea7849",
+        measurementId: "G-BP5EYR6ET1"
+    };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
 
-        // Function to validate login
-        function validateLogin() {
-            var name = document.getElementById('name').value.trim();
-            var mobile = document.getElementById('mobile').value.trim();
+    // Array of blocked mobile numbers
+    var blockedNumbers = ['7000913701', '9876543210', '9123456789']; // Add more numbers here
 
-            // Validate name
-            if (name.length < 4) {
-                alert('Please enter a valid shop name.');
-                return;
-            }
+    // Function to validate login
+    function validateLogin() {
+        var name = document.getElementById('name').value.trim();
+        var mobile = document.getElementById('mobile').value.trim();
 
-            // Validate mobile number
-            if (!/^[6-9]\d{9}$/.test(mobile)) {
-                alert('Please enter a valid mobile number.');
-                return;
-            }
-
-            // Check if the name is user-0, user-1, or user-2
-            var lowerName = name.toLowerCase();
-            if (lowerName === 'Mohit chawla' || lowerName === 'honey digital' || lowerName === 'user-1') {
-                window.location.href = '/mywebsite/NEWWEBSITE/blocked.html'; // Change to the desired URL
-                return;
-            }
-
-            var database = firebase.database();
-            var userRef = database.ref('users').push({
-                name: name,
-                mobile: mobile,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-
-            localStorage.setItem('name', name);
-            localStorage.setItem('mobile', mobile);
-            localStorage.setItem('loggedIn', 'true');
-            console.log('Name and mobile stored for auto-login:', name, mobile);
-
-            document.getElementById('login-container').style.display = 'none';
-            document.getElementById('content').style.display = 'block';
-            document.getElementById('user-name').innerText = name;
+        // Validate name
+        if (name.length < 4) {
+            alert('Please enter a valid shop name.');
+            return;
         }
 
-        function autoLogin() {
-            console.log('autoLogin function called');
-            var storedName = localStorage.getItem('name');
-            var storedMobile = localStorage.getItem('mobile');
-
-            console.log('Stored Name:', storedName);
-            console.log('Stored Mobile:', storedMobile);
-
-            if (storedName && storedMobile) {
-                document.getElementById('name').value = storedName;
-                document.getElementById('mobile').value = storedMobile;
-                validateLogin();
-            }
+        // Validate mobile number
+        if (!/^[6-9]\d{9}$/.test(mobile)) {
+            alert('Please enter a valid mobile number.');
+            return;
         }
 
-        function logout() {
-            localStorage.removeItem('name');
-            localStorage.removeItem('mobile');
-            localStorage.removeItem('loggedIn');
-            console.log('User logged out.');
-            window.location.href = 'https://hunkaammy.github.io/mywebsite/'; // Redirect to the desired URL after logout
+        // Check if the mobile number is in the blocked list
+        if (blockedNumbers.includes(mobile)) {
+            window.location.href = '/mywebsite/NEWWEBSITE/blocked.html'; // Redirect to blocked page
+            return;
         }
 
-        window.onload = autoLogin;
-    </script>
+        // Check if the name is user-0, user-1, or user-2
+        var lowerName = name.toLowerCase();
+        if (lowerName === 'mohit chawla' || lowerName === 'honey digital' || lowerName === 'user-1') {
+            window.location.href = '/mywebsite/NEWWEBSITE/blocked.html'; // Redirect to blocked page
+            return;
+        }
+
+        var database = firebase.database();
+        var userRef = database.ref('users').push({
+            name: name,
+            mobile: mobile,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+
+        localStorage.setItem('name', name);
+        localStorage.setItem('mobile', mobile);
+        localStorage.setItem('loggedIn', 'true');
+        console.log('Name and mobile stored for auto-login:', name, mobile);
+
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+        document.getElementById('user-name').innerText = name;
+    }
+
+    function autoLogin() {
+        console.log('autoLogin function called');
+        var storedName = localStorage.getItem('name');
+        var storedMobile = localStorage.getItem('mobile');
+
+        console.log('Stored Name:', storedName);
+        console.log('Stored Mobile:', storedMobile);
+
+        if (storedName && storedMobile) {
+            document.getElementById('name').value = storedName;
+            document.getElementById('mobile').value = storedMobile;
+            validateLogin();
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('name');
+        localStorage.removeItem('mobile');
+        localStorage.removeItem('loggedIn');
+        console.log('User logged out.');
+        window.location.href = 'https://hunkaammy.github.io/mywebsite/'; // Redirect to the desired URL after logout
+    }
+
+    window.onload = autoLogin;
+</script>
+
+
 
 </body>
 </html>
