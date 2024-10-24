@@ -277,10 +277,10 @@ button, input, select, textarea {
         }
 
         /* Your existing card styles */
-        #containers {
+        #containers  {
     margin-bottom: 16px;
-    MARGIN-TOP: 2px;
-    margin-left: 61px;
+    MARGIN-TOP: 14px;
+    margin-left: 70px;
     /* display: block; */
     /* float: right; */
 }
@@ -420,7 +420,7 @@ button, input, select, textarea {
     top: 85px;
     font-size: 10px;
     position: fixed;
-    width: 75px;
+    width: 90px;
     overflow: auto;
     z-index: 1;
     HEIGHT: 100%;
@@ -637,6 +637,80 @@ button, input, select, textarea {
         margin-bottom: 10px;
         border-radius: 4px;
     }
+	
+/* Scrollable vertical container */
+.tab-scroll-wrapper {
+    MARGIN-TOP: 10PX;
+    overflow-y: auto;
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: fixed;
+    HEIGHT: 100%;
+}
+/* Flexbox layout for vertical tab items */
+.tab-items {
+    display: flex;
+    flex-direction: column; /* Makes the tabs vertical */
+    gap: 20px; /* Spacing between tabs */
+}
+
+/* Circular tab button styling */
+.tab-item {
+    width: 88px;
+    height: 93px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #f5f5f5;
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, background-color 0.2s;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    font-size: 9px;
+    color: #333;
+    cursor: pointer;
+    flex-shrink: 0;
+    /* padding: 10px; */
+}
+
+.tab-item.active {
+    background-color: #ffcc00;
+    color: black;
+    font-weight: bold;
+}
+
+.tab-item:hover {
+    transform: scale(1.05);
+    background-color: #ffcc00;
+}
+
+/* Image inside circular tab */
+.tab-item img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 50%;
+
+}
+
+/* Vertical scrollbar styling */
+.tab-scroll-wrapper::-webkit-scrollbar {
+    width: 8px;
+}
+
+.tab-scroll-wrapper::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
+.tab-scroll-wrapper::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+}
+
+
 </style>
 
 
@@ -687,45 +761,130 @@ function scrollToTop() {
  
 
 
-  <div class="tab-btns" onclick="scrollToTop()">
-    <div class="tab-btn" ng-click="setTab('', 0)" ng-class="{ 'active': activeTab === 0 }">ALL PRODUCTS</div>
-	 <div class="tab-btn" ng-click="setTab('RACKET', 6)" ng-class="{ 'active': activeTab === 6 }">RACKET</div>
-	  <div class="tab-btn" ng-click="setTab('MIX', 9)" ng-class="{ 'active': activeTab === 9 }">MIX TOYS</div> 
-	      <div class="tab-btn" ng-click="setTab('BATTERY', 13)" ng-class="{ 'active': activeTab === 13 }">BATTERY OPERATED</div>
-	   <div class="tab-btn" ng-click="setTab('REMOTE', 7)" ng-class="{ 'active': activeTab === 7 }">REMOTE CAR</div>
-	<div class="tab-btn" ng-click="setTab('RIDDER', 11)" ng-class="{ 'active': activeTab === 11 }">MAGIC RIDDER</div>
-	<div class="tab-btn" ng-click="setTab('HIGH QUALITY', 25)" ng-class="{ 'active': activeTab === 25 }">HIGH QUALITY INDIAN TOYS</div>  
-    <div class="tab-btn" ng-click="setTab('OWN', 30)" ng-class="{ 'active': activeTab === 30 }">HT PRODUCTS</div>  
-    <div class="tab-btn" ng-click="setTab('PALNA', 29)" ng-class="{ 'active': activeTab === 29 }">PALNA</div>  
-    <div class="tab-btn" ng-click="setTab('WALKER', 5)" ng-class="{ 'active': activeTab === 5 }">WALKER</div>
-  
-    <div class="tab-btn" ng-click="setTab('LUNCH BOX', 28)" ng-class="{ 'active': activeTab === 28}">LUNCH BOX</div> 
-    <div class="tab-btn" ng-click="setTab('PENCIL BOX', 27)" ng-class="{ 'active': activeTab === 27}">PENCIL BOX</div>
-    <div class="tab-btn" ng-click="setTab('BOTTLE', 23)" ng-class="{ 'active': activeTab === 23 }">WATER BOTTLE</div>  
-    
-    <div class="tab-btn" ng-click="setTab('BOARD GAME', 26)" ng-class="{ 'active': activeTab === 26 }">BOARD GAME</div>  
-  
-   
-
-   
-    <div class="tab-btn" ng-click="setTab('EDUCATIONAL', 22)" ng-class="{ 'active': activeTab === 22 }">EDUCATIONAL TOYS</div> 
-    <div class="tab-btn" ng-click="setTab('INTEX', 21)" ng-class="{ 'active': activeTab === 21 }">INTEX ITEMS</div>  
-    <div class="tab-btn" ng-click="setTab('STUDY TABLE', 20)" ng-class="{ 'active': activeTab === 20 }">STUDY TABLE</div>
-    <div class="tab-btn" ng-click="setTab('SOFT TOY', 19)" ng-class="{ 'active': activeTab === 19 }">SOFT TOY</div>
-    <div class="tab-btn" ng-click="setTab('SPORTS', 18)" ng-class="{ 'active': activeTab === 18 }">SPORTS ITEM</div>
-    <div class="tab-btn" ng-click="setTab('LUMO', 10)" ng-class="{ 'active': activeTab === 10 }">LUMO PRODUCTS</div>
-    <div class="tab-btn" ng-click="setTab('PATTA', 17)" ng-class="{ 'active': activeTab === 17 }">PATTA ITEMS</div>
-    <div class="tab-btn" ng-click="setTab('GUN', 15)" ng-class="{ 'active': activeTab === 15 }">GUNS VARIETY</div>
-    <div class="tab-btn" ng-click="setTab('STATIONERY', 1)" ng-class="{ 'active': activeTab === 1 }">STATIONERY ITEMS</div>
-    <div class="tab-btn" ng-click="setTab('BLOCKS', 3)" ng-class="{ 'active': activeTab === 3 }">BLOCKS</div>
-    <div class="tab-btn" ng-click="setTab('PALNA WALKER', 5)" ng-class="{ 'active': activeTab === 5 }">WALKER & PALNA</div>
-
-    <div class="tab-btn" ng-click="setTab('DOLL', 8)" ng-class="{ 'active': activeTab === 8 }">DOLL</div>
-
-    <div class="tab-btn" ng-click="setTab('FANCY', 12)" ng-class="{ 'active': activeTab === 12 }">FANCY ITEMS</div>
-    <div class="tab-btn" ng-click="setTab('DOZEN', 14)" ng-class="{ 'active': activeTab === 14 }">DOZEN PACKING ITEMS</div>
-    <div class="tab-btn" ng-click="setTab('GUN', 16)" ng-class="{ 'active': activeTab === 16 }">EMPTY</div>
+<div class="tab-scroll-wrapper">
+    <div class="tab-items" onclick="scrollToTop()">
+        <div class="tab-item" ng-click="setTab('', 0)" ng-class="{ 'active': activeTab === 0 }">
+            <img src="https://www.hindustantoys.in/images/all.jpeg" alt="All Products">
+            ALL PRODUCTS
+        </div>
+        <div class="tab-item" ng-click="setTab('RACKET', 6)" ng-class="{ 'active': activeTab === 6 }">
+            <img src="https://www.hindustantoys.in/images/racket.jpeg" alt="Racket">
+            RACKET
+        </div>
+        <div class="tab-item" ng-click="setTab('MIX', 9)" ng-class="{ 'active': activeTab === 9 }">
+            <img src="https://www.hindustantoys.in/images/mix.jpeg" alt="Mix Toys">
+            MIX TOYS
+        </div>
+        <div class="tab-item" ng-click="setTab('BATTERY', 13)" ng-class="{ 'active': activeTab === 13 }">
+            <img src="https://www.hindustantoys.in/images/battery.jpeg" alt="Battery Operated">
+            BATTERY OPERATED
+        </div>
+        <div class="tab-item" ng-click="setTab('REMOTE', 7)" ng-class="{ 'active': activeTab === 7 }">
+            <img src="https://www.hindustantoys.in/images/remote.jpeg" alt="Remote Car">
+            REMOTE CAR
+        </div>
+        <div class="tab-item" ng-click="setTab('RIDDER', 11)" ng-class="{ 'active': activeTab === 11 }">
+            <img src="https://www.hindustantoys.in/images/ridder.jpeg" alt="Magic Ridder">
+            MAGIC RIDDER
+        </div>
+        <div class="tab-item" ng-click="setTab('HIGH QUALITY', 25)" ng-class="{ 'active': activeTab === 25 }">
+            <img src="https://www.hindustantoys.in/images/high.jpeg" alt="High Quality Indian Toys">
+            HIGH QUALITY INDIAN TOYS
+        </div>
+        <div class="tab-item" ng-click="setTab('OWN', 30)" ng-class="{ 'active': activeTab === 30 }">
+            <img src="https://www.hindustantoys.in/images/htquality.jpg" alt="HT Products">
+            HT PRODUCTS
+        </div>
+        <div class="tab-item" ng-click="setTab('PALNA', 29)" ng-class="{ 'active': activeTab === 29 }">
+            <img src="https://www.hindustantoys.in/images/palna.png" alt="Palna">
+            PALNA
+        </div>
+        <div class="tab-item" ng-click="setTab('WALKER', 5)" ng-class="{ 'active': activeTab === 5 }">
+            <img src="https://www.hindustantoys.in/images/walker.jpeg" alt="Walker">
+            WALKER
+        </div>
+        <div class="tab-item" ng-click="setTab('LUNCH BOX', 28)" ng-class="{ 'active': activeTab === 28 }">
+            <img src="path/to/lunch-box.jpg" alt="Lunch Box">
+            LUNCH BOX
+        </div>
+        <div class="tab-item" ng-click="setTab('PENCIL BOX', 27)" ng-class="{ 'active': activeTab === 27 }">
+            <img src="path/to/pencil-box.jpg" alt="Pencil Box">
+            PENCIL BOX
+        </div>
+        <div class="tab-item" ng-click="setTab('BOTTLE', 23)" ng-class="{ 'active': activeTab === 23 }">
+            <img src="path/to/water-bottle.jpg" alt="Water Bottle">
+            WATER BOTTLE
+        </div>
+        <div class="tab-item" ng-click="setTab('BOARD GAME', 26)" ng-class="{ 'active': activeTab === 26 }">
+            <img src="path/to/board-game.jpg" alt="Board Game">
+            BOARD GAME
+        </div>
+        <div class="tab-item" ng-click="setTab('EDUCATIONAL', 22)" ng-class="{ 'active': activeTab === 22 }">
+            <img src="path/to/educational-toys.jpg" alt="Educational Toys">
+            EDUCATIONAL TOYS
+        </div>
+        <div class="tab-item" ng-click="setTab('INTEX', 21)" ng-class="{ 'active': activeTab === 21 }">
+            <img src="path/to/intex.jpg" alt="Intex Items">
+            INTEX ITEMS
+        </div>
+        <div class="tab-item" ng-click="setTab('STUDY TABLE', 20)" ng-class="{ 'active': activeTab === 20 }">
+            <img src="path/to/study-table.jpg" alt="Study Table">
+            STUDY TABLE
+        </div>
+        <div class="tab-item" ng-click="setTab('SOFT TOY', 19)" ng-class="{ 'active': activeTab === 19 }">
+            <img src="path/to/soft-toy.jpg" alt="Soft Toy">
+            SOFT TOY
+        </div>
+        <div class="tab-item" ng-click="setTab('SPORTS', 18)" ng-class="{ 'active': activeTab === 18 }">
+            <img src="path/to/sports.jpg" alt="Sports Item">
+            SPORTS ITEM
+        </div>
+        <div class="tab-item" ng-click="setTab('LUMO', 10)" ng-class="{ 'active': activeTab === 10 }">
+            <img src="path/to/lumo.jpg" alt="Lumo Products">
+            LUMO PRODUCTS
+        </div>
+        <div class="tab-item" ng-click="setTab('PATTA', 17)" ng-class="{ 'active': activeTab === 17 }">
+            <img src="path/to/patta-items.jpg" alt="Patta Items">
+            PATTA ITEMS
+        </div>
+        <div class="tab-item" ng-click="setTab('GUN', 15)" ng-class="{ 'active': activeTab === 15 }">
+            <img src="path/to/guns.jpg" alt="Guns Variety">
+            GUNS VARIETY
+        </div>
+        <div class="tab-item" ng-click="setTab('STATIONERY', 1)" ng-class="{ 'active': activeTab === 1 }">
+            <img src="path/to/stationery.jpg" alt="Stationery Items">
+            STATIONERY ITEMS
+        </div>
+        <div class="tab-item" ng-click="setTab('BLOCKS', 3)" ng-class="{ 'active': activeTab === 3 }">
+            <img src="path/to/blocks.jpg" alt="Blocks">
+            BLOCKS
+        </div>
+        <div class="tab-item" ng-click="setTab('PALNA WALKER', 5)" ng-class="{ 'active': activeTab === 5 }">
+            <img src="path/to/palna-walker.jpg" alt="Walker & Palna">
+            WALKER & PALNA
+        </div>
+        <div class="tab-item" ng-click="setTab('DOLL', 8)" ng-class="{ 'active': activeTab === 8 }">
+            <img src="path/to/doll.jpg" alt="Doll">
+            DOLL
+        </div>
+        <div class="tab-item" ng-click="setTab('FANCY', 12)" ng-class="{ 'active': activeTab === 12 }">
+            <img src="path/to/fancy-items.jpg" alt="Fancy Items">
+            FANCY ITEMS
+        </div>
+        <div class="tab-item" ng-click="setTab('DOZEN', 14)" ng-class="{ 'active': activeTab === 14 }">
+            <img src="path/to/dozen-packing.jpg" alt="Dozen Packing Items">
+            DOZEN PACKING ITEMS
+        </div>
+        <div class="tab-item" ng-click="setTab('GUN', 16)" ng-class="{ 'active': activeTab === 16 }">
+            <img src="path/to/empty.jpg" alt="Empty">
+            EMPTY
+        </div>
+    </div>
 </div>
+
+
+
+
 <body ng-controller="imagesController as vm">
 
 
