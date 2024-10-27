@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch Firebase Storage Images</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+</head>
+
+<body>
+    <h1>Firebase Storage Images</h1>
+
+    <button id="downloadButton">Download All Images</button>
+    <div id="imageList"></div>
+
+    <script>
+        // Initialize Firebase configuration
+        const firebaseConfig = {
+             apiKey: "AIzaSyBPc51z-pGrtKwtB5dKTMPei-fVRg4ePME",
+  authDomain: "pagdi-6f8ce.firebaseapp.com",
+  databaseURL: "https://pagdi-6f8ce-default-rtdb.firebaseio.com",
+  projectId: "pagdi-6f8ce",
+  storageBucket: "pagdi-6f8ce.appspot.com",
+  messagingSenderId: "746289566527",
+  appId: "1:746289566527:web:4c32c4fec73bb7e898798a",
+  measurementId: "G-CXW0QZRHFG"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const storage = firebase.storage();
+
+        // Function to fetch all images from storage and display them
+        async function fetchImages() {
+            const storageRef = storage.ref();
+            const imageListDiv = document.getElementById('imageList');
+
+            try {
+                const result = await storageRef.listAll();
+                const files = result.items;
+
+                // Clear the image list div
+                imageListDiv.innerHTML = '';
+                window.imageUrls = []; // Array to store image URLs
+
+                for (const fileRef of files) {
+                    // Get the download URL for each file
+                    const fileUrl = await fileRef.getDownloadURL();
+                    window.imageUrls.push(fileUrl); // Store URL for later use
+
+                    const imageElement = document.createElement('img');
+                    imageElement.src = fileUrl;
+                    imageElement.alt = fileRef.name;
+                    imageElement.style.width = '200px'; // Set desired image width
+                    imageElement.style.margin = '10px'; // Set margins
+                    imageElement.style.border = '1px solid black'; // Add a border
+
+                    // Append the image to the image list div
+                    imageListDiv.appendChild(imageElement);
+                }
+            } catch (error) {
+                console.error("Error fetching images: ", error);
+                imageListDiv.innerHTML = 'Error fetching images.';
+            }
+        }
+
+        // Function to download all images
+        function downloadImages() {
+            window.imageUrls.forEach((url, index) => {
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `image${index + 1}.png`; // You can change the name format
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link); // Clean up
+            });
+        }
+
+        // Call the function to fetch images
+        fetchImages();
+
+        // Add event listener to download button
+        document.getElementById('downloadButton').addEventListener('click', downloadImages);
+    </script>
+</body>
+
+</html>
