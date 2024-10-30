@@ -1289,20 +1289,21 @@ $('document').ready(function(){
         document.getElementById('user-name').innerText = name;
     }
 
-    function autoLogin() {
-        console.log('autoLogin function called');
-        var storedName = localStorage.getItem('name');
-        var storedMobile = localStorage.getItem('mobile');
+function autoLogin() {
+    var storedName = localStorage.getItem('name');
+    var storedMobile = localStorage.getItem('mobile');
 
-        console.log('Stored Name:', storedName);
-        console.log('Stored Mobile:', storedMobile);
-
-        if (storedName && storedMobile) {
-            document.getElementById('name').value = storedName;
-            document.getElementById('mobile').value = storedMobile;
-            validateLogin();
-        }
+    // Check against blocked conditions before logging in
+    if (storedMobile === '7000913701' || storedName.toLowerCase() === 'mohit chawla') {
+        return; // Do not proceed if blocked
     }
+
+    if (storedName && storedMobile) {
+        document.getElementById('name').value = storedName;
+        document.getElementById('mobile').value = storedMobile;
+        validateLogin();
+    }
+}
 
     function logout() {
         localStorage.removeItem('name');
