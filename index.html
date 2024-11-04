@@ -1225,6 +1225,7 @@ $('document').ready(function(){
 </div>
 
 <script>
+
     var firebaseConfig = {
         apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
         authDomain: "shop-reminder-3ce10.firebaseapp.com",
@@ -1247,7 +1248,13 @@ $('document').ready(function(){
         var name = document.getElementById('name').value.trim();
         var mobile = document.getElementById('mobile').value.trim();
 
-        // Validate name
+        // Check if the mobile number or the name is blocked
+        if (mobile === '7000913701' || name.toLowerCase() === 'mohit chawla') {
+            window.location.href = '/mywebsite/NEWWEBSITE/blocked.html'; // Redirect to blocked page
+            return;
+        }
+
+        // Validate name length
         if (name.length < 4) {
             alert('Please enter a valid shop name.');
             return;
@@ -1265,13 +1272,7 @@ $('document').ready(function(){
             return;
         }
 
-        // Check if the name is user-0, user-1, or user-2
-        var lowerName = name.toLowerCase();
-        if (lowerName === 'mohit chawla' || lowerName === 'honey digital' || lowerName === 'user-1') {
-            window.location.href = '/mywebsite/NEWWEBSITE/blocked.html'; // Redirect to blocked page
-            return;
-        }
-
+        // Store the user information in the Firebase database
         var database = firebase.database();
         var userRef = database.ref('users').push({
             name: name,
@@ -1284,36 +1285,39 @@ $('document').ready(function(){
         localStorage.setItem('loggedIn', 'true');
         console.log('Name and mobile stored for auto-login:', name, mobile);
 
+        // Show the main content
         document.getElementById('login-container').style.display = 'none';
         document.getElementById('content').style.display = 'block';
         document.getElementById('user-name').innerText = name;
     }
 
-function autoLogin() {
-    var storedName = localStorage.getItem('name');
-    var storedMobile = localStorage.getItem('mobile');
+    function autoLogin() {
+        var storedName = localStorage.getItem('name');
+        var storedMobile = localStorage.getItem('mobile');
 
-    // Check against blocked conditions before logging in
-    if (storedMobile === '7000913701' || storedName.toLowerCase() === 'mohit chawla') {
-        return; // Do not proceed if blocked
-    }
+        // Check against blocked conditions before logging in
+        if (storedMobile === '7000913701' || storedName.toLowerCase() === 'mohit chawla') {
+            window.location.href = '/mywebsite/NEWWEBSITE/blocked.html'; // Redirect to blocked page
+            return; // Do not proceed if blocked
+        }
 
-    if (storedName && storedMobile) {
-        document.getElementById('name').value = storedName;
-        document.getElementById('mobile').value = storedMobile;
-        validateLogin();
+        if (storedName && storedMobile) {
+            document.getElementById('name').value = storedName;
+            document.getElementById('mobile').value = storedMobile;
+            validateLogin();
+        }
     }
-}
 
     function logout() {
         localStorage.removeItem('name');
         localStorage.removeItem('mobile');
         localStorage.removeItem('loggedIn');
         console.log('User logged out.');
-        window.location.href = 'https://hunkaammy.github.io/mywebsite/'; // Redirect to the desired URL after logout
+        window.location.href = 'https://hunkaammy.github.io/mywebsite/'; // Redirect after logout
     }
 
     window.onload = autoLogin;
+
 </script>
 
 
