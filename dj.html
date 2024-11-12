@@ -236,6 +236,16 @@
         <button id="add-track-btn" class="add-track-btn">Add Track</button>
     </div>
     
+<div class="track-list-container">
+    <h3>Saved Tracks</h3>
+    <ul id="track-list"></ul>
+    <button id="download-playlist-btn" class="add-track-btn">Download Playlist</button>
+    <div class="add-track-container">
+        <input type="file" id="import-playlist-input" accept=".csv" style="display: none;">
+        <label for="import-playlist-input" class="add-track-btn">Import Playlist</label>
+    </div>
+</div>
+
     <div class="track-list-container">
         <h3>Saved Tracks</h3>
         <ul id="track-list"></ul>
@@ -381,6 +391,8 @@
                 return;
             }
 
+
+
             // Get saved tracks
             const savedTracks = JSON.parse(localStorage.getItem('tracks')) || [];
             savedTracks.push({ name: trackName, url: trackUrl });
@@ -418,6 +430,71 @@
             const selectedTrackUrl = trackList2.value;
             loadSelectedTrack(player2, selectedTrackUrl);
         });
+
+
+// Function to download the saved tracks as a text file
+function downloadPlaylist() {
+    const savedTracks = JSON.parse(localStorage.getItem('tracks')) || [];
+    if (savedTracks.length === 0) {
+        alert('No tracks saved to download.');
+        return;
+    }
+
+    // Create CSV representation of the tracks
+    const playlistContent = savedTracks.map(track => `${track.name},${track.url}`).join('\n');
+    const blob = new Blob([playlistContent], { type: 'text/csv' });
+
+    // Create a link element to trigger the download
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'playlist.csv'; // Name of the downloaded file
+    document.body.appendChild(link);
+    
+    // Programmatically click the link to trigger the download
+    link.click();
+    
+    // Clean up
+    document.body.removeChild(link);
+}
+
+// Event listener for the download button
+document.getElementById('download-playlist-btn').addEventListener('click', downloadPlaylist);
+
+// Function to handle file input change
+document.getElementById('import-playlist-input').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    
+    if (file) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            const contents = e.target.result;
+            parseCSV(contents);
+        };
+        
+        reader.readAsText(file);
+    }
+});
+
+// Function to parse the CSV and update localStorage
+function parseCSV(data) {
+    const lines = data.split('\n');
+    const savedTracks = JSON.parse(localStorage.getItem('tracks')) || [];
+
+    lines.forEach(line => {
+        const [name, url] = line.split(',').map(item => item.trim());
+        
+        if (name && url) {
+            savedTracks.push({ name, url });
+        }
+    });
+
+    // Save updated tracks to localStorage
+    localStorage.setItem('tracks', JSON.stringify(savedTracks));
+    updateTrackList(); // Refresh the track list display
+    updateSelectLists(); // Refresh dropdowns
+    alert('Playlist imported successfully!');
+}
 
         // Initialize the page by adding default tracks if no tracks are saved in localStorage
         window.onload = function() {
