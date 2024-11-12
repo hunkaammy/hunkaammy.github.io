@@ -5,41 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YouTube DJ Player with Volume Control</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
-            flex-direction: column;
-        }
-        .track-selector, .track-list-container {
-            margin-bottom: 20px;
-            margin-top: 30px;
-        }
-        select, input[type="text"] {
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            width: 250px;
-            background-color: #fff;
-            cursor: pointer;
-        }
+
+        .track-container {
+        display: flex;
+        gap: 20px; /* Optional, for spacing between selectors */
+    }
+    .track-selector {
+        flex: 1;
+    }
+        select, input[type="text"]  {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 188px;
+    background-color: #fff;
+    cursor: pointer;
+    margin-left: 6px;
+}
         label {
             font-size: 18px;
             font-weight: bold;
             margin-bottom: 10px;
             display: block;
         }
-        .player-container {
-            text-align: center;
-        }
-        .video-player {
-            margin-bottom: 20px;
-        }
+           .player-container {
+        display: flex;
+        gap: 20px; /* Optional, for spacing between videos */
+    }
+    .video-player {
+        flex: 1;
+    }
+
         .volume-control {
             display: flex;
             justify-content: center;
@@ -83,24 +80,34 @@
         }
     </style>
 </head>
+
 <body>
-    <div class="track-selector">
-        <label for="track-list1">Select a track for Player 1:</label>
-        <select id="track-list1"></select>
-    </div>
-    <div class="track-selector">
-        <label for="track-list2">Select a track for Player 2:</label>
-        <select id="track-list2"></select>
-    </div>
-    <div class="player-container">
-        <div class="video-player" id="player1">
-            <iframe id="youtube-player1" width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&enablejsapi=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <div class="track-container">
+     
+        <div class="track-selector">
+            <label for="track-list2">DECK-1:</label>
+            <select id="track-list2"></select>
         </div>
-        <div class="video-player" id="player2">
-            <iframe id="youtube-player2" width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&enablejsapi=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+		
+		   <div class="track-selector">
+            <label for="track-list1">DECK-2:</label>
+            <select id="track-list1"></select>
         </div>
     </div>
-    
+
+
+<div class="player-container">
+
+  <div class="video-player" id="player2">
+        <iframe id="youtube-player2" width="200" height="150" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&enablejsapi=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+
+    <div class="video-player" id="player1">
+        <iframe id="youtube-player1" width="200" height="150" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&enablejsapi=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+  
+</div>
+
     <div class="volume-control">
         <input type="range" id="volume1" class="volume-slider" min="0" max="100" value="50">
         <span id="volume-level1" class="volume-level">50</span>
