@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube DJ Player with Volume Control</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            flex-direction: column;
+        }
+        .track-selector, .track-list-container {
+            margin-bottom: 20px;
+            margin-top: 30px;
+        }
+        select, input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 250px;
+            background-color: #fff;
+            cursor: pointer;
+        }
+        label {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .player-container {
+            text-align: center;
+        }
+        .video-player {
+            margin-bottom: 20px;
+        }
+        .volume-control {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .volume-slider {
+            width: 200px;
+            margin-right: 10px;
+        }
+        .volume-level {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .add-track-container {
+            margin-top: 20px;
+        }
+        .add-track-btn {
+            padding: 8px 12px;
+            font-size: 16px;
+            margin-left: 10px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        .add-track-btn:hover {
+            background-color: #45a049;
+        }
+        .track-list-container ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .track-list-container li {
+            margin: 5px 0;
+        }
+        button {
+            margin-left: 10px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="track-selector">
+        <label for="track-list1">Select a track for Player 1:</label>
+        <select id="track-list1"></select>
+    </div>
+    <div class="track-selector">
+        <label for="track-list2">Select a track for Player 2:</label>
+        <select id="track-list2"></select>
+    </div>
+    <div class="player-container">
+        <div class="video-player" id="player1">
+            <iframe id="youtube-player1" width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&enablejsapi=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+        <div class="video-player" id="player2">
+            <iframe id="youtube-player2" width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&enablejsapi=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+    </div>
+    
+    <div class="volume-control">
+        <input type="range" id="volume1" class="volume-slider" min="0" max="100" value="50">
+        <span id="volume-level1" class="volume-level">50</span>
+    </div>
+    <div class="volume-control">
+        <input type="range" id="volume2" class="volume-slider" min="0" max="100" value="50">
+        <span id="volume-level2" class="volume-level">50</span>
+    </div>
+
+    <div class="add-track-container">
+        <input type="text" id="track-url-input" placeholder="Enter full YouTube URL">
+        <input type="text" id="track-name-input" placeholder="Enter track name">
+        <button id="add-track-btn" class="add-track-btn">Add Track</button>
+    </div>
+    
+    <div class="track-list-container">
+        <h3>Saved Tracks</h3>
+        <ul id="track-list"></ul>
+    </div>
+
+    <script>
+        // Function to load YouTube API
+        function loadYouTubeAPI() {
+            const script = document.createElement('script');
+            script.src = "https://www.youtube.com/iframe_api";
+            document.body.appendChild(script);
+        }
+
+        let player1, player2;
+
+        function onYouTubeIframeAPIReady() {
+            player1 = new YT.Player('youtube-player1', {
+                events: {
+                    'onReady': onPlayerReady1
+                }
+            });
+            player2 = new YT.Player('youtube-player2', {
+                events: {
+                    'onReady': onPlayerReady2
+                }
+            });
+        }
+
+        function onPlayerReady1() {
+            player1.setVolume(50);
+        }
+
+        function onPlayerReady2() {
+            player2.setVolume(50);
+        }
+
+        const volumeControl1 = document.getElementById('volume1');
+        const volumeLevel1 = document.getElementById('volume-level1');
+        
+        volumeControl1.addEventListener('input', function() {
+            const volume = volumeControl1.value;
+            player1.setVolume(volume);
+            player2.setVolume(100 - volume);
+            volumeLevel1.textContent = volume;
+        });
+
+        const volumeControl2 = document.getElementById('volume2');
+        const volumeLevel2 = document.getElementById('volume-level2');
+
+        volumeControl2.addEventListener('input', function() {
+            const volume = volumeControl2.value;
+            player2.setVolume(volume);
+            player1.setVolume(100 - volume);
+            volumeLevel2.textContent = volume;
+        });
+
+        const trackList1 = document.getElementById('track-list1');
+        const trackList2 = document.getElementById('track-list2');
+
+        // Function to update both select dropdowns with saved tracks
+        function updateSelectLists() {
+            trackList1.innerHTML = '';
+            trackList2.innerHTML = '';
+            const savedTracks = JSON.parse(localStorage.getItem('tracks')) || [];
+
+            savedTracks.forEach((track) => {
+                const option1 = document.createElement('option');
+                option1.value = track.url;
+                option1.textContent = track.name;
+                trackList1.appendChild(option1);
+
+                const option2 = document.createElement('option');
+                option2.value = track.url;
+                option2.textContent = track.name;
+                trackList2.appendChild(option2);
+            });
+        }
+
+        // Load and update the track list
+        function updateTrackList() {
+            const trackList = document.getElementById('track-list');
+            trackList.innerHTML = ''; // Clear previous tracks
+            
+            const savedTracks = JSON.parse(localStorage.getItem('tracks')) || [];
+
+            if (savedTracks.length === 0) {
+                return;
+            }
+
+            savedTracks.forEach((track, index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${track.name} - ${track.url}`;
+                
+                // Edit button
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Edit';
+                editButton.onclick = () => {
+                    const newName = prompt('Enter new track name:', track.name);
+                    const newUrl = prompt('Enter new track URL:', track.url);
+                    if (newName && newUrl) {
+                        track.name = newName;
+                        track.url = newUrl;
+                        localStorage.setItem('tracks', JSON.stringify(savedTracks));
+                        updateTrackList(); // Refresh the list
+                        updateSelectLists(); // Refresh the dropdowns
+                    }
+                };
+
+                // Delete button
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.onclick = () => {
+                    savedTracks.splice(index, 1); // Remove the track from the array
+                    localStorage.setItem('tracks', JSON.stringify(savedTracks));
+                    updateTrackList(); // Refresh the list
+                    updateSelectLists(); // Refresh the dropdowns
+                };
+
+                listItem.appendChild(editButton);
+                listItem.appendChild(deleteButton);
+                trackList.appendChild(listItem);
+            });
+        }
+
+        // Adding default tracks if none exist
+        function addDefaultTracks() {
+            const defaultTracks = [
+                { name: "Track 1", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
+                { name: "Track 2", url: "https://www.youtube.com/watch?v=kJQP7kiw5Fk" }
+            ];
+            localStorage.setItem('tracks', JSON.stringify(defaultTracks));
+            updateTrackList();
+            updateSelectLists();
+        }
+
+        // Event listener for adding tracks
+        document.getElementById('add-track-btn').addEventListener('click', function() {
+            const trackName = document.getElementById('track-name-input').value;
+            const trackUrl = document.getElementById('track-url-input').value;
+
+            if (trackName.trim() === '' || trackUrl.trim() === '') {
+                alert('Both track name and URL are required!');
+                return;
+            }
+
+            // Get saved tracks
+            const savedTracks = JSON.parse(localStorage.getItem('tracks')) || [];
+            savedTracks.push({ name: trackName, url: trackUrl });
+            localStorage.setItem('tracks', JSON.stringify(savedTracks));
+            updateTrackList(); // Refresh the list
+            updateSelectLists(); // Refresh the dropdowns
+
+            // Clear the input fields
+            document.getElementById('track-name-input').value = '';
+            document.getElementById('track-url-input').value = '';
+        });
+
+        // Function to load selected video in players when an option is selected
+        function loadSelectedTrack(player, trackUrl) {
+            const videoId = extractYouTubeId(trackUrl);
+            if (videoId) {
+                player.loadVideoById(videoId, 0); // Load the video by ID into the player
+            }
+        }
+
+        // Helper function to extract the YouTube video ID from a URL
+        function extractYouTubeId(url) {
+            const regex = /(?:https?:\/\/(?:www\.)?youtube\.com\/(?:[^\/]+\/\S+|(?:v|e(?:mbed)?)\/|\S*\?v=|.*\/)([^"&?\/\s]{11}))/;
+            const match = url.match(regex);
+            return match && match[1] ? match[1] : null;
+        }
+
+        // Event listeners for when a track is selected from the dropdowns
+        trackList1.addEventListener('change', function() {
+            const selectedTrackUrl = trackList1.value;
+            loadSelectedTrack(player1, selectedTrackUrl);
+        });
+
+        trackList2.addEventListener('change', function() {
+            const selectedTrackUrl = trackList2.value;
+            loadSelectedTrack(player2, selectedTrackUrl);
+        });
+
+        // Initialize the page by adding default tracks if no tracks are saved in localStorage
+        window.onload = function() {
+            const savedTracks = JSON.parse(localStorage.getItem('tracks'));
+            if (!savedTracks || savedTracks.length === 0) {
+                addDefaultTracks();
+            } else {
+                updateTrackList();
+                updateSelectLists();
+            }
+        };
+
+        // Load YouTube API script
+        loadYouTubeAPI();
+    </script>
+</body>
+</html>
