@@ -8,13 +8,12 @@
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            height: auto;
+            flex-direction: column;
+            align-items: center;
             margin: 0;
             background: linear-gradient(135deg, #2c3e50, #bdc3c7);
             color: white;
-            padding: 10px;
+            padding: 20px;
             box-sizing: border-box;
         }
 
@@ -33,7 +32,20 @@
             font-size: 20px;
         }
 
-        .track-selector, .track-list-container {
+        .track-control-container {
+            display: flex; /* Flex container for track selection */
+            justify-content: space-around;
+            width: 100%;
+            max-width: 600px;
+            margin: 20px 0;
+        }
+
+        .track-selector {
+            margin-right: 10px;
+            flex: 1;
+        }
+
+        .track-list-container {
             margin-bottom: 15px;
             background-color: rgba(44, 62, 80, 0.8);
             padding: 15px;
@@ -43,7 +55,8 @@
             max-width: 600px;
         }
 
-        select, input[type="text"] {
+        select,
+        input[type="text"] {
             padding: 10px;
             font-size: 16px;
             border-radius: 5px;
@@ -65,13 +78,15 @@
         }
 
         .player-container {
-            text-align: center;
+            display: flex; /* Align players inline */
+            justify-content: space-between; /* Space between players */
             margin-bottom: 15px;
             width: 100%;
         }
 
         .video-player {
-            margin-bottom: 20px;
+            flex: 1; /* Make players take equal space */
+            margin: 0 5px; /* Add margin to separate slightly */
             border: 2px solid #2c3e50;
             border-radius: 10px;
             overflow: hidden;
@@ -83,6 +98,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
+            width: 100%;
         }
 
         .volume-slider {
@@ -158,27 +174,34 @@
         }
 
         @media (max-width: 600px) {
-            .track-selector {
-                flex-direction: column;
+            .track-control-container {
+                flex-direction: column; /* Stack controls vertically on small screens */
                 align-items: stretch;
             }
 
-            .volume-control {
-                flex-direction: row;
-                align-items: center;
+            .player-container {
+                flex-direction: column; /* Stack players vertically on small screens */
+                align-items: stretch; /* Make players full width */
+            }
+
+            .video-player {
+                margin: 10px 0; /* Add vertical margin when stacked */
+                width: 100%; /* Make players full width */
             }
         }
     </style>
 </head>
 <body>
     <h1>YouTube DJ Player</h1>
-    <div class="track-selector">
-        <label for="track-list1">Select a track for Player 1:</label>
-        <select id="track-list1"></select>
-    </div>
-    <div class="track-selector">
-        <label for="track-list2">Select a track for Player 2:</label>
-        <select id="track-list2"></select>
+    <div class="track-control-container">
+        <div class="track-selector">
+            <label for="track-list1">Select a track for Player 1:</label>
+            <select id="track-list1"></select>
+        </div>
+        <div class="track-selector">
+            <label for="track-list2">Select a track for Player 2:</label>
+            <select id="track-list2"></select>
+        </div>
     </div>
     <div class="player-container">
         <div class="video-player" id="player1">
@@ -242,7 +265,7 @@
 
         const volumeControl1 = document.getElementById('volume1');
         const volumeLevel1 = document.getElementById('volume-level1');
-        
+
         volumeControl1.addEventListener('input', function() {
             const volume = volumeControl1.value;
             player1.setVolume(volume);
