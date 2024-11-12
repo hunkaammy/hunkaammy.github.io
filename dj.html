@@ -26,11 +26,11 @@
         }
 
         h3 {
-            text-align: center;
-            color: #ECF0F1;
-            margin-bottom: 10px;
-            font-size: 20px;
-        }
+    text-align: center;
+    color: BLACK;
+    margin-bottom: 10px;
+    font-size: 20px;
+}
 
         .track-control-container {
             display: flex; /* Flex container for track selection */
@@ -257,7 +257,7 @@ body {font-family: Arial, Helvetica, sans-serif;}
   <!-- Modal content -->
   <div class="modal-content">
     <span class="close">&times;</span>
-   <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -266,12 +266,28 @@ body {font-family: Arial, Helvetica, sans-serif;}
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 20px;
         }
         .search-container {
+            text-align: center;
             margin-bottom: 20px;
         }
+        .video-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
         .video-result {
-            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            background-color: #f9f9f9;
+        }
+        .video-result img {
+            max-width: 100%;
+            border-radius: 8px;
         }
         button {
             padding: 8px 16px;
@@ -287,6 +303,7 @@ body {font-family: Arial, Helvetica, sans-serif;}
         }
         .copy-btn {
             background-color: #28a745;
+            margin-top: 5px;
         }
         .copy-btn:hover {
             background-color: #218838;
@@ -300,7 +317,7 @@ body {font-family: Arial, Helvetica, sans-serif;}
     <button onclick="searchYouTube()">Search</button>
 </div>
 
-<div id="results"></div>
+<div id="results" class="video-container"></div>
 
 <script>
     const apiKey = 'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A'; // Replace with your API key
@@ -308,7 +325,8 @@ body {font-family: Arial, Helvetica, sans-serif;}
     function searchYouTube() {
         const query = document.getElementById('search-input').value;
         if (query.trim() !== '') {
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&key=${apiKey}`;
+            // Increase maxResults to show more videos (e.g., 20 or up to 50)
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=20&key=${apiKey}`;
             
             fetch(url)
                 .then(response => response.json())
@@ -330,9 +348,9 @@ body {font-family: Arial, Helvetica, sans-serif;}
             const videoUrl = `https://www.youtube.com/watch?v=${video.id.videoId}`;
             videoDiv.innerHTML = `
                 <h3>${video.snippet.title}</h3>
-                <img src="${video.snippet.thumbnails.default.url}" alt="${video.snippet.title}">
-                <p>${video.snippet.description}</p>
-                
+                <img src="${video.snippet.thumbnails.high.url}" alt="${video.snippet.title}">
+              
+          
                 <button class="copy-btn" onclick="copyUrl('${videoUrl}')">Copy URL</button>
             `;
             resultsContainer.appendChild(videoDiv);
@@ -342,19 +360,19 @@ body {font-family: Arial, Helvetica, sans-serif;}
     function copyUrl(url) {
         // Create a temporary input element to copy the URL to the clipboard
         const tempInput = document.createElement('input');
-        tempInput.value = url;
         document.body.appendChild(tempInput);
+        tempInput.value = url;
         tempInput.select();
         document.execCommand('copy');
         document.body.removeChild(tempInput);
-        
-        // Notify the user that the URL has been copied
-        alert('URL copied to clipboard!');
+        alert('Video URL copied to clipboard!');
     }
 </script>
 
 </body>
 </html>
+
+
 
   </div>
 
