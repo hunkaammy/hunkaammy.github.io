@@ -1045,27 +1045,27 @@ app.controller('imagesController', function ($scope, $firebaseArray, $window, $l
         return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
     }
 
-    // Get URL parameters
-    var filterParam = getUrlParameter('filter');
-    var tabParam = getUrlParameter('tab');
+   // Get URL parameters
+var filterParam = getUrlParameter('filter');
+var tabParam = getUrlParameter('tab');
 
-    // Set default values and scope variables based on URL parameters
-    $scope.productNameFilter = filterParam || ''; // Default to empty string if no filter
-    $scope.activeTab = isNaN(tabParam) ? 0 : parseInt(tabParam, 10); // Default to 0 if invalid tab
+// Set default values and scope variables based on URL parameters
+$scope.productNameFilter = filterParam || 'DULHA PAGDI'; // Default to 'pagdi' if no filter
+$scope.activeTab = isNaN(tabParam) ? 0 : parseInt(tabParam, 10); // Default to 0 if invalid tab
 
-    // Define your tab click functions
-    $scope.setTab = function(filter, tab) {
-        $scope.productNameFilter = filter;
-        $scope.activeTab = tab;
-        $location.search('filter', filter);
-        $location.search('tab', tab);
-    };
-	
-	    $scope.resetFilters = function() {
-          $scope.productNameFilter = '';
-          $scope.activeTab = 0;
-          $scope.searchQuery = '';
-        };
+// Define your tab click functions
+$scope.setTab = function(filter, tab) {
+    $scope.productNameFilter = filter;
+    $scope.activeTab = tab;
+    $location.search('filter', filter);
+    $location.search('tab', tab);
+};
+
+$scope.resetFilters = function() {
+    $scope.productNameFilter = 'DULHA PAGDI'; // Reset to 'pagdi'
+    $scope.activeTab = 0; // Reset to tab index 0 or another default if needed
+    $scope.searchQuery = '';
+};
 
     // Optionally, you can add logic to filter `vm.images` based on `productNameFilter` and `activeTab` here
 
