@@ -87,7 +87,6 @@
             flex-direction: column;
         }
 
-        /* Styling the Volume Slider to look like a DJ slider */
         .balance-slider {
             -webkit-appearance: none;
             width: 100%;
@@ -117,14 +116,6 @@
             border-radius: 50%;
             cursor: pointer;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-        }
-
-        .balance-slider:active::-webkit-slider-thumb {
-            background: #1abc9c;
-        }
-
-        .balance-slider:active::-moz-range-thumb {
-            background: #1abc9c;
         }
 
         .volume-percentage {
@@ -189,7 +180,7 @@
 
         @media (max-width: 768px) {
             .player-container {
-                
+               
                 align-items: center;
             }
 
@@ -252,12 +243,14 @@
                 <!-- History rows will be populated here -->
             </tbody>
         </table>
+        <button id="load-more-btn" onclick="loadMoreResults()">Load More Results</button>
     </div>
 
     <script>
         const apiKey = 'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A'; // Replace with your YouTube Data API key.
 
         let player1, player2;
+        let nextPageToken = '';
 
         // Load YouTube API script
         function loadYouTubeAPI() {
@@ -288,7 +281,7 @@
                 return;
             }
 
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=10&key=${apiKey}`;
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=50&key=${apiKey}`;
 
             fetch(url)
                 .then(response => response.json())
@@ -303,13 +296,35 @@
                         trackList.appendChild(option);
                     });
 
-                    // Select the first track and trigger the change event
-                    if (trackList.options.length > 0) {
-                        trackList.selectedIndex = 0;
-                        trackList.dispatchEvent(new Event('change'));
-                    }
+                    nextPageToken = data.nextPageToken; // Store next page token
                 })
                 .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // Function to load more results on button click
+        function loadMoreResults() {
+            const query = document.getElementById('search-deck1').value; // Assuming we load for deck 1
+            if (query.trim() === '') {
+                alert('Please enter a search term.');
+                return;
+            }
+
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=50&pageToken=${nextPageToken}&key=${apiKey}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const trackList = document.getElementById('track-list1');
+                    data.items.forEach(video => {
+                        const option = document.createElement('option');
+                        option.value = video.id.videoId;
+                        option.textContent = video.snippet.title;
+                        trackList.appendChild(option);
+                    });
+
+                    nextPageToken = data.nextPageToken; // Update the nextPageToken for further loading
+                })
+                .catch(error => console.error('Error fetching more results:', error));
         }
 
         // Function to load selected video into the player
@@ -403,7 +418,7 @@
                 const balance = balanceSlider.value;
 
                 // Calculate percentage based on center (50)
-                const percentage = balance < 50 ? (50 - balance) : (balance - 50);
+                const percentage = balance < 50 ? -(50 - balance) : (balance - 50);
 
                 volumePercentage.textContent = `${percentage}%`; // Show percentage
                 if (player1 && player2) {
