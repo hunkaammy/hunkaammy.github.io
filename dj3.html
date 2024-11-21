@@ -38,17 +38,18 @@
             flex: 1;
         }
 
-        label, input, select, button {
-            display: block;
-            margin-top: 10px;
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 5px;
-            border: none;
-            background-color: #34495e;
-            color: white;
-        }
+        label, input, select, button{
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 7px;
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+    background-color: #34495e;
+    color: white;
+}
 
         button {
             cursor: pointer;
@@ -212,7 +213,7 @@
     </style>
 </head>
 <body>
-    <h1>YouTube DJ Player with Played History</h1>
+    <h1>SAMMY'S YT DJ PROJECT</h1>
     
     <div class="track-control-container">
         <div class="track-selector">
@@ -444,7 +445,7 @@
                 const balance = balanceSlider.value;
 
                 // Calculate percentage based on center (50)
-                const percentage = balance < 50 ? -(50 - balance) : (balance - 50);
+                const percentage = balance < 50 ? (50 - balance) : (balance - 50);
 
                 volumePercentage.textContent = `${percentage}%`; // Show percentage
                 if (player1 && player2) {
