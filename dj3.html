@@ -178,9 +178,13 @@
             background-color: #c0392b;
         }
 
+        #backup-btn, #restore-btn {
+            margin-top: 20px;
+        }
+
         @media (max-width: 768px) {
             .player-container {
-             
+               
                 align-items: center;
             }
 
@@ -196,7 +200,7 @@
     </style>
 </head>
 <body>
-    <h1>YouTube DJ Player with Played History</h1>
+    <h1>SAMMY'S YT DJ PROJECT</h1>
     
     <div class="track-control-container">
         <div class="track-selector">
@@ -244,6 +248,10 @@
             </tbody>
         </table>
     </div>
+
+    <button id="backup-btn" onclick="backupHistory()">Backup History</button>
+    <input type="file" id="restore-input" style="display:none" onchange="restoreHistory(event)">
+    <button id="restore-btn" onclick="document.getElementById('restore-input').click()">Restore History</button>
 
     <script>
         const apiKey = 'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A'; // Replace with your YouTube Data API key.
@@ -378,6 +386,38 @@
             savedHistory.reverse().forEach(track => {
                 addToHistory(track.title, track.videoId);
             });
+        }
+
+        // Backup history to a file
+        function backupHistory() {
+            const historyData = JSON.parse(localStorage.getItem('playedHistory')) || [];
+            const blob = new Blob([JSON.stringify(historyData, null, 2)], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'played-history.json';
+            link.click();
+        }
+
+        // Restore history from a file
+        function restoreHistory(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const historyData = JSON.parse(e.target.result);
+                if (Array.isArray(historyData)) {
+                    // Clear current history
+                    document.getElementById('history-list').getElementsByTagName('tbody')[0].innerHTML = '';
+                    // Add restored history to the table
+                    historyData.reverse().forEach(track => {
+                        addToHistory(track.title, track.videoId);
+                    });
+                    // Save restored history to localStorage
+                    localStorage.setItem('playedHistory', JSON.stringify(historyData));
+                }
+            };
+            reader.readAsText(file);
         }
 
         // Initialize balance control
