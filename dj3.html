@@ -80,71 +80,126 @@
         .balance-control {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             margin-top: 20px;
             width: 100%;
             max-width: 600px;
+            flex-direction: column;
         }
 
+        /* Styling the Volume Slider to look like a DJ slider */
         .balance-slider {
-            width: 80%;
+            -webkit-appearance: none;
+            width: 100%;
+            height: 25px;
+            background: #34495e;
+            border-radius: 10px;
+            outline: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .balance-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 30px;
+            height: 30px;
+            background: #16a085;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .balance-slider::-moz-range-thumb {
+            width: 30px;
+            height: 30px;
+            background: #16a085;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .balance-slider:active::-webkit-slider-thumb {
+            background: #1abc9c;
+        }
+
+        .balance-slider:active::-moz-range-thumb {
+            background: #1abc9c;
+        }
+
+        .volume-percentage {
+            font-size: 20px;
+            color: #fff;
+            margin-top: 10px;
         }
 
         .history-container {
             width: 100%;
-            max-width: 600px;
+            max-width: 900px;
             background: rgba(255, 255, 255, 0.1);
             padding: 15px;
             border-radius: 8px;
             margin-top: 20px;
+            overflow-x: auto;
         }
 
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 5px;
+        table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        .history-item button {
-            width: auto;
-            margin: 0 5px;
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #34495e;
+            color: white;
+        }
+
+        td button {
             padding: 5px 10px;
             background-color: #16a085;
+            border: none;
+            color: white;
+            cursor: pointer;
         }
 
-        .history-item button:hover {
+        td button:hover {
             background-color: #1abc9c;
         }
 
-        .history-item .edit-btn {
+        .edit-btn {
             background-color: #f39c12;
         }
 
-        .history-item .edit-btn:hover {
+        .edit-btn:hover {
             background-color: #e67e22;
         }
 
-        .history-item .delete-btn {
+        .delete-btn {
             background-color: #e74c3c;
         }
 
-        .history-item .delete-btn:hover {
+        .delete-btn:hover {
             background-color: #c0392b;
         }
 
         @media (max-width: 768px) {
             .player-container {
-                
+                flex-direction: column;
                 align-items: center;
             }
 
             .video-player {
                 width: 90%; /* Make the players more responsive and fill the width on smaller screens */
                 margin: 10px 0;
+            }
+
+            table {
+                font-size: 14px;
             }
         }
     </style>
@@ -178,13 +233,25 @@
     </div>
 
     <div class="balance-control">
-        <label for="balance-slider">Balance Control (Left ? Right):</label>
+        <label for="balance-slider">Balance Control (Left ↔ Right):</label>
         <input type="range" id="balance-slider" class="balance-slider" min="0" max="100" value="50">
+        <div class="volume-percentage" id="volume-percentage">Center (0%)</div>
     </div>
 
     <div class="history-container">
         <h2>Played History</h2>
-        <div id="history-list"></div>
+        <input type="text" id="history-search" placeholder="Search in history" onkeyup="filterHistory()">
+        <table id="history-list">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- History rows will be populated here -->
+            </tbody>
+        </table>
     </div>
 
     <script>
@@ -257,20 +324,21 @@
 
         // Function to add played track to history
         function addToHistory(title, videoId) {
-            const historyList = document.getElementById('history-list');
-            const historyItem = document.createElement('div');
-            historyItem.className = 'history-item';
+            const historyList = document.getElementById('history-list').getElementsByTagName('tbody')[0];
+            const historyItem = document.createElement('tr');
             historyItem.innerHTML = `
-                <span contenteditable="true" class="track-title">${title}</span>
-                <div>
+                <td contenteditable="true" class="track-title">${title}</td>
+                <td>
                     <button onclick="replayTrack('player1', '${videoId}')">Play on Deck 1</button>
                     <button onclick="replayTrack('player2', '${videoId}')">Play on Deck 2</button>
                     <button class="edit-btn" onclick="editTrackTitle(this)">Edit Title</button>
                     <button class="delete-btn" onclick="deleteTrack(this)">Delete</button>
-                </div>
+                </td>
             `;
             historyItem.setAttribute('data-video-id', videoId); // Save videoId for reference
-            historyList.appendChild(historyItem);
+
+            // Insert new track at the top of the table
+            historyList.insertBefore(historyItem, historyList.firstChild);
         }
 
         // Function to replay a track on a specific player
@@ -283,7 +351,7 @@
 
         // Function to edit the track title in history
         function editTrackTitle(button) {
-            const trackTitle = button.closest('.history-item').querySelector('.track-title');
+            const trackTitle = button.closest('tr').querySelector('.track-title');
             trackTitle.contentEditable = true;
             trackTitle.focus();
             button.textContent = "Save Title";
@@ -292,7 +360,7 @@
 
         // Function to save the edited track title
         function saveTrackTitle(button) {
-            const trackTitle = button.closest('.history-item').querySelector('.track-title');
+            const trackTitle = button.closest('tr').querySelector('.track-title');
             trackTitle.contentEditable = false;
             button.textContent = "Edit Title";
             button.setAttribute('onclick', 'editTrackTitle(this)');
@@ -301,14 +369,14 @@
 
         // Function to delete a track from history
         function deleteTrack(button) {
-            const historyItem = button.closest('.history-item');
+            const historyItem = button.closest('tr');
             historyItem.remove();
             saveHistoryToLocalStorage();
         }
 
         // Function to save the history to localStorage
         function saveHistoryToLocalStorage() {
-            const historyItems = document.querySelectorAll('.history-item');
+            const historyItems = document.querySelectorAll('#history-list tbody tr');
             const historyData = [];
             historyItems.forEach(item => {
                 const title = item.querySelector('.track-title').textContent;
@@ -329,9 +397,15 @@
         // Initialize balance control
         function initBalanceControl() {
             const balanceSlider = document.getElementById('balance-slider');
+            const volumePercentage = document.getElementById('volume-percentage');
 
             balanceSlider.addEventListener('input', () => {
                 const balance = balanceSlider.value;
+
+                // Calculate percentage based on center (50)
+                const percentage = balance < 50 ? (50 - balance) : (balance - 50);
+
+                volumePercentage.textContent = `${percentage}%`; // Show percentage
                 if (player1 && player2) {
                     player1.setVolume(100 - balance); // Left player volume decreases as slider moves right
                     player2.setVolume(balance);      // Right player volume increases as slider moves right
@@ -349,6 +423,20 @@
             const trackTitle = document.getElementById('track-list2').selectedOptions[0].textContent;
             loadSelectedTrack(player2, 'track-list2', trackTitle);
         });
+
+        // Function to filter the history based on search input
+        function filterHistory() {
+            const query = document.getElementById('history-search').value.toLowerCase();
+            const rows = document.querySelectorAll('#history-list tbody tr');
+            rows.forEach(row => {
+                const title = row.querySelector('.track-title').textContent.toLowerCase();
+                if (title.includes(query)) {
+                    row.style.display = '';  // Show the row if it matches the query
+                } else {
+                    row.style.display = 'none';  // Hide the row if it doesn't match the query
+                }
+            });
+        }
 
         // Load the YouTube API script and initialize balance control and history on page load
         window.onload = () => {
