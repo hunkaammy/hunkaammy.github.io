@@ -78,14 +78,20 @@
         }
 
         .balance-control {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 20px;
-            width: 100%;
-            max-width: 600px;
-            flex-direction: column;
-        }
+    display: flex
+;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    width: 100%;
+    max-width: 600px;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    z-index: 10;
+    padding: 20px;
+}
 
         .balance-slider {
             -webkit-appearance: none;
@@ -178,6 +184,12 @@
             background-color: #c0392b;
         }
 
+        .buttons-container {
+            display: flex;
+            justify-content: space-between;  /* Align buttons horizontally */
+            gap: 10px;  /* Space between buttons */
+        }
+
         #backup-btn, #restore-btn {
             margin-top: 20px;
         }
@@ -200,7 +212,7 @@
     </style>
 </head>
 <body>
-    <h1>SAMMY'S YT DJ PROJECT</h1>
+    <h1>YouTube DJ Player with Played History</h1>
     
     <div class="track-control-container">
         <div class="track-selector">
@@ -322,8 +334,10 @@
             historyItem.innerHTML = `
                 <td contenteditable="true" class="track-title">${title}</td>
                 <td>
-                    <button onclick="replayTrack('player1', '${videoId}')">Play on Deck 1</button>
-                    <button onclick="replayTrack('player2', '${videoId}')">Play on Deck 2</button>
+                    <div class="buttons-container">
+                        <button onclick="replayTrack('player1', '${videoId}')">Play on Deck 1</button>
+                        <button onclick="replayTrack('player2', '${videoId}')">Play on Deck 2</button>
+                    </div>
                     <button class="edit-btn" onclick="editTrackTitle(this)">Edit Title</button>
                     <button class="delete-btn" onclick="deleteTrack(this)">Delete</button>
                 </td>
