@@ -180,7 +180,7 @@
 
         @media (max-width: 768px) {
             .player-container {
-               
+             
                 align-items: center;
             }
 
@@ -243,14 +243,12 @@
                 <!-- History rows will be populated here -->
             </tbody>
         </table>
-        <button id="load-more-btn" onclick="loadMoreResults()">Load More Results</button>
     </div>
 
     <script>
         const apiKey = 'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A'; // Replace with your YouTube Data API key.
 
         let player1, player2;
-        let nextPageToken = '';
 
         // Load YouTube API script
         function loadYouTubeAPI() {
@@ -295,36 +293,8 @@
                         option.textContent = video.snippet.title;
                         trackList.appendChild(option);
                     });
-
-                    nextPageToken = data.nextPageToken; // Store next page token
                 })
                 .catch(error => console.error('Error fetching data:', error));
-        }
-
-        // Function to load more results on button click
-        function loadMoreResults() {
-            const query = document.getElementById('search-deck1').value; // Assuming we load for deck 1
-            if (query.trim() === '') {
-                alert('Please enter a search term.');
-                return;
-            }
-
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=50&pageToken=${nextPageToken}&key=${apiKey}`;
-
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    const trackList = document.getElementById('track-list1');
-                    data.items.forEach(video => {
-                        const option = document.createElement('option');
-                        option.value = video.id.videoId;
-                        option.textContent = video.snippet.title;
-                        trackList.appendChild(option);
-                    });
-
-                    nextPageToken = data.nextPageToken; // Update the nextPageToken for further loading
-                })
-                .catch(error => console.error('Error fetching more results:', error));
         }
 
         // Function to load selected video into the player
@@ -352,7 +322,7 @@
             `;
             historyItem.setAttribute('data-video-id', videoId); // Save videoId for reference
 
-            // Insert new track at the top of the table
+            // Insert the new track at the top of the history list
             historyList.insertBefore(historyItem, historyList.firstChild);
         }
 
@@ -404,7 +374,8 @@
         // Function to load the history from localStorage
         function loadHistoryFromLocalStorage() {
             const savedHistory = JSON.parse(localStorage.getItem('playedHistory')) || [];
-            savedHistory.forEach(track => {
+            // Insert the saved history in reverse order so the most recent track is at the top
+            savedHistory.reverse().forEach(track => {
                 addToHistory(track.title, track.videoId);
             });
         }
