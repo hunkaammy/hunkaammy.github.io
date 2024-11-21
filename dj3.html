@@ -38,18 +38,17 @@
             flex: 1;
         }
 
-        label, input, select, button{
-    display: block;
-    margin-top: 10px;
-    margin-bottom: 7px;
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 5px;
-    border: none;
-    background-color: #34495e;
-    color: white;
-}
+        label, input, select, button {
+            display: block;
+            margin-top: 10px;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            background-color: #34495e;
+            color: white;
+        }
 
         button {
             cursor: pointer;
@@ -79,20 +78,19 @@
         }
 
         .balance-control {
-    display: flex
-;
-    align-items: center;
-    justify-content: center;
-    margin-top: 20px;
-    width: 100%;
-    max-width: 600px;
-    flex-direction: column;
-    position: sticky;
-    top: 0;
-   
-    z-index: 10;
-    padding: 20px;
-}
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 600px;
+            flex-direction: column;
+            position: sticky;
+            top: 0; /* Stick the volume slider to the top */
+            rgba(255, 255, 255, 0.1)
+            z-index: 10; /* Ensure it's above other content */
+            padding: 20px;
+        }
 
         .balance-slider {
             -webkit-appearance: none;
@@ -214,7 +212,15 @@
 </head>
 <body>
     <h1>SAMMY'S YT DJ PROJECT</h1>
-    
+
+    <!-- Dropdown for selecting API key -->
+   
+    <select id="api-key-select">
+        <option value="YOUR_YOUTUBE_API_KEY_1">API Key 1</option>
+        <option value="YOUR_YOUTUBE_API_KEY_2">API Key 2</option>
+        <!-- Add more options as needed -->
+    </select>
+
     <div class="track-control-container">
         <div class="track-selector">
             <label for="search-deck1">Search DECK-1:</label>
@@ -243,9 +249,10 @@
     <div class="balance-control">
      
         <input type="range" id="balance-slider" class="balance-slider" min="0" max="100" value="50">
-       
+     
     </div>
-	 <div class="volume-percentage" id="volume-percentage">Center (0%)</div>
+	
+	   <div class="volume-percentage" id="volume-percentage">Center (0%)</div>
 
     <div class="history-container">
         <h2>Played History</h2>
@@ -268,11 +275,24 @@
     <button id="restore-btn" onclick="document.getElementById('restore-input').click()">Restore History</button>
 
     <script>
-        const apiKey = 'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A'; // Replace with your YouTube Data API key.
+        // List of API keys
+        const apiKeys = [
+            'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A',
+            'AIzaSyDX2n08WCf5Ol1nffaqJU_aJp_BODlw1H4',
+            // Add more API keys here
+        ];
 
-        let player1, player2;
+        let currentApiKeyIndex = 0; // Track the currently selected API key index
+        let apiKey = apiKeys[currentApiKeyIndex]; // Start with the first API key
 
-        // Load YouTube API script
+        // Function to switch to the next API key
+        function switchApiKey() {
+            currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length;
+            apiKey = apiKeys[currentApiKeyIndex];
+            alert(`API Key switched to: ${apiKey}`);
+        }
+
+        // Load YouTube API script dynamically
         function loadYouTubeAPI() {
             const script = document.createElement('script');
             script.src = "https://www.youtube.com/iframe_api";
@@ -286,6 +306,7 @@
                     'onReady': () => player1.setVolume(50)
                 }
             });
+
             player2 = new YT.Player('youtube-player2', {
                 events: {
                     'onReady': () => player2.setVolume(50)
@@ -293,33 +314,41 @@
             });
         }
 
-        // Function to search YouTube and populate the respective dropdown
-        function searchYouTubeForDeck(deck) {
-            const query = document.getElementById(`search-${deck}`).value;
-            if (query.trim() === '') {
-                alert('Please enter a search term.');
-                return;
+       // Function to search YouTube for tracks using the selected API key
+function searchYouTubeForDeck(deck) {
+    const query = document.getElementById(`search-${deck}`).value;
+    if (query.trim() === '') {
+        alert('Please enter a search term.');
+        return;
+    }
+
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=10&key=${apiKey}`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error && data.error.code === 403) {
+                // If quota exceeded, prompt to switch API key
+                alert('Quota exceeded for the current API key. Switching to a new API key...');
+                switchApiKey();
+                searchYouTubeForDeck(deck); // Retry the search with the new API key
+            } else {
+                const trackList = document.getElementById(`track-list${deck === 'deck1' ? 1 : 2}`);
+                trackList.innerHTML = ''; // Clear previous results
+
+                data.items.forEach(video => {
+                    const option = document.createElement('option');
+                    option.value = video.id.videoId;
+                    option.textContent = video.snippet.title;
+                    trackList.appendChild(option);
+                });
             }
+        })
+        .catch(error => console.error('Error fetching data:', error));
+}
 
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=50&key=${apiKey}`;
 
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    const trackList = document.getElementById(`track-list${deck === 'deck1' ? 1 : 2}`);
-                    trackList.innerHTML = ''; // Clear previous results
-
-                    data.items.forEach(video => {
-                        const option = document.createElement('option');
-                        option.value = video.id.videoId;
-                        option.textContent = video.snippet.title;
-                        trackList.appendChild(option);
-                    });
-                })
-                .catch(error => console.error('Error fetching data:', error));
-        }
-
-        // Function to load selected video into the player
+        // Function to load the selected track into the player
         function loadSelectedTrack(player, trackListId, trackTitle) {
             const selectedVideoId = document.getElementById(trackListId).value;
             if (selectedVideoId) {
@@ -398,7 +427,6 @@
         // Function to load the history from localStorage
         function loadHistoryFromLocalStorage() {
             const savedHistory = JSON.parse(localStorage.getItem('playedHistory')) || [];
-            // Insert the saved history in reverse order so the most recent track is at the top
             savedHistory.reverse().forEach(track => {
                 addToHistory(track.title, track.videoId);
             });
@@ -423,13 +451,10 @@
             reader.onload = function(e) {
                 const historyData = JSON.parse(e.target.result);
                 if (Array.isArray(historyData)) {
-                    // Clear current history
                     document.getElementById('history-list').getElementsByTagName('tbody')[0].innerHTML = '';
-                    // Add restored history to the table
                     historyData.reverse().forEach(track => {
                         addToHistory(track.title, track.videoId);
                     });
-                    // Save restored history to localStorage
                     localStorage.setItem('playedHistory', JSON.stringify(historyData));
                 }
             };
@@ -443,11 +468,8 @@
 
             balanceSlider.addEventListener('input', () => {
                 const balance = balanceSlider.value;
-
-                // Calculate percentage based on center (50)
                 const percentage = balance < 50 ? (50 - balance) : (balance - 50);
-
-                volumePercentage.textContent = `${percentage}%`; // Show percentage
+                volumePercentage.textContent = `${percentage}%`;
                 if (player1 && player2) {
                     player1.setVolume(100 - balance); // Left player volume decreases as slider moves right
                     player2.setVolume(balance);      // Right player volume increases as slider moves right
@@ -473,9 +495,9 @@
             rows.forEach(row => {
                 const title = row.querySelector('.track-title').textContent.toLowerCase();
                 if (title.includes(query)) {
-                    row.style.display = '';  // Show the row if it matches the query
+                    row.style.display = '';
                 } else {
-                    row.style.display = 'none';  // Hide the row if it doesn't match the query
+                    row.style.display = 'none';
                 }
             });
         }
