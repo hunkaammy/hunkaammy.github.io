@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube DJ Player with Played History</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            background: linear-gradient(135deg, #2c3e50, #bdc3c7);
+            color: white;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #ECF0F1;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
+            font-size: 24px;
+        }
+
+        .track-control-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 600px;
+            margin: 20px 0;
+        }
+
+        .track-selector {
+            margin-right: 10px;
+            flex: 1;
+        }
+
+        label, input, select, button {
+            display: block;
+            margin-top: 10px;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            background-color: #34495e;
+            color: white;
+        }
+
+        button {
+            cursor: pointer;
+            background-color: #2980b9;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #3498db;
+        }
+
+        .player-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin: 20px 0;
+            max-width: 900px; /* Ensure players fit within a max width */
+        }
+
+        .video-player {
+            flex: 1;
+            margin: 0 10px;
+            border: 2px solid #2c3e50;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 45%; /* Adjust player width to fit both in a row */
+        }
+
+        .balance-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .balance-slider {
+            width: 80%;
+        }
+
+        .history-container {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+
+        .history-item button {
+            width: auto;
+            margin: 0 5px;
+            padding: 5px 10px;
+            background-color: #16a085;
+        }
+
+        .history-item button:hover {
+            background-color: #1abc9c;
+        }
+
+        .history-item .edit-btn {
+            background-color: #f39c12;
+        }
+
+        .history-item .edit-btn:hover {
+            background-color: #e67e22;
+        }
+
+        .history-item .delete-btn {
+            background-color: #e74c3c;
+        }
+
+        .history-item .delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        @media (max-width: 768px) {
+            .player-container {
+                
+                align-items: center;
+            }
+
+            .video-player {
+                width: 90%; /* Make the players more responsive and fill the width on smaller screens */
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>YouTube DJ Player with Played History</h1>
+    
+    <div class="track-control-container">
+        <div class="track-selector">
+            <label for="search-deck1">Search DECK-1:</label>
+            <input type="text" id="search-deck1" placeholder="Search YouTube">
+            <button onclick="searchYouTubeForDeck('deck1')">Search</button>
+            <select id="track-list1"></select>
+        </div>
+
+        <div class="track-selector">
+            <label for="search-deck2">Search DECK-2:</label>
+            <input type="text" id="search-deck2" placeholder="Search YouTube">
+            <button onclick="searchYouTubeForDeck('deck2')">Search</button>
+            <select id="track-list2"></select>
+        </div>
+    </div>
+
+    <div class="player-container">
+        <div class="video-player" id="player1">
+            <iframe id="youtube-player1" width="100%" height="315" src="https://www.youtube.com/embed?enablejsapi=1" frameborder="0" allowfullscreen></iframe>
+        </div>
+        <div class="video-player" id="player2">
+            <iframe id="youtube-player2" width="100%" height="315" src="https://www.youtube.com/embed?enablejsapi=1" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <div class="balance-control">
+        <label for="balance-slider">Balance Control (Left ? Right):</label>
+        <input type="range" id="balance-slider" class="balance-slider" min="0" max="100" value="50">
+    </div>
+
+    <div class="history-container">
+        <h2>Played History</h2>
+        <div id="history-list"></div>
+    </div>
+
+    <script>
+        const apiKey = 'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A'; // Replace with your YouTube Data API key.
+
+        let player1, player2;
+
+        // Load YouTube API script
+        function loadYouTubeAPI() {
+            const script = document.createElement('script');
+            script.src = "https://www.youtube.com/iframe_api";
+            document.body.appendChild(script);
+        }
+
+        // Initialize YouTube players
+        function onYouTubeIframeAPIReady() {
+            player1 = new YT.Player('youtube-player1', {
+                events: {
+                    'onReady': () => player1.setVolume(50)
+                }
+            });
+            player2 = new YT.Player('youtube-player2', {
+                events: {
+                    'onReady': () => player2.setVolume(50)
+                }
+            });
+        }
+
+        // Function to search YouTube and populate the respective dropdown
+        function searchYouTubeForDeck(deck) {
+            const query = document.getElementById(`search-${deck}`).value;
+            if (query.trim() === '') {
+                alert('Please enter a search term.');
+                return;
+            }
+
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=10&key=${apiKey}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const trackList = document.getElementById(`track-list${deck === 'deck1' ? 1 : 2}`);
+                    trackList.innerHTML = ''; // Clear previous results
+
+                    data.items.forEach(video => {
+                        const option = document.createElement('option');
+                        option.value = video.id.videoId;
+                        option.textContent = video.snippet.title;
+                        trackList.appendChild(option);
+                    });
+
+                    // Select the first track and trigger the change event
+                    if (trackList.options.length > 0) {
+                        trackList.selectedIndex = 0;
+                        trackList.dispatchEvent(new Event('change'));
+                    }
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // Function to load selected video into the player
+        function loadSelectedTrack(player, trackListId, trackTitle) {
+            const selectedVideoId = document.getElementById(trackListId).value;
+            if (selectedVideoId) {
+                player.loadVideoById(selectedVideoId);
+                addToHistory(trackTitle, selectedVideoId);
+                saveHistoryToLocalStorage();
+            }
+        }
+
+        // Function to add played track to history
+        function addToHistory(title, videoId) {
+            const historyList = document.getElementById('history-list');
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.innerHTML = `
+                <span contenteditable="true" class="track-title">${title}</span>
+                <div>
+                    <button onclick="replayTrack('player1', '${videoId}')">Play on Deck 1</button>
+                    <button onclick="replayTrack('player2', '${videoId}')">Play on Deck 2</button>
+                    <button class="edit-btn" onclick="editTrackTitle(this)">Edit Title</button>
+                    <button class="delete-btn" onclick="deleteTrack(this)">Delete</button>
+                </div>
+            `;
+            historyItem.setAttribute('data-video-id', videoId); // Save videoId for reference
+            historyList.appendChild(historyItem);
+        }
+
+        // Function to replay a track on a specific player
+        function replayTrack(playerId, videoId) {
+            const player = playerId === 'player1' ? player1 : player2;
+            if (player) {
+                player.loadVideoById(videoId);
+            }
+        }
+
+        // Function to edit the track title in history
+        function editTrackTitle(button) {
+            const trackTitle = button.closest('.history-item').querySelector('.track-title');
+            trackTitle.contentEditable = true;
+            trackTitle.focus();
+            button.textContent = "Save Title";
+            button.setAttribute('onclick', 'saveTrackTitle(this)');
+        }
+
+        // Function to save the edited track title
+        function saveTrackTitle(button) {
+            const trackTitle = button.closest('.history-item').querySelector('.track-title');
+            trackTitle.contentEditable = false;
+            button.textContent = "Edit Title";
+            button.setAttribute('onclick', 'editTrackTitle(this)');
+            saveHistoryToLocalStorage();
+        }
+
+        // Function to delete a track from history
+        function deleteTrack(button) {
+            const historyItem = button.closest('.history-item');
+            historyItem.remove();
+            saveHistoryToLocalStorage();
+        }
+
+        // Function to save the history to localStorage
+        function saveHistoryToLocalStorage() {
+            const historyItems = document.querySelectorAll('.history-item');
+            const historyData = [];
+            historyItems.forEach(item => {
+                const title = item.querySelector('.track-title').textContent;
+                const videoId = item.getAttribute('data-video-id');
+                historyData.push({ title, videoId });
+            });
+            localStorage.setItem('playedHistory', JSON.stringify(historyData));
+        }
+
+        // Function to load the history from localStorage
+        function loadHistoryFromLocalStorage() {
+            const savedHistory = JSON.parse(localStorage.getItem('playedHistory')) || [];
+            savedHistory.forEach(track => {
+                addToHistory(track.title, track.videoId);
+            });
+        }
+
+        // Initialize balance control
+        function initBalanceControl() {
+            const balanceSlider = document.getElementById('balance-slider');
+
+            balanceSlider.addEventListener('input', () => {
+                const balance = balanceSlider.value;
+                if (player1 && player2) {
+                    player1.setVolume(100 - balance); // Left player volume decreases as slider moves right
+                    player2.setVolume(balance);      // Right player volume increases as slider moves right
+                }
+            });
+        }
+
+        // Event listeners for loading selected videos into players
+        document.getElementById('track-list1').addEventListener('change', () => {
+            const trackTitle = document.getElementById('track-list1').selectedOptions[0].textContent;
+            loadSelectedTrack(player1, 'track-list1', trackTitle);
+        });
+
+        document.getElementById('track-list2').addEventListener('change', () => {
+            const trackTitle = document.getElementById('track-list2').selectedOptions[0].textContent;
+            loadSelectedTrack(player2, 'track-list2', trackTitle);
+        });
+
+        // Load the YouTube API script and initialize balance control and history on page load
+        window.onload = () => {
+            loadYouTubeAPI();
+            initBalanceControl();
+            loadHistoryFromLocalStorage();
+        };
+    </script>
+</body>
+</html>
