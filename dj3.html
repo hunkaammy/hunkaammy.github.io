@@ -258,6 +258,7 @@
         <h2>Played History</h2>
         <input type="text" id="history-search" placeholder="Search in history" onkeyup="filterHistory()">
         <table id="history-list">
+		 <p>Total Tracks Played: <span id="track-count">0</span></p> <!-- Display Track Count Here -->
             <thead>
                 <tr>
                     <th>Title</th>
@@ -501,6 +502,16 @@ function searchYouTubeForDeck(deck) {
                 }
             });
         }
+		
+		 function loadHistoryFromLocalStorage() {
+        const savedHistory = JSON.parse(localStorage.getItem('playedHistory')) || [];
+        // Update track count
+        document.getElementById('track-count').textContent = savedHistory.length;
+
+        savedHistory.reverse().forEach(track => {
+            addToHistory(track.title, track.videoId);
+        });
+    }
 
         // Load the YouTube API script and initialize balance control and history on page load
         window.onload = () => {
