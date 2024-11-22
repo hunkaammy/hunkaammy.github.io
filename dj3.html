@@ -5,6 +5,194 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YouTube DJ Player with Played History</title>
     <style>
+	/* Basic resets */
+html, body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Ensure consistent box model */
+    font-family: 'Helvetica Neue', Arial, sans-serif; /* Font family */
+}
+
+/* Body styling to enforce mobile appearance */
+body {
+    max-width: 375px;  /* Maximum width to simulate mobile view */
+    width: 100%;        /* Allow width to be responsive but capped */
+    overflow-x: hidden; /* Disable horizontal scrolling */
+    background: linear-gradient(135deg, #2c3e50, #bdc3c7); /* Background gradient */
+    color: white;       /* Default text color */
+}
+
+/* Centering the main container */
+.container {
+    max-width: 100%;    /* Full width within the body */
+    margin: 0 auto;     /* Center the container */
+    padding: 10px;      /* Padding for the container */
+}
+
+/* Styles for the header */
+h1 {
+    font-size: 24px;    /* Header font size */
+    text-align: center;  /* Center align the text */
+    color: #ECF0F1;      /* Header color */
+    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7); /* Text shadow */
+    margin-bottom: 20px; /* Space below header */
+}
+
+/* Styles for the video player */
+.video-player {
+    width: 100%;        /* Full width for video player */
+    margin-bottom: 10px; /* Space below video player */
+    border: 2px solid #2c3e50; /* Add border to video player */
+    border-radius: 10px; /* Rounded corners */
+    overflow: hidden;   /* Prevent overflow */
+}
+
+/* Styles for track control container */
+.track-control-container {
+    width: 100%;        /* Full width for track controls */
+    margin-bottom: 20px; /* Space below controls */
+    display: flex;      /* Flex for alignment */
+    flex-direction: column; /* Stack items vertically */
+}
+
+/* Input, select, and button styles */
+input[type="text"],
+select,
+button {
+    width: calc(100% - 20px); /* Full width, accounting for padding */
+    margin: 10px 0;           /* Margin for spacing */
+    padding: 10px;            /* Padding for better touch targets */
+    font-size: 16px;          /* Font size for better readability */
+    border-radius: 5px;       /* Rounded corners */
+    border: none;             /* Remove default border */
+    background-color: #34495e; /* Background color */
+    color: white;             /* Text color */
+    cursor: pointer;          /* Pointer cursor */
+    transition: background-color 0.3s; /* Smooth background transition */
+}
+
+button {
+    background-color: #2980b9; /* Button background color */
+}
+
+button:hover {
+    background-color: #3498db; /* Button hover color */
+}
+
+/* History container styles */
+.history-container {
+    width: 100%; /* Full width for history container */
+    margin-top: 20px; /* Space above history container */
+    background: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
+    border-radius: 8px; /* Rounded corners */
+    padding: 10px; /* Add padding */
+}
+
+/* Styling for tables */
+table {
+    width: 100%;              /* Table takes full width */
+    border-collapse: collapse; /* No spacing between table cells */
+    margin-top: 10px;         /* Space above table */
+}
+
+th, td {
+    padding: 10px;            /* Padding inside cells */
+    text-align: left;         /* Align text to the left */
+    border-bottom: 1px solid #ddd; /* Bottom border for rows */
+}
+
+/* Volume control styles */
+.balance-control {
+    display: flex;            /* Flexbox for alignment */
+    flex-direction: column;   /* Stack items vertically */
+    align-items: center;      /* Center the elements */
+    margin-top: 20px;        /* Space above balance control */
+    padding: 20px;           /* Padding around the control */
+    background: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
+    border-radius: 8px;      /* Rounded corners */
+}
+
+/* Slider styles */
+.balance-slider {
+    width: 100%;              /* Full width for slider */
+    height: 25px;             /* Height of the slider */
+    background: #34495e;     /* Background for slider track */
+    border-radius: 10px;      /* Rounded track */
+}
+
+/* Specific styles for range input (slider) */
+.balance-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Remove default appearance */
+    width: 30px;              /* Thumb width */
+    height: 30px;             /* Thumb height */
+    background: #16a085;      /* Thumb color */
+    border-radius: 50%;       /* Rounded thumb */
+    cursor: pointer;          /* Pointer cursor */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* Shadow for thumb */
+}
+
+.balance-slider::-moz-range-thumb {
+    width: 30px;              /* Thumb width for Firefox */
+    height: 30px;             /* Thumb height for Firefox */
+    background: #16a085;      /* Thumb color for Firefox */
+    border-radius: 50%;       /* Rounded thumb for Firefox */
+    cursor: pointer;          /* Pointer cursor */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* Shadow for thumb */
+}
+
+/* Volume percentage text */
+.volume-percentage {
+    text-align: center;      /* Center volume percentage */
+    font-size: 20px;         /* Bigger size for visibility */
+    margin-top: 10px;        /* Space above text */
+}
+
+/* Responsive adjustments */
+@media (min-width: 600px) {
+    body {
+        width: 375px;          /* Maintain fixed width for mobile appearance */
+    }
+}
+
+/* Additional styles for buttons in history container */
+td button {
+    padding: 5px 10px;       /* Padding for buttons */
+    background-color: #16a085; /* Button color */
+}
+
+td button:hover {
+    background-color: #1abc9c; /* Change color on hover */
+}
+
+.edit-btn {
+    background-color: #f39c12; /* Edit button color */
+}
+
+.edit-btn:hover {
+    background-color: #e67e22; /* Change color on hover */
+}
+
+.delete-btn {
+    background-color: #e74c3c; /* Delete button color */
+}
+
+.delete-btn:hover {
+    background-color: #c0392b; /* Change color on hover */
+}
+
+/* Buttons container in history */
+.buttons-container {
+    display: flex;            /* Flex for alignment */
+    justify-content: space-between; /* Space between buttons */
+    gap: 10px;               /* Space between buttons */
+}
+
+/* Spacing for backup and restore buttons */
+#backup-btn, #restore-btn {
+    margin-top: 20px; /* Margin above buttons */
+}
+
+	
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             display: flex;
