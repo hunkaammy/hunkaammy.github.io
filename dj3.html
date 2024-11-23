@@ -206,6 +206,16 @@
                 margin: 10px 0;
             }
 
+.current-track-info {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+    width: 100%;
+    max-width: 900px;
+    text-align: center;
+}
+
             table {
                 font-size: 14px;
             }
@@ -297,6 +307,14 @@
     </div>
 	
 	   <div class="volume-percentage" id="volume-percentage">Center (0%)</div>
+
+
+<div class="current-track-info">
+    <h2>Current Track</h2>
+    <p id="current-track-deck1">Deck 1: <span id="current-track-title1">None</span></p>
+    <p id="current-track-deck2">Deck 2: <span id="current-track-title2">None</span></p>
+</div>
+
 
     <div class="history-container">
         <h2>Played History</h2>
@@ -400,14 +418,21 @@
 
 
         // Function to load the selected track into the player
-        function loadSelectedTrack(player, trackListId, trackTitle) {
-            const selectedVideoId = document.getElementById(trackListId).value;
-            if (selectedVideoId) {
-                player.loadVideoById(selectedVideoId);
-                addToHistory(trackTitle, selectedVideoId);
-                saveHistoryToLocalStorage();
-            }
+       function loadSelectedTrack(player, trackListId, trackTitle) {
+    const selectedVideoId = document.getElementById(trackListId).value;
+    if (selectedVideoId) {
+        player.loadVideoById(selectedVideoId);
+        addToHistory(trackTitle, selectedVideoId);
+        saveHistoryToLocalStorage();
+
+        // Update current track info display
+        if (trackListId === 'track-list1') {
+            document.getElementById('current-track-title1').textContent = trackTitle;
+        } else {
+            document.getElementById('current-track-title2').textContent = trackTitle;
         }
+    }
+}
 
         // Function to add played track to history
         function addToHistory(title, videoId) {
@@ -432,11 +457,29 @@
 
         // Function to replay a track on a specific player
         function replayTrack(playerId, videoId) {
-            const player = playerId === 'player1' ? player1 : player2;
-            if (player) {
-                player.loadVideoById(videoId);
+    const player = playerId === 'player1' ? player1 : player2;
+
+    if (player) {
+        player.loadVideoById(videoId);
+
+        // Find the corresponding history item to get the track title
+        const historyItems = document.querySelectorAll('#history-list tbody tr');
+        let trackTitle = 'Unknown Track';
+
+        historyItems.forEach(item => {
+            if (item.getAttribute('data-video-id') === videoId) {
+                trackTitle = item.querySelector('.track-title').textContent; // Get the title from the history entry
             }
+        });
+
+        // Update the current track info display
+        if (playerId === 'player1') {
+            document.getElementById('current-track-title1').textContent = trackTitle;
+        } else {
+            document.getElementById('current-track-title2').textContent = trackTitle;
         }
+    }
+}
 
         // Function to edit the track title in history
         function editTrackTitle(button) {
