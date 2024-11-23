@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YouTube DJ Player with Played History</title>
     <style>
-	
-	
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             display: flex;
@@ -38,6 +36,7 @@
         .track-selector {
             margin-right: 10px;
             flex: 1;
+            position: relative; /* Required for absolute positioning of dropdown */
         }
 
         label, input, select, button {
@@ -67,7 +66,7 @@
             justify-content: space-between;
             width: 100%;
             margin: 20px 0;
-            max-width: 900px; /* Ensure players fit within a max width */
+            max-width: 900px;
         }
 
         .video-player {
@@ -76,7 +75,7 @@
             border: 2px solid #2c3e50;
             border-radius: 10px;
             overflow: hidden;
-            width: 45%; /* Adjust player width to fit both in a row */
+            width: 45%;
         }
 
         .balance-control {
@@ -88,9 +87,8 @@
             max-width: 600px;
             flex-direction: column;
             position: sticky;
-            top: 0; /* Stick the volume slider to the top */
-            rgba(255, 255, 255, 0.1)
-            z-index: 10; /* Ensure it's above other content */
+            top: 0;
+            z-index: 10;
             padding: 20px;
         }
 
@@ -187,8 +185,8 @@
 
         .buttons-container {
             display: flex;
-            justify-content: space-between;  /* Align buttons horizontally */
-            gap: 10px;  /* Space between buttons */
+            justify-content: space-between;
+            gap: 10px;
         }
 
         #backup-btn, #restore-btn {
@@ -197,97 +195,95 @@
 
         @media (max-width: 768px) {
             .player-container {
-               
                 align-items: center;
             }
 
             .video-player {
-                width: 90%; /* Make the players more responsive and fill the width on smaller screens */
+                width: 90%;
                 margin: 10px 0;
             }
-
-.current-track-info {
-    background-color: rgba(255, 255, 255, 0.1);
-    padding: 15px;
-    border-radius: 8px;
-    margin-top: 20px;
-    width: 100%;
-    max-width: 900px;
-    text-align: center;
-}
-
-            table {
-                font-size: 14px;
-            }
         }
-		
-		   /* Custom dropdown styling */
-    .custom-dropdown {
-        position: relative;
-        width: 100%;
-        max-width: 300px;
-        margin: 10px 0;
-    }
 
-    .custom-dropdown .dropdown-item {
-        display: flex;
-        align-items: center;
-        padding: 10px;
-        border: 1px solid #34495e;
-        border-radius: 5px;
-        margin-bottom: 5px;
-        cursor: pointer;
-        background-color: #2c3e50;
-        color: white;
-        transition: background-color 0.3s ease;
-    }
+        .current-track-info {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+        }
 
-    .custom-dropdown .dropdown-item:hover {
-        background-color: #34495e;
-    }
+        table {
+            font-size: 14px;
+        }
 
-    .custom-dropdown img {
-        width: 50px;
-        height: 50px;
-        margin-right: 10px;
-        border-radius: 5px;
-        object-fit: cover;
-    }
+        /* Custom dropdown styling */
+        .custom-dropdown {
+            position: absolute;
+            width: 100%;
+            max-width: 300px;
+            margin: 10px 0;
+            z-index: 10;
+            background: #34495e;
+            max-height: 200px;
+            overflow-y: auto;
+            border-radius: 5px;
+            display: none; /* Initially hidden */
+        }
 
-    .custom-dropdown .title {
-        flex: 1;
-        font-size: 16px;
-    }
+        .custom-dropdown .dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            cursor: pointer;
+            color: white;
+            background-color: transparent;
+            transition: background-color 0.3s ease;
+        }
+
+        .custom-dropdown .dropdown-item:hover {
+            background-color: #2980b9;
+        }
+
+        .custom-dropdown img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+
+        .custom-dropdown .title {
+            flex: 1;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
     <h1>SAMMY'S YT DJ PROJECT</h1>
 
-    <!-- Dropdown for selecting API key -->
-   
     <select id="api-key-select">
         <option value="YOUR_YOUTUBE_API_KEY_1">API Key 1</option>
         <option value="YOUR_YOUTUBE_API_KEY_2">API Key 2</option>
         <!-- Add more options as needed -->
     </select>
-	
-	
 
     <div class="track-control-container">
         <div class="track-selector">
             <label for="search-deck1">Search DECK-1:</label>
             <input type="text" id="search-deck1" placeholder="Search YouTube">
             <button onclick="searchYouTubeForDeck('deck1')">Search</button>
-			<div id="custom-dropdown1" class="custom-dropdown"></div>
-
-            <select id="track-list1"></select>
+            <div id="custom-dropdown1" class="custom-dropdown"></div>
+            <select id="track-list1" style="display:none;"></select> <!-- Hide native select -->
         </div>
 
         <div class="track-selector">
             <label for="search-deck2">Search DECK-2:</label>
             <input type="text" id="search-deck2" placeholder="Search YouTube">
             <button onclick="searchYouTubeForDeck('deck2')">Search</button>
-            <select id="track-list2"></select>
+            <div id="custom-dropdown2" class="custom-dropdown"></div>
+            <select id="track-list2" style="display:none;"></select> <!-- Hide native select -->
         </div>
     </div>
 
@@ -301,26 +297,22 @@
     </div>
 
     <div class="balance-control">
-     
         <input type="range" id="balance-slider" class="balance-slider" min="0" max="100" value="50">
-     
     </div>
-	
-	   <div class="volume-percentage" id="volume-percentage">Center (0%)</div>
 
+    <div class="volume-percentage" id="volume-percentage">Center (0%)</div>
 
-<div class="current-track-info">
-    <h2>Current Track</h2>
-    <p id="current-track-deck1">Deck 1: <span id="current-track-title1">None</span></p>
-    <p id="current-track-deck2">Deck 2: <span id="current-track-title2">None</span></p>
-</div>
-
+    <div class="current-track-info">
+        <h2>Current Track</h2>
+        <p id="current-track-deck1">Deck 1: <span id="current-track-title1">None</span></p>
+        <p id="current-track-deck2">Deck 2: <span id="current-track-title2">None</span></p>
+    </div>
 
     <div class="history-container">
         <h2>Played History</h2>
         <input type="text" id="history-search" placeholder="Search in history" onkeyup="filterHistory()">
         <table id="history-list">
-		 <p>Total Tracks Played: <span id="track-count">0</span></p> <!-- Display Track Count Here -->
+            <p>Total Tracks Played: <span id="track-count">0</span></p>
             <thead>
                 <tr>
                     <th>Title</th>
@@ -338,31 +330,29 @@
     <button id="restore-btn" onclick="document.getElementById('restore-input').click()">Restore History</button>
 
     <script>
-        // List of API keys
         const apiKeys = [
             'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A',
             'AIzaSyDX2n08WCf5Ol1nffaqJU_aJp_BODlw1H4',
             // Add more API keys here
         ];
 
-        let currentApiKeyIndex = 0; // Track the currently selected API key index
-        let apiKey = apiKeys[currentApiKeyIndex]; // Start with the first API key
+        let currentApiKeyIndex = 0;
+        let apiKey = apiKeys[currentApiKeyIndex];
 
-        // Function to switch to the next API key
         function switchApiKey() {
             currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length;
             apiKey = apiKeys[currentApiKeyIndex];
             alert(`API Key switched to: ${apiKey}`);
         }
 
-        // Load YouTube API script dynamically
         function loadYouTubeAPI() {
             const script = document.createElement('script');
             script.src = "https://www.youtube.com/iframe_api";
             document.body.appendChild(script);
         }
 
-        // Initialize YouTube players
+        let player1, player2;
+
         function onYouTubeIframeAPIReady() {
             player1 = new YT.Player('youtube-player1', {
                 events: {
@@ -377,64 +367,61 @@
             });
         }
 
-      function searchYouTubeForDeck(deck) {
-    const query = document.getElementById(`search-${deck}`).value;
-    if (query.trim() === '') {
-        alert('Please enter a search term.');
-        return;
-    }
-
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=10&key=${apiKey}`;
-
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            if (data.error && data.error.code === 403) {
-                alert('Quota exceeded for the current API key. Switching to a new API key...');
-                switchApiKey();
-                searchYouTubeForDeck(deck); // Retry the search with the new API key
-            } else {
-                const trackList = document.getElementById(`track-list${deck === 'deck1' ? 1 : 2}`);
-                trackList.innerHTML = ''; // Clear previous results
-
-                // When results are fetched, check if there's a result first
-                if (data.items.length > 0) {
-                    data.items.forEach(video => {
-                        const option = document.createElement('option');
-                        option.value = video.id.videoId;
-                        option.textContent = video.snippet.title;
-                        trackList.appendChild(option);
-                    });
-
-                    // Automatically select and play the first track
-                    trackList.selectedIndex = 0;  // Select the first option
-                    const trackTitle = trackList.options[0].textContent; // Get title of the first track
-                    loadSelectedTrack(deck === 'deck1' ? player1 : player2, `track-list${deck === 'deck1' ? 1 : 2}`, trackTitle);
-                }
+        function searchYouTubeForDeck(deck) {
+            const query = document.getElementById(`search-${deck}`).value;
+            if (query.trim() === '') {
+                alert('Please enter a search term.');
+                return;
             }
-        })
-        .catch(error => console.error('Error fetching data:', error));
-}
 
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=10&key=${apiKey}`;
 
-        // Function to load the selected track into the player
-       function loadSelectedTrack(player, trackListId, trackTitle) {
-    const selectedVideoId = document.getElementById(trackListId).value;
-    if (selectedVideoId) {
-        player.loadVideoById(selectedVideoId);
-        addToHistory(trackTitle, selectedVideoId);
-        saveHistoryToLocalStorage();
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error && data.error.code === 403) {
+                        alert('Quota exceeded for the current API key. Switching to a new API key...');
+                        switchApiKey();
+                        searchYouTubeForDeck(deck);
+                    } else {
+                        const dropdown = document.getElementById(`custom-dropdown${deck === 'deck1' ? 1 : 2}`);
+                        dropdown.innerHTML = '';
+                        dropdown.style.display = 'block'; // Show dropdown
 
-        // Update current track info display
-        if (trackListId === 'track-list1') {
-            document.getElementById('current-track-title1').textContent = trackTitle;
-        } else {
-            document.getElementById('current-track-title2').textContent = trackTitle;
+                        if (data.items.length > 0) {
+                            data.items.forEach(video => {
+                                const dropdownItem = document.createElement('div');
+                                dropdownItem.className = 'dropdown-item';
+                                dropdownItem.onclick = () => {
+                                    const selectedVideoId = video.id.videoId;
+                                    const trackTitle = video.snippet.title;
+
+                                    // Load selected track into the appropriate player
+                                    if (deck === 'deck1') {
+                                        player1.loadVideoById(selectedVideoId);
+                                        document.getElementById('current-track-title1').textContent = trackTitle;
+                                    } else {
+                                        player2.loadVideoById(selectedVideoId);
+                                        document.getElementById('current-track-title2').textContent = trackTitle;
+                                    }
+
+                                    dropdown.style.display = 'none'; // Hide dropdown after selection
+                                    addToHistory(trackTitle, selectedVideoId);
+                                    saveHistoryToLocalStorage();
+                                };
+
+                                dropdownItem.innerHTML = `
+                                    <img src="${video.snippet.thumbnails.default.url}" alt="${video.snippet.title} thumbnail">
+                                    <span class="title">${video.snippet.title}</span>
+                                `;
+                                dropdown.appendChild(dropdownItem);
+                            });
+                        }
+                    }
+                })
+                .catch(error => console.error('Error fetching data:', error));
         }
-    }
-}
 
-        // Function to add played track to history
         function addToHistory(title, videoId) {
             const historyList = document.getElementById('history-list').getElementsByTagName('tbody')[0];
             const historyItem = document.createElement('tr');
@@ -449,39 +436,33 @@
                     <button class="delete-btn" onclick="deleteTrack(this)">Delete</button>
                 </td>
             `;
-            historyItem.setAttribute('data-video-id', videoId); // Save videoId for reference
+            historyItem.setAttribute('data-video-id', videoId);
 
-            // Insert the new track at the top of the history list
             historyList.insertBefore(historyItem, historyList.firstChild);
         }
 
-        // Function to replay a track on a specific player
         function replayTrack(playerId, videoId) {
-    const player = playerId === 'player1' ? player1 : player2;
+            const player = playerId === 'player1' ? player1 : player2;
 
-    if (player) {
-        player.loadVideoById(videoId);
+            if (player) {
+                player.loadVideoById(videoId);
+                const historyItems = document.querySelectorAll('#history-list tbody tr');
+                let trackTitle = 'Unknown Track';
 
-        // Find the corresponding history item to get the track title
-        const historyItems = document.querySelectorAll('#history-list tbody tr');
-        let trackTitle = 'Unknown Track';
+                historyItems.forEach(item => {
+                    if (item.getAttribute('data-video-id') === videoId) {
+                        trackTitle = item.querySelector('.track-title').textContent;
+                    }
+                });
 
-        historyItems.forEach(item => {
-            if (item.getAttribute('data-video-id') === videoId) {
-                trackTitle = item.querySelector('.track-title').textContent; // Get the title from the history entry
+                if (playerId === 'player1') {
+                    document.getElementById('current-track-title1').textContent = trackTitle;
+                } else {
+                    document.getElementById('current-track-title2').textContent = trackTitle;
+                }
             }
-        });
-
-        // Update the current track info display
-        if (playerId === 'player1') {
-            document.getElementById('current-track-title1').textContent = trackTitle;
-        } else {
-            document.getElementById('current-track-title2').textContent = trackTitle;
         }
-    }
-}
 
-        // Function to edit the track title in history
         function editTrackTitle(button) {
             const trackTitle = button.closest('tr').querySelector('.track-title');
             trackTitle.contentEditable = true;
@@ -490,7 +471,6 @@
             button.setAttribute('onclick', 'saveTrackTitle(this)');
         }
 
-        // Function to save the edited track title
         function saveTrackTitle(button) {
             const trackTitle = button.closest('tr').querySelector('.track-title');
             trackTitle.contentEditable = false;
@@ -499,14 +479,12 @@
             saveHistoryToLocalStorage();
         }
 
-        // Function to delete a track from history
         function deleteTrack(button) {
             const historyItem = button.closest('tr');
             historyItem.remove();
             saveHistoryToLocalStorage();
         }
 
-        // Function to save the history to localStorage
         function saveHistoryToLocalStorage() {
             const historyItems = document.querySelectorAll('#history-list tbody tr');
             const historyData = [];
@@ -518,15 +496,14 @@
             localStorage.setItem('playedHistory', JSON.stringify(historyData));
         }
 
-        // Function to load the history from localStorage
         function loadHistoryFromLocalStorage() {
             const savedHistory = JSON.parse(localStorage.getItem('playedHistory')) || [];
+            document.getElementById('track-count').textContent = savedHistory.length; // Update track count
             savedHistory.reverse().forEach(track => {
                 addToHistory(track.title, track.videoId);
             });
         }
 
-        // Backup history to a file
         function backupHistory() {
             const historyData = JSON.parse(localStorage.getItem('playedHistory')) || [];
             const blob = new Blob([JSON.stringify(historyData, null, 2)], { type: 'application/json' });
@@ -536,13 +513,12 @@
             link.click();
         }
 
-        // Restore history from a file
         function restoreHistory(event) {
             const file = event.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 const historyData = JSON.parse(e.target.result);
                 if (Array.isArray(historyData)) {
                     document.getElementById('history-list').getElementsByTagName('tbody')[0].innerHTML = '';
@@ -555,7 +531,6 @@
             reader.readAsText(file);
         }
 
-        // Initialize balance control
         function initBalanceControl() {
             const balanceSlider = document.getElementById('balance-slider');
             const volumePercentage = document.getElementById('volume-percentage');
@@ -571,18 +546,6 @@
             });
         }
 
-        // Event listeners for loading selected videos into players
-        document.getElementById('track-list1').addEventListener('change', () => {
-            const trackTitle = document.getElementById('track-list1').selectedOptions[0].textContent;
-            loadSelectedTrack(player1, 'track-list1', trackTitle);
-        });
-
-        document.getElementById('track-list2').addEventListener('change', () => {
-            const trackTitle = document.getElementById('track-list2').selectedOptions[0].textContent;
-            loadSelectedTrack(player2, 'track-list2', trackTitle);
-        });
-
-        // Function to filter the history based on search input
         function filterHistory() {
             const query = document.getElementById('history-search').value.toLowerCase();
             const rows = document.querySelectorAll('#history-list tbody tr');
@@ -595,18 +558,7 @@
                 }
             });
         }
-		
-		 function loadHistoryFromLocalStorage() {
-        const savedHistory = JSON.parse(localStorage.getItem('playedHistory')) || [];
-        // Update track count
-        document.getElementById('track-count').textContent = savedHistory.length;
 
-        savedHistory.reverse().forEach(track => {
-            addToHistory(track.title, track.videoId);
-        });
-    }
-
-        // Load the YouTube API script and initialize balance control and history on page load
         window.onload = () => {
             loadYouTubeAPI();
             initBalanceControl();
