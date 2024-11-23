@@ -260,7 +260,7 @@
             flex: 1;
             font-size: 10px;
         }
-    </style>
+      </style>
 </head>
 <body>
     <h1>SAMMY'S YT DJ PROJECT</h1>
@@ -333,13 +333,13 @@
 
     <script>
         const apiKeys = [
-            'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A',
+          'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A',
             'AIzaSyDX2n08WCf5Ol1nffaqJU_aJp_BODlw1H4',
             // Add more API keys here
         ];
 
-        let currentApiKeyIndex = 0;
-        let apiKey = apiKeys[currentApiKeyIndex];
+        let currentApiKeyIndex = 0; 
+        let apiKey = apiKeys[currentApiKeyIndex]; 
 
         function switchApiKey() {
             currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length;
@@ -384,10 +384,10 @@
                     if (data.error && data.error.code === 403) {
                         alert('Quota exceeded for the current API key. Switching to a new API key...');
                         switchApiKey();
-                        searchYouTubeForDeck(deck);
+                        searchYouTubeForDeck(deck); 
                     } else {
                         const dropdown = document.getElementById(`custom-dropdown${deck === 'deck1' ? 1 : 2}`);
-                        dropdown.innerHTML = '';
+                        dropdown.innerHTML = ''; 
                         dropdown.style.display = 'block'; // Show dropdown
 
                         if (data.items.length > 0) {
@@ -440,7 +440,7 @@
             `;
             historyItem.setAttribute('data-video-id', videoId);
 
-            historyList.insertBefore(historyItem, historyList.firstChild);
+            historyList.insertBefore(historyItem, historyList.firstChild); 
         }
 
         function replayTrack(playerId, videoId) {
@@ -453,7 +453,7 @@
 
                 historyItems.forEach(item => {
                     if (item.getAttribute('data-video-id') === videoId) {
-                        trackTitle = item.querySelector('.track-title').textContent;
+                        trackTitle = item.querySelector('.track-title').textContent; 
                     }
                 });
 
@@ -520,7 +520,7 @@
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function (e) {
+            reader.onload = function(e) {
                 const historyData = JSON.parse(e.target.result);
                 if (Array.isArray(historyData)) {
                     document.getElementById('history-list').getElementsByTagName('tbody')[0].innerHTML = '';
@@ -560,6 +560,27 @@
                 }
             });
         }
+
+        // Close dropdown if clicked outside
+        document.addEventListener('click', (event) => {
+            const dropdown1 = document.getElementById('custom-dropdown1');
+            const dropdown2 = document.getElementById('custom-dropdown2');
+            const searchDeck1 = document.getElementById('search-deck1');
+            const searchDeck2 = document.getElementById('search-deck2');
+
+            const clickedInsideDropdown1 = dropdown1.contains(event.target);
+            const clickedInsideDropdown2 = dropdown2.contains(event.target);
+            const clickedOnSearchDeck1 = searchDeck1.contains(event.target);
+            const clickedOnSearchDeck2 = searchDeck2.contains(event.target);
+
+            // Close dropdown if clicked outside of the dropdown and search input
+            if (!clickedInsideDropdown1 && !clickedOnSearchDeck1) {
+                dropdown1.style.display = 'none';
+            }
+            if (!clickedInsideDropdown2 && !clickedOnSearchDeck2) {
+                dropdown2.style.display = 'none';
+            }
+        });
 
         window.onload = () => {
             loadYouTubeAPI();
