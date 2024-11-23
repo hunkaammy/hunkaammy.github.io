@@ -359,8 +359,7 @@
             });
         }
 
-       // Function to search YouTube for tracks using the selected API key
-function searchYouTubeForDeck(deck) {
+      function searchYouTubeForDeck(deck) {
     const query = document.getElementById(`search-${deck}`).value;
     if (query.trim() === '') {
         alert('Please enter a search term.');
@@ -373,7 +372,6 @@ function searchYouTubeForDeck(deck) {
         .then(response => response.json())
         .then(data => {
             if (data.error && data.error.code === 403) {
-                // If quota exceeded, prompt to switch API key
                 alert('Quota exceeded for the current API key. Switching to a new API key...');
                 switchApiKey();
                 searchYouTubeForDeck(deck); // Retry the search with the new API key
@@ -381,12 +379,20 @@ function searchYouTubeForDeck(deck) {
                 const trackList = document.getElementById(`track-list${deck === 'deck1' ? 1 : 2}`);
                 trackList.innerHTML = ''; // Clear previous results
 
-                data.items.forEach(video => {
-                    const option = document.createElement('option');
-                    option.value = video.id.videoId;
-                    option.textContent = video.snippet.title;
-                    trackList.appendChild(option);
-                });
+                // When results are fetched, check if there's a result first
+                if (data.items.length > 0) {
+                    data.items.forEach(video => {
+                        const option = document.createElement('option');
+                        option.value = video.id.videoId;
+                        option.textContent = video.snippet.title;
+                        trackList.appendChild(option);
+                    });
+
+                    // Automatically select and play the first track
+                    trackList.selectedIndex = 0;  // Select the first option
+                    const trackTitle = trackList.options[0].textContent; // Get title of the first track
+                    loadSelectedTrack(deck === 'deck1' ? player1 : player2, `track-list${deck === 'deck1' ? 1 : 2}`, trackTitle);
+                }
             }
         })
         .catch(error => console.error('Error fetching data:', error));
