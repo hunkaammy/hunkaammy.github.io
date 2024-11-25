@@ -918,7 +918,12 @@ function scrollToTop() {
                 <input type="hidden" id="{{'inputa' + $index}}" ng-model="image.url">
                 <input type="hidden" id="{{'inputb' + $index}}" ng-model="dynamicField2Value" ng-value="dynamicField2Value">
 
-                <input type="number" class="qtyclass" id="{{'inputc' + $index}}" placeholder="Qty" ng-model="image.field3" ng-change="submitData(image, $index)" ng-model-options="{ debounce: 4500 }">
+                <input type="number" class="qtyclass" 
+       id="{{'inputc' + $index}}" 
+       placeholder="Qty" 
+       ng-model="image.field3" 
+       ng-change="submitData(image, $index)" 
+       ng-model-options="{ debounce: 500 }">
                 
                 <p ng-show="showItemAdded">Item Added</p>
             </div>
@@ -1004,17 +1009,17 @@ app.controller('imagesController', function ($scope, $firebaseArray, $window, $l
     $scope.sortOrder = ''; // No default sorting order 
     $scope.dynamicField2Value = localStorage.getItem('name');
 
+    // Firebase configuration
     var firebaseConfigFetch = {
-     apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
-  authDomain: "htshop-e9c51.firebaseapp.com",
-  databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com",
-  projectId: "htshop-e9c51",
-  storageBucket: "htshop-e9c51.appspot.com",
-  messagingSenderId: "653137640907",
-  appId: "1:653137640907:web:672fd6a9e85ca448a70a4e",
-  measurementId: "G-FJ4Q0FHBEG"
-};
-
+        apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
+        authDomain: "htshop-e9c51.firebaseapp.com",
+        databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com",
+        projectId: "htshop-e9c51",
+        storageBucket: "htshop-e9c51.appspot.com",
+        messagingSenderId: "653137640907",
+        appId: "1:653137640907:web:672fd6a9e85ca448a70a4e",
+        measurementId: "G-FJ4Q0FHBEG"
+    };
 
     var firebaseConfigSubmit = {
         apiKey: "AIzaSyAMFjDnZaszneoR6nO8bmXUxwZJplLvNfU",
@@ -1037,46 +1042,11 @@ app.controller('imagesController', function ($scope, $firebaseArray, $window, $l
     var databaseSubmit = firebaseSubmit.database().ref();
     var listSubmit = $firebaseArray(databaseSubmit);
 
-    // Function to parse URL parameters
-    function getUrlParameter(name) {
-        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-        var results = regex.exec($location.absUrl());
-        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-    }
-
-    // Get URL parameters
-    var filterParam = getUrlParameter('filter');
-    var tabParam = getUrlParameter('tab');
-
-    // Set default values and scope variables based on URL parameters
-    $scope.productNameFilter = filterParam || ''; // Default to empty string if no filter
-    $scope.activeTab = isNaN(tabParam) ? 0 : parseInt(tabParam, 10); // Default to 0 if invalid tab
-
-    // Define your tab click functions
-    $scope.setTab = function(filter, tab) {
-        $scope.productNameFilter = filter;
-        $scope.activeTab = tab;
-        $location.search('filter', filter);
-        $location.search('tab', tab);
-    };
-	
-	    $scope.resetFilters = function() {
-          $scope.productNameFilter = '';
-          $scope.activeTab = 0;
-          $scope.searchQuery = '';
-        };
-
-    // Optionally, you can add logic to filter `vm.images` based on `productNameFilter` and `activeTab` here
-
+    // Function to submit data (update quantity or add new entry)
     $scope.submitData = function(image, index) {
-        var inputa = image.url;
-        var inputb = $scope.dynamicField2Value; // Use dynamicField2Value
-        var inputc = image.field3;
-        var inputName = image.name;
-        var inputPrice = image.price;
-        var inputvideourl = image.videourl;
-        var inputoutofstock = image.outOfStock;
+        var inputa = image.url; // Product URL
+        var inputb = $scope.dynamicField2Value; // Shop name from dynamicField2Value
+        var inputc = image.field3; // This contains the quantity
 
         // Get the current date and time
         var currentDate = new Date();
@@ -1095,33 +1065,52 @@ app.controller('imagesController', function ($scope, $firebaseArray, $window, $l
         hours = hours ? hours : 12; // The hour '0' should be '12'
         var submitTime = hours + ':' + minutes + ' ' + ampm;
 
-        var newDataKey = databaseSubmit.push().key;
+        // Check if quantity ID exists to determine update or insert
+        if (image.quantityId) { // Check if there's an existing quantity ID
+            databaseSubmit.child(image.quantityId).update({
+                field3: inputc // Update quantity only
+            }).then(() => {
+                console.log("Quantity updated in Firebase.");
+            }).catch((error) => {
+                console.log("Error updating quantity:", error);
+            });
+        } else {
+            var newDataKey = databaseSubmit.push().key;
+            image.quantityId = newDataKey; // Store the new key for future updates
 
-        databaseSubmit.child(newDataKey).set({
-            field1: inputa,
-            field2: inputb,
-            field3: inputc,
-            productName: inputName,
-            productPrice: inputPrice,
-            submitDate: submitDate,
-            submitTime: submitTime
-        });
-
-        console.log("Data submitted to Firebase with date and time");
+            databaseSubmit.child(newDataKey).set({
+                field1: inputa,
+                field2: inputb,
+                field3: inputc,
+                productName: image.name,
+                productPrice: image.price,
+                submitDate: submitDate,  // Added submit date
+                submitTime: submitTime,    // Added submit time
+                submittedDate: firebase.database.ServerValue.TIMESTAMP // Optional, if you need to track when it was added
+            })
+            .then(() => {
+                console.log("New item added to Firebase.");
+            })
+            .catch((error) => {
+                console.log("Error adding item:", error);
+            });
+        }
     };
-	
-	
 
-
- // Function to logout the user
+    // Function to logout the user
     $scope.logout = function() {
-        // Clear user session data (e.g., name stored in local storage)
         localStorage.removeItem('name');
-		localStorage.removeItem('mobile');
-
-        // Redirect the user to the login page or any other page
-        // For example, redirecting to the homepage
+        localStorage.removeItem('mobile');
+        localStorage.removeItem('loggedIn');
+        console.log('User logged out.');
         $window.location.href = '/mywebsite/index.html'; // Change the URL as needed
+    };
+
+    // Function to reset filters
+    $scope.resetFilters = function() {
+        $scope.productNameFilter = '';
+        $scope.activeTab = 0;
+        $scope.searchQuery = '';
     };
 
 
