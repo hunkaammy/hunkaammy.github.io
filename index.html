@@ -1068,7 +1068,10 @@ $scope.activeTab = isNaN(tabParam) ? 0 : parseInt(tabParam, 10); // Default to 0
 $scope.setTab = function(filter, tab) {
     $scope.productNameFilter = filter; // Set the product name filter
     $scope.activeTab = tab; // Set the active tab
-    
+
+    // Reset the search query when changing tabs
+    $scope.searchQuery = ''; // Reset search query
+
     // Update the URL parameters
     $location.search('filter', filter);
     $location.search('tab', tab);
@@ -1076,9 +1079,9 @@ $scope.setTab = function(filter, tab) {
 
 // Function to reset filters
 $scope.resetFilters = function() {
-    $scope.productNameFilter = ''; // Reset filter
-    $scope.activeTab = 0; // Reset tab to the first tab
-    $scope.searchQuery = ''; // Reset any search query
+    $scope.productNameFilter = '';
+    $scope.activeTab = 0;
+    $scope.searchQuery = '';
 };
 
 // Optionally, you can add logic to filter `vm.images` based on `productNameFilter` and `activeTab` here
