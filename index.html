@@ -1041,6 +1041,48 @@ app.controller('imagesController', function ($scope, $firebaseArray, $window, $l
 
     var databaseSubmit = firebaseSubmit.database().ref();
     var listSubmit = $firebaseArray(databaseSubmit);
+	
+	
+// Function to parse URL parameters
+function getUrlParameter(name) {
+    // Escape the parameter name for regex
+    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    
+    // Create regex to find the parameter in the URL
+    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    var results = regex.exec($location.absUrl());
+    
+    // Return the decoded parameter value or an empty string if not found
+    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+}
+
+// Get URL parameters for filter and tab
+var filterParam = getUrlParameter('filter');
+var tabParam = getUrlParameter('tab');
+
+// Set default values and scope variables based on URL parameters
+$scope.productNameFilter = filterParam || ''; // Default to empty string if no filter
+$scope.activeTab = isNaN(tabParam) ? 0 : parseInt(tabParam, 10); // Default to 0 if invalid tab
+
+// Function to set tab and filter
+$scope.setTab = function(filter, tab) {
+    $scope.productNameFilter = filter; // Set the product name filter
+    $scope.activeTab = tab; // Set the active tab
+    
+    // Update the URL parameters
+    $location.search('filter', filter);
+    $location.search('tab', tab);
+};
+
+// Function to reset filters
+$scope.resetFilters = function() {
+    $scope.productNameFilter = ''; // Reset filter
+    $scope.activeTab = 0; // Reset tab to the first tab
+    $scope.searchQuery = ''; // Reset any search query
+};
+
+// Optionally, you can add logic to filter `vm.images` based on `productNameFilter` and `activeTab` here
+// Example of filtering logic based on productNameFilter and activeTab can be written here.
 
     // Function to submit data (update quantity or add new entry)
     $scope.submitData = function(image, index) {
