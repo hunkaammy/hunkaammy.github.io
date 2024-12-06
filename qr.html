@@ -21,6 +21,45 @@
         button {
             padding: 10px 20px;
         }
+
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full Width */
+            height: 100%; /* Full Height */
+            background-color: white;
+            padding-top: 0;
+        }
+
+        .modal-content {
+            position: absolute; /* Use absolute positioning */
+            top: 50%; /* Position from the top */
+            left: 50%; /* Position from the left */
+            transform: translate(-50%, -50%); /* Center the content */
+            background-color: #fefefe;
+            padding: 20px;
+            border-radius: 8px; /* Rounded corners */
+            text-align: center; /* Center text */
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+
     </style>
 </head>
 <body>
@@ -44,6 +83,15 @@
 
     <div id="qr-code"></div>
 
+    <!-- Modal Structure -->
+    <div id="qrModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalQR"></div>
+            <p id="modalAmount"></p>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     <script>
@@ -51,6 +99,12 @@
             const selectElement = document.getElementById("upiSelect");
             const inputElement = document.getElementById("upiId");
             inputElement.value = selectElement.value; // Update input field with selected UPI ID
+        }
+
+        function closeModal() {
+            document.getElementById("qrModal").style.display = "none";
+            document.getElementById("modalQR").innerHTML = ''; // Clear the QR code from the modal
+            document.getElementById("modalAmount").innerText = ''; // Clear the amount text
         }
 
         document.getElementById("upiForm").onsubmit = function(event) {
@@ -78,7 +132,26 @@
                 width: 256,
                 height: 256,
             });
+
+            // Show the modal with QR code and amount
+            document.getElementById("modalQR").innerHTML = ''; // Clear previous QR codes
+            const modalQrCode = new QRCode(document.getElementById("modalQR"), {
+                text: upiURL,
+                width: 256,
+                height: 256,
+            });
+
+            document.getElementById("modalAmount").innerText = `Amount: ₹${amount}`;
+            document.getElementById("qrModal").style.display = "block"; // Show the modal
         };
+
+        // Close modal when the user clicks anywhere outside of the modal
+        window.onclick = function(event) {
+            const modal = document.getElementById("qrModal");
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
     </script>
 </body>
 </html>
