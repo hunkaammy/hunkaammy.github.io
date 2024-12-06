@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic UPI QR Code Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #qr-code {
+            margin-top: 20px;
+        }
+        input, select {
+            padding: 10px;
+            margin: 5px;
+            width: 200px;
+        }
+        button {
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>UPI QR Code Generator</h1>
+    <form id="upiForm">
+        <label for="upiSelect">Select UPI ID:</label><br>
+        <select id="upiSelect" onchange="updateUpiId()">
+            <option value="">--Select UPI ID--</option>
+            <option value="Q416915015@ybl">HINDUSTAN TOYS</option>
+            <option value="paytmqr5ikbc9@ptys">SAMEER</option>
+            <option value="merchant3@upi">Merchant 3</option>
+        </select><br>
+
+        <label for="upiId">Or enter a new UPI ID:</label><br>
+        <input type="text" id="upiId" placeholder="UPI ID (e.g., example@upi)"><br>
+
+        <input type="number" id="amount" placeholder="Amount" required><br>
+        <input type="text" id="note" placeholder="Note (optional)"><br>
+        <button type="submit">Generate QR Code</button>
+    </form>
+
+    <div id="qr-code"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <script>
+        function updateUpiId() {
+            const selectElement = document.getElementById("upiSelect");
+            const inputElement = document.getElementById("upiId");
+            inputElement.value = selectElement.value; // Update input field with selected UPI ID
+        }
+
+        document.getElementById("upiForm").onsubmit = function(event) {
+            event.preventDefault();
+
+            const upiID = document.getElementById("upiId").value;
+            const amount = document.getElementById("amount").value;
+            const note = document.getElementById("note").value;
+
+            // If UPI ID input is empty, provide an alert (optional)
+            if (!upiID) {
+                alert("Please enter a UPI ID or select one from the list.");
+                return;
+            }
+
+            // Format the UPI URL
+            const upiURL = `upi://pay?pa=${upiID}&pn=Merchant%20Name&mc=1234&tid=txid&am=${amount}&cu=INR&url=${note}`;
+
+            // Clear previous QR codes
+            document.getElementById("qr-code").innerHTML = '';
+
+            // Generate QR code
+            const qrCode = new QRCode(document.getElementById("qr-code"), {
+                text: upiURL,
+                width: 256,
+                height: 256,
+            });
+        };
+    </script>
+</body>
+</html>
