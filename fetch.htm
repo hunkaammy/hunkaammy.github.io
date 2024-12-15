@@ -1,89 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fetch Firebase Storage Images</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Oil Business Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(to bottom, #1c1c1c, #333) no-repeat;
+      color: white;
+    }
+    .login-container {
+      background: #222;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+      text-align: center;
+      max-width: 350px;
+      width: 100%;
+    }
+    .login-container h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #f0ad4e;
+    }
+    .login-container img {
+      width: 80px;
+      margin-bottom: 15px;
+    }
+    .login-container input {
+      width: 90%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #444;
+      border-radius: 5px;
+      font-size: 16px;
+      background: #333;
+      color: white;
+    }
+    .login-container button {
+      width: 95%;
+      padding: 12px;
+      background: #f0ad4e;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      color: #222;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .login-container button:hover {
+      background: #d98a1a;
+    }
+    .login-container p {
+      color: #e74c3c;
+      display: none;
+      font-size: 14px;
+      margin-top: -10px;
+    }
+    #page-content {
+      display: none;
+      text-align: center;
+    }
+    #page-content h1 {
+      font-size: 36px;
+      color: #f0ad4e;
+    }
+    #page-content p {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+    .form-field {
+      margin: 10px auto;
+      width: 50%;
+      text-align: left;
+    }
+    .form-field label {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+    .form-field input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #444;
+      border-radius: 5px;
+      background: #333;
+      color: white;
+    }
+    .form-field input:focus {
+      outline: none;
+      border-color: #f0ad4e;
+    }
+  </style>
 </head>
-
 <body>
-    <h1>Firebase Storage Images</h1>
 
-    <button id="downloadButton">Download All Images</button>
-    <div id="imageList"></div>
+<div class="login-container">
+  <img src="https://img.icons8.com/ios-filled/100/ffa500/oil-industry.png" alt="Oil Industry Logo">
+  <h2>Oil Business Login</h2>
+  <input type="password" id="pin-input" placeholder="Enter your 4-digit PIN">
+  <button onclick="validatePin()">Login</button>
+  <p id="error-message">Incorrect PIN. Please try again.</p>
+</div>
 
-    <script>
-        // Initialize Firebase configuration
-        const firebaseConfig = {
-             apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
-  authDomain: "htshop-e9c51.firebaseapp.com",
-  databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com",
-  projectId: "htshop-e9c51",
-  storageBucket: "htshop-e9c51.appspot.com",
-  messagingSenderId: "653137640907",
-  appId: "1:653137640907:web:672fd6a9e85ca448a70a4e",
-  measurementId: "G-FJ4Q0FHBEG"
-        };
+<div id="page-content">
+  <h1>Welcome to Oil Dashboard</h1>
+  <p>Manage your oil transactions securely.</p>
+  <div class="form-field">
+    <label for="price">Price (per barrel):</label>
+    <input type="number" id="price" placeholder="Enter price">
+  </div>
+  <div class="form-field">
+    <label for="freight">Freight Charges:</label>
+    <input type="number" id="freight" placeholder="Enter freight charges">
+  </div>
+</div>
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const storage = firebase.storage();
+<script>
+  function validatePin() {
+    const pin = document.getElementById('pin-input').value;
+    const errorMessage = document.getElementById('error-message');
+    if (pin === '1234') {
+      document.querySelector('.login-container').style.display = 'none';
+      document.getElementById('page-content').style.display = 'block';
+    } else {
+      errorMessage.style.display = 'block';
+    }
+  }
+</script>
 
-        // Function to fetch all images from storage and display them
-        async function fetchImages() {
-            const storageRef = storage.ref();
-            const imageListDiv = document.getElementById('imageList');
-
-            try {
-                const result = await storageRef.listAll();
-                const files = result.items;
-
-                // Clear the image list div
-                imageListDiv.innerHTML = '';
-                window.imageUrls = []; // Array to store image URLs
-
-                for (const fileRef of files) {
-                    // Get the download URL for each file
-                    const fileUrl = await fileRef.getDownloadURL();
-                    window.imageUrls.push(fileUrl); // Store URL for later use
-
-                    const imageElement = document.createElement('img');
-                    imageElement.src = fileUrl;
-                    imageElement.alt = fileRef.name;
-                    imageElement.style.width = '200px'; // Set desired image width
-                    imageElement.style.margin = '10px'; // Set margins
-                    imageElement.style.border = '1px solid black'; // Add a border
-
-                    // Append the image to the image list div
-                    imageListDiv.appendChild(imageElement);
-                }
-            } catch (error) {
-                console.error("Error fetching images: ", error);
-                imageListDiv.innerHTML = 'Error fetching images.';
-            }
-        }
-
-        // Function to download all images
-        function downloadImages() {
-            window.imageUrls.forEach((url, index) => {
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `image${index + 1}.png`; // You can change the name format
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link); // Clean up
-            });
-        }
-
-        // Call the function to fetch images
-        fetchImages();
-
-        // Add event listener to download button
-        document.getElementById('downloadButton').addEventListener('click', downloadImages);
-    </script>
 </body>
-
 </html>
