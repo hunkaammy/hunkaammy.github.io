@@ -1,140 +1,179 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Oil Business Login</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: linear-gradient(to bottom, #1c1c1c, #333) no-repeat;
-      color: white;
-    }
-    .login-container {
-      background: #222;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-      text-align: center;
-      max-width: 350px;
-      width: 100%;
-    }
-    .login-container h2 {
-      font-size: 24px;
-      margin-bottom: 20px;
-      color: #f0ad4e;
-    }
-    .login-container img {
-      width: 80px;
-      margin-bottom: 15px;
-    }
-    .login-container input {
-      width: 90%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border: 1px solid #444;
-      border-radius: 5px;
-      font-size: 16px;
-      background: #333;
-      color: white;
-    }
-    .login-container button {
-      width: 95%;
-      padding: 12px;
-      background: #f0ad4e;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      color: #222;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .login-container button:hover {
-      background: #d98a1a;
-    }
-    .login-container p {
-      color: #e74c3c;
-      display: none;
-      font-size: 14px;
-      margin-top: -10px;
-    }
-    #page-content {
-      display: none;
-      text-align: center;
-    }
-    #page-content h1 {
-      font-size: 36px;
-      color: #f0ad4e;
-    }
-    #page-content p {
-      font-size: 18px;
-      margin-bottom: 20px;
-    }
-    .form-field {
-      margin: 10px auto;
-      width: 50%;
-      text-align: left;
-    }
-    .form-field label {
-      display: block;
-      font-size: 16px;
-      margin-bottom: 5px;
-    }
-    .form-field input {
-      width: 100%;
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #444;
-      border-radius: 5px;
-      background: #333;
-      color: white;
-    }
-    .form-field input:focus {
-      outline: none;
-      border-color: #f0ad4e;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculate Price, Freight, and Tax</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h2, h3 {
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="number"], input[type="date"], input[type="text"], input[type="hidden"] {
+            width: calc(100% - 10px);
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        #result {
+            margin-top: 20px;
+            background-color: white;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+        .tin-section {
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .whatsapp-button {
+            margin-top: 20px;
+            background-color: #25D366; /* WhatsApp color */
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            text-align: center;
+            width: 100%;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h2>Calculate Total Cost</h2>
+        <form id="dataForm">
+            <div class="form-group">
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+            <div class="form-group">
+                <label for="price">Price:</label>
+                <input type="number" id="price" name="price" required>
+            </div>
+            <div class="form-group">
+                <label for="freight">Freight:</label>
+                <input type="number" id="freight" name="freight" required>
+            </div>
+            <div class="form-group">
+                <label for="tax">Tax (%):</label>
+                <input type="number" id="tax" name="tax" value="5" required>
+            </div>
+        </form>
+        <h3>Calculation Result</h3>
+        <div id="result"></div>
 
-<div class="login-container">
-  <img src="https://img.icons8.com/ios-filled/100/ffa500/oil-industry.png" alt="Oil Industry Logo">
-  <h2>Oil Business Login</h2>
-  <input type="password" id="pin-input" placeholder="Enter your 4-digit PIN">
-  <button onclick="validatePin()">Login</button>
-  <p id="error-message">Incorrect PIN. Please try again.</p>
-</div>
+        <div class="tin-section">
+            <h1>TIN Results</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>15kg</td>
+                        <td><span id="15kg-result"></span></td>
+                    </tr>
+                    <tr>
+                        <td>15ltr</td>
+                        <td><span id="15ltr-result"></span></td>
+                    </tr>
+                    <tr>
+                        <td>13kg</td>
+                        <td><span id="13kg-result"></span></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class="whatsapp-button" id="whatsapp-share-button" style="display: none;">Share on WhatsApp</button> <!-- Initially hidden -->
+        </div>
+    </div>
+    <script>
+        let lastResults = ""; // Variable to store the last calculated results
 
-<div id="page-content">
-  <h1>Welcome to Oil Dashboard</h1>
-  <p>Manage your oil transactions securely.</p>
-  <div class="form-field">
-    <label for="price">Price (per barrel):</label>
-    <input type="number" id="price" placeholder="Enter price">
-  </div>
-  <div class="form-field">
-    <label for="freight">Freight Charges:</label>
-    <input type="number" id="freight" placeholder="Enter freight charges">
-  </div>
-</div>
+        function calculateTotalCost() {
+            const price = parseFloat(document.getElementById('price').value) || 0;
+            const freight = parseFloat(document.getElementById('freight').value) || 0;
+            const taxRate = parseFloat(document.getElementById('tax').value) / 100 || 0;
 
-<script>
-  function validatePin() {
-    const pin = document.getElementById('pin-input').value;
-    const errorMessage = document.getElementById('error-message');
-    if (pin === '1234') {
-      document.querySelector('.login-container').style.display = 'none';
-      document.getElementById('page-content').style.display = 'block';
-    } else {
-      errorMessage.style.display = 'block';
-    }
-  }
-</script>
+            const totalCostBeforeTax = price + freight;
+            const taxAmount = totalCostBeforeTax * taxRate;
+            const totalCost = totalCostBeforeTax + taxAmount;
 
+            document.getElementById('result').innerHTML = `
+                <p><strong>Total Cost After Tax: ${totalCost.toFixed(2)}</strong></p>
+            `;
+            
+            // Calculate TIN results
+            calculateTINResults(totalCost);
+        }
+
+        function calculateTINResults(totalCost) {
+            const kg15TinValue = 14.85; // Fixed TIN value for 15kg
+            const kg15Cost = 100; // Fixed cost for 15kg
+            const kg15Total = (totalCost * kg15TinValue) + kg15Cost;
+            document.getElementById('15kg-result').innerText = kg15Total.toFixed(2);
+
+            const ltr15TinValue = 13.65; // Fixed TIN value for 15ltr
+            const ltr15Cost = 100; // Fixed cost for 15ltr
+            const ltr15Total = (totalCost * ltr15TinValue) + ltr15Cost;
+            document.getElementById('15ltr-result').innerText = ltr15Total.toFixed(2);
+
+            const kg13TinValue = 12.85; // Fixed TIN value for 13kg
+            const kg13Cost = 100; // Fixed cost for 13kg
+            const kg13Total = (totalCost * kg13TinValue) + kg13Cost;
+            document.getElementById('13kg-result').innerText = kg13Total.toFixed(2);
+
+            // Prepare results for sharing
+            lastResults = `15kg: ${kg15Total.toFixed(2)}\n15ltr: ${ltr15Total.toFixed(2)}\n13kg: ${kg13Total.toFixed(2)}`;
+            
+            // Show the WhatsApp button
+            document.getElementById('whatsapp-share-button').style.display = 'block';
+        }
+
+        document.getElementById('whatsapp-share-button').addEventListener('click', function() {
+            const message = encodeURIComponent(`TIN Results:\n${lastResults}`);
+            const whatsappURL = `https://wa.me/?text=${message}`;
+            window.open(whatsappURL, '_blank');
+        });
+
+        // Attach event listeners to the inputs
+        document.getElementById('price').addEventListener('input', calculateTotalCost);
+        document.getElementById('freight').addEventListener('input', calculateTotalCost);
+        document.getElementById('tax').addEventListener('input', calculateTotalCost);
+    </script>
 </body>
 </html>
