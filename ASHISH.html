@@ -98,7 +98,7 @@
 
    <!-- Pouch Items Table -->
    <h2>POUCH Items</h2>
-    <table>
+    <table id="pouchItems">
         <thead>
             <tr>
                 <th>Item</th>
@@ -141,7 +141,7 @@
 
     <!-- Pouch in ML Table -->
     <h2>POUCH Items in ML</h2>
-    <table>
+    <table id="pouchMLItems">
         <thead>
             <tr>
                 <th>Item</th>
@@ -214,7 +214,7 @@
 
     <!-- Bottle Items Table -->
     <h2>BOTTLE Items</h2>
-    <table>
+    <table id="bottleItems">
         <thead>
             <tr>
                 <th>Item</th>
@@ -247,7 +247,7 @@
 
     <!-- Jar Items Table -->
     <h2>JAR Items</h2>
-    <table>
+    <table id="jarItems">
         <thead>
             <tr>
                 <th>Item</th>
@@ -285,10 +285,10 @@
 <script>
     function shareTable() {
         let message = 'Table Data:\n';
-        
+
         // Gather data from Bulk Items Table
-        const bulkItems = document.querySelectorAll('#bulkItems tbody tr');
         message += 'Bulk Items:\n';
+        const bulkItems = document.querySelectorAll('#bulkItems tbody tr');
         bulkItems.forEach(item => {
             const columns = item.querySelectorAll('td');
             const itemName = columns[0].innerText;
@@ -296,9 +296,46 @@
             message += `${itemName}: ${itemPrice}\n`;
         });
 
-        // Add similar logic for other tables (POUCH, BOTTLE, JAR)...
-        // For simplicity, only the BULK table is included here
-        
+        // Gather data from Pouch Items Table
+        message += '\nPOUCH Items:\n';
+        const pouchItems = document.querySelectorAll('#pouchItems tbody tr');
+        pouchItems.forEach(item => {
+            const columns = item.querySelectorAll('td');
+            const itemName = columns[0].innerText;
+            const itemPrice = columns[1].innerText;
+            message += `${itemName}: ${itemPrice}\n`;
+        });
+
+        // Gather data from Pouch in ML Items Table
+        message += '\nPOUCH Items in ML:\n';
+        const pouchMLItems = document.querySelectorAll('#pouchMLItems tbody tr');
+        pouchMLItems.forEach(item => {
+            const columns = item.querySelectorAll('td');
+            const itemName = columns[0].innerText;
+            const itemPrice = columns[1].innerText;
+            message += `${itemName}: ${itemPrice}\n`;
+        });
+
+        // Gather data from Bottle Items Table
+        message += '\nBOTTLE Items:\n';
+        const bottleItems = document.querySelectorAll('#bottleItems tbody tr');
+        bottleItems.forEach(item => {
+            const columns = item.querySelectorAll('td');
+            const itemName = columns[0].innerText;
+            const itemPrice = columns[1].innerText;
+            message += `${itemName}: ${itemPrice}\n`;
+        });
+
+        // Gather data from Jar Items Table
+        message += '\nJAR Items:\n';
+        const jarItems = document.querySelectorAll('#jarItems tbody tr');
+        jarItems.forEach(item => {
+            const columns = item.querySelectorAll('td');
+            const itemName = columns[0].innerText;
+            const itemPrice = columns[1].innerText;
+            message += `${itemName}: ${itemPrice}\n`;
+        });
+
         // Encode the message for WhatsApp URL
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
         
