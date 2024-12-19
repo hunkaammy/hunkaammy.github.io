@@ -93,7 +93,11 @@
 
     <h2>Price after Tax: {{ priceaftertax = (PRICE || 0) + (FRIGHT || 0) + (((PRICE || 0) + (FRIGHT || 0)) * (TAX || 0) / 100) | number:2 }}</h2>
 
+<button id="shareButton" onclick="shareTable()">Share on WhatsApp</button>
+
     <!-- Bulk Items Table -->
+
+   <h2>HK POUCH</h2>
     <table id="bulkItems">
         <thead>
             <tr>
@@ -136,7 +140,7 @@
     </table>
 
    <!-- Pouch Items Table -->
-   <h2>POUCH Items</h2>
+   <h2>HK POUCH</h2>
     <table id="pouchItems">
         <thead>
             <tr>
@@ -179,7 +183,7 @@
     </table>
 
 <!-- Pouch in ML Table -->
-<h2>POUCH Items in ML</h2>
+<h2>HK POUCH IN ML</h2>
 <table id="pouchMLItems">
     <thead>
         <tr>
@@ -252,7 +256,7 @@
 </table>
 
     <!-- Bottle Items Table -->
-    <h2>BOTTLE Items</h2>
+    <h2>HK BOTTLE </h2>
     <table id="bottleItems">
         <thead>
             <tr>
@@ -285,7 +289,7 @@
     </table>
 
     <!-- Jar Items Table -->
-    <h2>*JAR Items*</h2>
+    <h2>HK JAR</h2>
     <table id="jarItems">
         <thead>
             <tr>
@@ -317,19 +321,19 @@
         </tbody>
     </table>
 
-    <button id="shareButton" onclick="shareTable()">Share on WhatsApp</button>
+    
 
     <div class="footer">
-        <p>&copy; 2023 Your Company Name</p>
+       
     </div>
 </div>
 
 <script>
     function shareTable() {
-        let message = 'Table Data:\n';
+        let message = '*SHRI SHYAM OILS*\n';
 
         // Gather data from Bulk Items Table
-        message += 'Bulk Items:\n';
+        message += '*SOYA TIN:*\n';
         const bulkItems = document.querySelectorAll('#bulkItems tbody tr');
         bulkItems.forEach(item => {
             const columns = item.querySelectorAll('td');
