@@ -7,12 +7,11 @@
             font-family: Arial, sans-serif;
             margin: 20px;
         }
-        /* Create a consistent style for all tables */
         table {
-            width: 80%;  /* Set a consistent width for all tables */
-            max-width: 600px; /* Optional: To control the maximum width */
+            width: 80%;  
+            max-width: 600px; 
             border-collapse: collapse;
-            margin: 20px auto; /* Center the tables horizontally */
+            margin: 20px auto; 
         }
         table, th, td {
             border: 1px solid #ccc;
@@ -25,14 +24,14 @@
             background-color: #f4f4f4;
         }
         h2 {
-            text-align: center;  /* Center heading text for better symmetry */
+            text-align: center;  
             margin-top: 20px;
         }
         #shareButton {
             display: block;
             margin: 20px auto;
             padding: 10px 15px;
-            background-color: #25D366; /* WhatsApp green color */
+            background-color: #25D366; 
             color: white;
             border: none;
             border-radius: 5px;
@@ -50,7 +49,7 @@
     
     <p>FRIGHT: <input type="number" ng-model="FRIGHT" placeholder="Enter fright here"></p>
     
-    <p>TAX (%):  <input type="number" ng-model="TAX" ng-init="TAX = 5" placeholder="Enter tax percentage here"></p>
+    <p>TAX (%): <input type="number" ng-model="TAX" ng-init="TAX = 5" placeholder="Enter tax percentage here"></p>
 
     <h2>Price after Tax: {{ priceaftertax = (PRICE || 0) + (FRIGHT || 0) + (((PRICE || 0) + (FRIGHT || 0)) * (TAX || 0) / 100) | number:2 }}</h2>
 
@@ -68,7 +67,7 @@
                 <input type="hidden" ng-model="margin15kgtin" ng-init="margin15kgtin = 14.85">
                 <input type="hidden" ng-model="cost15kgtin" ng-init="cost15kgtin = 100">
                 <td>
-                    <span ng-if="(finalPrice = ((priceaftertax || 0) * (margin15kgtin || 0) + (cost15kgtin || 0)) | number:2) != 100">
+                    <span ng-if="(finalPrice = ((priceaftertax || 0) * (margin15kgtin || 0) + (cost15kgtin || 0)).toFixed(2)) != 100">
                         {{ finalPrice }}
                     </span>
                 </td>
@@ -78,7 +77,7 @@
                 <input type="hidden" ng-model="margin15ltrtin" ng-init="margin15ltrtin = 13.65">
                 <input type="hidden" ng-model="cost15ltrtin" ng-init="cost15ltrtin = 100">
                 <td>
-                    <span ng-if="(finalPrice1 = ((priceaftertax || 0) * (margin15ltrtin || 0) + (cost15ltrtin || 0)) | number:2) != 100">
+                    <span ng-if="(finalPrice1 = ((priceaftertax || 0) * (margin15ltrtin || 0) + (cost15ltrtin || 0)).toFixed(2)) != 100">
                         {{ finalPrice1 }}
                     </span>
                 </td>
@@ -88,7 +87,7 @@
                 <input type="hidden" ng-model="margin13kgtin" ng-init="margin13kgtin = 12.85">
                 <input type="hidden" ng-model="cost13kgtin" ng-init="cost13kgtin = 100">
                 <td>
-                    <span ng-if="(finalPrice2 = ((priceaftertax || 0) * (margin13kgtin || 0) + (cost13kgtin || 0)) | number:2) != 100">
+                    <span ng-if="(finalPrice2 = ((priceaftertax || 0) * (margin13kgtin || 0) + (cost13kgtin || 0)).toFixed(2)) != 100">
                         {{ finalPrice2 }}
                     </span>
                 </td>
@@ -111,7 +110,7 @@
                 <input type="hidden" ng-model="margin900gm" ng-init="margin900gm = 6.1">
                 <input type="hidden" ng-model="cost900gm" ng-init="cost900gm = 900">
                 <td>
-                    <span ng-if="(finalPrice3 = ((priceaftertax || 0) / 1000 * (cost900gm || 0) + (margin900gm || 0)) | number:2) != 100">
+                    <span ng-if="(finalPrice3 = ((priceaftertax || 0) / 1000 * (cost900gm || 0) + (margin900gm || 0)).toFixed(2)) != 100">
                         {{ finalPrice3 }}
                     </span>
                 </td>
@@ -121,7 +120,7 @@
                 <input type="hidden" ng-model="margin840gm" ng-init="margin840gm = 5.1">
                 <input type="hidden" ng-model="cost840gm" ng-init="cost840gm = 840">
                 <td>
-                    <span ng-if="(finalPrice4 = ((priceaftertax || 0) / 1000 * (cost840gm || 0) + (margin840gm || 0)) | number:2) != 100">
+                    <span ng-if="(finalPrice4 = ((priceaftertax || 0) / 1000 * (cost840gm || 0) + (margin840gm || 0)).toFixed(2)) != 100">
                         {{ finalPrice4 }}
                     </span>
                 </td>
@@ -131,7 +130,7 @@
                 <input type="hidden" ng-model="margin800gm" ng-init="margin800gm = 5.1">
                 <input type="hidden" ng-model="cost800gm" ng-init="cost800gm = 800">
                 <td>
-                    <span ng-if="(finalPrice5 = ((priceaftertax || 0) / 1000 * (cost800gm || 0) + (margin800gm || 0)) | number:2) != 100">
+                    <span ng-if="(finalPrice5 = ((priceaftertax || 0) / 1000 * (cost800gm || 0) + (margin800gm || 0)).toFixed(2)) != 100">
                         {{ finalPrice5 }}
                     </span>
                 </td>
@@ -139,78 +138,78 @@
         </tbody>
     </table>
 
-    <!-- Pouch in ML Table -->
-    <h2>POUCH Items in ML</h2>
-    <table id="pouchMLItems">
-        <thead>
-            <tr>
-                <th>Item</th>
-                <th>Final Price</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>POUCH - 990 ML</td>
-                <input type="hidden" ng-model="margin990ml" ng-init="margin990ml = 12.00">
-                <input type="hidden" ng-model="cost990ml" ng-init="cost990ml = 100">
-                <td>
-                    <span ng-if="(finalPrice6 = ((priceaftertax || 0) * (margin990ml || 0) + (cost990ml || 0)) | number:2) != 100">
-                        {{ finalPrice6 }}
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td>POUCH - 910 ML</td>
-                <input type="hidden" ng-model="margin910ml" ng-init="margin910ml = 11.50">
-                <input type="hidden" ng-model="cost910ml" ng-init="cost910ml = 100">
-                <td>
-                    <span ng-if="(finalPrice7 = ((priceaftertax || 0) * (margin910ml || 0) + (cost910ml || 0)) | number:2) != 100">
-                        {{ finalPrice7 }}
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td>POUCH - 870 ML</td>
-                <input type="hidden" ng-model="margin870ml" ng-init="margin870ml = 10.00">
-                <input type="hidden" ng-model="cost870ml" ng-init="cost870ml = 100">
-                <td>
-                    <span ng-if="(finalPrice8 = ((priceaftertax || 0) * (margin870ml || 0) + (cost870ml || 0)) | number:2) != 100">
-                        {{ finalPrice8 }}
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td>POUCH - 800 ML</td>
-                <input type="hidden" ng-model="margin800ml" ng-init="margin800ml = 9.00">
-                <input type="hidden" ng-model="cost800ml" ng-init="cost800ml = 100">
-                <td>
-                    <span ng-if="(finalPrice9 = ((priceaftertax || 0) * (margin800ml || 0) + (cost800ml || 0)) | number:2) != 100">
-                        {{ finalPrice9 }}
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td>POUCH - 700 ML</td>
-                <input type="hidden" ng-model="margin700ml" ng-init="margin700ml = 8.00">
-                <input type="hidden" ng-model="cost700ml" ng-init="cost700ml = 100">
-                <td>
-                    <span ng-if="(finalPrice10 = ((priceaftertax || 0) * (margin700ml || 0) + (cost700ml || 0)) | number:2) != 100">
-                        {{ finalPrice10 }}
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td>POUCH - 300 ML</td>
-                <input type="hidden" ng-model="margin300ml" ng-init="margin300ml = 5.00">
-                <input type="hidden" ng-model="cost300ml" ng-init="cost300ml = 100">
-                <td>
-                    <span ng-if="(finalPrice11 = ((priceaftertax || 0) * (margin300ml || 0) + (cost300ml || 0)) | number:2) != 100">
-                        {{ finalPrice11 }}
-                    </span>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+<!-- Pouch in ML Table -->
+<h2>POUCH Items in ML</h2>
+<table id="pouchMLItems">
+    <thead>
+        <tr>
+            <th>Item</th>
+            <th>Final Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>POUCH - 990 ML</td>
+            <input type="hidden" ng-model="margin990ml" ng-init="margin990ml = 6.1">
+            <input type="hidden" ng-model="cost990ml" ng-init="cost990ml = 900.9">
+            <td>
+                <span ng-if="(finalPrice6 = (((priceaftertax || 0) / 1000) * (cost990ml || 0) + (margin990ml || 0)).toFixed(2)) != 100">
+                    {{ finalPrice6 }}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td>POUCH - 910 ML</td>
+            <input type="hidden" ng-model="margin910ml" ng-init="margin910ml = 5.1">
+            <input type="hidden" ng-model="cost910ml" ng-init="cost910ml = 828.1">
+            <td>
+                <span ng-if="(finalPrice7 = (((priceaftertax || 0) / 1000) * (cost910ml || 0) + (margin910ml || 0)).toFixed(2)) != 100">
+                    {{ finalPrice7 }}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td>POUCH - 870 ML</td>
+            <input type="hidden" ng-model="margin870ml" ng-init="margin870ml = 5.1">
+            <input type="hidden" ng-model="cost870ml" ng-init="cost870ml = 791.7">
+            <td>
+                <span ng-if="(finalPrice8 = (((priceaftertax || 0) / 1000) * (cost870ml || 0) + (margin870ml || 0)).toFixed(2)) != 100">
+                    {{ finalPrice8 }}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td>POUCH - 800 ML</td>
+            <input type="hidden" ng-model="margin800ml" ng-init="margin800ml = 5.1">
+            <input type="hidden" ng-model="cost800ml" ng-init="cost800ml = 728">
+            <td>
+                <span ng-if="(finalPrice9 = (((priceaftertax || 0) / 1000) * (cost800ml || 0) + (margin800ml || 0)).toFixed(2)) != 100">
+                    {{ finalPrice9 }}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td>POUCH - 700 ML</td>
+            <input type="hidden" ng-model="margin700ml" ng-init="margin700ml = 5.1">
+            <input type="hidden" ng-model="cost700ml" ng-init="cost700ml = 637">
+            <td>
+                <span ng-if="(finalPrice10 = (((priceaftertax || 0) / 1000) * (cost700ml || 0) + (margin700ml || 0)).toFixed(2)) != 100">
+                    {{ finalPrice10 }}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td>POUCH - 300 ML</td>
+            <input type="hidden" ng-model="margin300ml" ng-init="margin300ml = 5.00">
+            <input type="hidden" ng-model="cost300ml" ng-init="cost300ml = 100">
+            <td>
+              <!--  <span ng-if="(finalPrice11 = (((priceaftertax || 0) / 1000) * (cost300ml || 0) + (margin300ml || 0)).toFixed(2)) != 100">
+                    {{ finalPrice11 }}-->
+                </span>
+            </td>
+        </tr>
+    </tbody>
+</table>
 
     <!-- Bottle Items Table -->
     <h2>BOTTLE Items</h2>
@@ -227,8 +226,8 @@
                 <input type="hidden" ng-model="margin900gmBottle" ng-init="margin900gmBottle = 13.00">
                 <input type="hidden" ng-model="cost900gmBottle" ng-init="cost900gmBottle = 100">
                 <td>
-                    <span ng-if="(finalPrice12 = ((priceaftertax || 0) * (margin900gmBottle || 0) + (cost900gmBottle || 0)) | number:2) != 100">
-                        {{ finalPrice12 }}
+            <span ng-if="(finalPrice3 = ((priceaftertax || 0) / 1000 * (cost900gm || 0) + 3 + (margin900gm || 0)).toFixed(2)) != 100">
+                        {{ finalPrice3 }}
                     </span>
                 </td>
             </tr>
@@ -237,8 +236,8 @@
                 <input type="hidden" ng-model="margin840gmBottle" ng-init="margin840gmBottle = 12.50">
                 <input type="hidden" ng-model="cost840gmBottle" ng-init="cost840gmBottle = 100">
                 <td>
-                    <span ng-if="(finalPrice13 = ((priceaftertax || 0) * (margin840gmBottle || 0) + (cost840gmBottle || 0)) | number:2) != 100">
-                        {{ finalPrice13 }}
+                    <span ng-if="(finalPrice4 = ((priceaftertax || 0) / 1000 * (cost840gm || 0) + 3 + (margin840gm || 0)).toFixed(2)) != 100">
+                        {{ finalPrice4 }}
                     </span>
                 </td>
             </tr>
@@ -246,7 +245,7 @@
     </table>
 
     <!-- Jar Items Table -->
-    <h2>JAR Items</h2>
+    <h2>*JAR Items*</h2>
     <table id="jarItems">
         <thead>
             <tr>
@@ -260,9 +259,10 @@
                 <input type="hidden" ng-model="margin4_5kgJar" ng-init="margin4_5kgJar = 14.00">
                 <input type="hidden" ng-model="cost4_5kgJar" ng-init="cost4_5kgJar = 100">
                 <td>
-                    <span ng-if="(finalPrice14 = ((priceaftertax || 0) * (margin4_5kgJar || 0) + (cost4_5kgJar || 0)) | number:2) != 100">
-                        {{ finalPrice14 }}
-                    </span>
+                  <span ng-if="(finalPrice6 = (((priceaftertax || 0) / 1000) * (cost990ml || 0) + (margin990ml || 0)).toFixed(2))  != 100 ">
+                   {{ (finalPrice6 * 5 + 25) | number:2 }}
+
+                </span>
                 </td>
             </tr>
             <tr>
@@ -270,8 +270,8 @@
                 <input type="hidden" ng-model="margin4_2kgJar" ng-init="margin4_2kgJar = 13.00">
                 <input type="hidden" ng-model="cost4_2kgJar" ng-init="cost4_2kgJar = 100">
                 <td>
-                    <span ng-if="(finalPrice15 = ((priceaftertax || 0) * (margin4_2kgJar || 0) + (cost4_2kgJar || 0)) | number:2) != 100">
-                        {{ finalPrice15 }}
+                     <span ng-if="(finalPrice4 = ((priceaftertax || 0) / 1000 * (cost840gm || 0) + (margin840gm || 0)).toFixed(2)) != 100">
+                        {{ (finalPrice4 * 5 + 25) | number:2 }}
                     </span>
                 </td>
             </tr>
@@ -292,7 +292,7 @@
         bulkItems.forEach(item => {
             const columns = item.querySelectorAll('td');
             const itemName = columns[0].innerText;
-            const itemPrice = columns[1].innerText;
+            const itemPrice = parseFloat(columns[1].innerText).toFixed(2);  // Ensuring 2 decimal places
             message += `${itemName}: ${itemPrice}\n`;
         });
 
@@ -302,7 +302,7 @@
         pouchItems.forEach(item => {
             const columns = item.querySelectorAll('td');
             const itemName = columns[0].innerText;
-            const itemPrice = columns[1].innerText;
+            const itemPrice = parseFloat(columns[1].innerText).toFixed(2);
             message += `${itemName}: ${itemPrice}\n`;
         });
 
@@ -312,7 +312,7 @@
         pouchMLItems.forEach(item => {
             const columns = item.querySelectorAll('td');
             const itemName = columns[0].innerText;
-            const itemPrice = columns[1].innerText;
+            const itemPrice = parseFloat(columns[1].innerText).toFixed(2);
             message += `${itemName}: ${itemPrice}\n`;
         });
 
@@ -322,7 +322,7 @@
         bottleItems.forEach(item => {
             const columns = item.querySelectorAll('td');
             const itemName = columns[0].innerText;
-            const itemPrice = columns[1].innerText;
+            const itemPrice = parseFloat(columns[1].innerText).toFixed(2);
             message += `${itemName}: ${itemPrice}\n`;
         });
 
@@ -332,7 +332,7 @@
         jarItems.forEach(item => {
             const columns = item.querySelectorAll('td');
             const itemName = columns[0].innerText;
-            const itemPrice = columns[1].innerText;
+            const itemPrice = parseFloat(columns[1].innerText).toFixed(2);
             message += `${itemName}: ${itemPrice}\n`;
         });
 
