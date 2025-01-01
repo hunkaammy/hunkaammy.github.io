@@ -602,6 +602,14 @@
             initBalanceControl();
             loadHistoryFromLocalStorage();
         };
+		
+		if (navigator.userAgent.indexOf('Mobile') === -1) {
+    // Force 'desktop' users to 'see' mobile view
+    document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=320, initial-scale=1.0, user-scalable=yes');
+    document.documentElement.style.width = '320px';
+    document.documentElement.style.margin = '0 auto';
+}
+
     </script>
 </body>
 </html>
