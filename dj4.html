@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube DJ Player with Played History</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            background: linear-gradient(135deg, #2c3e50, #bdc3c7);
+            color: white;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #ECF0F1;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
+            font-size: 24px;
+        }
+
+        .track-control-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 600px;
+            margin: 20px 0;
+        }
+
+        .track-selector {
+            margin-right: 10px;
+            flex: 1;
+            position: relative; /* Required for absolute positioning of dropdown */
+        }
+
+        label, input, select, button {
+            display: block;
+            margin-top: 10px;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            background-color: #34495e;
+            color: white;
+        }
+
+        button {
+            cursor: pointer;
+            background-color: #2980b9;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #3498db;
+        }
+
+        .player-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin: 20px 0;
+            max-width: 900px;
+        }
+
+        .video-player {
+            flex: 1;
+            margin: 0 10px;
+            border: 2px solid #2c3e50;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 45%;
+        }
+
+        .balance-control {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 600px;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            padding: 20px;
+        }
+		
+		      .balance-control2 {
+    display: inherit
+;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    width: 100%;
+    max-width: 332px;
+    /* flex-direction: column; */
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding: 20px;
+}
+
+        .balance-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 25px;
+            background: darkgrey;
+            border-radius: 10px;
+            outline: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .balance-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 30px;
+            height: 30px;
+            background: #16a085;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .balance-slider::-moz-range-thumb {
+            width: 30px;
+            height: 30px;
+            background: #16a085;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .volume-percentage {
+            font-size: 20px;
+            color: #fff;
+            margin-top: 10px;
+        }
+
+        .history-container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #34495e;
+            color: white;
+        }
+
+        td button {
+            padding: 5px 10px;
+            background-color: #16a085;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+
+        td button:hover {
+            background-color: #1abc9c;
+        }
+
+        .edit-btn {
+            background-color: #f39c12;
+        }
+
+        .edit-btn:hover {
+            background-color: #e67e22;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .buttons-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        #backup-btn, #restore-btn {
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .player-container {
+                align-items: center;
+            }
+
+            .video-player {
+                width: 90%;
+                margin: 10px 0;
+            }
+        }
+
+        .current-track-info {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+        }
+
+        table {
+            font-size: 14px;
+        }
+
+        /* Custom dropdown styling */
+        .custom-dropdown {
+            position: absolute;
+            width: 100%;
+            max-width: 300px;
+            margin: 10px 0;
+            z-index: 10;
+            background: #34495e;
+            max-height: 200px;
+            overflow-y: auto;
+            border-radius: 5px;
+            display: none; /* Initially hidden */
+        }
+
+        .custom-dropdown .dropdown-item {
+    display: flex
+;
+    /* align-items: center; */
+    /* padding: 10px; */
+    cursor: pointer;
+    MARGIN-BOTTOM: 31PX;
+    color: white;
+    background-color: transparent;
+    transition: background-color 0.3s ease;
+}
+
+        .custom-dropdown .dropdown-item:hover {
+            background-color: #2980b9;
+        }
+
+        .custom-dropdown img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+
+        .custom-dropdown .title {
+            flex: 1;
+            font-size: 10px;
+        }
+      </style>
+</head>
+<body>
+    <h1>SAMMY'S YT DJ PROJECT</h1>
+
+    <select id="api-key-select">
+        <option value="YOUR_YOUTUBE_API_KEY_1">API Key 1</option>
+        <option value="YOUR_YOUTUBE_API_KEY_2">API Key 2</option>
+        <!-- Add more options as needed -->
+    </select>
+
+    <div class="track-control-container">
+        <div class="track-selector">
+            <label for="search-deck1">Search DECK-1:</label>
+            <input type="text" id="search-deck1" placeholder="Search YouTube">
+            <button onclick="searchYouTubeForDeck('deck1')">Search</button>
+            <div id="custom-dropdown1" class="custom-dropdown"></div>
+            <select id="track-list1" style="display:none;"></select> <!-- Hide native select -->
+        </div>
+
+        <div class="track-selector">
+            <label for="search-deck2">Search DECK-2:</label>
+            <input type="text" id="search-deck2" placeholder="Search YouTube">
+            <button onclick="searchYouTubeForDeck('deck2')">Search</button>
+            <div id="custom-dropdown2" class="custom-dropdown"></div>
+            <select id="track-list2" style="display:none;"></select> <!-- Hide native select -->
+        </div>
+    </div>
+  <div class="balance-control2"
+    <div class="player-container">
+        <div class="video-player" id="player1">
+            <iframe id="youtube-player1" width="100%" height="315" src="https://www.youtube.com/embed?enablejsapi=1" frameborder="0" allowfullscreen></iframe>
+        </div>
+        <div class="video-player" id="player2">
+            <iframe id="youtube-player2" width="100%" height="315" src="https://www.youtube.com/embed?enablejsapi=1" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </div>   </div>
+
+    <div class="balance-control">
+        <input type="range" id="balance-slider" class="balance-slider" min="0" max="100" value="50">
+    </div>
+
+    <div class="volume-percentage" id="volume-percentage">Center (0%)</div>
+
+    <div class="current-track-info">
+        <h2>Current Track</h2>
+        <p id="current-track-deck1">Deck 1: <span id="current-track-title1">None</span></p>
+        <p id="current-track-deck2">Deck 2: <span id="current-track-title2">None</span></p>
+    </div>
+
+    <div class="history-container">
+        <h2>Played History</h2>
+        <input type="text" id="history-search" placeholder="Search in history" onkeyup="filterHistory()">
+        <table id="history-list">
+            <p>Total Tracks Played: <span id="track-count">0</span></p>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- History rows will be populated here -->
+            </tbody>
+        </table>
+    </div>
+
+    <button id="backup-btn" onclick="backupHistory()">Backup History</button>
+    <input type="file" id="restore-input" style="display:none" onchange="restoreHistory(event)">
+    <button id="restore-btn" onclick="document.getElementById('restore-input').click()">Restore History</button>
+
+    <script>
+        const apiKeys = [
+          'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A',
+            'AIzaSyDX2n08WCf5Ol1nffaqJU_aJp_BODlw1H4',
+            // Add more API keys here
+        ];
+
+        let currentApiKeyIndex = 0; 
+        let apiKey = apiKeys[currentApiKeyIndex]; 
+
+        function switchApiKey() {
+            currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length;
+            apiKey = apiKeys[currentApiKeyIndex];
+            alert(`API Key switched to: ${apiKey}`);
+        }
+
+        function loadYouTubeAPI() {
+            const script = document.createElement('script');
+            script.src = "https://www.youtube.com/iframe_api";
+            document.body.appendChild(script);
+        }
+
+        let player1, player2;
+
+        function onYouTubeIframeAPIReady() {
+            player1 = new YT.Player('youtube-player1', {
+                events: {
+                    'onReady': () => player1.setVolume(50)
+                }
+            });
+
+            player2 = new YT.Player('youtube-player2', {
+                events: {
+                    'onReady': () => player2.setVolume(50)
+                }
+            });
+        }
+
+        function searchYouTubeForDeck(deck) {
+            const query = document.getElementById(`search-${deck}`).value;
+            if (query.trim() === '') {
+                alert('Please enter a search term.');
+                return;
+            }
+
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=50&key=${apiKey}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error && data.error.code === 403) {
+                        alert('Quota exceeded for the current API key. Switching to a new API key...');
+                        switchApiKey();
+                        searchYouTubeForDeck(deck); 
+                    } else {
+                        const dropdown = document.getElementById(`custom-dropdown${deck === 'deck1' ? 1 : 2}`);
+                        dropdown.innerHTML = ''; 
+                        dropdown.style.display = 'block'; // Show dropdown
+
+                        if (data.items.length > 0) {
+                            data.items.forEach(video => {
+                                const dropdownItem = document.createElement('div');
+                                dropdownItem.className = 'dropdown-item';
+                                dropdownItem.onclick = () => {
+                                    const selectedVideoId = video.id.videoId;
+                                    const trackTitle = video.snippet.title;
+
+                                    // Load selected track into the appropriate player
+                                    if (deck === 'deck1') {
+                                        player1.loadVideoById(selectedVideoId);
+                                        document.getElementById('current-track-title1').textContent = trackTitle;
+                                    } else {
+                                        player2.loadVideoById(selectedVideoId);
+                                        document.getElementById('current-track-title2').textContent = trackTitle;
+                                    }
+
+                                    dropdown.style.display = 'none'; // Hide dropdown after selection
+                                    addToHistory(trackTitle, selectedVideoId);
+                                    saveHistoryToLocalStorage();
+                                };
+
+                                dropdownItem.innerHTML = `
+                                    <img src="${video.snippet.thumbnails.default.url}" alt="${video.snippet.title} thumbnail">
+                                    <span class="title">${video.snippet.title}</span>
+                                `;
+                                dropdown.appendChild(dropdownItem);
+                            });
+                        }
+                    }
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        function addToHistory(title, videoId) {
+            const historyList = document.getElementById('history-list').getElementsByTagName('tbody')[0];
+            const historyItem = document.createElement('tr');
+            historyItem.innerHTML = `
+                <td contenteditable="true" class="track-title">${title}</td>
+                <td>
+                    <div class="buttons-container">
+                        <button onclick="replayTrack('player1', '${videoId}')">Play on Deck 1</button>
+                        <button onclick="replayTrack('player2', '${videoId}')">Play on Deck 2</button>
+                    </div>
+                    <button class="edit-btn" onclick="editTrackTitle(this)">Edit Title</button>
+                    <button class="delete-btn" onclick="deleteTrack(this)">Delete</button>
+                </td>
+            `;
+            historyItem.setAttribute('data-video-id', videoId);
+
+            historyList.insertBefore(historyItem, historyList.firstChild); 
+        }
+
+        function replayTrack(playerId, videoId) {
+            const player = playerId === 'player1' ? player1 : player2;
+
+            if (player) {
+                player.loadVideoById(videoId);
+                const historyItems = document.querySelectorAll('#history-list tbody tr');
+                let trackTitle = 'Unknown Track';
+
+                historyItems.forEach(item => {
+                    if (item.getAttribute('data-video-id') === videoId) {
+                        trackTitle = item.querySelector('.track-title').textContent; 
+                    }
+                });
+
+                if (playerId === 'player1') {
+                    document.getElementById('current-track-title1').textContent = trackTitle;
+                } else {
+                    document.getElementById('current-track-title2').textContent = trackTitle;
+                }
+            }
+        }
+
+        function editTrackTitle(button) {
+            const trackTitle = button.closest('tr').querySelector('.track-title');
+            trackTitle.contentEditable = true;
+            trackTitle.focus();
+            button.textContent = "Save Title";
+            button.setAttribute('onclick', 'saveTrackTitle(this)');
+        }
+
+        function saveTrackTitle(button) {
+            const trackTitle = button.closest('tr').querySelector('.track-title');
+            trackTitle.contentEditable = false;
+            button.textContent = "Edit Title";
+            button.setAttribute('onclick', 'editTrackTitle(this)');
+            saveHistoryToLocalStorage();
+        }
+
+        function deleteTrack(button) {
+            const historyItem = button.closest('tr');
+            historyItem.remove();
+            saveHistoryToLocalStorage();
+        }
+
+        function saveHistoryToLocalStorage() {
+            const historyItems = document.querySelectorAll('#history-list tbody tr');
+            const historyData = [];
+            historyItems.forEach(item => {
+                const title = item.querySelector('.track-title').textContent;
+                const videoId = item.getAttribute('data-video-id');
+                historyData.push({ title, videoId });
+            });
+            localStorage.setItem('playedHistory', JSON.stringify(historyData));
+        }
+
+        function loadHistoryFromLocalStorage() {
+            const savedHistory = JSON.parse(localStorage.getItem('playedHistory')) || [];
+            document.getElementById('track-count').textContent = savedHistory.length; // Update track count
+            savedHistory.reverse().forEach(track => {
+                addToHistory(track.title, track.videoId);
+            });
+        }
+
+        function backupHistory() {
+            const historyData = JSON.parse(localStorage.getItem('playedHistory')) || [];
+            const blob = new Blob([JSON.stringify(historyData, null, 2)], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'played-history.json';
+            link.click();
+        }
+
+        function restoreHistory(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const historyData = JSON.parse(e.target.result);
+                if (Array.isArray(historyData)) {
+                    document.getElementById('history-list').getElementsByTagName('tbody')[0].innerHTML = '';
+                    historyData.reverse().forEach(track => {
+                        addToHistory(track.title, track.videoId);
+                    });
+                    localStorage.setItem('playedHistory', JSON.stringify(historyData));
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function initBalanceControl() {
+            const balanceSlider = document.getElementById('balance-slider');
+            const volumePercentage = document.getElementById('volume-percentage');
+
+            balanceSlider.addEventListener('input', () => {
+                const balance = balanceSlider.value;
+                const percentage = balance < 50 ? (50 - balance) : (balance - 50);
+                volumePercentage.textContent = `${percentage}%`;
+                if (player1 && player2) {
+                    player1.setVolume(100 - balance); // Left player volume decreases as slider moves right
+                    player2.setVolume(balance);      // Right player volume increases as slider moves right
+                }
+            });
+        }
+
+        function filterHistory() {
+            const query = document.getElementById('history-search').value.toLowerCase();
+            const rows = document.querySelectorAll('#history-list tbody tr');
+            rows.forEach(row => {
+                const title = row.querySelector('.track-title').textContent.toLowerCase();
+                if (title.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Close dropdown if clicked outside
+        document.addEventListener('click', (event) => {
+            const dropdown1 = document.getElementById('custom-dropdown1');
+            const dropdown2 = document.getElementById('custom-dropdown2');
+            const searchDeck1 = document.getElementById('search-deck1');
+            const searchDeck2 = document.getElementById('search-deck2');
+
+            const clickedInsideDropdown1 = dropdown1.contains(event.target);
+            const clickedInsideDropdown2 = dropdown2.contains(event.target);
+            const clickedOnSearchDeck1 = searchDeck1.contains(event.target);
+            const clickedOnSearchDeck2 = searchDeck2.contains(event.target);
+
+            // Close dropdown if clicked outside of the dropdown and search input
+            if (!clickedInsideDropdown1 && !clickedOnSearchDeck1) {
+                dropdown1.style.display = 'none';
+            }
+            if (!clickedInsideDropdown2 && !clickedOnSearchDeck2) {
+                dropdown2.style.display = 'none';
+            }
+        });
+
+        window.onload = () => {
+            loadYouTubeAPI();
+            initBalanceControl();
+            loadHistoryFromLocalStorage();
+        };
+    </script>
+</body>
+</html>
