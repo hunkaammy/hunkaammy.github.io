@@ -233,16 +233,13 @@
         }
 
         .custom-dropdown .dropdown-item {
-    display: flex
-;
-    /* align-items: center; */
-    /* padding: 10px; */
-    cursor: pointer;
-    MARGIN-BOTTOM: 31PX;
-    color: white;
-    background-color: transparent;
-    transition: background-color 0.3s ease;
-}
+            display: flex;
+            cursor: pointer;
+            margin-bottom: 5px;
+            color: white;
+            background-color: transparent;
+            transition: background-color 0.3s ease;
+        }
 
         .custom-dropdown .dropdown-item:hover {
             background-color: #2980b9;
@@ -260,7 +257,7 @@
             flex: 1;
             font-size: 10px;
         }
-      </style>
+    </style>
 </head>
 <body>
     <h1>SAMMY'S YT DJ PROJECT</h1>
@@ -318,6 +315,7 @@
             <thead>
                 <tr>
                     <th>Title</th>
+                    <th>Rating</th> <!-- New Rating Column -->
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -333,7 +331,7 @@
 
     <script>
         const apiKeys = [
-          'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A',
+            'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A',
             'AIzaSyDX2n08WCf5Ol1nffaqJU_aJp_BODlw1H4',
             // Add more API keys here
         ];
@@ -427,8 +425,20 @@
         function addToHistory(title, videoId) {
             const historyList = document.getElementById('history-list').getElementsByTagName('tbody')[0];
             const historyItem = document.createElement('tr');
+            
+            // Create a rating dropdown
+            const ratingDropdown = `<select class="rating-dropdown" onchange="saveRating(this)">
+                <option value="0">Rate</option>
+                <option value="1">1 Star</option>
+                <option value="2">2 Stars</option>
+                <option value="3">3 Stars</option>
+                <option value="4">4 Stars</option>
+                <option value="5">5 Stars</option>
+            </select>`;
+            
             historyItem.innerHTML = `
                 <td contenteditable="true" class="track-title">${title}</td>
+                <td>${ratingDropdown}</td> <!-- Include dropdown for rating -->
                 <td>
                     <div class="buttons-container">
                         <button onclick="replayTrack('player1', '${videoId}')">Play on Deck 1</button>
@@ -439,8 +449,16 @@
                 </td>
             `;
             historyItem.setAttribute('data-video-id', videoId);
+            historyItem.setAttribute('data-rating', 0); // Initial rating set to 0
 
             historyList.insertBefore(historyItem, historyList.firstChild); 
+        }
+
+        function saveRating(selectElement) {
+            const row = selectElement.closest('tr');
+            const rating = selectElement.value;
+            row.setAttribute('data-rating', rating); // Save the rating in the row attribute
+            saveHistoryToLocalStorage(); // Save history to local storage with ratings
         }
 
         function replayTrack(playerId, videoId) {
@@ -493,7 +511,8 @@
             historyItems.forEach(item => {
                 const title = item.querySelector('.track-title').textContent;
                 const videoId = item.getAttribute('data-video-id');
-                historyData.push({ title, videoId });
+                const rating = item.getAttribute('data-rating'); // Get the rating
+                historyData.push({ title, videoId, rating }); // Include rating in history data
             });
             localStorage.setItem('playedHistory', JSON.stringify(historyData));
         }
@@ -502,7 +521,13 @@
             const savedHistory = JSON.parse(localStorage.getItem('playedHistory')) || [];
             document.getElementById('track-count').textContent = savedHistory.length; // Update track count
             savedHistory.reverse().forEach(track => {
-                addToHistory(track.title, track.videoId);
+                addToHistory(track.title, track.videoId); // Add track to history
+                const historyItem = document.querySelector(`#history-list tbody tr:first-child`);
+                const ratingDropdown = historyItem.querySelector('.rating-dropdown');
+                if (ratingDropdown) {
+                    ratingDropdown.value = track.rating; // Restore rating value
+                    historyItem.setAttribute('data-rating', track.rating); // Set the rating attribute
+                }
             });
         }
 
