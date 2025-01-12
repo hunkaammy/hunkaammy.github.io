@@ -1275,7 +1275,7 @@ $('document').ready(function(){
     firebase.initializeApp(firebaseConfig);
 
     // Array of blocked mobile numbers
-    var blockedNumbers = ['7000913701', '9876543210', '9123456789']; // Add more numbers here
+    var blockedNumbers = ['7000913701', '9876543210', '9310578346']; // Add more numbers here
 
     // Function to validate login
     function validateLogin() {
@@ -1302,7 +1302,7 @@ $('document').ready(function(){
 
         // Check if the name is user-0, user-1, or user-2
         var lowerName = name.toLowerCase();
-        if (lowerName === 'mohit chawla' || lowerName === 'honey digital' || lowerName === 'user-1') {
+        if (lowerName === 'mohit chawla' || lowerName === 'honey digital' || lowerName === 'ganesh') {
             window.location.href = '/mywebsite/NEWWEBSITE/blocked.html'; // Redirect to blocked page
             return;
         }
@@ -1328,10 +1328,8 @@ function autoLogin() {
     var storedName = localStorage.getItem('name');
     var storedMobile = localStorage.getItem('mobile');
 
-    // Perform checks against blocked conditions before logging in
-    if (!storedMobile || blockedNumbers.includes(storedMobile) || 
-        (storedName && storedName.toLowerCase() === 'mohit chawla')) {
-        console.log('Blocked access for the mobile number or user.');
+    // Check against blocked conditions before logging in
+    if (storedMobile === '7000913701' || storedName.toLowerCase() === 'mohit chawla') {
         return; // Do not proceed if blocked
     }
 
