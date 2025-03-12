@@ -646,8 +646,8 @@
             
             console.log(`Starting loop for deck ${deckNumber}: ${beats} beats, duration: ${loopDuration}s`);
             
-            // Create a transition flag to track if we're currently transitioning
-            window['loopTransitioning' + deckNumber] = false;
+            // Create a crossfade buffer time (in seconds)
+            const crossfadeTime = 0.2; // 200ms crossfade
             
             window['loopInterval' + deckNumber] = setInterval(() => {
                 if (player && player.getPlayerState && player.getPlayerState() === YT.PlayerState.PLAYING) {
@@ -655,26 +655,27 @@
                     const startTime = window['loopStartTime' + deckNumber];
                     const endTime = startTime + loopDuration;
                     
-                    // Check if we're approaching the end of our loop (within 0.3 seconds)
-                    if (currentTime > endTime - 0.3 && !window['loopTransitioning' + deckNumber]) {
-                        // Mark that we're transitioning to avoid multiple transitions
-                        window['loopTransitioning' + deckNumber] = true;
+                    // Start the crossfade/transition earlier to prevent gaps
+                    if (currentTime >= endTime - crossfadeTime) {
+                        // Seek back to the start position minus a tiny buffer
+                        // This creates a slight overlap that eliminates the gap
+                        player.seekTo(startTime - 0.05, true);
                         
-                        // Create a smooth transition by gradually adjusting the playback position
-                        const transitionInterval = setInterval(() => {
-                            const currentPos = player.getCurrentTime();
-                            
-                            // If we've passed the end point, reset to start
-                            if (currentPos >= endTime) {
-                                player.seekTo(startTime, true);
-                                clearInterval(transitionInterval);
-                                window['loopTransitioning' + deckNumber] = false;
-                                console.log(`Smoothly looped back to ${startTime} from ${currentPos}`);
-                            }
-                        }, 50); // Check frequently for smooth transition
+                        console.log(`Loop transition: ${currentTime.toFixed(2)} → ${startTime.toFixed(2)}`);
+                        
+                        // Update volume for smoother transition (if needed)
+                        // This is optional but can help with the smoothness
+                        if (player.getVolume) {
+                            const currentVolume = player.getVolume();
+                            // Briefly boost volume slightly to compensate for transition
+                            setTimeout(() => {
+                                player.setVolume(Math.min(currentVolume + 5, 100));
+                                setTimeout(() => player.setVolume(currentVolume), 100);
+                            }, 50);
+                        }
                     }
                 }
-            }, 100); // Main loop check interval
+            }, 50); // Check more frequently (50ms) for better precision
         }
 
         function onPlayer1StateChange(event) {
