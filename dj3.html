@@ -535,7 +535,12 @@
 
     <div class="player-container">
         <div class="video-player" id="player1">
-            <iframe id="youtube-player1" width="100%" height="315" src="https://www.youtube.com/embed?enablejsapi=1" frameborder="0" allowfullscreen></iframe>
+            <iframe id="youtube-player1" width="100%" height="315" 
+                src="https://www.youtube.com/embed?enablejsapi=1&playsinline=1&disablekb=1" 
+                frameborder="0" 
+                allowfullscreen
+                allow="autoplay">
+            </iframe>
             <div class="tempo-controls">
                 <label>BPM: <span id="tempo1-value">120</span></label>
                 <input type="range" id="tempo1" min="60" max="180" step="1" value="120" class="tempo-slider">
@@ -550,7 +555,12 @@
             </div>
         </div>
         <div class="video-player" id="player2">
-            <iframe id="youtube-player2" width="100%" height="315" src="https://www.youtube.com/embed?enablejsapi=1" frameborder="0" allowfullscreen></iframe>
+            <iframe id="youtube-player2" width="100%" height="315" 
+                src="https://www.youtube.com/embed?enablejsapi=1&playsinline=1&disablekb=1" 
+                frameborder="0" 
+                allowfullscreen
+                allow="autoplay">
+            </iframe>
             <div class="tempo-controls">
                 <label>BPM: <span id="tempo2-value">120</span></label>
                 <input type="range" id="tempo2" min="60" max="180" step="1" value="120" class="tempo-slider">
