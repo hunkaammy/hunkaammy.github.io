@@ -629,54 +629,52 @@
         }
         
         function startLoop(deckNumber, beats) {
-            const player = deckNumber === 1 ? player1 : player2;
+    const player = deckNumber === 1 ? player1 : player2;
+    
+    // Clear any existing interval
+    if (window['loopInterval' + deckNumber]) {
+        clearInterval(window['loopInterval' + deckNumber]);
+    }
+    
+    // Set the start time to current position
+    window['loopStartTime' + deckNumber] = player.getCurrentTime();
+    window['loopActive' + deckNumber] = true;
+    window['loopBeats' + deckNumber] = beats;
+    
+    // Calculate loop duration (in seconds)
+    const loopDuration = beats * 2; // 2 seconds per beat
+    const crossfadeTime = 0.3; // Increased crossfade time for smoother transition
+    
+    console.log(`Starting loop for deck ${deckNumber}: ${beats} beats, duration: ${loopDuration}s`);
+    
+    window['loopInterval' + deckNumber] = setInterval(() => {
+        if (player && player.getPlayerState && player.getPlayerState() === YT.PlayerState.PLAYING) {
+            const currentTime = player.getCurrentTime();
+            const startTime = window['loopStartTime' + deckNumber];
+            const endTime = startTime + loopDuration;
             
-            // Clear any existing interval
-            if (window['loopInterval' + deckNumber]) {
-                clearInterval(window['loopInterval' + deckNumber]);
+            // Start crossfade earlier and smoother
+            if (currentTime >= endTime - crossfadeTime) {
+                // Calculate crossfade progress (0 to 1)
+                const fadeProgress = (currentTime - (endTime - crossfadeTime)) / crossfadeTime;
+                
+                // Smoothly reduce volume before transition
+                const currentVolume = player.getVolume();
+                player.setVolume(currentVolume * (1 - fadeProgress));
+                
+                // Seek back with a larger buffer for pre-roll
+                player.seekTo(startTime - crossfadeTime, true);
+                
+                // Smoothly restore volume after transition
+                setTimeout(() => {
+                    player.setVolume(currentVolume);
+                }, 50);
+
+                console.log(`Smooth loop transition: ${currentTime.toFixed(2)} → ${startTime.toFixed(2)}`);
             }
-            
-            // Set the start time to current position
-            window['loopStartTime' + deckNumber] = player.getCurrentTime();
-            window['loopActive' + deckNumber] = true;
-            window['loopBeats' + deckNumber] = beats;
-            
-            // Calculate loop duration (in seconds)
-            const loopDuration = beats * 2; // 2 seconds per beat
-            
-            console.log(`Starting loop for deck ${deckNumber}: ${beats} beats, duration: ${loopDuration}s`);
-            
-            // Create a crossfade buffer time (in seconds)
-            const crossfadeTime = 0.2; // 200ms crossfade
-            
-            window['loopInterval' + deckNumber] = setInterval(() => {
-                if (player && player.getPlayerState && player.getPlayerState() === YT.PlayerState.PLAYING) {
-                    const currentTime = player.getCurrentTime();
-                    const startTime = window['loopStartTime' + deckNumber];
-                    const endTime = startTime + loopDuration;
-                    
-                    // Start the crossfade/transition earlier to prevent gaps
-                    if (currentTime >= endTime - crossfadeTime) {
-                        // Seek back to the start position minus a tiny buffer
-                        // This creates a slight overlap that eliminates the gap
-                        player.seekTo(startTime - 0.05, true);
-                        
-                        console.log(`Loop transition: ${currentTime.toFixed(2)} → ${startTime.toFixed(2)}`);
-                        
-                        // Update volume for smoother transition (if needed)
-                        // This is optional but can help with the smoothness
-                        if (player.getVolume) {
-                            const currentVolume = player.getVolume();
-                            // Briefly boost volume slightly to compensate for transition
-                            setTimeout(() => {
-                                player.setVolume(Math.min(currentVolume + 5, 100));
-                                setTimeout(() => player.setVolume(currentVolume), 100);
-                            }, 50);
-                        }
-                    }
-                }
-            }, 50); // Check more frequently (50ms) for better precision
         }
+    }, 5); // More frequent checking for better timing precision
+}
 
         function onPlayer1StateChange(event) {
             handlePlayerStateChange(1, event);
