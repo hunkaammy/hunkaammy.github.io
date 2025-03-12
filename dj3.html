@@ -646,18 +646,35 @@
             
             console.log(`Starting loop for deck ${deckNumber}: ${beats} beats, duration: ${loopDuration}s`);
             
+            // Create a transition flag to track if we're currently transitioning
+            window['loopTransitioning' + deckNumber] = false;
+            
             window['loopInterval' + deckNumber] = setInterval(() => {
                 if (player && player.getPlayerState && player.getPlayerState() === YT.PlayerState.PLAYING) {
                     const currentTime = player.getCurrentTime();
                     const startTime = window['loopStartTime' + deckNumber];
+                    const endTime = startTime + loopDuration;
                     
-                    // Check if we've reached the end of our loop
-                    if (currentTime > startTime + loopDuration) {
-                        console.log(`Looping back to ${startTime} from ${currentTime}`);
-                        player.seekTo(startTime, true);
+                    // Check if we're approaching the end of our loop (within 0.3 seconds)
+                    if (currentTime > endTime - 0.3 && !window['loopTransitioning' + deckNumber]) {
+                        // Mark that we're transitioning to avoid multiple transitions
+                        window['loopTransitioning' + deckNumber] = true;
+                        
+                        // Create a smooth transition by gradually adjusting the playback position
+                        const transitionInterval = setInterval(() => {
+                            const currentPos = player.getCurrentTime();
+                            
+                            // If we've passed the end point, reset to start
+                            if (currentPos >= endTime) {
+                                player.seekTo(startTime, true);
+                                clearInterval(transitionInterval);
+                                window['loopTransitioning' + deckNumber] = false;
+                                console.log(`Smoothly looped back to ${startTime} from ${currentPos}`);
+                            }
+                        }, 50); // Check frequently for smooth transition
                     }
                 }
-            }, 100); // Check more frequently for better accuracy
+            }, 100); // Main loop check interval
         }
 
         function onPlayer1StateChange(event) {
@@ -703,13 +720,46 @@
             const tempoSlider = document.getElementById(`tempo${deckNumber}`);
             const tempoValue = document.getElementById(`tempo${deckNumber}-value`);
             const player = deckNumber === 1 ? player1 : player2;
-
+            let currentRate = 1.0;
+            let targetRate = 1.0;
+            let tempoInterval = null;
+        
             tempoSlider.addEventListener('input', () => {
-                const rate = parseFloat(tempoSlider.value);
-                tempoValue.textContent = `${rate.toFixed(2)}x`;
-                if (player && typeof player.setPlaybackRate === 'function') {
-                    player.setPlaybackRate(rate);
+                // Get the target rate from the slider
+                targetRate = parseFloat(tempoSlider.value);
+                tempoValue.textContent = `${targetRate.toFixed(2)}x`;
+                
+                // Clear any existing interval
+                if (tempoInterval) {
+                    clearInterval(tempoInterval);
                 }
+                
+                // Set up interval to gradually change the tempo
+                tempoInterval = setInterval(() => {
+                    if (Math.abs(currentRate - targetRate) < 0.01) {
+                        // We're close enough, set to exact target value
+                        currentRate = targetRate;
+                        if (player && typeof player.setPlaybackRate === 'function') {
+                            player.setPlaybackRate(currentRate);
+                        }
+                        clearInterval(tempoInterval);
+                        tempoInterval = null;
+                        return;
+                    }
+                    
+                    // Gradually adjust the rate (0.01 increments)
+                    if (currentRate < targetRate) {
+                        currentRate += 0.01;
+                    } else {
+                        currentRate -= 0.01;
+                    }
+                    
+                    // Update the player's playback rate
+                    if (player && typeof player.setPlaybackRate === 'function') {
+                        player.setPlaybackRate(currentRate);
+                        console.log(`Deck ${deckNumber} tempo: ${currentRate.toFixed(2)}x`);
+                    }
+                }, 50); // Update every 50ms for smooth transition
             });
         }
 
