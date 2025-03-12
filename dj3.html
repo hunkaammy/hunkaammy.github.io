@@ -11,8 +11,8 @@
             flex-direction: column;
             align-items: center;
             margin: 0;
-            background: linear-gradient(135deg, #2c3e50, #bdc3c7);
-            color: white;
+            background: linear-gradient(135deg, #1a1a1a, #333333);
+            color: #f0f0f0;
             padding: 20px;
             box-sizing: border-box;
         }
@@ -20,9 +20,10 @@
         h1 {
             text-align: center;
             margin-bottom: 15px;
-            color: #ECF0F1;
-            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
-            font-size: 24px;
+            color: #ff5500;
+            text-shadow: 0 0 10px rgba(255, 85, 0, 0.7);
+            font-size: 28px;
+            letter-spacing: 2px;
         }
 
         .track-control-container {
@@ -36,7 +37,7 @@
         .track-selector {
             margin-right: 10px;
             flex: 1;
-            position: relative; /* Required for absolute positioning of dropdown */
+            position: relative;
         }
 
         label, input, select, button {
@@ -47,18 +48,19 @@
             font-size: 16px;
             border-radius: 5px;
             border: none;
-            background-color: #34495e;
-            color: white;
+            background-color: #222222;
+            color: #f0f0f0;
         }
 
         button {
             cursor: pointer;
-            background-color: #2980b9;
+            background-color: #ff5500;
             transition: background-color 0.3s;
+            font-weight: bold;
         }
 
         button:hover {
-            background-color: #3498db;
+            background-color: #ff7700;
         }
 
         .player-container {
@@ -72,10 +74,36 @@
         .video-player {
             flex: 1;
             margin: 0 10px;
-            border: 2px solid #2c3e50;
+            border: 2px solid #444444;
             border-radius: 10px;
             overflow: hidden;
             width: 45%;
+            background-color: #111111;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .tempo-controls {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 0 0 10px 10px;
+        }
+
+        .tempo-slider {
+            width: 100%;
+            margin: 10px 0;
+            height: 10px;
+            background: #333333;
+            border-radius: 5px;
+        }
+
+        .tempo-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #ff5500;
+            border-radius: 50%;
+            cursor: pointer;
         }
 
         .balance-control {
@@ -96,11 +124,12 @@
             -webkit-appearance: none;
             width: 100%;
             height: 25px;
-            background: darkgrey;
+            background: #333333;
             border-radius: 10px;
             outline: none;
             cursor: pointer;
             transition: background 0.3s ease;
+            border: 1px solid #ff5500;
         }
 
         .balance-slider::-webkit-slider-thumb {
@@ -108,19 +137,19 @@
             appearance: none;
             width: 30px;
             height: 30px;
-            background: #16a085;
+            background: #ff5500;
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 10px rgba(255, 85, 0, 0.7);
         }
 
         .balance-slider::-moz-range-thumb {
             width: 30px;
             height: 30px;
-            background: #16a085;
+            background: #ff5500;
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 10px rgba(255, 85, 0, 0.7);
         }
 
         .volume-percentage {
@@ -132,11 +161,12 @@
         .history-container {
             width: 100%;
             max-width: 900px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.5);
             padding: 15px;
             border-radius: 8px;
             margin-top: 20px;
             overflow-x: auto;
+            border: 1px solid #444444;
         }
 
         table {
@@ -147,20 +177,31 @@
         th, td {
             padding: 10px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #444444;
         }
 
         th {
-            background-color: #34495e;
-            color: white;
+            background-color: #222222;
+            color: #ff5500;
         }
 
         td button {
             padding: 5px 10px;
-            background-color: #16a085;
-            border: none;
+            background-color: #222222;
             color: white;
+            border: 1px solid #444444;
+            border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .beat-btn:hover {
+            background-color: #444444;
+        }
+        
+        .beat-btn.active {
+            background-color: #ff5500;
+            box-shadow: 0 0 10px rgba(255, 85, 0, 0.7);
         }
 
         td button:hover {
@@ -257,6 +298,145 @@
             flex: 1;
             font-size: 10px;
         }
+
+        .tempo-controls {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 0 0 10px 10px;
+        }
+
+        .tempo-slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .beat-loop {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .beat-loop-select {
+            padding: 5px;
+            background: #34495e;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        
+        .beat-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .beat-btn {
+            flex: 1;
+            padding: 5px 10px;
+            background-color: #34495e;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .beat-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .beat-btn.active {
+            background-color: #e74c3c;
+        }
+
+        @media (max-width: 768px) {
+            .player-container {
+                align-items: center;
+            }
+
+            .video-player {
+                width: 90%;
+                margin: 10px 0;
+            }
+        }
+
+        .current-track-info {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+        }
+
+        table {
+            font-size: 14px;
+        }
+
+        /* Custom dropdown styling */
+        .custom-dropdown {
+            position: absolute;
+            width: 100%;
+            max-width: 300px;
+            margin: 10px 0;
+            z-index: 10;
+            background: #34495e;
+            max-height: 200px;
+            overflow-y: auto;
+            border-radius: 5px;
+            display: none; /* Initially hidden */
+        }
+
+        .custom-dropdown .dropdown-item {
+            display: flex;
+            cursor: pointer;
+            margin-bottom: 5px;
+            color: white;
+            background-color: transparent;
+            transition: background-color 0.3s ease;
+        }
+
+        .custom-dropdown .dropdown-item:hover {
+            background-color: #2980b9;
+        }
+
+        .custom-dropdown img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+
+        .custom-dropdown .title {
+            flex: 1;
+            font-size: 10px;
+        }
+
+        .tempo-controls {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 0 0 10px 10px;
+        }
+
+        .tempo-slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .beat-loop {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .beat-loop-select {
+            padding: 5px;
+            background: #34495e;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -289,9 +469,33 @@
     <div class="player-container">
         <div class="video-player" id="player1">
             <iframe id="youtube-player1" width="100%" height="315" src="https://www.youtube.com/embed?enablejsapi=1" frameborder="0" allowfullscreen></iframe>
+            <div class="tempo-controls">
+                <label>Tempo: <span id="tempo1-value">1.0x</span></label>
+                <input type="range" id="tempo1" min="0.25" max="2" step="0.25" value="1" class="tempo-slider">
+                <div class="beat-loop">
+                    <label>Beat Loop:</label>
+                    <div class="beat-buttons">
+                        <button class="beat-btn" data-beats="1" onclick="toggleBeatLoop(1, 1)">1</button>
+                        <button class="beat-btn" data-beats="2" onclick="toggleBeatLoop(1, 2)">2</button>
+                        <button class="beat-btn" data-beats="3" onclick="toggleBeatLoop(1, 3)">3</button>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="video-player" id="player2">
             <iframe id="youtube-player2" width="100%" height="315" src="https://www.youtube.com/embed?enablejsapi=1" frameborder="0" allowfullscreen></iframe>
+            <div class="tempo-controls">
+                <label>Tempo: <span id="tempo2-value">1.0x</span></label>
+                <input type="range" id="tempo2" min="0.25" max="2" step="0.25" value="1" class="tempo-slider">
+                <div class="beat-loop">
+                    <label>Beat Loop:</label>
+                    <div class="beat-buttons">
+                        <button class="beat-btn" data-beats="1" onclick="toggleBeatLoop(2, 1)">1</button>
+                        <button class="beat-btn" data-beats="2" onclick="toggleBeatLoop(2, 2)">2</button>
+                        <button class="beat-btn" data-beats="3" onclick="toggleBeatLoop(2, 3)">3</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -315,7 +519,6 @@
             <thead>
                 <tr>
                     <th>Title</th>
-                    <th>Rating</th> <!-- New Rating Column -->
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -356,13 +559,156 @@
         function onYouTubeIframeAPIReady() {
             player1 = new YT.Player('youtube-player1', {
                 events: {
-                    'onReady': () => player1.setVolume(50)
+                    'onReady': onPlayer1Ready,
+                    'onStateChange': onPlayer1StateChange
                 }
             });
 
             player2 = new YT.Player('youtube-player2', {
                 events: {
-                    'onReady': () => player2.setVolume(50)
+                    'onReady': onPlayer2Ready,
+                    'onStateChange': onPlayer2StateChange
+                }
+            });
+        }
+
+        function onPlayer1Ready(event) {
+            player1.setVolume(50);
+            initTempoControl(1);
+            // Beat loop is now handled by the button click events
+        }
+
+        function onPlayer2Ready(event) {
+            player2.setVolume(50);
+            initTempoControl(2);
+        }
+
+        function toggleBeatLoop(deckNumber, beats) {
+            const player = deckNumber === 1 ? player1 : player2;
+            // Fix the selector to properly identify buttons in each player
+            const button = document.querySelector(`#player${deckNumber} .beat-btn[data-beats="${beats}"]`);
+            
+            // If the clicked button was already active, we're just turning off the loop
+            if (button.classList.contains('active')) {
+                button.classList.remove('active');
+                window['loopActive' + deckNumber] = false;
+                window['loopBeats' + deckNumber] = 0;
+                
+                // Clear any existing loops
+                if (window['loopInterval' + deckNumber]) {
+                    clearInterval(window['loopInterval' + deckNumber]);
+                    window['loopInterval' + deckNumber] = null;
+                }
+                console.log(`Beat loop turned OFF for deck ${deckNumber}`);
+                return;
+            }
+            
+            // Clear any existing loops and remove active class from all buttons
+            if (window['loopInterval' + deckNumber]) {
+                clearInterval(window['loopInterval' + deckNumber]);
+                window['loopInterval' + deckNumber] = null;
+            }
+            
+            // Remove active class from all buttons in this deck
+            document.querySelectorAll(`#player${deckNumber} .beat-btn`).forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Add active class to the clicked button
+            button.classList.add('active');
+            
+            // Start the loop if the player is ready
+            if (player && player.getPlayerState) {
+                if (player.getPlayerState() === YT.PlayerState.PLAYING) {
+                    startLoop(deckNumber, beats);
+                } else {
+                    // Store the beats for when the video starts playing
+                    window['loopBeats' + deckNumber] = beats;
+                }
+            }
+        }
+        
+        function startLoop(deckNumber, beats) {
+            const player = deckNumber === 1 ? player1 : player2;
+            
+            // Clear any existing interval
+            if (window['loopInterval' + deckNumber]) {
+                clearInterval(window['loopInterval' + deckNumber]);
+            }
+            
+            // Set the start time to current position
+            window['loopStartTime' + deckNumber] = player.getCurrentTime();
+            window['loopActive' + deckNumber] = true;
+            window['loopBeats' + deckNumber] = beats;
+            
+            // Calculate loop duration (in seconds)
+            const loopDuration = beats * 2; // 2 seconds per beat
+            
+            console.log(`Starting loop for deck ${deckNumber}: ${beats} beats, duration: ${loopDuration}s`);
+            
+            window['loopInterval' + deckNumber] = setInterval(() => {
+                if (player && player.getPlayerState && player.getPlayerState() === YT.PlayerState.PLAYING) {
+                    const currentTime = player.getCurrentTime();
+                    const startTime = window['loopStartTime' + deckNumber];
+                    
+                    // Check if we've reached the end of our loop
+                    if (currentTime > startTime + loopDuration) {
+                        console.log(`Looping back to ${startTime} from ${currentTime}`);
+                        player.seekTo(startTime, true);
+                    }
+                }
+            }, 100); // Check more frequently for better accuracy
+        }
+
+        function onPlayer1StateChange(event) {
+            handlePlayerStateChange(1, event);
+        }
+
+        function onPlayer2StateChange(event) {
+            handlePlayerStateChange(2, event);
+        }
+
+        function handlePlayerStateChange(deckNumber, event) {
+            const player = deckNumber === 1 ? player1 : player2;
+            
+            // If video starts playing and we have a beat loop set
+            if (event.data === YT.PlayerState.PLAYING) {
+                const beats = window['loopBeats' + deckNumber];
+                if (beats > 0) {
+                    startLoop(deckNumber, beats);
+                    
+                    // Make sure the correct button is active
+                    document.querySelectorAll(`.video-player:nth-child(${deckNumber}) .beat-btn`).forEach(btn => {
+                        if (parseInt(btn.getAttribute('data-beats')) === beats) {
+                            btn.classList.add('active');
+                        } else {
+                            btn.classList.remove('active');
+                        }
+                    });
+                }
+            }
+            
+            // If video ends or is paused, clear the loop
+            if (event.data === YT.PlayerState.ENDED || event.data === YT.PlayerState.PAUSED) {
+                if (window['loopInterval' + deckNumber]) {
+                    clearInterval(window['loopInterval' + deckNumber]);
+                    window['loopInterval' + deckNumber] = null;
+                }
+                window['loopActive' + deckNumber] = false;
+            }
+        }
+
+        // Add these functions before the window.onload
+        function initTempoControl(deckNumber) {
+            const tempoSlider = document.getElementById(`tempo${deckNumber}`);
+            const tempoValue = document.getElementById(`tempo${deckNumber}-value`);
+            const player = deckNumber === 1 ? player1 : player2;
+
+            tempoSlider.addEventListener('input', () => {
+                const rate = parseFloat(tempoSlider.value);
+                tempoValue.textContent = `${rate.toFixed(2)}x`;
+                if (player && typeof player.setPlaybackRate === 'function') {
+                    player.setPlaybackRate(rate);
                 }
             });
         }
@@ -426,19 +772,8 @@
             const historyList = document.getElementById('history-list').getElementsByTagName('tbody')[0];
             const historyItem = document.createElement('tr');
             
-            // Create a rating dropdown
-            const ratingDropdown = `<select class="rating-dropdown" onchange="saveRating(this)">
-                <option value="0">Rate</option>
-                <option value="1">1 Star</option>
-                <option value="2">2 Stars</option>
-                <option value="3">3 Stars</option>
-                <option value="4">4 Stars</option>
-                <option value="5">5 Stars</option>
-            </select>`;
-            
             historyItem.innerHTML = `
                 <td contenteditable="true" class="track-title">${title}</td>
-                <td>${ratingDropdown}</td> <!-- Include dropdown for rating -->
                 <td>
                     <div class="buttons-container">
                         <button onclick="replayTrack('player1', '${videoId}')">Play on Deck 1</button>
@@ -449,11 +784,11 @@
                 </td>
             `;
             historyItem.setAttribute('data-video-id', videoId);
-            historyItem.setAttribute('data-rating', 0); // Initial rating set to 0
 
             historyList.insertBefore(historyItem, historyList.firstChild); 
         }
 
+        // Remove this function entirely
         function saveRating(selectElement) {
             const row = selectElement.closest('tr');
             const rating = selectElement.value;
@@ -511,8 +846,7 @@
             historyItems.forEach(item => {
                 const title = item.querySelector('.track-title').textContent;
                 const videoId = item.getAttribute('data-video-id');
-                const rating = item.getAttribute('data-rating'); // Get the rating
-                historyData.push({ title, videoId, rating }); // Include rating in history data
+                historyData.push({ title, videoId });
             });
             localStorage.setItem('playedHistory', JSON.stringify(historyData));
         }
@@ -522,12 +856,6 @@
             document.getElementById('track-count').textContent = savedHistory.length; // Update track count
             savedHistory.reverse().forEach(track => {
                 addToHistory(track.title, track.videoId); // Add track to history
-                const historyItem = document.querySelector(`#history-list tbody tr:first-child`);
-                const ratingDropdown = historyItem.querySelector('.rating-dropdown');
-                if (ratingDropdown) {
-                    ratingDropdown.value = track.rating; // Restore rating value
-                    historyItem.setAttribute('data-rating', track.rating); // Set the rating attribute
-                }
             });
         }
 
