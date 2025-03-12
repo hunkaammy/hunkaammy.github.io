@@ -716,52 +716,33 @@
         }
         
         function startLoop(deckNumber, beats) {
-    const player = deckNumber === 1 ? player1 : player2;
-    
-    // Clear any existing interval
-    if (window['loopInterval' + deckNumber]) {
-        clearInterval(window['loopInterval' + deckNumber]);
-    }
-    
-    // Set the start time to current position
-    window['loopStartTime' + deckNumber] = player.getCurrentTime();
-    window['loopActive' + deckNumber] = true;
-    window['loopBeats' + deckNumber] = beats;
-    
-    // Calculate loop duration (in seconds)
-    const loopDuration = beats * 2; // 2 seconds per beat
-    const crossfadeTime = 0.3; // Increased crossfade time for smoother transition
-    
-    console.log(`Starting loop for deck ${deckNumber}: ${beats} beats, duration: ${loopDuration}s`);
-    
-    window['loopInterval' + deckNumber] = setInterval(() => {
-        if (player && player.getPlayerState && player.getPlayerState() === YT.PlayerState.PLAYING) {
-            const currentTime = player.getCurrentTime();
-            const startTime = window['loopStartTime' + deckNumber];
-            const endTime = startTime + loopDuration;
+            const player = deckNumber === 1 ? player1 : player2;
             
-            // Start crossfade earlier and smoother
-            if (currentTime >= endTime - crossfadeTime) {
-                // Calculate crossfade progress (0 to 1)
-                const fadeProgress = (currentTime - (endTime - crossfadeTime)) / crossfadeTime;
-                
-                // Smoothly reduce volume before transition
-                const currentVolume = player.getVolume();
-                player.setVolume(currentVolume * (1 - fadeProgress));
-                
-                // Seek back with a larger buffer for pre-roll
-                player.seekTo(startTime - crossfadeTime, true);
-                
-                // Smoothly restore volume after transition
-                setTimeout(() => {
-                    player.setVolume(currentVolume);
-                }, 50);
-
-                console.log(`Smooth loop transition: ${currentTime.toFixed(2)} → ${startTime.toFixed(2)}`);
+            // Clear any existing interval
+            if (window['loopInterval' + deckNumber]) {
+                clearInterval(window['loopInterval' + deckNumber]);
             }
+            
+            // Set the start time to current position
+            window['loopStartTime' + deckNumber] = player.getCurrentTime();
+            window['loopActive' + deckNumber] = true;
+            
+            // Calculate loop duration (in seconds)
+            const loopDuration = beats * 2; // 2 seconds per beat
+            console.log(`Starting simple loop for deck ${deckNumber}: ${beats} beats`);
+
+            window['loopInterval' + deckNumber] = setInterval(() => {
+                if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
+                    const currentTime = player.getCurrentTime();
+                    const endTime = window['loopStartTime' + deckNumber] + loopDuration;
+                    
+                    if (currentTime >= endTime) {
+                        player.seekTo(window['loopStartTime' + deckNumber], true);
+                        console.log(`Loop reset to ${window['loopStartTime' + deckNumber]}`);
+                    }
+                }
+            }, 20); // Basic timing check
         }
-    }, 5); // More frequent checking for better timing precision
-}
 
         function onPlayer1StateChange(event) {
             handlePlayerStateChange(1, event);
