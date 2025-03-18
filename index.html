@@ -937,7 +937,7 @@ function scrollToTop() {
     <div id="containers" ng-if="!image.outOfStock">
         <div class="card">
             <img src="{{image.url}}" alt="Sample Image" onclick="enlargeImage(this.src)" loading="lazy" width="350" height="350">
-
+              
             <div id="enlarged-image-container" class="enlarged-image-container" style="display: none;">
                 <div class="enlarged-image">
                     <img id="enlarged-img" src="" alt="Enlarged Image">
@@ -945,10 +945,19 @@ function scrollToTop() {
                 </div>
             </div>
 
-            <div class="containers">
-                <h4><b><p>{{image.price}} Rs.</p></b></h4>
-                <p>{{image.name}}</p>
-                <p><a href="https://hunkaammy.github.io/mywebsite/videos/{{image.videourl}}.mp4" target="_blank">{{ image.videourl ? 'Watch Video' : '' }}</a></p>
+            <button ng-if="!image.outOfStock && dynamicField2Value === 'sammyadmin'" 
+            class="btn btn-warning btn-sm" 
+            ng-click="markOutOfStock(image)" 
+            style="margin: 5px 0;">
+        Mark Out of Stock
+    </button>
+
+
+    <div class="containers">
+        <h4><b><p>{{image.price}} Rs.</p></b></h4>
+        <p>{{image.name}}</p>
+        <p><a href="https://hunkaammy.github.io/mywebsite/videos/{{image.videourl}}.mp4" target="_blank">{{ image.videourl ? 'Watch Video' : '' }}</a></p>
+
 
                 <input type="hidden" id="{{'inputa' + $index}}" ng-model="image.url">
                 <input type="hidden" id="{{'inputb' + $index}}" ng-model="dynamicField2Value" ng-value="dynamicField2Value">
@@ -1176,6 +1185,23 @@ $scope.resetFilters = function() {
             });
         }
     };
+
+    $scope.markOutOfStock = function(image) {
+    var databaseRef = firebaseFetch.database().ref(image.$id);
+    databaseRef.update({
+        outOfStock: true,
+        lastModified: firebase.database.ServerValue.TIMESTAMP // Add timestamp
+    }).then(function() {
+        // Update local model
+        image.outOfStock = true;
+        image.lastModified = Date.now(); // Update local timestamp
+        // Optional: Show success message
+        swal("Success", "Item marked as out of stock", "success");
+    }).catch(function(error) {
+        console.error("Error updating stock status:", error);
+        swal("Error", "Failed to update stock status", "error");
+    });
+};
 
     // Function to logout the user
     $scope.logout = function() {
