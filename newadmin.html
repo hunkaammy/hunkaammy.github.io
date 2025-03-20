@@ -156,7 +156,7 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    preview.innerHTML = `<img src="${canvas.toDataURL('image/jpeg', 0.9)}" alt="Preview" class="mx-auto w-full h-48 object-cover rounded-lg">`;
+                    preview.innerHTML = `<img src="${canvas.toDataURL('image/jpeg', 0.9)}" alt="Preview" class="mx-auto w-full  object-cover rounded-lg">`;
                 };
                 img.src = e.target.result;
             };
