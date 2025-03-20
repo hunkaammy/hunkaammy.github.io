@@ -1345,13 +1345,22 @@ $('document').ready(function(){
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
 
-    // Array of blocked mobile numbers
-    var blockedNumbers = ['7000913701', '9876543210', '9310578346']; // Add more numbers here
+    // Array of blocked mobile numbers and names
+    const blockedNumbers = ['7000913701', '9876543210', '9310578346'];
+    const blockedNames = ['mohit chawla', 'honey digital', 'ganesh'];
 
-    // Function to validate login
+    // Function to check if user is blocked
+    function isBlocked(name, mobile) {
+        const lowerName = name.toLowerCase();
+        return blockedNumbers.includes(mobile) || blockedNames.includes(lowerName);
+    }
+
+    // Function to validate login for new users
     function validateLogin() {
-        var name = document.getElementById('name').value.trim();
-        var mobile = document.getElementById('mobile').value.trim();
+        const nameInput = document.getElementById('name');
+        const mobileInput = document.getElementById('mobile');
+        const name = nameInput.value.trim();
+        const mobile = mobileInput.value.trim();
 
         // Validate name
         if (name.length < 4) {
@@ -1365,60 +1374,62 @@ $('document').ready(function(){
             return;
         }
 
-        // Check if the mobile number is in the blocked list
-        if (blockedNumbers.includes(mobile)) {
-            window.location.href = '/mywebsite/NEWWEBSITE/blocked.html'; // Redirect to blocked page
+        // Check if blocked
+        if (isBlocked(name, mobile)) {
+            window.location.href = '/mywebsite/NEWWEBSITE/blocked.html';
             return;
         }
 
-        // Check if the name is user-0, user-1, or user-2
-        var lowerName = name.toLowerCase();
-        if (lowerName === 'mohit chawla' || lowerName === 'honey digital' || lowerName === 'ganesh') {
-            window.location.href = '/mywebsite/NEWWEBSITE/blocked.html'; // Redirect to blocked page
-            return;
-        }
+        // Store credentials and log to Firebase
+        localStorage.setItem('name', name);
+        localStorage.setItem('mobile', mobile);
+        localStorage.setItem('loggedIn', 'true');
 
-        var database = firebase.database();
-        var userRef = database.ref('users').push({
+        const database = firebase.database();
+        database.ref('users').push({
             name: name,
             mobile: mobile,
             timestamp: firebase.database.ServerValue.TIMESTAMP
         });
 
-        localStorage.setItem('name', name);
-        localStorage.setItem('mobile', mobile);
-        localStorage.setItem('loggedIn', 'true');
-        console.log('Name and mobile stored for auto-login:', name, mobile);
-
+        // Show content immediately
         document.getElementById('login-container').style.display = 'none';
         document.getElementById('content').style.display = 'block';
-        document.getElementById('user-name').innerText = name;
+        document.getElementById('user-name').innerText = name; // Ensure this element exists in your HTML
     }
 
-function autoLogin() {
-    var storedName = localStorage.getItem('name');
-    var storedMobile = localStorage.getItem('mobile');
+    // Function to handle auto-login for returning users
+    function autoLogin() {
+        const storedName = localStorage.getItem('name');
+        const storedMobile = localStorage.getItem('mobile');
+        const loggedIn = localStorage.getItem('loggedIn');
 
-    // Check against blocked conditions before logging in
-    if (storedMobile === '7000913701' || storedName.toLowerCase() === 'mohit chawla') {
-        return; // Do not proceed if blocked
+        // If no stored credentials or not logged in, do nothing
+        if (!storedName || !storedMobile || loggedIn !== 'true') {
+            return;
+        }
+
+        // Check if blocked
+        if (isBlocked(storedName, storedMobile)) {
+            localStorage.clear(); // Clear invalid credentials
+            window.location.href = '/mywebsite/NEWWEBSITE/blocked.html';
+            return;
+        }
+
+        // Fast path: Directly show content for valid, logged-in users
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+        document.getElementById('user-name').innerText = storedName; // Ensure this element exists
     }
 
-    if (storedName && storedMobile) {
-        document.getElementById('name').value = storedName;
-        document.getElementById('mobile').value = storedMobile;
-        validateLogin();
-    }
-}
-
+    // Logout function
     function logout() {
-        localStorage.removeItem('name');
-        localStorage.removeItem('mobile');
-        localStorage.removeItem('loggedIn');
+        localStorage.clear(); // Clear all local storage
         console.log('User logged out.');
-        window.location.href = 'https://hunkaammy.github.io/mywebsite/'; // Redirect to the desired URL after logout
+        window.location.href = 'https://hunkaammy.github.io/mywebsite/';
     }
 
+    // Run auto-login on page load
     window.onload = autoLogin;
 </script>
 
