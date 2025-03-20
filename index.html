@@ -574,69 +574,69 @@ button, input, select, textarea {
 </style>
 
 <style>
-    .skeleton-wrapper {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-		width: 70%;
-		margin-left: 25%;
-    }
+   .skeleton-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    width: 70%;
+    margin-left: 25%;
+}
 
-    .skeleton-item {
-        width: 350px;
-        height: 350px;
-        background-color: #f0f0f0; /* Light gray background */
-        border-radius: 8px;
-        overflow: hidden;
-        position: relative;
-        animation: skeleton-pulse 1.5s ease-in-out infinite; /* Animation for pulse effect */
-    }
+.skeleton-item {
+    width: 350px;
+    height: 350px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
 
-    @keyframes skeleton-pulse {
-        0% {
-            opacity: 0.6;
-        }
-        50% {
-            opacity: 1;
-        }
-        100% {
-            opacity: 0.6;
-        }
-    }
+@keyframes skeleton-pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
 
-    .skeleton-item img {
-        display: none; /* Hide image initially */
-    }
+.skeleton-text {
+    width: 100%;
+    padding: 20px;
+    animation: skeleton-fade 1.5s ease-in-out infinite;
+}
 
-    .skeleton-item .skeleton-text {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 20px;
-        animation: skeleton-fade 1.5s ease-in-out infinite; /* Animation for fade effect */
-    }
+@keyframes skeleton-fade {
+    0% { opacity: 0.4; }
+    50% { opacity: 0.8; }
+    100% { opacity: 0.4; }
+}
 
-    @keyframes skeleton-fade {
-        0% {
-            opacity: 0.4;
-        }
-        50% {
-            opacity: 0.8;
-        }
-        100% {
-            opacity: 0.4;
-        }
-    }
+.skeleton-line {
+    width: 100%;
+    height: 16px;
+    background-color: #e0e0e0;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
 
-    .skeleton-item .skeleton-text .skeleton-line {
-        width: 100%;
-        height: 16px;
-        background-color: #e0e0e0; /* Lighter gray for text lines */
-        margin-bottom: 10px;
-        border-radius: 4px;
-    }
+/* Spinner Styles */
+.skeleton-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e0e0e0;
+    border-top: 4px solid #5A55A3; /* Use a color that matches your theme */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 	
 /* Scrollable vertical container */
 .tab-scroll-wrapper {
