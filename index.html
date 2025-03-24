@@ -1196,7 +1196,7 @@ $scope.resetFilters = function() {
         }
     };
 
-    $scope.markOutOfStock = function(image) {
+$scope.markOutOfStock = function(image) {
     var databaseRef = firebaseFetch.database().ref(image.$id);
     databaseRef.update({
         outOfStock: true,
@@ -1205,11 +1205,8 @@ $scope.resetFilters = function() {
         // Update local model
         image.outOfStock = true;
         image.lastModified = Date.now(); // Update local timestamp
-        // Optional: Show success message
-        swal("Success", "Item marked as out of stock", "success");
     }).catch(function(error) {
         console.error("Error updating stock status:", error);
-        swal("Error", "Failed to update stock status", "error");
     });
 };
 
