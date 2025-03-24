@@ -902,13 +902,20 @@ function scrollToTop() {
     <div id="containers" ng-if="!image.outOfStock">
         <div class="card">
             <img src="{{image.url}}" alt="Sample Image" onclick="enlargeImage(this.src)" loading="lazy" width="350" height="350">
-
+              
             <div id="enlarged-image-container" class="enlarged-image-container" style="display: none;">
                 <div class="enlarged-image">
                     <img id="enlarged-img" src="" alt="Enlarged Image">
                     <button onclick="closeEnlarged()"><!--Close--></button>
                 </div>
             </div>
+
+            <button ng-if="!image.outOfStock && dynamicField2Value === 'sammyadmin'" 
+            class="btn btn-warning btn-sm" 
+            ng-click="markOutOfStock(image)" 
+            style="margin: 5px 0;">
+        Mark Out of Stock
+    </button>
 
             <div class="containers">
                 <h4><b><p>{{image.price}} Rs.</p></b></h4>
@@ -1110,6 +1117,22 @@ $scope.resetFilters = function() {
         console.log("Data submitted to Firebase with date and time");
     };
 	
+ $scope.markOutOfStock = function(image) {
+    var databaseRef = firebaseFetch.database().ref(image.$id);
+    databaseRef.update({
+        outOfStock: true,
+        lastModified: firebase.database.ServerValue.TIMESTAMP // Add timestamp
+    }).then(function() {
+        // Update local model
+        image.outOfStock = true;
+        image.lastModified = Date.now(); // Update local timestamp
+        // Optional: Show success message
+        swal("Success", "Item marked as out of stock", "success");
+    }).catch(function(error) {
+        console.error("Error updating stock status:", error);
+        swal("Error", "Failed to update stock status", "error");
+    });
+};
 	
 
 
