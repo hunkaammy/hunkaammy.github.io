@@ -70,7 +70,7 @@
             </button>
             <div id="uploadProgress" class="hidden mt-4">
                 <div class="bg-gray-200 rounded-full h-2.5">
-                    <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full w-0 transition-all duration-300"></div>
+                    <div id="progressBar" class="bg-blue-600 h lilies-2.5 rounded-full w-0 transition-all duration-300"></div>
                 </div>
             </div>
         </div>
@@ -261,7 +261,7 @@
             processUploadQueue();
         }
 
-        // Real-time gallery update with latest images first
+        // Real-time gallery update with latest images first and lazy loading
         let lastKey = null;
         const batchSize = 6;
         let isLoading = false;
@@ -319,7 +319,7 @@
                 container.className = 'image-container bg-white rounded-lg shadow-lg overflow-hidden';
                 container.setAttribute('data-key', image.key);
                 container.innerHTML = `
-                    <img src="${image.url}" alt="${image.name}" class="w-full object-cover">
+                    <img src="${image.url}" alt="${image.name}" class="w-full object-cover" loading="lazy">
                     <div class="p-4">
                         <h3 class="font-semibold text-lg mb-2 editable-field" onclick="makeEditable(this, '${image.key}', 'name')">${image.name}</h3>
                         <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${image.key}', 'price')">Price: ${image.price}</p>
@@ -425,7 +425,7 @@
             }
         });
 
-        // Update gallery when new image is added
+        // Update gallery when new image is added with lazy loading
         database.ref().orderByChild('date').limitToLast(1).on('child_added', snapshot => {
             const key = snapshot.key;
             if (!loadedImageKeys.has(key)) {
@@ -435,7 +435,7 @@
                 container.className = 'image-container bg-white rounded-lg shadow-lg overflow-hidden';
                 container.setAttribute('data-key', key);
                 container.innerHTML = `
-                    <img src="${image.url}" alt="${image.name}" class="w-full object-cover">
+                    <img src="${image.url}" alt="${image.name}" class="w-full object-cover" loading="lazy">
                     <div class="p-4">
                         <h3 class="font-semibold text-lg mb-2 editable-field" onclick="makeEditable(this, '${key}', 'name')">${image.name}</h3>
                         <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${key}', 'price')">Price: ${image.price}</p>
