@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dynamic UPI QR Code Generator</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -24,25 +26,25 @@
 
         /* Modal Styles */
         .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1; /* Sit on top */
+            display: none;
+            position: fixed;
+            z-index: 1;
             left: 0;
             top: 0;
-            width: 100%; /* Full Width */
-            height: 100%; /* Full Height */
-            background-color: white; /* Semi-transparent background */
+            width: 100%;
+            height: 100%;
+            background-color: white;
         }
 
         .modal-content {
-            position: absolute; /* Use absolute positioning */
-            top: 50%; /* Position from the top */
-            left: 50%; /* Position from the left */
-            transform: translate(-50%, -50%); /* Center the content */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             background-color: #fefefe;
             padding: 20px;
-            border-radius: 8px; /* Rounded corners */
-            text-align: center; /* Center text */
+            border-radius: 8px;
+            text-align: center;
         }
 
         .close {
@@ -58,7 +60,6 @@
             color: black;
             text-decoration: none;
         }
-
     </style>
 </head>
 <body>
@@ -99,25 +100,50 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     <script>
-        // Load saved default UPI ID on page load
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
+            authDomain: "shop-reminder-3ce10.firebaseapp.com",
+            databaseURL: "https://shop-reminder-3ce10-default-rtdb.firebaseio.com",
+            projectId: "shop-reminder-3ce10",
+            storageBucket: "shop-reminder-3ce10.firebasestorage.app",
+            messagingSenderId: "555627569260",
+            appId: "1:555627569260:web:3948ae391eab6eb5ea7849",
+            measurementId: "G-BP5EYR6ET1"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Load saved default UPI ID and Firebase grand total on page load
         document.addEventListener("DOMContentLoaded", function() {
             const savedUPI = localStorage.getItem('defaultUPI');
             if (savedUPI) {
                 document.getElementById("upiId").value = savedUPI;
                 document.getElementById("upiSelect").value = savedUPI;
             }
+
+            // Real-time listener for grand_total
+            database.ref('grand_total').on('value', (snapshot) => {
+                const total = snapshot.val();
+                if (total !== null) {
+                    document.getElementById("amount").value = total;
+                    console.log('Grand total loaded into amount field:', total);
+                }
+            });
         });
 
         function updateUpiId() {
             const selectElement = document.getElementById("upiSelect");
             const inputElement = document.getElementById("upiId");
-            inputElement.value = selectElement.value; // Update input field with selected UPI ID
+            inputElement.value = selectElement.value;
         }
 
         function closeModal() {
             document.getElementById("qrModal").style.display = "none";
-            document.getElementById("modalQR").innerHTML = ''; // Clear the QR code from the modal
-            document.getElementById("modalAmount").innerText = ''; // Clear the amount text
+            document.getElementById("modalQR").innerHTML = '';
+            document.getElementById("modalAmount").innerText = '';
         }
 
         document.getElementById("upiForm").onsubmit = function(event) {
@@ -132,7 +158,6 @@
                 localStorage.setItem('defaultUPI', upiID);
             }
 
-            // If UPI ID input is empty, provide an alert (optional)
             if (!upiID) {
                 alert("Please enter a UPI ID or select one from the list.");
                 return;
@@ -140,30 +165,23 @@
 
             let upiURL;
 
-            // Check if the selected UPI ID is the specific one
             if (upiID === "Q416915015@ybl") {
-                // Format for HINDUSTAN TOYS
                 upiURL = `upi://pay?pa=${upiID}&pn=PhonePeMerchant&mc=0000&mode=02&purpose=00&am=${amount}&cu=INR${note ? `&tn=${encodeURIComponent(note)}` : ''}`;
             } else if (upiID === "paytmqr5ikbc9@ptys") {
-                // Format for SAMEER
                 upiURL = `upi://pay?pa=${upiID}&pn=Paytm&mc=0000&mode=02&purpose=00&am=${amount}&cu=INR${note ? `&tn=${encodeURIComponent(note)}` : ''}`;
             } else {
-                // Default UPI URL for other IDs
                 upiURL = `upi://pay?pa=${upiID}&pn=Paytm&am=${amount}&cu=INR${note ? `&tn=${encodeURIComponent(note)}` : ''}`;
             }
 
-            // Clear previous QR codes
             document.getElementById("qr-code").innerHTML = '';
 
-            // Generate QR code
             const qrCode = new QRCode(document.getElementById("qr-code"), {
                 text: upiURL,
                 width: 256,
                 height: 256,
             });
 
-            // Show the modal with QR code and amount
-            document.getElementById("modalQR").innerHTML = ''; // Clear previous QR codes
+            document.getElementById("modalQR").innerHTML = '';
             const modalQrCode = new QRCode(document.getElementById("modalQR"), {
                 text: upiURL,
                 width: 256,
@@ -171,10 +189,9 @@
             });
 
             document.getElementById("modalAmount").innerText = `Amount: ₹${amount}`;
-            document.getElementById("qrModal").style.display = "block"; // Show the modal
+            document.getElementById("qrModal").style.display = "block";
         };
 
-        // Close modal when the user clicks anywhere outside of the modal
         window.onclick = function(event) {
             const modal = document.getElementById("qrModal");
             if (event.target == modal) {
@@ -183,4 +200,5 @@
         };
     </script>
 </body>
+
 </html>
