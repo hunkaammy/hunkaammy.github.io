@@ -46,6 +46,12 @@
             text-align: center;
             padding: 20px;
         }
+        .search-container {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: white;
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -75,6 +81,18 @@
             </div>
         </div>
 
+        <!-- Search Section -->
+        <div class="search-container sticky top-0 z-10 max-w-xl mx-auto mb-12 bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Search Products</h2>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <input type="text" id="searchName" placeholder="Search by Name" class="w-full p-2 border rounded">
+                <input type="text" id="searchPartyCode" placeholder="Search by Party Code" class="w-full p-2 border rounded">
+            </div>
+            <button onclick="resetSearch()" class="w-full bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition-colors">
+                Reset
+            </button>
+        </div>
+
         <!-- Gallery Section -->
         <div id="gallery" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         <div id="loadingSpinner">
@@ -88,7 +106,7 @@
     <script>
         // Initialize Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyBPc51z-pGrtKwtB5dKTMPei-fVRg4ePME",
+           apiKey: "AIzaSyBPc51z-pGrtKwtB5dKTMPei-fVRg4ePME",
   authDomain: "pagdi-6f8ce.firebaseapp.com",
   databaseURL: "https://pagdi-6f8ce-default-rtdb.firebaseio.com",
   projectId: "pagdi-6f8ce",
@@ -96,7 +114,7 @@
   messagingSenderId: "746289566527",
   appId: "1:746289566527:web:4c32c4fec73bb7e898798a",
   measurementId: "G-CXW0QZRHFG"
-};
+        };
 
         firebase.initializeApp(firebaseConfig);
         const storage = firebase.storage();
@@ -156,7 +174,7 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    preview.innerHTML = `<img src="${canvas.toDataURL('image/jpeg', 0.9)}" alt="Preview" class="mx-auto w-full  object-cover rounded-lg">`;
+                    preview.innerHTML = `<img src="${canvas.toDataURL('image/jpeg', 0.9)}" alt="Preview" class="mx-auto w-full object-cover rounded-lg">`;
                 };
                 img.src = e.target.result;
             };
@@ -242,14 +260,14 @@
             imageInput.value = '';
             document.getElementById('nameInput').value = '';
             document.getElementById('priceInput').value = '';
-            // document.getElementById('partyCodeInput').value = ''; //
+     
             document.getElementById('videourlInput').value = '';
             preview.innerHTML = '';
 
             processUploadQueue();
         }
 
-        // Real-time gallery update with latest images first
+        // Real-time gallery update with latest images first and lazy loading
         let lastKey = null;
         const batchSize = 6;
         let isLoading = false;
@@ -264,10 +282,8 @@
 
             let query = database.ref().orderByChild('date');
             if (lastKey) {
-                // Use endBefore with limitToLast to get previous batch
                 query = query.endBefore(lastKey).limitToLast(batchSize);
             } else {
-                // Initial load gets the latest images
                 query = query.limitToLast(batchSize);
             }
 
@@ -281,15 +297,13 @@
                     }
                 });
 
-                // If we get fewer images than batchSize, we've reached the end
                 if (images.length === 0 || (lastKey && images.length < batchSize)) {
                     allImagesLoaded = true;
                 }
 
                 if (images.length > 0) {
-                    // Reverse to maintain newest-first order within batch
                     images.reverse();
-                    lastKey = images[images.length - 1].date; // Set lastKey to oldest date in batch
+                    lastKey = images[images.length - 1].date;
                     callback(images);
                 } else {
                     allImagesLoaded = true;
@@ -311,7 +325,7 @@
                 container.className = 'image-container bg-white rounded-lg shadow-lg overflow-hidden';
                 container.setAttribute('data-key', image.key);
                 container.innerHTML = `
-                    <img src="${image.url}" alt="${image.name}" class="w-full object-cover">
+                    <img src="${image.url}" alt="${image.name}" class="w-full object-cover" loading="lazy">
                     <div class="p-4">
                         <h3 class="font-semibold text-lg mb-2 editable-field" onclick="makeEditable(this, '${image.key}', 'name')">${image.name}</h3>
                         <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${image.key}', 'price')">Price: ${image.price}</p>
@@ -320,7 +334,6 @@
                         <p class="text-sm text-gray-500 mt-2">Uploaded: ${new Date(image.date).toLocaleString()}</p>
                     </div>
                 `;
-                // Append at the end to maintain newest-first order as we load older images
                 gallery.appendChild(container);
             });
         }
@@ -397,7 +410,7 @@
                 const threshold = document.documentElement.scrollHeight - 300;
 
                 if (scrollPosition >= threshold && !isLoading && !allImagesLoaded) {
-                    console.log('Loading more images...'); // Debug log
+                    console.log('Loading more images...');
                     loadImages(appendImages);
                 }
             }, 100);
@@ -418,7 +431,7 @@
             }
         });
 
-        // Update gallery when new image is added
+        // Update gallery when new image is added with lazy loading
         database.ref().orderByChild('date').limitToLast(1).on('child_added', snapshot => {
             const key = snapshot.key;
             if (!loadedImageKeys.has(key)) {
@@ -428,7 +441,7 @@
                 container.className = 'image-container bg-white rounded-lg shadow-lg overflow-hidden';
                 container.setAttribute('data-key', key);
                 container.innerHTML = `
-                    <img src="${image.url}" alt="${image.name}" class="w-full object-cover">
+                    <img src="${image.url}" alt="${image.name}" class="w-full object-cover" loading="lazy">
                     <div class="p-4">
                         <h3 class="font-semibold text-lg mb-2 editable-field" onclick="makeEditable(this, '${key}', 'name')">${image.name}</h3>
                         <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${key}', 'price')">Price: ${image.price}</p>
@@ -441,6 +454,87 @@
                 loadedImageKeys.add(key);
             }
         });
+
+        // Search functionality with debounce
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function searchProducts() {
+            const searchName = document.getElementById('searchName').value.trim().toLowerCase();
+            const searchPartyCode = document.getElementById('searchPartyCode').value.trim().toLowerCase();
+            const gallery = document.getElementById('gallery');
+            
+            gallery.innerHTML = '';
+            loadedImageKeys.clear();
+            allImagesLoaded = false;
+            lastKey = null;
+            loadingSpinner.style.display = 'block';
+
+            let query = database.ref().orderByChild('date');
+            
+            query.once('value', snapshot => {
+                const images = [];
+                snapshot.forEach(childSnapshot => {
+                    const imageData = childSnapshot.val();
+                    const key = childSnapshot.key;
+                    
+                    const partyCode = imageData.partyCode ? String(imageData.partyCode).toLowerCase() : '';
+                    const name = imageData.name ? imageData.name.toLowerCase() : '';
+                    
+                    const nameMatch = !searchName || name.includes(searchName);
+                    const partyCodeMatch = !searchPartyCode || partyCode === searchPartyCode;
+                    
+                    if (nameMatch && partyCodeMatch) {
+                        images.push({ ...imageData, key });
+                        loadedImageKeys.add(key);
+                    }
+                });
+
+                if (images.length === 0) {
+                    gallery.innerHTML = '<p class="text-center text-gray-500 col-span-full">No products found matching your search criteria.</p>';
+                    loadingSpinner.style.display = 'none';
+                    return;
+                }
+
+                images.sort((a, b) => new Date(b.date) - new Date(a.date));
+                appendImages(images);
+                lastKey = images[images.length - 1].date;
+                loadingSpinner.style.display = 'none';
+            }).catch(error => {
+                console.error('Search error:', error);
+                gallery.innerHTML = '<p class="text-center text-red-500 col-span-full">Error performing search. Please try again.</p>';
+                loadingSpinner.style.display = 'none';
+            });
+        }
+
+        function resetSearch() {
+            document.getElementById('searchName').value = '';
+            document.getElementById('searchPartyCode').value = '';
+            
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = '';
+            loadedImageKeys.clear();
+            allImagesLoaded = false;
+            lastKey = null;
+            
+            loadImages(appendImages);
+        }
+
+        // Debounced search (300ms delay)
+        const debouncedSearch = debounce(searchProducts, 300);
+
+        // Add real-time search listeners
+        document.getElementById('searchName').addEventListener('input', debouncedSearch);
+        document.getElementById('searchPartyCode').addEventListener('input', debouncedSearch);
     </script>
 </body>
 </html>
