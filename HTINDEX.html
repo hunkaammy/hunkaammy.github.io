@@ -18,30 +18,31 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      background: linear-gradient(135deg, #f5f7fa 0%, #d9e4f5 100%);
       color: #333;
       overscroll-behavior-y: none;
       overflow-x: hidden;
     }
-    .main-container { padding-top: 80px; }
+    .main-container { padding-top: 70px; } /* Increased to avoid overlap */
     .navbar {
-      background: #fff;
-      padding: 15px 30px;
+      background: #ffffff;
+      padding: 15px 20px;
       position: fixed;
       top: 0;
       width: 100%;
       z-index: 1000;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
       display: flex;
       align-items: center;
       justify-content: space-between;
+      transition: all 0.3s ease;
     }
     .navbar-brand {
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       font-weight: 700;
-      color: #ff4b5c;
+      color: #e91e63;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 1.2px;
     }
     .search-container {
       flex-grow: 1;
@@ -53,23 +54,23 @@
     }
     .search-container input {
       width: 100%;
-      padding: 12px 40px 12px 20px;
+      padding: 10px 40px 10px 15px;
       border: none;
       border-radius: 25px;
-      background: #f0f2f5;
-      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+      background: #f4f6f9;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
       font-size: 14px;
       transition: all 0.3s ease;
     }
     .search-container input:focus {
       outline: none;
       background: #fff;
-      box-shadow: 0 0 10px rgba(255, 75, 92, 0.2);
+      box-shadow: 0 0 12px rgba(233, 30, 99, 0.15);
     }
     .mic-btn {
       position: absolute;
       right: 10px;
-      background: #ff4b5c;
+      background: #e91e63;
       color: #fff;
       border: none;
       border-radius: 50%;
@@ -78,53 +79,57 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: transform 0.3s ease;
+      transition: transform 0.3s ease, background 0.3s ease;
     }
-    .mic-btn:hover { transform: scale(1.1); }
+    .mic-btn:hover { transform: scale(1.1); background: #d81b60; }
     .user-info {
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 12px;
     }
     .user-info span {
-      font-size: 14px;
-      color: #555;
+      font-size: 13px;
+      color: #444;
       font-weight: 600;
     }
     .logout-btn {
       color: #fff;
-      background: #ff4b5c;
-      padding: 8px 15px;
-      border-radius: 20px;
+      background: #e91e63;
+      padding: 7px 15px;
+      border-radius: 25px;
       text-decoration: none;
+      font-size: 13px;
       transition: background 0.3s ease;
     }
-    .logout-btn:hover { background: #e63946; }
+    .logout-btn:hover { background: #d81b60; }
     .sort-dropdown {
-      padding: 8px;
-      border-radius: 20px;
+      padding: 7px 10px;
+      border-radius: 25px;
       border: none;
-      background: #f0f2f5;
-      font-size: 14px;
+      background: #f4f6f9;
+      font-size: 13px;
       cursor: pointer;
+      transition: background 0.3s ease;
     }
+    .sort-dropdown:hover { background: #e0e4e9; }
     .sidebar {
       position: fixed;
       left: 0;
-      top: 80px;
+      top: 70px; /* Adjusted for navbar */
       width: 140px;
-      height: calc(100vh - 80px);
+      height: calc(100vh - 70px);
       background: #fff;
       border-radius: 0 20px 20px 0;
-      box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+      box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
       overflow-y: auto;
-      padding: 20px 10px;
+      padding: 15px 10px;
+      z-index: 900;
     }
     .tab-item {
       width: 110px;
       height: 110px;
       border-radius: 50%;
-      background: #f9f9f9;
+      background: #f9fafc;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -132,7 +137,7 @@
       margin-bottom: 15px;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
     }
     .tab-item img {
       width: 70px;
@@ -146,35 +151,39 @@
       font-weight: 600;
       text-align: center;
       margin-top: 8px;
-      color: #444;
+      color: #555;
     }
     .tab-item:hover, .tab-item.active {
-      background: linear-gradient(135deg, #ff4b5c, #ff8c5c);
+      background: linear-gradient(135deg, #e91e63, #ff4081);
       color: #fff;
       transform: scale(1.05);
-      box-shadow: 0 6px 15px rgba(255, 75, 92, 0.3);
+      box-shadow: 0 6px 15px rgba(233, 30, 99, 0.25);
     }
     .tab-item:hover span, .tab-item.active span { color: #fff; }
     .tab-item:hover img { transform: scale(1.1); }
     .content-wrapper { display: flex; }
     .product-grid {
       margin-left: 160px;
-      padding: 30px;
+      padding: 20px;
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 25px;
+      gap: 20px;
       width: 100%;
+      align-content: start;
     }
     .card {
       background: #fff;
       border-radius: 15px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
       overflow: hidden;
       transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
     }
     .card:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 10px 25px rgba(255, 75, 92, 0.2);
+      transform: translateY(-8px);
+      box-shadow: 0 8px 20px rgba(233, 30, 99, 0.15);
     }
     .card img {
       width: 100%;
@@ -185,74 +194,78 @@
     }
     .card:hover img { transform: scale(1.05); }
     .card-body {
-      padding: 20px;
+      padding: 15px;
       text-align: center;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
     .card-body h5 {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
-      margin: 0 0 10px;
+      margin: 0 0 8px;
       color: #333;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     .price {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 700;
-      color: #ff4b5c;
-      margin: 0 0 10px;
+      color: #e91e63;
+      margin: 0 0 8px;
     }
     .card-body a {
-      color: #007bff;
-      font-size: 14px;
+      color: #0288d1;
+      font-size: 13px;
       text-decoration: none;
       display: block;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       transition: color 0.3s ease;
     }
-    .card-body a:hover { color: #ff4b5c; }
+    .card-body a:hover { color: #e91e63; }
     .input-group {
       display: flex;
       justify-content: center;
       gap: 5px;
     }
     .qtyclass {
-      width: 90px;
-      padding: 10px;
+      width: 80px;
+      padding: 8px;
       border: none;
-      border-radius: 25px 0 0 25px;
-      background: #f0f2f5;
-      font-size: 14px;
+      border-radius: 20px 0 0 20px;
+      background: #f4f6f9;
+      font-size: 13px;
       text-align: center;
       transition: all 0.3s ease;
     }
     .qtyclass:focus {
       outline: none;
       background: #fff;
-      box-shadow: 0 0 10px rgba(255, 75, 92, 0.2);
+      box-shadow: 0 0 10px rgba(233, 30, 99, 0.15);
     }
     .submit {
-      background: #ff4b5c;
+      background: #e91e63;
       color: #fff;
       border: none;
-      padding: 10px 20px;
-      border-radius: 0 25px 25px 0;
-      font-size: 14px;
+      padding: 8px 15px;
+      border-radius: 0 20px 20px 0;
+      font-size: 13px;
       font-weight: 600;
       cursor: pointer;
       transition: background 0.3s ease;
     }
-    .submit:hover { background: #e63946; }
+    .submit:hover { background: #d81b60; }
     .skeleton-wrapper {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 25px;
+      gap: 20px;
     }
     .skeleton-item {
       width: 100%;
-      height: 340px;
-      background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+      height: 300px;
+      background: linear-gradient(90deg, #e8ecef 25%, #f4f6f9 50%, #e8ecef 75%);
       background-size: 200% 100%;
       border-radius: 15px;
       animation: skeleton-shimmer 1.5s infinite linear;
@@ -267,7 +280,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.85);
+      background: rgba(0, 0, 0, 0.9);
       display: none;
       justify-content: center;
       align-items: center;
@@ -284,45 +297,43 @@
     }
     .btn-close {
       position: absolute;
-      top: 20px;
-      right: 20px;
-      font-size: 30px;
+      top: 15px;
+      right: 15px;
+      font-size: 25px;
       color: #fff;
-      background: #ff4b5c;
+      background: #e91e63;
       border: none;
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
+      width: 35px;
+      height: 35px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: transform 0.3s ease;
+      transition: transform 0.3s ease, background 0.3s ease;
     }
-    .btn-close:hover { transform: rotate(90deg); }
+    .btn-close:hover { transform: rotate(90deg); background: #d81b60; }
     .modal-content {
       border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     }
     .modal-header {
-      background: #ff4b5c;
+      background: #e91e63;
       color: #fff;
       border-radius: 15px 15px 0 0;
-      padding: 15px 20px;
+      padding: 12px 15px;
     }
-    .modal-title { font-weight: 600; }
-    .modal-body {
-      background: #fff;
-      padding: 20px;
-    }
+    .modal-title { font-weight: 600; font-size: 16px; }
+    .modal-body { background: #fff; padding: 15px; }
     .modal-footer .btn-danger {
-      background: #ff4b5c;
+      background: #e91e63;
       border: none;
-      border-radius: 25px;
-      padding: 10px 20px;
+      border-radius: 20px;
+      padding: 8px 15px;
+      font-size: 13px;
       transition: background 0.3s ease;
     }
-    .modal-footer .btn-danger:hover { background: #e63946; }
+    .modal-footer .btn-danger:hover { background: #d81b60; }
     #login-container {
       background: url('https://hunkaammy.github.io/mywebsite/NEWWEBSITE/loginpg.jpeg') no-repeat center center;
       background-size: cover;
@@ -332,75 +343,95 @@
       align-items: center;
     }
     #inside {
-      background: rgba(255, 255, 255, 0.95);
-      padding: 40px;
+      background: rgba(255, 255, 255, 0.97);
+      padding: 35px;
       border-radius: 20px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
       text-align: center;
       width: 100%;
-      max-width: 450px;
+      max-width: 400px;
       backdrop-filter: blur(5px);
     }
     #inside h2 {
-      font-size: 28px;
+      font-size: 24px;
       font-weight: 700;
-      color: #ff4b5c;
-      margin-bottom: 30px;
+      color: #e91e63;
+      margin-bottom: 20px;
       text-transform: uppercase;
     }
     #inside input {
       width: 100%;
-      padding: 12px 20px;
-      margin-bottom: 20px;
+      padding: 12px 15px;
+      margin-bottom: 15px;
       border: none;
       border-radius: 25px;
-      background: #f0f2f5;
+      background: #f4f6f9;
       font-size: 14px;
       transition: all 0.3s ease;
     }
     #inside input:focus {
       outline: none;
       background: #fff;
-      box-shadow: 0 0 10px rgba(255, 75, 92, 0.2);
+      box-shadow: 0 0 10px rgba(233, 30, 99, 0.15);
     }
     #inside button {
       width: 100%;
-      padding: 14px;
-      background: #ff4b5c;
+      padding: 12px;
+      background: #e91e63;
       color: #fff;
       border: none;
       border-radius: 25px;
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       transition: background 0.3s ease;
     }
-    #inside button:hover { background: #e63946; }
+    #inside button:hover { background: #d81b60; }
+
+    /* Mobile-Specific Styles */
     @media (max-width: 768px) {
-      .navbar { flex-direction: column; padding: 10px; }
-      .search-container { max-width: 100%; margin: 15px 0; }
-      .user-info { flex-direction: column; gap: 10px; }
+      .main-container { padding-top: 120px; } /* Increased to avoid overlap */
+      .navbar {
+        flex-direction: column;
+        padding: 10px 15px;
+        gap: 10px; /* Added spacing between elements */
+      }
+      .navbar-brand { font-size: 1.3rem; margin-bottom: 0; }
+      .search-container { max-width: 100%; margin: 0; }
+      .search-container input { padding: 8px 35px 8px 12px; font-size: 13px; }
+      .mic-btn { width: 25px; height: 25px; right: 8px; }
+      .user-info { flex-direction: row; gap: 8px; }
+      .user-info span { font-size: 12px; }
+      .logout-btn { padding: 6px 12px; font-size: 12px; }
+      .sort-dropdown { padding: 6px 8px; font-size: 12px; }
       .sidebar {
-        width: 100%;
-        height: auto;
-        position: static;
-        border-radius: 0;
-        box-shadow: none;
-        padding: 10px;
+        width: 100px;
+        height: calc(100vh - 120px); /* Adjusted for navbar */
+        top: 120px; /* Adjusted for navbar */
+        padding: 10px 5px;
+        border-radius: 0 15px 15px 0;
       }
-      .tab-scroll-wrapper {
-        display: flex;
-        overflow-x: auto;
-        justify-content: flex-start;
-        gap: 10px;
+      .tab-item {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 10px;
       }
-      .tab-item { width: 90px; height: 90px; flex-shrink: 0; }
+      .tab-item img { width: 50px; height: 50px; }
+      .tab-item span { font-size: 10px; margin-top: 5px; }
       .product-grid {
-        margin-left: 0;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        padding: 20px;
+        margin-left: 110px;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        padding: 15px;
+        gap: 15px;
       }
-      .card img { height: 180px; }
+      .card img { height: 140px; }
+      .card-body { padding: 10px; }
+      .card-body h5 { font-size: 13px; }
+      .price { font-size: 16px; }
+      .card-body a { font-size: 12px; }
+      .qtyclass { width: 60px; padding: 6px; font-size: 12px; }
+      .submit { padding: 6px 12px; font-size: 12px; }
+      .skeleton-item { height: 240px; }
     }
   </style>
 </head>
@@ -416,7 +447,7 @@
     </div>
   </div>
 
-  <!-- Main Content (Hidden Initially) -->
+  <!-- Main Content -->
   <div id="content" style="display: none;" class="main-container">
     <nav class="navbar">
       <div class="navbar-brand">Hindustan Toys</div>
@@ -447,32 +478,61 @@
 
     <div class="content-wrapper" ng-controller="imagesController as vm">
       <div class="sidebar">
-        <div class="tab-scroll-wrapper">
-          <div class="tab-item" ng-click="setTab('', 0)" ng-class="{ 'active': activeTab === 0 }">
-            <img src="https://www.hindustantoys.in/images/all.jpeg" alt="All Products">
-            <span>ALL PRODUCTS</span>
-          </div>
-          <div class="tab-item" ng-click="setTab('LUMO', 10)" ng-class="{ 'active': activeTab === 10 }">
-            <img src="https://www.hindustantoys.in/images/lumo.jpeg" alt="Lumo Products">
-            <span>LUMO & OTHER</span>
-          </div>
-          <div class="tab-item" ng-click="setTab('BAT BALL', 36)" ng-class="{ 'active': activeTab === 36 }">
-            <img src="https://www.hindustantoys.in/images/bat.jpeg" alt="Bat Ball">
-            <span>BAT BALL & SET</span>
-          </div>
-          <div class="tab-item" ng-click="setTab('CARROM', 35)" ng-class="{ 'active': activeTab === 35 }">
-            <img src="https://www.hindustantoys.in/images/carrom.jpeg" alt="Carrom Board">
-            <span>CARROM BOARD</span>
-          </div>
-          <div class="tab-item" ng-click="setTab('SWING', 37)" ng-class="{ 'active': activeTab === 37 }">
-            <img src="https://www.hindustantoys.in/images/swing.jpeg" alt="Swings">
-            <span>SWINGS</span>
-          </div>
-          <div class="tab-item" ng-click="setTab('INDIAN TOYS', 3)" ng-class="{ 'active': activeTab === 3 }">
-            <img src="https://www.hindustantoys.in/images/JCB.jpeg" alt="Indian Toys">
-            <span>INDIAN TOYS</span>
-          </div>
-          <!-- Add remaining tabs as needed -->
+        <div class="tab-item" ng-click="setTab('', 0)" ng-class="{ 'active': activeTab === 0 }">
+          <img src="https://www.hindustantoys.in/images/all.jpeg" alt="All Products">
+          <span>ALL PRODUCTS</span>
+        </div>
+        <div class="tab-item" ng-click="setTab('LUMO', 10)" ng-class="{ 'active': activeTab === 10 }">
+          <img src="https://www.hindustantoys.in/images/lumo.jpeg" alt="Lumo Products">
+          <span>LUMO & OTHER</span>
+        </div>
+        <div class="tab-item" ng-click="setTab('BAT BALL', 36)" ng-class="{ 'active': activeTab === 36 }">
+          <img src="https://www.hindustantoys.in/images/bat.jpeg" alt="Bat Ball">
+          <span>BAT BALL & SET</span>
+        </div>
+        <div class="tab-item" ng-click="setTab('CARROM', 35)" ng-class="{ 'active': activeTab === 35 }">
+          <img src="https://www.hindustantoys.in/images/carrom.jpeg" alt="Carrom Board">
+          <span>CARROM BOARD</span>
+        </div>
+        <div class="tab-item" ng-click="setTab('SWING', 37)" ng-class="{ 'active': activeTab === 37 }">
+          <img src="https://www.hindustantoys.in/images/swing.jpeg" alt="Swings">
+          <span>SWINGS</span>
+        </div>
+        <div class="tab-item" ng-click="setTab('INDIAN TOYS', 3)" ng-class="{ 'active': activeTab === 3 }">
+          <img src="https://www.hindustantoys.in/images/JCB.jpeg" alt="Indian Toys">
+          <span>INDIAN TOYS</span>
+        </div>
+        <div class="tab-item" ng-click="setTab('REMOTE CAR', 1)" ng-class="{ 'active': activeTab === 1 }">
+          <img src="https://www.hindustantoys.in/images/remote_car.jpeg" alt="Remote Cars">
+          <span>REMOTE CARS</span>
+        </div>
+        <div class="tab-item" ng-click="setTab('CLAY', 2)" ng-class="{ 'active': activeTab === 2 }">
+          <img src="https://www.hindustantoys.in/images/clay.jpeg" alt="Clay">
+          <span>CLAY</span>
+        </div>
+        <div class="tab-item" ng-click="setTab('SLIME', 4)" ng-class="{ 'active': activeTab === 4 }">
+          <img src="https://www.hindustantoys.in/images/slime.jpeg" alt="Slime">
+          <span>SLIME</span>
+        </div>
+        <div class="tab-item" ng-click="setTab('GUN', 5)" ng-class="{ 'active': activeTab === 5 }">
+          <img src="https://www.hindustantoys.in/images/gun.jpeg" alt="Guns">
+          <span>GUNS</span>
+        </div>
+        <div class="tab-item" ng-click="setTab('BASKET BALL', 6)" ng-class="{ 'active': activeTab === 6 }">
+          <img src="https://www.hindustantoys.in/images/basketball.jpeg" alt="Basketball">
+          <span>BASKETBALL</span>
+        </div>
+        <div class="tab-item" ng-click="setTab('DOLLS', 7)" ng-class="{ 'active': activeTab === 7 }">
+          <img src="https://www.hindustantoys.in/images/dolls.jpeg" alt="Dolls">
+          <span>DOLLS</span>
+        </div>
+        <div class="tab-item" ng-click="setTab('PUZZLES', 8)" ng-class="{ 'active': activeTab === 8 }">
+          <img src="https://www.hindustantoys.in/images/puzzles.jpeg" alt="Puzzles">
+          <span>PUZZLES</span>
+        </div>
+        <div class="tab-item" ng-click="setTab('BOARD GAMES', 9)" ng-class="{ 'active': activeTab === 9 }">
+          <img src="https://www.hindustantoys.in/images/boardgames.jpeg" alt="Board Games">
+          <span>BOARD GAMES</span>
         </div>
       </div>
 
@@ -509,7 +569,7 @@
     </div>
 
     <div class="container mt-3">
-      <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#myModal" style="background: #ff4b5c; color: #fff; border-radius: 25px; padding: 10px 20px;">Your Order</button>
+      <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#myModal" style="background: #e91e63; color: #fff; border-radius: 20px; padding: 8px 15px;">Your Order</button>
     </div>
     <div class="modal" id="myModal">
       <div class="modal-dialog modal-fullscreen">
@@ -548,15 +608,12 @@
 
   <!-- JavaScript -->
   <script>
-    // Ensure DOM is fully loaded before running scripts
     document.addEventListener('DOMContentLoaded', function() {
-      // History state management
       history.pushState(null, null, location.href);
       window.onpopstate = function () { history.go(1); };
       window.history.forward();
       function noBack() { window.history.forward(); }
 
-      // Firebase Config
       var firebaseConfig = {
         apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
         authDomain: "shop-reminder-3ce10.firebaseapp.com",
@@ -571,7 +628,6 @@
 
       var blockedNumbers = ['7000913701', '9876543210', '9123456789', '8987854256', '9039199794'];
 
-      // Validate Login Function
       function validateLogin() {
         var name = document.getElementById('name').value.trim();
         var mobile = document.getElementById('mobile').value.trim();
@@ -614,7 +670,6 @@
         });
       }
 
-      // Auto Login
       function autoLogin() {
         var storedName = localStorage.getItem('name');
         var storedMobile = localStorage.getItem('mobile');
@@ -632,7 +687,6 @@
         }
       }
 
-      // Logout
       function logout() {
         localStorage.removeItem('name');
         localStorage.removeItem('mobile');
@@ -641,10 +695,8 @@
         window.location.href = 'https://hindustantoys.in/pagdi';
       }
 
-      // Run auto-login on load
       autoLogin();
 
-      // Image Enlargement
       function enlargeImage(src) {
         var enlargedImg = document.getElementById('enlarged-img');
         var enlargedContainer = document.getElementById('enlarged-image-container');
@@ -659,24 +711,20 @@
         setTimeout(() => { enlargedContainer.style.display = 'none'; }, 300);
       }
 
-      // Scroll to Top
       function scrollToTop() {
         document.body.scrollTop = 0;
         document.documentElement.scrollTop = 0;
       }
 
-      // Image Load Handling
       const images = document.querySelectorAll('img');
       for (let img of images) {
         img.onload = ({ target }) => setTimeout(() => { target.classList.add('loaded') }, 200);
       }
 
-      // Sort Change Listener
       document.getElementById('sort')?.addEventListener('change', function() {
         window.scrollTo(0, 0);
       });
 
-      // Voice Recognition
       function startVoiceRecognition() {
         const micIcon = document.getElementById('micIcon');
         micIcon?.classList.add('animating');
@@ -702,12 +750,11 @@
       }
     });
 
-    // Angular App
     var app = angular.module('myApp', ['firebase']);
     app.controller('imagesController', function ($scope, $firebaseArray, $window, $location) {
       $scope.vm = this;
       $scope.vm.images = [];
-      $scope.sortOrder = '';
+      $scope.sortOrder = '-date';
       $scope.dynamicField2Value = localStorage.getItem('name');
       var firebaseConfigFetch = {
         apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
@@ -818,6 +865,7 @@
         $scope.productNameFilter = '';
         $scope.activeTab = 0;
         $scope.searchQuery = '';
+        $scope.sortOrder = '-date';
       };
     });
   </script>
