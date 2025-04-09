@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HINDUSTAN TOYS ORDER PORTAL</title>
+
+  <!-- External Stylesheets -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
+  <link rel="stylesheet" href="https://fezvrasta.github.io/bootstrap-material-design/dist/css/bootstrap-material-design.css">
+  <link rel="stylesheet" href="https://fezvrasta.github.io/bootstrap-material-design/dist/css/ripples.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+  <!-- Internal Styles -->
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      color: #333;
+      overscroll-behavior-y: none;
+      overflow-x: hidden;
+    }
+    .main-container { padding-top: 80px; }
+    .navbar {
+      background: #fff;
+      padding: 15px 30px;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .navbar-brand {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #ff4b5c;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .search-container {
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      max-width: 600px;
+      margin: 0 20px;
+      position: relative;
+    }
+    .search-container input {
+      width: 100%;
+      padding: 12px 40px 12px 20px;
+      border: none;
+      border-radius: 25px;
+      background: #f0f2f5;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+    .search-container input:focus {
+      outline: none;
+      background: #fff;
+      box-shadow: 0 0 10px rgba(255, 75, 92, 0.2);
+    }
+    .mic-btn {
+      position: absolute;
+      right: 10px;
+      background: #ff4b5c;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease;
+    }
+    .mic-btn:hover { transform: scale(1.1); }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .user-info span {
+      font-size: 14px;
+      color: #555;
+      font-weight: 600;
+    }
+    .logout-btn {
+      color: #fff;
+      background: #ff4b5c;
+      padding: 8px 15px;
+      border-radius: 20px;
+      text-decoration: none;
+      transition: background 0.3s ease;
+    }
+    .logout-btn:hover { background: #e63946; }
+    .sort-dropdown {
+      padding: 8px;
+      border-radius: 20px;
+      border: none;
+      background: #f0f2f5;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 80px;
+      width: 140px;
+      height: calc(100vh - 80px);
+      background: #fff;
+      border-radius: 0 20px 20px 0;
+      box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+      padding: 20px 10px;
+    }
+    .tab-item {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+    .tab-item img {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    .tab-item span {
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+      margin-top: 8px;
+      color: #444;
+    }
+    .tab-item:hover, .tab-item.active {
+      background: linear-gradient(135deg, #ff4b5c, #ff8c5c);
+      color: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 6px 15px rgba(255, 75, 92, 0.3);
+    }
+    .tab-item:hover span, .tab-item.active span { color: #fff; }
+    .tab-item:hover img { transform: scale(1.1); }
+    .content-wrapper { display: flex; }
+    .product-grid {
+      margin-left: 160px;
+      padding: 30px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 25px;
+      width: 100%;
+    }
+    .card {
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 10px 25px rgba(255, 75, 92, 0.2);
+    }
+    .card img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    .card:hover img { transform: scale(1.05); }
+    .card-body {
+      padding: 20px;
+      text-align: center;
+    }
+    .card-body h5 {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 10px;
+      color: #333;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .price {
+      font-size: 20px;
+      font-weight: 700;
+      color: #ff4b5c;
+      margin: 0 0 10px;
+    }
+    .card-body a {
+      color: #007bff;
+      font-size: 14px;
+      text-decoration: none;
+      display: block;
+      margin-bottom: 10px;
+      transition: color 0.3s ease;
+    }
+    .card-body a:hover { color: #ff4b5c; }
+    .input-group {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+    }
+    .qtyclass {
+      width: 90px;
+      padding: 10px;
+      border: none;
+      border-radius: 25px 0 0 25px;
+      background: #f0f2f5;
+      font-size: 14px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    .qtyclass:focus {
+      outline: none;
+      background: #fff;
+      box-shadow: 0 0 10px rgba(255, 75, 92, 0.2);
+    }
+    .submit {
+      background: #ff4b5c;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 0 25px 25px 0;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .submit:hover { background: #e63946; }
+    .skeleton-wrapper {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 25px;
+    }
+    .skeleton-item {
+      width: 100%;
+      height: 340px;
+      background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+      background-size: 200% 100%;
+      border-radius: 15px;
+      animation: skeleton-shimmer 1.5s infinite linear;
+    }
+    @keyframes skeleton-shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .enlarged-image-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .enlarged-image-container.active { opacity: 1; }
+    .enlarged-image img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    .btn-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 30px;
+      color: #fff;
+      background: #ff4b5c;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    .btn-close:hover { transform: rotate(90deg); }
+    .modal-content {
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    .modal-header {
+      background: #ff4b5c;
+      color: #fff;
+      border-radius: 15px 15px 0 0;
+      padding: 15px 20px;
+    }
+    .modal-title { font-weight: 600; }
+    .modal-body {
+      background: #fff;
+      padding: 20px;
+    }
+    .modal-footer .btn-danger {
+      background: #ff4b5c;
+      border: none;
+      border-radius: 25px;
+      padding: 10px 20px;
+      transition: background 0.3s ease;
+    }
+    .modal-footer .btn-danger:hover { background: #e63946; }
+    #login-container {
+      background: url('https://hunkaammy.github.io/mywebsite/NEWWEBSITE/loginpg.jpeg') no-repeat center center;
+      background-size: cover;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #inside {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      width: 100%;
+      max-width: 450px;
+      backdrop-filter: blur(5px);
+    }
+    #inside h2 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #ff4b5c;
+      margin-bottom: 30px;
+      text-transform: uppercase;
+    }
+    #inside input {
+      width: 100%;
+      padding: 12px 20px;
+      margin-bottom: 20px;
+      border: none;
+      border-radius: 25px;
+      background: #f0f2f5;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+    #inside input:focus {
+      outline: none;
+      background: #fff;
+      box-shadow: 0 0 10px rgba(255, 75, 92, 0.2);
+    }
+    #inside button {
+      width: 100%;
+      padding: 14px;
+      background: #ff4b5c;
+      color: #fff;
+      border: none;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    #inside button:hover { background: #e63946; }
+    @media (max-width: 768px) {
+      .navbar { flex-direction: column; padding: 10px; }
+      .search-container { max-width: 100%; margin: 15px 0; }
+      .user-info { flex-direction: column; gap: 10px; }
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 10px;
+      }
+      .tab-scroll-wrapper {
+        display: flex;
+        overflow-x: auto;
+        justify-content: flex-start;
+        gap: 10px;
+      }
+      .tab-item { width: 90px; height: 90px; flex-shrink: 0; }
+      .product-grid {
+        margin-left: 0;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        padding: 20px;
+      }
+      .card img { height: 180px; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Login Section -->
+  <div id="login-container">
+    <div id="inside">
+      <h2>WELCOME TO HINDUSTAN TOYS</h2>
+      <input type="text" id="name" ng-model="dynamicField2Value" placeholder="Enter your shop name" autocomplete="off">
+      <input type="tel" id="mobile" placeholder="Enter your mobile number" autocomplete="off">
+      <button onclick="validateLogin()">Login</button>
+    </div>
+  </div>
+
+  <!-- Main Content (Hidden Initially) -->
+  <div id="content" style="display: none;" class="main-container">
+    <nav class="navbar">
+      <div class="navbar-brand">Hindustan Toys</div>
+      <div class="search-container">
+        <input type="text" ng-model="searchQuery" placeholder="Search by product" id="topBtn" ng-click="resetFilters()" list="productNames">
+        <datalist id="productNames">
+          <option value="REMOTE CAR"></option>
+          <option value="JCB"></option>
+          <option value="CLAY"></option>
+          <option value="SLIME"></option>
+          <option value="GUN"></option>
+          <option value="BASKET BALL"></option>
+        </datalist>
+        <button class="mic-btn" onclick="startVoiceRecognition()">
+          <i class="fas fa-microphone"></i>
+        </button>
+      </div>
+      <div class="user-info">
+        <select id="sort" ng-model="sortOrder" ng-change="location.href='#top'; applyFilter()" ng-init="sortOrder='-date'" class="sort-dropdown">
+          <option value="-date">NEW</option>
+          <option value="price">LOW</option>
+          <option value="-price">HIGH</option>
+        </select>
+        <span>Welcome {{dynamicField2Value}}</span>
+        <a href="#" class="logout-btn" ng-click="logout()">Logout</a>
+      </div>
+    </nav>
+
+    <div class="content-wrapper" ng-controller="imagesController as vm">
+      <div class="sidebar">
+        <div class="tab-scroll-wrapper">
+          <div class="tab-item" ng-click="setTab('', 0)" ng-class="{ 'active': activeTab === 0 }">
+            <img src="https://www.hindustantoys.in/images/all.jpeg" alt="All Products">
+            <span>ALL PRODUCTS</span>
+          </div>
+          <div class="tab-item" ng-click="setTab('LUMO', 10)" ng-class="{ 'active': activeTab === 10 }">
+            <img src="https://www.hindustantoys.in/images/lumo.jpeg" alt="Lumo Products">
+            <span>LUMO & OTHER</span>
+          </div>
+          <div class="tab-item" ng-click="setTab('BAT BALL', 36)" ng-class="{ 'active': activeTab === 36 }">
+            <img src="https://www.hindustantoys.in/images/bat.jpeg" alt="Bat Ball">
+            <span>BAT BALL & SET</span>
+          </div>
+          <div class="tab-item" ng-click="setTab('CARROM', 35)" ng-class="{ 'active': activeTab === 35 }">
+            <img src="https://www.hindustantoys.in/images/carrom.jpeg" alt="Carrom Board">
+            <span>CARROM BOARD</span>
+          </div>
+          <div class="tab-item" ng-click="setTab('SWING', 37)" ng-class="{ 'active': activeTab === 37 }">
+            <img src="https://www.hindustantoys.in/images/swing.jpeg" alt="Swings">
+            <span>SWINGS</span>
+          </div>
+          <div class="tab-item" ng-click="setTab('INDIAN TOYS', 3)" ng-class="{ 'active': activeTab === 3 }">
+            <img src="https://www.hindustantoys.in/images/JCB.jpeg" alt="Indian Toys">
+            <span>INDIAN TOYS</span>
+          </div>
+          <!-- Add remaining tabs as needed -->
+        </div>
+      </div>
+
+      <div class="product-grid">
+        <div class="skeleton-wrapper" ng-if="vm.images.length === 0">
+          <div class="skeleton-item" ng-repeat="n in [].constructor(4) track by $index"></div>
+        </div>
+        <div ng-repeat="image in vm.images | orderBy: sortOrder | filter: { name: productNameFilter } | filter:searchQuery">
+          <div class="card" ng-if="!image.outOfStock">
+            <img src="{{image.url}}" alt="Sample Image" onclick="enlargeImage(this.src)" loading="lazy">
+            <div class="card-body">
+              <h5>{{image.name}}</h5>
+              <p class="price">{{image.price}} Rs.</p>
+              <p><a href="https://hunkaammy.github.io/mywebsite/videos/{{image.videourl}}.mp4" target="_blank">{{ image.videourl ? 'Watch Video' : '' }}</a></p>
+              <div class="input-group">
+                <input type="hidden" id="{{'inputa' + $index}}" ng-model="image.url">
+                <input type="hidden" id="{{'inputb' + $index}}" ng-model="dynamicField2Value" ng-value="dynamicField2Value">
+                <input type="number" class="qtyclass" id="{{'inputc' + $index}}" placeholder="Qty" ng-model="image.field3" ng-change="submitData(image, $index)" ng-model-options="{ debounce: 500 }">
+                <button class="submit" ng-click="submitData(image, $index)">Add</button>
+              </div>
+              <p ng-show="showItemAdded">Item Added</p>
+              <button ng-if="!image.outOfStock && dynamicField2Value === 'sammyadmin'" class="btn btn-warning btn-sm" ng-click="markOutOfStock(image)" style="margin-top: 10px; border-radius: 20px;">Mark Out of Stock</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="enlarged-image-container" class="enlarged-image-container">
+      <div class="enlarged-image">
+        <img id="enlarged-img" src="" alt="Enlarged Image">
+        <button class="btn-close" onclick="closeEnlarged()">×</button>
+      </div>
+    </div>
+
+    <div class="container mt-3">
+      <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#myModal" style="background: #ff4b5c; color: #fff; border-radius: 25px; padding: 10px 20px;">Your Order</button>
+    </div>
+    <div class="modal" id="myModal">
+      <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">{{dynamicField2Value}} Your Order List</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <object data="https://hunkaammy.github.io/mywebsite/NEWWEBSITE/order1#myInput={{dynamicField2Value}}" width="300" height="400">
+              <embed src="https://hunkaammy.github.io/mywebsite/cart#myInput=samrat" width="229" height="229"></embed>
+              Error: Embedded data could not be displayed.
+            </object>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  <script src="https://fezvrasta.github.io/bootstrap-material-design/dist/js/material.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/3.4.1/firebase.js"></script>
+  <script src="https://cdn.firebase.com/libs/angularfire/2.1.0/angularfire.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.lazyload/1.9.7/jquery.lazyload.js"></script>
+
+  <!-- JavaScript -->
+  <script>
+    // Ensure DOM is fully loaded before running scripts
+    document.addEventListener('DOMContentLoaded', function() {
+      // History state management
+      history.pushState(null, null, location.href);
+      window.onpopstate = function () { history.go(1); };
+      window.history.forward();
+      function noBack() { window.history.forward(); }
+
+      // Firebase Config
+      var firebaseConfig = {
+        apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
+        authDomain: "shop-reminder-3ce10.firebaseapp.com",
+        databaseURL: "https://shop-reminder-3ce10-default-rtdb.firebaseio.com",
+        projectId: "shop-reminder-3ce10",
+        storageBucket: "shop-reminder-3ce10.appspot.com",
+        messagingSenderId: "555627569260",
+        appId: "1:555627569260:web:3948ae391eab6eb5ea7849",
+        measurementId: "G-BP5EYR6ET1"
+      };
+      firebase.initializeApp(firebaseConfig);
+
+      var blockedNumbers = ['7000913701', '9876543210', '9123456789', '8987854256', '9039199794'];
+
+      // Validate Login Function
+      function validateLogin() {
+        var name = document.getElementById('name').value.trim();
+        var mobile = document.getElementById('mobile').value.trim();
+        if (name.length < 4) {
+          alert('Please enter a valid shop name.');
+          console.log('Validation failed: Name too short');
+          return;
+        }
+        if (!/^[6-9]\d{9}$/.test(mobile)) {
+          alert('Please enter a valid mobile number.');
+          console.log('Validation failed: Invalid mobile number');
+          return;
+        }
+        if (blockedNumbers.includes(mobile)) {
+          window.location.href = '/mywebsite/NEWWEBSITE/blocked.html';
+          console.log('Blocked number detected:', mobile);
+          return;
+        }
+        var lowerName = name.toLowerCase();
+        if (lowerName === 'mohit chawla' || lowerName === 'honey digital' || lowerName === 'bab el mandeb' || lowerName === 'Saha resources') {
+          window.location.href = '/mywebsite/NEWWEBSITE/blocked.html';
+          console.log('Blocked name detected:', name);
+          return;
+        }
+        var database = firebase.database();
+        var userRef = database.ref('users').push({
+          name: name,
+          mobile: mobile,
+          timestamp: firebase.database.ServerValue.TIMESTAMP
+        }).then(() => {
+          localStorage.setItem('name', name);
+          localStorage.setItem('mobile', mobile);
+          localStorage.setItem('loggedIn', 'true');
+          console.log('Login successful, stored:', name, mobile);
+          document.getElementById('login-container').style.display = 'none';
+          document.getElementById('content').style.display = 'block';
+        }).catch(error => {
+          console.error('Firebase error:', error);
+          alert('Login failed due to a server error. Please try again.');
+        });
+      }
+
+      // Auto Login
+      function autoLogin() {
+        var storedName = localStorage.getItem('name');
+        var storedMobile = localStorage.getItem('mobile');
+        if (storedMobile === '7000913701' || (storedName && storedName.toLowerCase() === 'mohit chawla')) {
+          console.log('Auto-login blocked:', storedName, storedMobile);
+          return;
+        }
+        if (storedName && storedMobile) {
+          document.getElementById('name').value = storedName;
+          document.getElementById('mobile').value = storedMobile;
+          console.log('Attempting auto-login with:', storedName, storedMobile);
+          validateLogin();
+        } else {
+          console.log('No stored credentials found for auto-login');
+        }
+      }
+
+      // Logout
+      function logout() {
+        localStorage.removeItem('name');
+        localStorage.removeItem('mobile');
+        localStorage.removeItem('loggedIn');
+        console.log('User logged out.');
+        window.location.href = 'https://hindustantoys.in/pagdi';
+      }
+
+      // Run auto-login on load
+      autoLogin();
+
+      // Image Enlargement
+      function enlargeImage(src) {
+        var enlargedImg = document.getElementById('enlarged-img');
+        var enlargedContainer = document.getElementById('enlarged-image-container');
+        enlargedImg.src = src;
+        enlargedContainer.style.display = 'flex';
+        enlargedContainer.classList.add('active');
+      }
+
+      function closeEnlarged() {
+        var enlargedContainer = document.getElementById('enlarged-image-container');
+        enlargedContainer.classList.remove('active');
+        setTimeout(() => { enlargedContainer.style.display = 'none'; }, 300);
+      }
+
+      // Scroll to Top
+      function scrollToTop() {
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+      }
+
+      // Image Load Handling
+      const images = document.querySelectorAll('img');
+      for (let img of images) {
+        img.onload = ({ target }) => setTimeout(() => { target.classList.add('loaded') }, 200);
+      }
+
+      // Sort Change Listener
+      document.getElementById('sort')?.addEventListener('change', function() {
+        window.scrollTo(0, 0);
+      });
+
+      // Voice Recognition
+      function startVoiceRecognition() {
+        const micIcon = document.getElementById('micIcon');
+        micIcon?.classList.add('animating');
+        const recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
+        recognition.lang = 'en-US';
+        recognition.onresult = function (event) {
+          const transcript = event.results[0][0].transcript;
+          document.getElementById('topBtn').value = transcript;
+          angular.element(document.getElementById('topBtn')).scope().$apply(function($scope) {
+            $scope.searchQuery = transcript;
+          });
+          filterData(transcript);
+          scrollToTop();
+          setTimeout(() => { micIcon?.classList.remove('animating'); }, 500);
+        };
+        recognition.start();
+      }
+
+      function filterData(query) {
+        angular.element(document.getElementById('topBtn')).scope().$apply(function($scope) {
+          $scope.productNameFilter = query;
+        });
+      }
+    });
+
+    // Angular App
+    var app = angular.module('myApp', ['firebase']);
+    app.controller('imagesController', function ($scope, $firebaseArray, $window, $location) {
+      $scope.vm = this;
+      $scope.vm.images = [];
+      $scope.sortOrder = '';
+      $scope.dynamicField2Value = localStorage.getItem('name');
+      var firebaseConfigFetch = {
+        apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
+        authDomain: "htshop-e9c51.firebaseapp.com",
+        databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com",
+        projectId: "htshop-e9c51",
+        storageBucket: "htshop-e9c51.appspot.com",
+        messagingSenderId: "653137640907",
+        appId: "1:653137640907:web:672fd6a9e85ca448a70a4e",
+        measurementId: "G-FJ4Q0FHBEG"
+      };
+      var firebaseConfigSubmit = {
+        apiKey: "AIzaSyAMFjDnZaszneoR6nO8bmXUxwZJplLvNfU",
+        authDomain: "notes-12519.firebaseapp.com",
+        databaseURL: "https://notes-12519-default-rtdb.firebaseio.com",
+        projectId: "notes-12519",
+        storageBucket: "notes-12519.appspot.com",
+        messagingSenderId: "1073774450189",
+        appId: "1:1073774450189:web:0b6d4a9f95823abbf36744",
+        measurementId: "G-GZXYCJ33TR"
+      };
+      var firebaseFetch = firebase.initializeApp(firebaseConfigFetch, 'fetchApp');
+      var firebaseSubmit = firebase.initializeApp(firebaseConfigSubmit, 'submitApp');
+      var databaseFetch = firebaseFetch.database().ref();
+      var listFetch = $firebaseArray(databaseFetch);
+      $scope.vm.images = listFetch;
+      var databaseSubmit = firebaseSubmit.database().ref();
+      var listSubmit = $firebaseArray(databaseSubmit);
+
+      function getUrlParameter(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        var results = regex.exec($location.absUrl());
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+      }
+
+      var filterParam = getUrlParameter('filter');
+      var tabParam = getUrlParameter('tab');
+      $scope.productNameFilter = filterParam || '';
+      $scope.activeTab = isNaN(tabParam) ? 0 : parseInt(tabParam, 10);
+
+      $scope.setTab = function(filter, tab) {
+        $scope.productNameFilter = filter;
+        $scope.activeTab = tab;
+        $scope.searchQuery = '';
+        $location.search('filter', filter);
+        $location.search('tab', tab);
+      };
+
+      $scope.submitData = function(image, index) {
+        var inputa = image.url;
+        var inputb = $scope.dynamicField2Value;
+        var inputc = image.field3;
+        var currentDate = new Date();
+        var day = String(currentDate.getDate()).padStart(2, '0');
+        var month = String(currentDate.getMonth() + 1).padStart(2, '0');
+        var year = currentDate.getFullYear();
+        var submitDate = day + '-' + month + '-' + year;
+        var hours = currentDate.getHours();
+        var minutes = String(currentDate.getMinutes()).padStart(2, '0');
+        var ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        var submitTime = hours + ':' + minutes + ' ' + ampm;
+        if (image.quantityId) {
+          databaseSubmit.child(image.quantityId).update({ field3: inputc })
+            .then(() => { console.log("Quantity updated in Firebase."); })
+            .catch((error) => { console.log("Error updating quantity:", error); });
+        } else {
+          var newDataKey = databaseSubmit.push().key;
+          image.quantityId = newDataKey;
+          databaseSubmit.child(newDataKey).set({
+            field1: inputa,
+            field2: inputb,
+            field3: inputc,
+            productName: image.name,
+            productPrice: image.price,
+            submitDate: submitDate,
+            submitTime: submitTime,
+            submittedDate: firebase.database.ServerValue.TIMESTAMP
+          }).then(() => { console.log("New item added to Firebase."); })
+            .catch((error) => { console.log("Error adding item:", error); });
+        }
+      };
+
+      $scope.markOutOfStock = function(image) {
+        var databaseRef = firebaseFetch.database().ref(image.$id);
+        databaseRef.update({
+          outOfStock: true,
+          lastModified: firebase.database.ServerValue.TIMESTAMP
+        }).then(function() {
+          image.outOfStock = true;
+          image.lastModified = Date.now();
+        }).catch(function(error) {
+          console.error("Error updating stock status:", error);
+        });
+      };
+
+      $scope.logout = function() {
+        localStorage.removeItem('name');
+        localStorage.removeItem('mobile');
+        localStorage.removeItem('loggedIn');
+        console.log('User logged out.');
+        $window.location.href = '/mywebsite/index.html';
+      };
+
+      $scope.resetFilters = function() {
+        $scope.productNameFilter = '';
+        $scope.activeTab = 0;
+        $scope.searchQuery = '';
+      };
+    });
+  </script>
+</body>
+</html>
