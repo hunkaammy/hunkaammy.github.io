@@ -1,762 +1,1068 @@
+
 <!DOCTYPE html>
-<html lang="en" ng-app="myApp">
+<html lang="en" >
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HINDUSTAN TOYS ORDER PORTAL</title>
+  <title>HINDUSTAN TOYS</title>
+  <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css'>
+<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css'>
+<link rel='stylesheet' href='https://fezvrasta.github.io/bootstrap-material-design/dist/css/bootstrap-material-design.css'>
+<link rel='stylesheet' href='https://fezvrasta.github.io/bootstrap-material-design/dist/css/ripples.min.css'>
 
-  <!-- External Stylesheets -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
-  <link rel="stylesheet" href="https://fezvrasta.github.io/bootstrap-material-design/dist/css/bootstrap-material-design.css">
-  <link rel="stylesheet" href="https://fezvrasta.github.io/bootstrap-material-design/dist/css/ripples.min.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-
-  <!-- Internal Styles -->
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #f5f7fa 0%, #d9e4f5 100%);
-      color: #333;
-      overscroll-behavior-y: none;
-      overflow-x: hidden;
-    }
-    .main-container { padding-top: 70px; } /* Increased to avoid overlap */
-    .navbar {
-      background: #ffffff;
-      padding: 15px 20px;
-      position: fixed;
-      top: 0;
-      width: 100%;
-      z-index: 1000;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      transition: all 0.3s ease;
-    }
-    .navbar-brand {
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: #e91e63;
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-    }
-    .search-container {
-      flex-grow: 1;
-      display: flex;
-      align-items: center;
-      max-width: 600px;
-      margin: 0 20px;
-      position: relative;
-    }
-    .search-container input {
-      width: 100%;
-      padding: 10px 40px 10px 15px;
-      border: none;
-      border-radius: 25px;
-      background: #f4f6f9;
-      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
-      font-size: 14px;
-      transition: all 0.3s ease;
-    }
-    .search-container input:focus {
-      outline: none;
-      background: #fff;
-      box-shadow: 0 0 12px rgba(233, 30, 99, 0.15);
-    }
-    .mic-btn {
-      position: absolute;
-      right: 10px;
-      background: #e91e63;
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.3s ease, background 0.3s ease;
-    }
-    .mic-btn:hover { transform: scale(1.1); background: #d81b60; }
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .user-info span {
-      font-size: 13px;
-      color: #444;
-      font-weight: 600;
-    }
-    .logout-btn {
-      color: #fff;
-      background: #e91e63;
-      padding: 7px 15px;
-      border-radius: 25px;
-      text-decoration: none;
-      font-size: 13px;
-      transition: background 0.3s ease;
-    }
-    .logout-btn:hover { background: #d81b60; }
-    .sort-dropdown {
-      padding: 7px 10px;
-      border-radius: 25px;
-      border: none;
-      background: #f4f6f9;
-      font-size: 13px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    .sort-dropdown:hover { background: #e0e4e9; }
-    .sidebar {
-      position: fixed;
-      left: 0;
-      top: 70px; /* Adjusted for navbar */
-      width: 140px;
-      height: calc(100vh - 70px);
-      background: #fff;
-      border-radius: 0 20px 20px 0;
-      box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
-      overflow-y: auto;
-      padding: 15px 10px;
-      z-index: 900;
-    }
-    .tab-item {
-      width: 110px;
-      height: 110px;
-      border-radius: 50%;
-      background: #f9fafc;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 15px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
-    }
-    .tab-item img {
-      width: 70px;
-      height: 70px;
-      border-radius: 50%;
-      object-fit: cover;
-      transition: transform 0.3s ease;
-    }
-    .tab-item span {
-      font-size: 12px;
-      font-weight: 600;
-      text-align: center;
-      margin-top: 8px;
-      color: #555;
-    }
-    .tab-item:hover, .tab-item.active {
-      background: linear-gradient(135deg, #e91e63, #ff4081);
-      color: #fff;
-      transform: scale(1.05);
-      box-shadow: 0 6px 15px rgba(233, 30, 99, 0.25);
-    }
-    .tab-item:hover span, .tab-item.active span { color: #fff; }
-    .tab-item:hover img { transform: scale(1.1); }
-    .content-wrapper { display: flex; }
-    .product-grid {
-      margin-left: 160px;
-      padding: 20px;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
-      width: 100%;
-      align-content: start;
-    }
-    .card {
-      background: #fff;
-      border-radius: 15px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-      overflow: hidden;
-      transition: all 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
-    .card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 8px 20px rgba(233, 30, 99, 0.15);
-    }
-    .card img {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
-      cursor: pointer;
-      transition: transform 0.3s ease;
-    }
-    .card:hover img { transform: scale(1.05); }
-    .card-body {
-      padding: 15px;
-      text-align: center;
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .card-body h5 {
-      font-size: 15px;
-      font-weight: 600;
-      margin: 0 0 8px;
-      color: #333;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .price {
-      font-size: 18px;
-      font-weight: 700;
-      color: #e91e63;
-      margin: 0 0 8px;
-    }
-    .card-body a {
-      color: #0288d1;
-      font-size: 13px;
-      text-decoration: none;
-      display: block;
-      margin-bottom: 8px;
-      transition: color 0.3s ease;
-    }
-    .card-body a:hover { color: #e91e63; }
-    .input-group {
-      display: flex;
-      justify-content: center;
-      gap: 5px;
-    }
-    .qtyclass {
-      width: 80px;
-      padding: 8px;
-      border: none;
-      border-radius: 20px 0 0 20px;
-      background: #f4f6f9;
-      font-size: 13px;
-      text-align: center;
-      transition: all 0.3s ease;
-    }
-    .qtyclass:focus {
-      outline: none;
-      background: #fff;
-      box-shadow: 0 0 10px rgba(233, 30, 99, 0.15);
-    }
-    .submit {
-      background: #e91e63;
-      color: #fff;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 0 20px 20px 0;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    .submit:hover { background: #d81b60; }
-    .skeleton-wrapper {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
-    }
-    .skeleton-item {
-      width: 100%;
-      height: 300px;
-      background: linear-gradient(90deg, #e8ecef 25%, #f4f6f9 50%, #e8ecef 75%);
-      background-size: 200% 100%;
-      border-radius: 15px;
-      animation: skeleton-shimmer 1.5s infinite linear;
-    }
-    @keyframes skeleton-shimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-    .enlarged-image-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.9);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    .enlarged-image-container.active { opacity: 1; }
-    .enlarged-image img {
-      max-width: 90%;
-      max-height: 90%;
-      border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    }
-    .btn-close {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      font-size: 25px;
-      color: #fff;
-      background: #e91e63;
-      border: none;
-      border-radius: 50%;
-      width: 35px;
-      height: 35px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: transform 0.3s ease, background 0.3s ease;
-    }
-    .btn-close:hover { transform: rotate(90deg); background: #d81b60; }
-    .modal-content {
-      border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    }
-    .modal-header {
-      background: #e91e63;
-      color: #fff;
-      border-radius: 15px 15px 0 0;
-      padding: 12px 15px;
-    }
-    .modal-title { font-weight: 600; font-size: 16px; }
-    .modal-body { background: #fff; padding: 15px; }
-    .modal-footer .btn-danger {
-      background: #e91e63;
-      border: none;
-      border-radius: 20px;
-      padding: 8px 15px;
-      font-size: 13px;
-      transition: background 0.3s ease;
-    }
-    .modal-footer .btn-danger:hover { background: #d81b60; }
-    #login-container {
-      background: url('https://hunkaammy.github.io/mywebsite/NEWWEBSITE/loginpg.jpeg') no-repeat center center;
-      background-size: cover;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    #inside {
-      background: rgba(255, 255, 255, 0.97);
-      padding: 35px;
-      border-radius: 20px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-      text-align: center;
-      width: 100%;
-      max-width: 400px;
-      backdrop-filter: blur(5px);
-    }
-    #inside h2 {
-      font-size: 24px;
-      font-weight: 700;
-      color: #e91e63;
-      margin-bottom: 20px;
-      text-transform: uppercase;
-    }
-    #inside input {
-      width: 100%;
-      padding: 12px 15px;
-      margin-bottom: 15px;
-      border: none;
-      border-radius: 25px;
-      background: #f4f6f9;
-      font-size: 14px;
-      transition: all 0.3s ease;
-    }
-    #inside input:focus {
-      outline: none;
-      background: #fff;
-      box-shadow: 0 0 10px rgba(233, 30, 99, 0.15);
-    }
-    #inside button {
-      width: 100%;
-      padding: 12px;
-      background: #e91e63;
-      color: #fff;
-      border: none;
-      border-radius: 25px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    #inside button:hover { background: #d81b60; }
-
-    /* Mobile-Specific Styles */
-    @media (max-width: 768px) {
-      .main-container { padding-top: 120px; } /* Increased to avoid overlap */
-      .navbar {
-        flex-direction: column;
-        padding: 10px 15px;
-        gap: 10px; /* Added spacing between elements */
-      }
-      .navbar-brand { font-size: 1.3rem; margin-bottom: 0; }
-      .search-container { max-width: 100%; margin: 0; }
-      .search-container input { padding: 8px 35px 8px 12px; font-size: 13px; }
-      .mic-btn { width: 25px; height: 25px; right: 8px; }
-      .user-info { flex-direction: row; gap: 8px; }
-      .user-info span { font-size: 12px; }
-      .logout-btn { padding: 6px 12px; font-size: 12px; }
-      .sort-dropdown { padding: 6px 8px; font-size: 12px; }
-      .sidebar {
-        width: 100px;
-        height: calc(100vh - 120px); /* Adjusted for navbar */
-        top: 120px; /* Adjusted for navbar */
-        padding: 10px 5px;
-        border-radius: 0 15px 15px 0;
-      }
-      .tab-item {
-        width: 80px;
-        height: 80px;
-        margin-bottom: 10px;
-      }
-      .tab-item img { width: 50px; height: 50px; }
-      .tab-item span { font-size: 10px; margin-top: 5px; }
-      .product-grid {
-        margin-left: 110px;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        padding: 15px;
-        gap: 15px;
-      }
-      .card img { height: 140px; }
-      .card-body { padding: 10px; }
-      .card-body h5 { font-size: 13px; }
-      .price { font-size: 16px; }
-      .card-body a { font-size: 12px; }
-      .qtyclass { width: 60px; padding: 6px; font-size: 12px; }
-      .submit { padding: 6px 12px; font-size: 12px; }
-      .skeleton-item { height: 240px; }
-    }
-  </style>
 </head>
 
+<script> history.pushState(null, null, location.href);
+    window.onpopstate = function () {
+        history.go(1);
+    };
+	</script>
+
+
 <body>
-  <!-- Login Section -->
-  <div id="login-container">
+<!-- partial:index.partial.html -->
+<header data-header class="header">
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #333;
+    background-color: #fff;
+    width: 357px;
+}
+
+        #login-container {
+    background-image: url(https://hunkaammy.github.io/mywebsite/NEWWEBSITE/loginpg.jpeg);
+    height: 648px;
+    margin-top: -83px;
+    max-width: 401px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+ #inside {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+</head>
+<body>
+
+<div id="login-container">
     <div id="inside">
-      <h2>WELCOME TO HINDUSTAN TOYS</h2>
-      <input type="text" id="name" ng-model="dynamicField2Value" placeholder="Enter your shop name" autocomplete="off">
-      <input type="tel" id="mobile" placeholder="Enter your mobile number" autocomplete="off">
-      <button onclick="validateLogin()">Login</button>
+        <h2>WELCOME TO HINDUSTAN TOYS</h2>
+        <input type="text" id="name" ng-model="dynamicField2Value" placeholder="Enter your shop name" autocomplete="off">
+        <input type="tel" id="mobile" placeholder="Enter your mobile number" autocomplete="off">
+        <button onclick="validateLogin()">Login</button>
+    </div>
+</div>
+
+<div id="content" style="display: none;">
+
+
+
+ <script type="text/javascript"> 
+        window.history.forward(); 
+        function noBack() { 
+            window.history.forward(); 
+        } 
+    </script> 
+
+
+
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HINDUSTAN TOYS ORDER PORTAL</title>
+  <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css'>
+
+
+
+<style>
+
+body {
+  overscroll-behavior-y: none;
+  
+}
+
+html {
+    font-size: 10px;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    background: white;
+}
+
+
+
+.card  {
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+    width: 236px;
+    margin-left: 30px;
+    text-align: -webkit-center;
+}
+
+.card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+.containers {
+    padding: 2px 0px;
+    background: white;
+}
+
+.qtyclass {
+    height: 40px;
+   
+    width: 66px;
+    margin-right: 1px;
+}
+
+.submit
+{
+    -webkit-appearance: button;
+    cursor: pointer;
+    BACKGROUND: white;
+    COLOR: green;
+    font-weight: 700;
+    WIDTH: 67PX;
+    /* height: 36px; */
+    margin-right: -12px;
+    margin-left: 1px;
+    border: 1px solid grey;
+    border-radius: 7px;
+}
+
+.btn-primary  {
+    text-align: left;
+    Z-INDEX: 1;
+    top: 90%;
+    left: 74%;
+    color: #fff;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    position: fixed;
+}
+
+p {
+    margin: 0 0 -3px;
+
+    display: inline;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: inherit;
+
+    
+}
+button, input, select, textarea {
+    font-family: inherit;
+    margin-top: 17px;
+    font-size: inherit;
+    color: black;
+    line-height: inherit;
+}
+
+.header {
+    margin-top: 82px;
+    .logout-button,: ;
+}
+
+  &.state-logged-in {
+    .logout-button, 
+    .welcome {
+      display: block;
+    }    
+  }
+  
+}
+
+.user-authorization {
+    padding: 10px;
+    margin-top: 20px;
+    background-color: #DDD;
+}
+
+  .login-form {
+    &.state-hidden {
+      display: none;
+    }
+  }
+
+  .login-user {
+    &.state-hidden {
+      display: none;
+    }
+  }
+
+}
+
+
+
+// DEMO Purposes only
+* {
+  font-family: sans-serif;
+}
+</style>
+
+
+ <style>
+        /* Style for the navbar */
+        .navbar {
+    background-color: white;
+    padding: 7px;
+    color: white;
+    position: fixed;
+    width: 100%;
+    top: -16px;
+    z-index: 1000;
+}
+
+#rcorners1 {
+  border-radius: 25px;
+  background: grey;
+  padding: 20px; 
+  width: 200px;
+  height: 150px;  
+}
+
+        /* Style for the search input */
+        #searchInput {
+            margin-top: 60px; /* Adjust the margin as needed */
+            padding: 10px;
+            width: 80%;
+        }
+
+        /* Style for the container */
+        .container {
+            margin-top: 12px; /* Adjust the margin-top based on your content height */
+        }
+
+        /* Your existing card styles */
+        #containers  {
+    margin-bottom: 16px;
+    MARGIN-TOP: 14px;
+    margin-left: 70px;
+    /* display: block; */
+    /* float: right; */
+}
+
+        .card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+        .containers {
+    margin-top: 10px;
+    WIDTH: 120PX;
+    HEIGHT: 144PX;
+}
+
+        .qtyclass {
+    width: 49px;
+    margin-left: -9px;
+    margin-top: 18PX;
+}
+
+        .submit {
+    -webkit-appearance: button;
+    cursor: pointer;
+    BACKGROUND: white;
+    COLOR: green;
+    WIDTH: 68PX;
+    height: 42px;
+    margin-right: -18px;
+}
+    </style>
+	
+	<style>
+	img  {
+    display: block;
+    margin: 10px auto;
+    opacity: 1;
+    transform: scale(1.2);
+    transition: all .25s;
+    width: 180px;
+    MARGIN-TOP: 24PX;
+    height: 197px;
+    border: 1px solid LIGHTGREY;
+    border-radius: 9px;
+}
+}
+
+
+	</style>
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
+<html ng-app="myApp">
+
+<head>
+    <title>Dynamically Submit Form</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.2.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.2.0/firebase-database.js"></script>
+</head>
+
+  </script>
+
+<body ng-controller="imagesController as vm">
+
+
+
+    <!-- New input field for dynamic ng-value -->
+ 
+    <input type="hidden" ng-model="dynamicField2Value" placeholder="enter name" />
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.lazyload/1.9.7/jquery.lazyload.js"></script>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+
+
+
+
+<div class="container mt-3">
+
+  
+  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal">
+    Your order
+  </button>
+</div>
+
+<!-- The Modal -->
+<div class="modal" id="myModal">
+  <div class="modal-dialog modal-fullscreen">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">{{dynamicField2Value}} your order list</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal">Close</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        
+<object data="https://hunkaammy.github.io/mywebsite/NEWWEBSITE/order1#myInput={{dynamicField2Value}}" width="300" height="400"> 
+    <embed src="https://hunkaammy.github.io/mywebsite/cart#myInput=samrat" width="229" height="229"> </embed> 
+    Error: Embedded data could not be displayed. 
+</object>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+      </div>
+
     </div>
   </div>
+</div>
 
-  <!-- Main Content -->
-  <div id="content" style="display: none;" class="main-container">
-    <nav class="navbar">
-      <div class="navbar-brand">Hindustan Toys</div>
-      <div class="search-container">
-        <input type="text" ng-model="searchQuery" placeholder="Search by product" id="topBtn" ng-click="resetFilters()" list="productNames">
-        <datalist id="productNames">
-          <option value="REMOTE CAR"></option>
-          <option value="JCB"></option>
-          <option value="CLAY"></option>
-          <option value="SLIME"></option>
-          <option value="GUN"></option>
-          <option value="BASKET BALL"></option>
-        </datalist>
-        <button class="mic-btn" onclick="startVoiceRecognition()">
-          <i class="fas fa-microphone"></i>
-        </button>
-      </div>
-      <div class="user-info">
+
+</body>
+</html>
+
+<style>
+ .tab-btns  {
+    top: 85px;
+    font-size: 10px;
+    position: fixed;
+    width: 90px;
+    overflow: auto;
+    z-index: 1;
+    HEIGHT: 100%;
+    display: block;
+    flex-direction: column;
+    background-color: white;
+    /* padding: 10px; */
+    /* border: darkorange; */
+    bottom: -58px;
+    padding: 10pz;
+}
+    .tab-btn {
+        padding: 10px;
+        margin-bottom: 5px;
+        text-align: left;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .tab-btn:hover {
+        background-color: #ddd;
+    }
+
+    .tab-btn.active {
+    background-color: #5A55A3;
+    color: white;
+    border-radius: 12px;
+}
+</style>
+ <style>
+        /* Style for the enlarged image container */
+        .enlarged-image-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent black background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999; /* Ensure it's above other content */
+        }
+
+        /* Style for the enlarged image */
+        .enlarged-image img {
+            max-width: 533px;
+            max-height: 310px;
+            width: auto;
+            height: auto;
+        }
+
+        /* Style for the close button */
+        .enlarged-image button  {
+    position: absolute;
+    top: 10px;
+    HEIGHT: 100%;
+    right: 10px;
+    WIDTH: 100%;
+    background-color: transparent;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+
+
+
+    #topBtn {
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+
+    /* Style the datalist options */
+    option {
+      padding: 10px;
+    }
+    </style>
+
+
+
+<div class="navbar">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+<!-- Container for search input and microphone icon -->
+<div style="display: flex; align-items: center;">
+    <!-- Input field for search with voice recognition -->
+    <!-- Input field with datalist for autocomplete -->
+  <input type="text" ng-model="searchQuery" placeholder="Search by product" id="topBtn" 
+         ng-click="resetFilters()" list="productNames">
+
+  <!-- Datalist element with hardcoded options -->
+  <datalist id="productNames">
+    <option value="REMOTE CAR"></option>
+    <option value="JCB"></option>
+    <option value="CLAY"></option>
+    <option value="SLIME"></option>
+    <option value="GUN"></option>
+	<option value="BASKET BALL"></option>
+  </datalist> 
+ 
+    <!-- Logout button -->
+    <div style="    color: black;
+" ng-click="logout()">&nbsp;&nbsp;Logout</div>
+
+   <div>
+        <label for="sort">Sort by:</label>
         <select id="sort" ng-model="sortOrder" ng-change="location.href='#top'; applyFilter()" ng-init="sortOrder='-date'" class="sort-dropdown">
-          <option value="-date">NEW</option>
-          <option value="price">LOW</option>
-          <option value="-price">HIGH</option>
+            <option value="-date">NEW</option>
+            <option value="price">LOW</option>
+            <option value="-price">HIGH</option>
         </select>
-        <span>Welcome {{dynamicField2Value}}</span>
-        <a href="#" class="logout-btn" ng-click="logout()">Logout</a>
-      </div>
-    </nav>
+    </div>
+</div>
 
-    <div class="content-wrapper" ng-controller="imagesController as vm">
-      <div class="sidebar">
+<div style="    color: black; text-align-last: center; font-family: system-ui;
+}" >Welcome {{dynamicField2Value}} </div>
+  
+</div>
+
+  <script>
+        function closeEnlarged() {
+            document.getElementById('enlarged-image-container').style.display = 'none';
+        }
+
+        document.getElementById('enlarged-image-container').addEventListener('click', function(event) {
+            if (event.target === event.currentTarget) {
+                closeEnlarged();
+            }
+        });
+    </script>
+
+
+<style>
+/* Define a CSS animation for the microphone icon */
+@keyframes pulse {
+    0% { transform: scale(1); color: black; }
+    50% { transform: scale(1.1); color: blue; } /* Change the color to blue during the animation */
+    100% { transform: scale(1); color: black; }
+}
+
+/* Apply the animation to the microphone icon during the voice recognition process */
+#micIcon.animating {
+    animation: pulse 1s infinite;
+}
+
+
+</style>
+
+<style>
+    .skeleton-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+		width: 70%;
+		margin-left: 25%;
+    }
+
+    .skeleton-item {
+        width: 350px;
+        height: 350px;
+        background-color: #f0f0f0; /* Light gray background */
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+        animation: skeleton-pulse 1.5s ease-in-out infinite; /* Animation for pulse effect */
+    }
+
+    @keyframes skeleton-pulse {
+        0% {
+            opacity: 0.6;
+        }
+        50% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 0.6;
+        }
+    }
+
+    .skeleton-item img {
+        display: none; /* Hide image initially */
+    }
+
+    .skeleton-item .skeleton-text {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 20px;
+        animation: skeleton-fade 1.5s ease-in-out infinite; /* Animation for fade effect */
+    }
+
+    @keyframes skeleton-fade {
+        0% {
+            opacity: 0.4;
+        }
+        50% {
+            opacity: 0.8;
+        }
+        100% {
+            opacity: 0.4;
+        }
+    }
+
+    .skeleton-item .skeleton-text .skeleton-line {
+        width: 100%;
+        height: 16px;
+        background-color: #e0e0e0; /* Lighter gray for text lines */
+        margin-bottom: 10px;
+        border-radius: 4px;
+    }
+	
+/* Scrollable vertical container */
+.tab-scroll-wrapper {
+    MARGIN-TOP: 10PX;
+    overflow-y: auto;
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: fixed;
+    HEIGHT: 100%;
+}
+/* Flexbox layout for vertical tab items */
+.tab-items {
+    display: flex;
+    flex-direction: column; /* Makes the tabs vertical */
+    gap: 20px; /* Spacing between tabs */
+}
+
+/* Circular tab button styling */
+.tab-item {
+    width: 88px;
+    height: 93px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #f5f5f5;
+   
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, background-color 0.2s;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    font-size: 9px;
+    color: #333;
+    cursor: pointer;
+    flex-shrink: 0;
+    /* padding: 10px; */
+}
+
+.tab-item.active {
+    background-color: DARKGREY;
+    color: black;
+    font-weight: bold;
+    HEIGHT: 126PX;
+}
+
+
+
+/* Image inside circular tab */
+.tab-item img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    
+
+}
+
+/* Vertical scrollbar styling */
+.tab-scroll-wrapper::-webkit-scrollbar {
+    width: 8px;
+}
+
+.tab-scroll-wrapper::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
+.tab-scroll-wrapper::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+}
+
+
+</style>
+
+
+
+<script>
+function startVoiceRecognition() {
+    const micIcon = document.getElementById('micIcon');
+    micIcon.classList.add('animating'); // Add the 'animating' class to start the animation
+
+    const recognition = new webkitSpeechRecognition() || new SpeechRecognition();
+    recognition.lang = 'en-US';
+    
+    recognition.onresult = function (event) {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('topBtn').value = transcript;
+        
+        // Update AngularJS model (searchQuery) with the recognized transcript
+        angular.element(document.getElementById('topBtn')).scope().$apply(function($scope) {
+            $scope.searchQuery = transcript;
+        });
+
+        // Trigger the filtering logic and scroll to top
+        filterData(transcript);
+        scrollToTop();
+        
+        // Remove the 'animating' class after a short delay
+        setTimeout(function() {
+            micIcon.classList.remove('animating');
+        }, 500);
+    };
+    
+    recognition.start();
+}
+
+function filterData(query) {
+    // Implement your filtering logic here based on the recognized voice input
+    // For example, update $scope.productNameFilter with the filtered value
+    angular.element(document.getElementById('topBtn')).scope().$apply(function($scope) {
+        $scope.productNameFilter = query;
+    });
+}
+
+function scrollToTop() {
+    // Scroll to the top of the page
+    window.scrollTo(0, 0);
+}
+</script>
+ 
+
+
+<div class="tab-scroll-wrapper">
+    <div class="tab-items" onclick="scrollToTop()">
         <div class="tab-item" ng-click="setTab('', 0)" ng-class="{ 'active': activeTab === 0 }">
-          <img src="https://www.hindustantoys.in/images/all.jpeg" alt="All Products">
-          <span>ALL PRODUCTS</span>
+            <img src="https://www.hindustantoys.in/images/all.jpeg" alt="All Products">
+            ALL PRODUCTS
         </div>
-        <div class="tab-item" ng-click="setTab('LUMO', 10)" ng-class="{ 'active': activeTab === 10 }">
-          <img src="https://www.hindustantoys.in/images/lumo.jpeg" alt="Lumo Products">
-          <span>LUMO & OTHER</span>
-        </div>
-        <div class="tab-item" ng-click="setTab('BAT BALL', 36)" ng-class="{ 'active': activeTab === 36 }">
-          <img src="https://www.hindustantoys.in/images/bat.jpeg" alt="Bat Ball">
-          <span>BAT BALL & SET</span>
-        </div>
-        <div class="tab-item" ng-click="setTab('CARROM', 35)" ng-class="{ 'active': activeTab === 35 }">
-          <img src="https://www.hindustantoys.in/images/carrom.jpeg" alt="Carrom Board">
-          <span>CARROM BOARD</span>
-        </div>
-        <div class="tab-item" ng-click="setTab('SWING', 37)" ng-class="{ 'active': activeTab === 37 }">
-          <img src="https://www.hindustantoys.in/images/swing.jpeg" alt="Swings">
-          <span>SWINGS</span>
-        </div>
-        <div class="tab-item" ng-click="setTab('INDIAN TOYS', 3)" ng-class="{ 'active': activeTab === 3 }">
-          <img src="https://www.hindustantoys.in/images/JCB.jpeg" alt="Indian Toys">
-          <span>INDIAN TOYS</span>
-        </div>
-        <div class="tab-item" ng-click="setTab('REMOTE CAR', 1)" ng-class="{ 'active': activeTab === 1 }">
-          <img src="https://www.hindustantoys.in/images/remote_car.jpeg" alt="Remote Cars">
-          <span>REMOTE CARS</span>
-        </div>
-        <div class="tab-item" ng-click="setTab('CLAY', 2)" ng-class="{ 'active': activeTab === 2 }">
-          <img src="https://www.hindustantoys.in/images/clay.jpeg" alt="Clay">
-          <span>CLAY</span>
-        </div>
-        <div class="tab-item" ng-click="setTab('SLIME', 4)" ng-class="{ 'active': activeTab === 4 }">
-          <img src="https://www.hindustantoys.in/images/slime.jpeg" alt="Slime">
-          <span>SLIME</span>
-        </div>
-        <div class="tab-item" ng-click="setTab('GUN', 5)" ng-class="{ 'active': activeTab === 5 }">
-          <img src="https://www.hindustantoys.in/images/gun.jpeg" alt="Guns">
-          <span>GUNS</span>
-        </div>
-        <div class="tab-item" ng-click="setTab('BASKET BALL', 6)" ng-class="{ 'active': activeTab === 6 }">
-          <img src="https://www.hindustantoys.in/images/basketball.jpeg" alt="Basketball">
-          <span>BASKETBALL</span>
-        </div>
-        <div class="tab-item" ng-click="setTab('DOLLS', 7)" ng-class="{ 'active': activeTab === 7 }">
-          <img src="https://www.hindustantoys.in/images/dolls.jpeg" alt="Dolls">
-          <span>DOLLS</span>
-        </div>
-        <div class="tab-item" ng-click="setTab('PUZZLES', 8)" ng-class="{ 'active': activeTab === 8 }">
-          <img src="https://www.hindustantoys.in/images/puzzles.jpeg" alt="Puzzles">
-          <span>PUZZLES</span>
-        </div>
-        <div class="tab-item" ng-click="setTab('BOARD GAMES', 9)" ng-class="{ 'active': activeTab === 9 }">
-          <img src="https://www.hindustantoys.in/images/boardgames.jpeg" alt="Board Games">
-          <span>BOARD GAMES</span>
-        </div>
-      </div>
 
-      <div class="product-grid">
-        <div class="skeleton-wrapper" ng-if="vm.images.length === 0">
-          <div class="skeleton-item" ng-repeat="n in [].constructor(4) track by $index"></div>
+<div class="tab-item" ng-click="setTab('LUMO', 10)" ng-class="{ 'active': activeTab === 10 }">
+            <img src="https://www.hindustantoys.in/images/lumo.jpeg" alt="Lumo Products">
+            LUMO & OTHER PRODUCTS
         </div>
-        <div ng-repeat="image in vm.images | orderBy: sortOrder | filter: { name: productNameFilter } | filter:searchQuery">
-          <div class="card" ng-if="!image.outOfStock">
-            <img src="{{image.url}}" alt="Sample Image" onclick="enlargeImage(this.src)" loading="lazy">
-            <div class="card-body">
-              <h5>{{image.name}}</h5>
-              <p class="price">{{image.price}} Rs.</p>
-              <p><a href="https://hunkaammy.github.io/mywebsite/videos/{{image.videourl}}.mp4" target="_blank">{{ image.videourl ? 'Watch Video' : '' }}</a></p>
-              <div class="input-group">
+
+ <div class="tab-item" ng-click="setTab('BAT BALL', 36)" ng-class="{ 'active': activeTab === 36 }">
+            <img src="https://www.hindustantoys.in/images/bat.jpeg" alt="Blocks">
+            BAT BALL & SET
+        </div>
+
+ <div class="tab-item" ng-click="setTab('CARROM', 35)" ng-class="{ 'active': activeTab === 35 }">
+            <img src="https://www.hindustantoys.in/images/carrom.jpeg" alt="Blocks">
+            CARROM BOARD
+        </div>
+
+ <div class="tab-item" ng-click="setTab('SWING', 37)" ng-class="{ 'active': activeTab === 37 }">
+            <img src="https://www.hindustantoys.in/images/swing.jpeg" alt="Blocks">
+            SWINGS
+        </div>
+
+ <div class="tab-item" ng-click="setTab('INDIAN TOYS', 3)" ng-class="{ 'active': activeTab === 3 }">
+            <img src="https://www.hindustantoys.in/images/JCB.jpeg" alt="Blocks">
+            INDIAN TOYS
+        </div>
+
+ <div class="tab-item" ng-click="setTab('MIX', 9)" ng-class="{ 'active': activeTab === 9 }">
+            <img src="https://www.hindustantoys.in/images/mix.jpeg" alt="Mix Toys">
+            MIX TOYS
+        </div>
+
+<div class="tab-item" ng-click="setTab('BATTERY', 13)" ng-class="{ 'active': activeTab === 13 }">
+            <img src="https://www.hindustantoys.in/images/battery.jpeg" alt="Battery Operated">
+            BATTERY OPERATED
+        </div>
+		
+	 <div class="tab-item" ng-click="setTab('TEDDY', 34)" ng-class="{ 'active': activeTab === 34 }">
+            <img src="https://www.hindustantoys.in/images/TEDDY.jpg" alt="Racket">
+            VALENTINES DAY/TEDDY
+        </div>
+
+		 <div class="tab-item" ng-click="setTab('KITCHEN', 31)" ng-class="{ 'active': activeTab === 31 }">
+            <img src="https://www.hindustantoys.in/images/KITCHEN.jpg" alt="Racket">
+            KITCHEN SETS
+        </div>
+		
+        <div class="tab-item" ng-click="setTab('RACKET', 6)" ng-class="{ 'active': activeTab === 6 }">
+            <img src="https://www.hindustantoys.in/images/racket.jpeg" alt="Racket">
+            RACKET
+        </div>
+       
+        
+        <div class="tab-item" ng-click="setTab('REMOTE', 7)" ng-class="{ 'active': activeTab === 7 }">
+            <img src="https://www.hindustantoys.in/images/remote.jpeg" alt="Remote Car">
+            REMOTE CAR
+        </div>
+        <div class="tab-item" ng-click="setTab('RIDDER', 11)" ng-class="{ 'active': activeTab === 11 }">
+            <img src="https://www.hindustantoys.in/images/ridder.jpeg" alt="Magic Ridder">
+            MAGIC RIDDER
+        </div>
+        <div class="tab-item" ng-click="setTab('HIGH QUALITY', 25)" ng-class="{ 'active': activeTab === 25 }">
+            <img src="https://www.hindustantoys.in/images/high.jpeg" alt="High Quality Indian Toys">
+            HIGH QUALITY INDIAN TOYS
+        </div>
+        <div class="tab-item" ng-click="setTab('OWN', 30)" ng-class="{ 'active': activeTab === 30 }">
+            <img src="https://www.hindustantoys.in/images/htquality.jpg" alt="HT Products">
+            HT PRODUCTS
+        </div>
+        <div class="tab-item" ng-click="setTab('PALNA', 29)" ng-class="{ 'active': activeTab === 29 }">
+            <img src="https://www.hindustantoys.in/images/palna.png" alt="Palna">
+            PALNA
+        </div>
+        <div class="tab-item" ng-click="setTab('WALKER', 5)" ng-class="{ 'active': activeTab === 5 }">
+            <img src="https://www.hindustantoys.in/images/walker.jpeg" alt="Walker">
+            WALKER
+        </div>
+        <div class="tab-item" ng-click="setTab('LUNCH BOX', 28)" ng-class="{ 'active': activeTab === 28 }">
+            <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Lunch Box">
+            LUNCH BOX
+        </div>
+        <div class="tab-item" ng-click="setTab('PENCIL BOX', 27)" ng-class="{ 'active': activeTab === 27 }">
+            <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Pencil Box">
+            PENCIL BOX
+        </div>
+        <div class="tab-item" ng-click="setTab('BOTTLE', 23)" ng-class="{ 'active': activeTab === 23 }">
+            <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Water Bottle">
+            WATER BOTTLE
+        </div>
+        <div class="tab-item" ng-click="setTab('BOARD GAME', 26)" ng-class="{ 'active': activeTab === 26 }">
+            <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Board Game">
+            BOARD GAME
+        </div>
+        <div class="tab-item" ng-click="setTab('EDUCATIONAL', 22)" ng-class="{ 'active': activeTab === 22 }">
+            <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Educational Toys">
+            EDUCATIONAL TOYS
+        </div>
+        <div class="tab-item" ng-click="setTab('BIG', 21)" ng-class="{ 'active': activeTab === 21 }">
+            <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Intex Items">
+            BIG
+        </div>
+        <div class="tab-item" ng-click="setTab('STUDY TABLE', 20)" ng-class="{ 'active': activeTab === 20 }">
+            <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Study Table">
+            STUDY TABLE
+        </div>
+        <div class="tab-item" ng-click="setTab('TRICYCLE', 19)" ng-class="{ 'active': activeTab === 19 }">
+            <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Soft Toy">
+            TRICYCLES
+        </div>
+        <div class="tab-item" ng-click="setTab('SPORTS', 18)" ng-class="{ 'active': activeTab === 18 }">
+            <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Sports Item">
+            SPORTS ITEM
+        </div>
+        
+        <div class="tab-item" ng-click="setTab('PATTA', 17)" ng-class="{ 'active': activeTab === 17 }">
+            <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Patta Items">
+            PATTA ITEMS
+        </div>
+        <div class="tab-item" ng-click="setTab('GUN', 15)" ng-class="{ 'active': activeTab === 15 }">
+            <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Guns Variety">
+            GUNS VARIETY
+        </div>
+        <div class="tab-item" ng-click="setTab('STATIONERY', 1)" ng-class="{ 'active': activeTab === 1 }">
+            <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Stationery Items">
+            STATIONERY ITEMS
+        </div>
+       
+       
+        <div class="tab-item" ng-click="setTab('DOLL', 8)" ng-class="{ 'active': activeTab === 8 }">
+            <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Doll">
+            DOLL
+        </div>
+        <div class="tab-item" ng-click="setTab('FANCY', 12)" ng-class="{ 'active': activeTab === 12 }">
+            <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Fancy Items">
+            FANCY ITEMS
+        </div>
+        <div class="tab-item" ng-click="setTab('DOZEN', 14)" ng-class="{ 'active': activeTab === 14 }">
+            <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Dozen Packing Items">
+            DOZEN PACKING ITEMS
+        </div>
+
+	 <div class="tab-item" ng-click="setTab('G1', 32)" ng-class="{ 'active': activeTab === 32 }">
+            <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Racket">
+            GODOWN-1
+        </div>
+
+	 <div class="tab-item" ng-click="setTab('G2', 33)" ng-class="{ 'active': activeTab === 33 }">
+            <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Racket">
+          GODOWN-2
+        </div>
+
+        <div class="tab-item" ng-click="setTab('GUN', 16)" ng-class="{ 'active': activeTab === 16 }">
+            <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Empty">
+            EMPTY
+        </div>
+    </div>
+</div>
+
+
+
+
+<body ng-controller="imagesController as vm">
+
+
+
+  <div class="skeleton-wrapper" ng-if="vm.images.length === 0">
+    <!-- Skeleton items based on the number you want to show -->
+    <div class="skeleton-item" ng-repeat="n in [].constructor(4) track by $index">
+        <div class="skeleton-text">
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line" style="width: 80%;"></div>
+            <div class="skeleton-line" style="width: 50%;"></div>
+        </div>
+    </div>
+</div>
+
+<div ng-repeat="image in vm.images | orderBy: sortOrder | filter: { name: productNameFilter } | filter:searchQuery">
+    <div id="containers" ng-if="!image.outOfStock">
+        <div class="card">
+            <img src="{{image.url}}" alt="Sample Image" onclick="enlargeImage(this.src)" loading="lazy" width="350" height="350">
+              
+            <div id="enlarged-image-container" class="enlarged-image-container" style="display: none;">
+                <div class="enlarged-image">
+                    <img id="enlarged-img" src="" alt="Enlarged Image">
+                    <button onclick="closeEnlarged()"><!--Close--></button>
+                </div>
+            </div>
+
+            <button ng-if="!image.outOfStock && dynamicField2Value === 'sammyadmin'" 
+            class="btn btn-warning btn-sm" 
+            ng-click="markOutOfStock(image)" 
+            style="margin: 5px 0;">
+        Mark Out of Stock
+    </button>
+
+
+    <div class="containers">
+        <h4><b><p>{{image.price}} Rs.</p></b></h4>
+        <p>{{image.name}}</p>
+        <p><a href="https://hunkaammy.github.io/mywebsite/videos/{{image.videourl}}.mp4" target="_blank">{{ image.videourl ? 'Watch Video' : '' }}</a></p>
+
+
                 <input type="hidden" id="{{'inputa' + $index}}" ng-model="image.url">
                 <input type="hidden" id="{{'inputb' + $index}}" ng-model="dynamicField2Value" ng-value="dynamicField2Value">
-                <input type="number" class="qtyclass" id="{{'inputc' + $index}}" placeholder="Qty" ng-model="image.field3" ng-change="submitData(image, $index)" ng-model-options="{ debounce: 500 }">
-                <button class="submit" ng-click="submitData(image, $index)">Add</button>
-              </div>
-              <p ng-show="showItemAdded">Item Added</p>
-              <button ng-if="!image.outOfStock && dynamicField2Value === 'sammyadmin'" class="btn btn-warning btn-sm" ng-click="markOutOfStock(image)" style="margin-top: 10px; border-radius: 20px;">Mark Out of Stock</button>
+
+                <input type="number" class="qtyclass" 
+       id="{{'inputc' + $index}}" 
+       placeholder="Qty" 
+       ng-model="image.field3" 
+       ng-change="submitData(image, $index)" 
+       ng-model-options="{ debounce: 500 }">
+                
+                <p ng-show="showItemAdded">Item Added</p>
             </div>
-          </div>
         </div>
-      </div>
     </div>
+</div>
 
-    <div id="enlarged-image-container" class="enlarged-image-container">
-      <div class="enlarged-image">
-        <img id="enlarged-img" src="" alt="Enlarged Image">
-        <button class="btn-close" onclick="closeEnlarged()">×</button>
-      </div>
-    </div>
 
-    <div class="container mt-3">
-      <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#myModal" style="background: #e91e63; color: #fff; border-radius: 20px; padding: 8px 15px;">Your Order</button>
-    </div>
-    <div class="modal" id="myModal">
-      <div class="modal-dialog modal-fullscreen">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">{{dynamicField2Value}} Your Order List</h4>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <object data="https://hunkaammy.github.io/mywebsite/NEWWEBSITE/order1#myInput={{dynamicField2Value}}" width="300" height="400">
-              <embed src="https://hunkaammy.github.io/mywebsite/cart#myInput=samrat" width="229" height="229"></embed>
-              Error: Embedded data could not be displayed.
-            </object>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Scripts -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-  <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-  <script src="https://fezvrasta.github.io/bootstrap-material-design/dist/js/material.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/3.4.1/firebase.js"></script>
-  <script src="https://cdn.firebase.com/libs/angularfire/2.1.0/angularfire.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.lazyload/1.9.7/jquery.lazyload.js"></script>
+ <!--<button id="topBtn" onclick="scrollToTop()">Top</button>-->
 
-  <!-- JavaScript -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      history.pushState(null, null, location.href);
-      window.onpopstate = function () { history.go(1); };
-      window.history.forward();
-      function noBack() { window.history.forward(); }
-
-      var firebaseConfig = {
-        apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
-        authDomain: "shop-reminder-3ce10.firebaseapp.com",
-        databaseURL: "https://shop-reminder-3ce10-default-rtdb.firebaseio.com",
-        projectId: "shop-reminder-3ce10",
-        storageBucket: "shop-reminder-3ce10.appspot.com",
-        messagingSenderId: "555627569260",
-        appId: "1:555627569260:web:3948ae391eab6eb5ea7849",
-        measurementId: "G-BP5EYR6ET1"
-      };
-      firebase.initializeApp(firebaseConfig);
-
-      var blockedNumbers = ['7000913701', '9876543210', '9123456789', '8987854256', '9039199794'];
-
-      function validateLogin() {
-        var name = document.getElementById('name').value.trim();
-        var mobile = document.getElementById('mobile').value.trim();
-        if (name.length < 4) {
-          alert('Please enter a valid shop name.');
-          console.log('Validation failed: Name too short');
-          return;
-        }
-        if (!/^[6-9]\d{9}$/.test(mobile)) {
-          alert('Please enter a valid mobile number.');
-          console.log('Validation failed: Invalid mobile number');
-          return;
-        }
-        if (blockedNumbers.includes(mobile)) {
-          window.location.href = '/mywebsite/NEWWEBSITE/blocked.html';
-          console.log('Blocked number detected:', mobile);
-          return;
-        }
-        var lowerName = name.toLowerCase();
-        if (lowerName === 'mohit chawla' || lowerName === 'honey digital' || lowerName === 'bab el mandeb' || lowerName === 'Saha resources') {
-          window.location.href = '/mywebsite/NEWWEBSITE/blocked.html';
-          console.log('Blocked name detected:', name);
-          return;
-        }
-        var database = firebase.database();
-        var userRef = database.ref('users').push({
-          name: name,
-          mobile: mobile,
-          timestamp: firebase.database.ServerValue.TIMESTAMP
-        }).then(() => {
-          localStorage.setItem('name', name);
-          localStorage.setItem('mobile', mobile);
-          localStorage.setItem('loggedIn', 'true');
-          console.log('Login successful, stored:', name, mobile);
-          document.getElementById('login-container').style.display = 'none';
-          document.getElementById('content').style.display = 'block';
-        }).catch(error => {
-          console.error('Firebase error:', error);
-          alert('Login failed due to a server error. Please try again.');
+ <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var selectElement = document.getElementById('sort');
+            selectElement.addEventListener('change', function() {
+                // Scroll to the top of the page
+                window.scrollTo(0, 0);
+                // Apply your filter logic here
+            });
         });
-      }
+    </script>
 
-      function autoLogin() {
-        var storedName = localStorage.getItem('name');
-        var storedMobile = localStorage.getItem('mobile');
-        if (storedMobile === '7000913701' || (storedName && storedName.toLowerCase() === 'mohit chawla')) {
-          console.log('Auto-login blocked:', storedName, storedMobile);
-          return;
+<script>
+function enlargeImage(src) {
+    var enlargedImg = document.getElementById('enlarged-img');
+    var enlargedContainer = document.getElementById('enlarged-image-container');
+    
+    // Set the source of the enlarged image
+    enlargedImg.src = src;
+    
+    // Show the enlarged image container
+    enlargedContainer.style.display = 'flex';
+}
+
+function closeEnlarged() {
+    var enlargedContainer = document.getElementById('enlarged-image-container');
+    
+    // Hide the enlarged image container
+    enlargedContainer.style.display = 'none';
+}
+</script>
+
+
+    <script>
+        // JavaScript to handle scrolling
+        function scrollToTop() {
+            document.body.scrollTop = 0; // For Safari
+            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE, and Opera
         }
-        if (storedName && storedMobile) {
-          document.getElementById('name').value = storedName;
-          document.getElementById('mobile').value = storedMobile;
-          console.log('Attempting auto-login with:', storedName, storedMobile);
-          validateLogin();
-        } else {
-          console.log('No stored credentials found for auto-login');
+
+        // Your existing script here
+        const images = document.querySelectorAll('img');
+
+        for (let img of images) {
+            img.onload = ({ target }) => setTimeout(() => { target.classList.add('loaded') }, 200)
         }
-      }
+    </script>
+ <br><br>
+    </div> </div>
+</div><br><br>
 
-      function logout() {
-        localStorage.removeItem('name');
-        localStorage.removeItem('mobile');
-        localStorage.removeItem('loggedIn');
-        console.log('User logged out.');
-        window.location.href = 'https://hindustantoys.in/pagdi';
-      }
+<script>
+const images = document.querySelectorAll('img');
 
-      autoLogin();
+for(let img of images) {
+  img.onload = ({target}) => setTimeout(() => {target.classList.add('loaded')}, 200)
+}
 
-      function enlargeImage(src) {
-        var enlargedImg = document.getElementById('enlarged-img');
-        var enlargedContainer = document.getElementById('enlarged-image-container');
-        enlargedImg.src = src;
-        enlargedContainer.style.display = 'flex';
-        enlargedContainer.classList.add('active');
-      }
+</script>
 
-      function closeEnlarged() {
-        var enlargedContainer = document.getElementById('enlarged-image-container');
-        enlargedContainer.classList.remove('active');
-        setTimeout(() => { enlargedContainer.style.display = 'none'; }, 300);
-      }
 
-      function scrollToTop() {
-        document.body.scrollTop = 0;
-        document.documentElement.scrollTop = 0;
-      }
 
-      const images = document.querySelectorAll('img');
-      for (let img of images) {
-        img.onload = ({ target }) => setTimeout(() => { target.classList.add('loaded') }, 200);
-      }
 
-      document.getElementById('sort')?.addEventListener('change', function() {
-        window.scrollTo(0, 0);
-      });
 
-      function startVoiceRecognition() {
-        const micIcon = document.getElementById('micIcon');
-        micIcon?.classList.add('animating');
-        const recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
-        recognition.lang = 'en-US';
-        recognition.onresult = function (event) {
-          const transcript = event.results[0][0].transcript;
-          document.getElementById('topBtn').value = transcript;
-          angular.element(document.getElementById('topBtn')).scope().$apply(function($scope) {
-            $scope.searchQuery = transcript;
-          });
-          filterData(transcript);
-          scrollToTop();
-          setTimeout(() => { micIcon?.classList.remove('animating'); }, 500);
-        };
-        recognition.start();
-      }
 
-      function filterData(query) {
-        angular.element(document.getElementById('topBtn')).scope().$apply(function($scope) {
-          $scope.productNameFilter = query;
-        });
-      }
-    });
 
-    var app = angular.module('myApp', ['firebase']);
-    app.controller('imagesController', function ($scope, $firebaseArray, $window, $location) {
-      $scope.vm = this;
-      $scope.vm.images = [];
-      $scope.sortOrder = '-date';
-      $scope.dynamicField2Value = localStorage.getItem('name');
-      var firebaseConfigFetch = {
+    <script>
+var app = angular.module('myApp', ['firebase']);
+
+app.controller('imagesController', function ($scope, $firebaseArray, $window, $location) {
+    $scope.vm = this;
+    $scope.vm.images = [];
+    $scope.sortOrder = ''; // No default sorting order 
+    $scope.dynamicField2Value = localStorage.getItem('name');
+
+    // Firebase configuration
+    var firebaseConfigFetch = {
         apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
         authDomain: "htshop-e9c51.firebaseapp.com",
         databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com",
@@ -765,8 +1071,9 @@
         messagingSenderId: "653137640907",
         appId: "1:653137640907:web:672fd6a9e85ca448a70a4e",
         measurementId: "G-FJ4Q0FHBEG"
-      };
-      var firebaseConfigSubmit = {
+    };
+
+    var firebaseConfigSubmit = {
         apiKey: "AIzaSyAMFjDnZaszneoR6nO8bmXUxwZJplLvNfU",
         authDomain: "notes-12519.firebaseapp.com",
         databaseURL: "https://notes-12519-default-rtdb.firebaseio.com",
@@ -775,99 +1082,343 @@
         messagingSenderId: "1073774450189",
         appId: "1:1073774450189:web:0b6d4a9f95823abbf36744",
         measurementId: "G-GZXYCJ33TR"
-      };
-      var firebaseFetch = firebase.initializeApp(firebaseConfigFetch, 'fetchApp');
-      var firebaseSubmit = firebase.initializeApp(firebaseConfigSubmit, 'submitApp');
-      var databaseFetch = firebaseFetch.database().ref();
-      var listFetch = $firebaseArray(databaseFetch);
-      $scope.vm.images = listFetch;
-      var databaseSubmit = firebaseSubmit.database().ref();
-      var listSubmit = $firebaseArray(databaseSubmit);
+    };
 
-      function getUrlParameter(name) {
-        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-        var results = regex.exec($location.absUrl());
-        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-      }
+    var firebaseFetch = firebase.initializeApp(firebaseConfigFetch, 'fetchApp');
+    var firebaseSubmit = firebase.initializeApp(firebaseConfigSubmit, 'submitApp');
 
-      var filterParam = getUrlParameter('filter');
-      var tabParam = getUrlParameter('tab');
-      $scope.productNameFilter = filterParam || '';
-      $scope.activeTab = isNaN(tabParam) ? 0 : parseInt(tabParam, 10);
+    var databaseFetch = firebaseFetch.database().ref();
+    var listFetch = $firebaseArray(databaseFetch);
+    $scope.vm.images = listFetch;
 
-      $scope.setTab = function(filter, tab) {
-        $scope.productNameFilter = filter;
-        $scope.activeTab = tab;
-        $scope.searchQuery = '';
-        $location.search('filter', filter);
-        $location.search('tab', tab);
-      };
+    var databaseSubmit = firebaseSubmit.database().ref();
+    var listSubmit = $firebaseArray(databaseSubmit);
+	
+	
+// Function to parse URL parameters
+function getUrlParameter(name) {
+    // Escape the parameter name for regex
+    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    
+    // Create regex to find the parameter in the URL
+    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    var results = regex.exec($location.absUrl());
+    
+    // Return the decoded parameter value or an empty string if not found
+    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+}
 
-      $scope.submitData = function(image, index) {
-        var inputa = image.url;
-        var inputb = $scope.dynamicField2Value;
-        var inputc = image.field3;
+// Get URL parameters for filter and tab
+var filterParam = getUrlParameter('filter');
+var tabParam = getUrlParameter('tab');
+
+// Set default values and scope variables based on URL parameters
+$scope.productNameFilter = filterParam || ''; // Default to empty string if no filter
+$scope.activeTab = isNaN(tabParam) ? 0 : parseInt(tabParam, 10); // Default to 0 if invalid tab
+
+// Function to set tab and filter
+$scope.setTab = function(filter, tab) {
+    $scope.productNameFilter = filter; // Set the product name filter
+    $scope.activeTab = tab; // Set the active tab
+
+    // Reset the search query when changing tabs
+    $scope.searchQuery = ''; // Reset search query
+
+    // Update the URL parameters
+    $location.search('filter', filter);
+    $location.search('tab', tab);
+};
+
+// Function to reset filters
+$scope.resetFilters = function() {
+    $scope.productNameFilter = '';
+    $scope.activeTab = 0;
+    $scope.searchQuery = '';
+};
+
+// Optionally, you can add logic to filter `vm.images` based on `productNameFilter` and `activeTab` here
+// Example of filtering logic based on productNameFilter and activeTab can be written here.
+
+    // Function to submit data (update quantity or add new entry)
+    $scope.submitData = function(image, index) {
+        var inputa = image.url; // Product URL
+        var inputb = $scope.dynamicField2Value; // Shop name from dynamicField2Value
+        var inputc = image.field3; // This contains the quantity
+
+        // Get the current date and time
         var currentDate = new Date();
+
+        // Format date as DD-MM-YYYY
         var day = String(currentDate.getDate()).padStart(2, '0');
-        var month = String(currentDate.getMonth() + 1).padStart(2, '0');
+        var month = String(currentDate.getMonth() + 1).padStart(2, '0'); // January is 0!
         var year = currentDate.getFullYear();
         var submitDate = day + '-' + month + '-' + year;
+
+        // Format time as HH:MM AM/PM
         var hours = currentDate.getHours();
         var minutes = String(currentDate.getMinutes()).padStart(2, '0');
         var ampm = hours >= 12 ? 'PM' : 'AM';
         hours = hours % 12;
-        hours = hours ? hours : 12;
+        hours = hours ? hours : 12; // The hour '0' should be '12'
         var submitTime = hours + ':' + minutes + ' ' + ampm;
-        if (image.quantityId) {
-          databaseSubmit.child(image.quantityId).update({ field3: inputc })
-            .then(() => { console.log("Quantity updated in Firebase."); })
-            .catch((error) => { console.log("Error updating quantity:", error); });
+
+        // Check if quantity ID exists to determine update or insert
+        if (image.quantityId) { // Check if there's an existing quantity ID
+            databaseSubmit.child(image.quantityId).update({
+                field3: inputc // Update quantity only
+            }).then(() => {
+                console.log("Quantity updated in Firebase.");
+            }).catch((error) => {
+                console.log("Error updating quantity:", error);
+            });
         } else {
-          var newDataKey = databaseSubmit.push().key;
-          image.quantityId = newDataKey;
-          databaseSubmit.child(newDataKey).set({
-            field1: inputa,
-            field2: inputb,
-            field3: inputc,
-            productName: image.name,
-            productPrice: image.price,
-            submitDate: submitDate,
-            submitTime: submitTime,
-            submittedDate: firebase.database.ServerValue.TIMESTAMP
-          }).then(() => { console.log("New item added to Firebase."); })
-            .catch((error) => { console.log("Error adding item:", error); });
+            var newDataKey = databaseSubmit.push().key;
+            image.quantityId = newDataKey; // Store the new key for future updates
+
+            databaseSubmit.child(newDataKey).set({
+                field1: inputa,
+                field2: inputb,
+                field3: inputc,
+                productName: image.name,
+                productPrice: image.price,
+                submitDate: submitDate,  // Added submit date
+                submitTime: submitTime,    // Added submit time
+                submittedDate: firebase.database.ServerValue.TIMESTAMP // Optional, if you need to track when it was added
+            })
+            .then(() => {
+                console.log("New item added to Firebase.");
+            })
+            .catch((error) => {
+                console.log("Error adding item:", error);
+            });
         }
-      };
+    };
 
-      $scope.markOutOfStock = function(image) {
-        var databaseRef = firebaseFetch.database().ref(image.$id);
-        databaseRef.update({
-          outOfStock: true,
-          lastModified: firebase.database.ServerValue.TIMESTAMP
-        }).then(function() {
-          image.outOfStock = true;
-          image.lastModified = Date.now();
-        }).catch(function(error) {
-          console.error("Error updating stock status:", error);
-        });
-      };
+$scope.markOutOfStock = function(image) {
+    var databaseRef = firebaseFetch.database().ref(image.$id);
+    databaseRef.update({
+        outOfStock: true,
+        lastModified: firebase.database.ServerValue.TIMESTAMP // Add timestamp
+    }).then(function() {
+        // Update local model
+        image.outOfStock = true;
+        image.lastModified = Date.now(); // Update local timestamp
+    }).catch(function(error) {
+        console.error("Error updating stock status:", error);
+    });
+};
 
-      $scope.logout = function() {
+    // Function to logout the user
+    $scope.logout = function() {
         localStorage.removeItem('name');
         localStorage.removeItem('mobile');
         localStorage.removeItem('loggedIn');
         console.log('User logged out.');
-        $window.location.href = '/mywebsite/index.html';
-      };
+        $window.location.href = '/mywebsite/index.html'; // Change the URL as needed
+    };
 
-      $scope.resetFilters = function() {
+    // Function to reset filters
+    $scope.resetFilters = function() {
         $scope.productNameFilter = '';
         $scope.activeTab = 0;
         $scope.searchQuery = '';
-        $scope.sortOrder = '-date';
-      };
-    });
-  </script>
+    };
+
+
+            $scope.image = function (event) {
+                event.preventDefault();
+                var file = event.target.files[0];
+                uploadImage(file);
+            };
+
+            function uploadImage(file) {
+                var random = parseInt(Math.random() * 1000000);
+                var refStorageSubmit = storageServiceSubmit.ref('uploads').child(random.toString()).child(file.name);
+                var uploadTask = refStorageSubmit.put(file);
+
+                uploadTask.on('state_changed', null, function (error) {
+                    console.error('Upload error:', error);
+                }, function () {
+                  3
+
+                    listSubmit.$add(imageData).then(function (ref) {
+                        swal("Success", "Your image has been uploaded", "success");
+                    });
+                });
+            }
+        });
+    </script>
+
+    <script>
+        (function () {
+            'use strict';
+
+            angular
+                .module('myApp')
+                .directive('customOnChange', customOnChange);
+
+            function customOnChange() {
+                return {
+                    restrict: 'A',
+                    link: function (scope, element, attrs) {
+                        var onChangeHandler = scope.$eval(attrs.customOnChange);
+                        element.bind('change', onChangeHandler);
+                    }
+                };
+            }
+        })();
+    </script>
+
+</body>
+
+</html>
+<!-- partial -->
+  <script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js'></script>
+<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js'></script>
+<script src='https://fezvrasta.github.io/bootstrap-material-design/dist/js/material.min.js'></script>
+
+<script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js'></script>
+<script src='https://www.gstatic.com/firebasejs/3.4.1/firebase.js'></script>
+<script src='https://cdn.firebase.com/libs/angularfire/2.1.0/angularfire.min.js'></script>
+</body>
+</html>
+
+
+
+
+</div>
+
+</header>
+
+
+
+
+
+<script>
+$('document').ready(function(){
+  
+  $('[data-login-button], [data-logout-button]').click(function(){
+    $('[data-login-form], [data-login-user]').toggleClass('state-hidden');
+    $('[data-header]').toggleClass('state-logged-in');
+  });
+  
+});
+</script>
+<!-- partial -->
+  <script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js'></script>
+<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js'></script>
+<script src='https://fezvrasta.github.io/bootstrap-material-design/dist/js/material.min.js'></script>
+
+<script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js'></script>
+<script src='https://www.gstatic.com/firebasejs/3.4.1/firebase.js'></script>
+<script src='https://cdn.firebase.com/libs/angularfire/2.1.0/angularfire.min.js'></script>
+</body>
+</html>
+
+  </div>
+
+   
+</body>
+</html>
+
+</div>
+
+<script>
+    var firebaseConfig = {
+        apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
+        authDomain: "shop-reminder-3ce10.firebaseapp.com",
+        databaseURL: "https://shop-reminder-3ce10-default-rtdb.firebaseio.com",
+        projectId: "shop-reminder-3ce10",
+        storageBucket: "shop-reminder-3ce10.appspot.com",
+        messagingSenderId: "555627569260",
+        appId: "1:555627569260:web:3948ae391eab6eb5ea7849",
+        measurementId: "G-BP5EYR6ET1"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Array of blocked mobile numbers
+    var blockedNumbers = ['7000913701', '9876543210', '9123456789', '8987854256', '9039199794']; // Add more numbers here
+
+    // Function to validate login
+    function validateLogin() {
+        var name = document.getElementById('name').value.trim();
+        var mobile = document.getElementById('mobile').value.trim();
+
+        // Validate name
+        if (name.length < 4) {
+            alert('Please enter a valid shop name.');
+            return;
+        }
+
+        // Validate mobile number
+        if (!/^[6-9]\d{9}$/.test(mobile)) {
+            alert('Please enter a valid mobile number.');
+            return;
+        }
+
+        // Check if the mobile number is in the blocked list
+        if (blockedNumbers.includes(mobile)) {
+            window.location.href = '/mywebsite/NEWWEBSITE/blocked.html'; // Redirect to blocked page
+            return;
+        }
+
+        // Check if the name is user-0, user-1, or user-2
+        var lowerName = name.toLowerCase();
+        if (lowerName === 'mohit chawla' || lowerName === 'honey digital' || lowerName === 'bab el mandeb'|| lowerName === 'Saha resources') {
+            window.location.href = '/mywebsite/NEWWEBSITE/blocked.html'; // Redirect to blocked page
+            return;
+        }
+
+        var database = firebase.database();
+        var userRef = database.ref('users').push({
+            name: name,
+            mobile: mobile,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+
+        localStorage.setItem('name', name);
+        localStorage.setItem('mobile', mobile);
+        localStorage.setItem('loggedIn', 'true');
+        console.log('Name and mobile stored for auto-login:', name, mobile);
+
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+        document.getElementById('user-name').innerText = name;
+    }
+
+function autoLogin() {
+    var storedName = localStorage.getItem('name');
+    var storedMobile = localStorage.getItem('mobile');
+
+    // Check against blocked conditions before logging in
+    if (storedMobile === '7000913701' || storedName.toLowerCase() === 'mohit chawla') {
+        return; // Do not proceed if blocked
+    }
+
+    if (storedName && storedMobile) {
+        document.getElementById('name').value = storedName;
+        document.getElementById('mobile').value = storedMobile;
+        validateLogin();
+    }
+}
+
+    function logout() {
+        localStorage.removeItem('name');
+        localStorage.removeItem('mobile');
+        localStorage.removeItem('loggedIn');
+        console.log('User logged out.');
+        window.location.href = 'https://hindustantoys.in/pagdi'; // Redirect to the desired URL after logout
+    }
+
+    window.onload = autoLogin;
+</script>
+
+
+
+
 </body>
 </html>
