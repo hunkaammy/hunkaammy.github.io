@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Sync Radio</title>
+  <title>Non-Stop Sync Radio</title>
 </head>
 <body>
   <audio id="player" controls></audio>
@@ -12,23 +12,31 @@
     // Playlist with your URLs and estimated durations
     const playlist = [
       { 
-        url: "https://p320.djpunjab.is/data/128/57279/307096/Behave%20Yourself%20-%20Navjeet.mp3", 
-        duration: 210, // 3:30 - Adjust if needed
-        name: "Behave Yourself - Navjeet" 
+        url: "https://pagalfree.com/download/128-Shopping%20List%20-%20Yo%20Yo%20Honey%20Singh%20128%20Kbps.mp3", 
+        duration: 180, // 3:00 - Adjust if needed
+        name: "Shopping List - Yo Yo Honey Singh" 
       },
       { 
-        url: "https://p320.djpunjab.is/data/128/57129/306850/DAND%20MARDE%20-%20Veer%20Sandhu.mp3", 
-        duration: 180, // 3:00 - Adjust if needed
-        name: "DAND MARDE - Veer Sandhu" 
+        url: "https://pagalfree.com/download/128-Tauba%20Tauba%20-%20Bad%20Newz%20128%20Kbps.mp3", 
+        duration: 210, // 3:30 - Adjust if needed
+        name: "Tauba Tauba - Bad Newz" 
+      },
+      { 
+        url: "https://pagalfree.com/download/128-Mere%20Mehboob%20Mere%20Sanam%20-%20Bad%20Newz%20128%20Kbps.mp3", 
+        duration: 195, // 3:15 - Adjust if needed
+        name: "Mere Mehboob Mere Sanam - Bad Newz" 
       }
     ];
 
     // Start time: April 10, 2025, 12:00:00 UTC
     const startTime = new Date("2025-04-10T12:00:00Z").getTime();
-    const totalDuration = playlist.reduce((sum, track) => sum + track.duration, 0); // 390s (6:30)
+    const totalDuration = playlist.reduce((sum, track) => sum + track.duration, 0); // 585s (9:45)
+
+    const audio = document.getElementById("player");
+    let nextAudio = new Audio(); // Preload next track
+    let currentTrackIndex = -1; // Track current index
 
     function syncRadio() {
-      const audio = document.getElementById("player");
       const trackNameDisplay = document.getElementById("track-name");
 
       // Calculate elapsed time and loop
@@ -37,36 +45,44 @@
       if (elapsed < 0) elapsed += totalDuration;
 
       // Find current track and position
-      let currentTrackIndex = 0;
+      let newTrackIndex = 0;
       let timeInPlaylist = 0;
       for (let i = 0; i < playlist.length; i++) {
         if (elapsed < timeInPlaylist + playlist[i].duration) {
-          currentTrackIndex = i;
+          newTrackIndex = i;
           break;
         }
         timeInPlaylist += playlist[i].duration;
       }
       const position = elapsed - timeInPlaylist;
-      const currentTrack = playlist[currentTrackIndex];
+      const currentTrack = playlist[newTrackIndex];
 
-      // Sync audio
-      if (audio.src !== currentTrack.url) {
+      // Switch track if needed
+      if (newTrackIndex !== currentTrackIndex) {
         audio.src = currentTrack.url;
         audio.currentTime = position;
-      } else if (Math.abs(audio.currentTime - position) > 1) {
-        audio.currentTime = position; // Correct drift
+        audio.play().catch(err => console.log("Playback error:", err));
+        currentTrackIndex = newTrackIndex;
+
+        // Preload next track
+        const nextTrackIndex = (currentTrackIndex + 1) % playlist.length;
+        nextAudio.src = playlist[nextTrackIndex].url;
+      } else if (Math.abs(audio.currentTime - position) > 0.3) {
+        audio.currentTime = position; // Sync within 0.3s
       }
 
       // Display with current date
       const currentDate = new Date().toLocaleDateString();
       trackNameDisplay.textContent = `${currentTrack.name} - ${currentDate}`;
 
-      // Play if paused
+      // Ensure non-stop playback
       if (audio.paused) audio.play().catch(err => console.log("Playback error:", err));
 
-      // Check sync every 0.5s
-      setTimeout(syncRadio, 500);
+      // Sync every 100ms
+      setTimeout(syncRadio, 100);
     }
+
+
 
     syncRadio();
   </script>
