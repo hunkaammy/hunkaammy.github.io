@@ -21,12 +21,18 @@
             font-size: 18px;
             margin-top: 10px;
         }
+        #error-log {
+            font-size: 14px;
+            color: red;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
     <h1>Synced Punjabi Hits Playlist</h1>
     <div id="player"></div>
     <p id="current-song"></p>
+    <p id="error-log"></p>
 
     <script>
         // Load YouTube IFrame API
@@ -35,33 +41,13 @@
         const firstScriptTag = document.getElementsByTagName("script")[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-        // Playlist: 25 verified hit Punjabi songs
+        // Playlist: 5 verified hit Punjabi songs
         const playlist = [
             { title: "WAVY - Karan Aujla & Badshah", videoId: "XTp5jaRU3Ws", duration: 183 },
             { title: "Tauba Tauba - Karan Aujla", videoId: "vD3q7nZArAo", duration: 207 },
             { title: "Naina - Diljit Dosanjh, Badshah", videoId: "ZcGWuQQtpY4", duration: 180 },
-            { title: "Ve Haaniyaan - Danny, Avvy Sra", videoId: "NfnYb7h9Jro", duration: 240 },
-            { title: "Suniyan Suniyan - Juss, MixSingh", videoId: "kdxK7eT5U8k", duration: 198 },
-            { title: "King Shit - Shubh", videoId: "gIp0f9t4niY", duration: 227 },
-            { title: "God Damn - Badshah, Karan Aujla", videoId: "5v2uKxT0jZA", duration: 167 },
-            { title: "Magic - Diljit Dosanjh, thiarajxtt", videoId: "3aA3a5fO0V0", duration: 235 },
-            { title: "Drippy - Sidhu Moose Wala, MXRCI", videoId: "2qN8W9gPGaQ", duration: 187 },
-            { title: "Softly - Karan Aujla, Badshah", videoId: "U_OXwgSxtFo", duration: 184 },
             { title: "Brown Munde - AP Dhillon, Gurinder Gill", videoId: "vmuOWS-tZxI", duration: 245 },
-            { title: "Lehnga - Diljit Dosanjh", videoId: "eN9oO7U9Q0Y", duration: 183 },
-            { title: "Attach - Garry Sandhu", videoId: "bR9lLhS8n3Y", duration: 188 },
-            { title: "Tere Bina Na Guzara - Josh Brar", videoId: "qD6z1qX1i2M", duration: 223 },
-            { title: "Khauf - AP Dhillon", videoId: "X9dS4vSUcIA", duration: 192 },
-            { title: "Born to Shine - Diljit Dosanjh", videoId: "eX6D8rb1X2Y", duration: 208 },
-            { title: "G.O.A.T - Diljit Dosanjh", videoId: "mW2kTV9T3wY", duration: 215 },
-            { title: "Excuses - AP Dhillon, Gurinder Gill", videoId: "kL0eUcKJR_0", duration: 176 },
-            { title: "Insane - AP Dhillon", videoId: "5z9QZw9F1vY", duration: 202 },
-            { title: "295 - Sidhu Moose Wala", videoId: "a-NbFKB3X8Y", duration: 283 },
-            { title: "Same Beef - Yo Yo Honey Singh, Bohemia", videoId: "f9z1lW4jL3Y", duration: 286 },
-            { title: "Illegal Weapon 2.0 - Jasmine Sandlas", videoId: "q0s5KnUsN0k", duration: 189 },
-            { title: "Titliaan - Afsana Khan, Harrdy Sandhu", videoId: "xJ3kG0S7xWI", duration: 227 },
-            { title: "Levels - Sidhu Moose Wala, Sunny Malton", videoId: "b7zS7QJ0K2Y", duration: 224 },
-            { title: "Love Sick - Sidhu Moose Wala, AR Paisley", videoId: "t7z8q0fQ3xM", duration: 235 }
+            { title: "G.O.A.T - Diljit Dosanjh", videoId: "mW2kTV9T3wY", duration: 215 }
         ];
 
         // Total duration of the playlist in seconds
@@ -70,11 +56,12 @@
         let player = null;
         let currentVideoIndex = -1;
         let playerReady = false;
+        let playerState = -1;
 
         // Called when YouTube API is ready
         window.onYouTubeIframeAPIReady = function () {
             console.log("YouTube API loaded");
-            updateVideo(); // Start video on API load
+            updateVideo();
         };
 
         function getCurrentVideo() {
@@ -103,14 +90,16 @@
                 currentVideoIndex = index;
                 const song = playlist[index];
                 playerReady = false;
+                playerState = -1;
 
                 if (player) {
-                    console.log("Destroying old player");
+                    console.log(`Destroying player for ${song.title}`);
                     player.destroy();
                     player = null;
                 }
 
                 document.getElementById("current-song").textContent = `Loading: ${song.title}`;
+                document.getElementById("error-log").textContent = "";
 
                 player = new YT.Player("player", {
                     height: "360",
@@ -130,33 +119,40 @@
                             document.getElementById("current-song").textContent = `Now Playing: ${song.title}`;
                         },
                         onStateChange: (event) => {
+                            playerState = event.data;
+                            console.log(`Player state: ${event.data} for ${song.title}`);
                             if (event.data === YT.PlayerState.ENDED) {
-                                console.log("Video ended, moving to next");
+                                console.log(`Video ${song.title} ended, moving to next`);
                                 currentVideoIndex = (currentVideoIndex + 1) % playlist.length;
                                 updateVideo();
                             }
                         },
                         onError: (event) => {
-                            console.error(`Player error for ${song.title}: Code ${event.data}`);
-                            document.getElementById("current-song").textContent = `Error loading: ${song.title} (Code: ${event.data})`;
+                            console.error(`Error for ${song.title}: Code ${event.data}`);
+                            let errorMessage = `Error loading: ${song.title} (Code: ${event.data})`;
+                            if (event.data === 100) {
+                                errorMessage = `Video Unavailable: ${song.title} (Not Found)`;
+                            } else if (event.data === 101 || event.data === 150) {
+                                errorMessage = `Video Unavailable: ${song.title} (Embedding Disabled)`;
+                            }
+                            document.getElementById("error-log").textContent = errorMessage;
                             setTimeout(() => {
                                 currentVideoIndex = (currentVideoIndex + 1) % playlist.length;
                                 updateVideo();
-                            }, 2000);
+                            }, 1000); // Faster skip
                         }
                     }
                 });
-            } else if (player && playerReady && player.getCurrentTime && typeof player.getCurrentTime === "function") {
-                // Only check drift if player is fully ready
-                const expectedOffset = offset;
+            } else if (player && playerReady && playerState === YT.PlayerState.PLAYING && typeof player.getCurrentTime === "function") {
                 try {
+                    const expectedOffset = offset;
                     const currentOffset = player.getCurrentTime();
                     if (Math.abs(currentOffset - expectedOffset) > 1) {
-                        console.log(`Correcting drift: ${currentOffset} → ${expectedOffset}`);
+                        console.log(`Correcting drift for ${playlist[index].title}: ${currentOffset} → ${expectedOffset}`);
                         player.seekTo(expectedOffset, true);
                     }
                 } catch (e) {
-                    console.warn("Failed to get current time:", e.message);
+                    console.warn(`Cannot get current time for ${playlist[index].title}: ${e.message}`);
                 }
             }
         }
@@ -167,8 +163,11 @@
                 updateVideo();
             } else {
                 console.log("Waiting for YouTube API...");
+                document.getElementById("error-log").textContent = "Loading YouTube API...";
             }
         }, 1000);
     </script>
 </body>
 </html>
+
+
