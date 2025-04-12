@@ -2,38 +2,44 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>🎶 Love Songs TV</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background: linear-gradient(to right, #ff9a9e, #fad0c4);
-      padding: 30px;
-    }
-    h1 {
-      color: #e74c3c;
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: black; /* Fallback for letterboxed areas */
     }
     #player {
-      margin-top: 20px;
+      width: 100vw;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      object-fit: contain; /* Maintains 16:9 aspect ratio */
+      background: black;
     }
-    #now-playing {
-      margin-top: 15px;
-      font-size: 1.2em;
-      color: #2c3e50;
+    #next-player {
+      display: none; /* Ensure hidden player stays invisible */
     }
-    #error {
-      color: red;
-      display: none;
-      margin-top: 10px;
+    /* Encourage landscape on mobile */
+    @media screen and (orientation: portrait) and (max-width: 768px) {
+      #player {
+        transform: rotate(90deg);
+        transform-origin: center;
+        width: 100vh;
+        height: 100vw;
+        top: calc((100vw - 100vh) / 2);
+        left: calc((100vh - 100vw) / 2);
+      }
     }
   </style>
 </head>
 <body>
-  <h1>💖 Love Songs TV</h1>
-  <div id="now-playing">Loading...</div>
   <div id="player"></div>
-  <div id="error"></div>
 
   <script>
     // YouTube API script
@@ -48,7 +54,7 @@
     // Fixed broadcast start time in UTC
     const broadcastStartUTC = new Date("2025-04-01T08:00:00Z").getTime();
 
-    // Playlist (added new songs)
+    // Original playlist (rolled back)
     const playlist = [
       {
         id: "-2RAq5o5pwc",
@@ -67,24 +73,6 @@
         title: "Yaarr Ni Milyaa",
         artist: "Hardy Sandhu",
         duration: 320 // 5 minutes 20 seconds
-      },
-      {
-        id: "c8YqH5K3uXI",
-        title: "Tu Hi Ah",
-        artist: "The PropheC",
-        duration: 239 // 3 minutes 59 seconds
-      },
-      {
-        id: "pFLO4n1z8oA",
-        title: "Magic – Coke Studio Pakistan Season 14",
-        artist: "Hasan Raheem & Abdullah Kasumbi",
-        duration: 242 // 4 minutes 2 seconds
-      },
-      {
-        id: "rM53cBl98eE",
-        title: "Baarishein",
-        artist: "Anuv Jain",
-        duration: 206 // 3 minutes 26 seconds
       }
     ];
 
@@ -145,27 +133,12 @@
       };
     }
 
-    // Update now-playing display
-    function updateNowPlaying(song) {
-      document.getElementById("now-playing").innerHTML = `
-        Now Playing: <strong>${song.title}</strong><br>
-        Artist: <strong>${song.artist}</strong>
-      `;
-    }
-
-    // Handle errors
-    function showError(message) {
-      const errorDiv = document.getElementById("error");
-      errorDiv.textContent = message;
-      errorDiv.style.display = "block";
-    }
-
     // YouTube API ready callback
     function onYouTubeIframeAPIReady() {
       try {
         initializePlayers();
       } catch (e) {
-        showError("Error initializing players: " + e.message);
+        console.error("Error initializing players:", e);
       }
     }
 
@@ -175,8 +148,8 @@
 
       // Create current player (visible)
       currentPlayer = new YT.Player('player', {
-        height: '390',
-        width: '640',
+        width: '100%',
+        height: '100%',
         videoId: song.id,
         playerVars: {
           autoplay: 1,
@@ -184,21 +157,23 @@
           controls: 1,
           start: time,
           rel: 0,
-          modestbranding: 1
+          modestbranding: 1,
+          playsinline: 1 // Prevent iOS auto-fullscreen
         },
         events: {
           onReady: onPlayerReady,
           onStateChange: (event) => {
             if (event.data === YT.PlayerState.PLAYING) {
               event.target.unMute();
-              monitorSongProgress(song, index, playlist); // Start monitoring
+              monitorSongProgress(song, index, playlist);
             }
             if (event.data === YT.PlayerState.ENDED) {
-              switchToNextPlayer(); // Fallback if monitoring misses
+              switchToNextPlayer();
             }
           },
           onError: (event) => {
-            showError("Failed to load video. Please try refreshing the page.");
+            console.error("Video error:", event.data);
+            switchToNextPlayer(); // Skip to next on error
           }
         }
       });
@@ -211,8 +186,8 @@
 
       const nextSong = getNextSong(index, playlist);
       nextPlayer = new YT.Player('next-player', {
-        height: '1',
         width: '1',
+        height: '1',
         videoId: nextSong.id,
         playerVars: {
           autoplay: 0,
@@ -225,7 +200,7 @@
         events: {
           onReady: onPlayerReady,
           onError: (event) => {
-            showError("Failed to preload next video.");
+            console.error("Next video preload error:", event.data);
           }
         }
       });
@@ -235,8 +210,6 @@
     function onPlayerReady() {
       playersReady++;
       if (playersReady === 2) {
-        const { song } = getCurrentSongAndTime();
-        updateNowPlaying(song);
         currentPlayer.playVideo();
       }
     }
@@ -258,7 +231,7 @@
             switchToNextPlayer();
           }
         }
-      }, 1000); // Check every second
+      }, 1000);
     }
 
     // Switch to next player
@@ -273,13 +246,13 @@
       playerDiv.innerHTML = '';
       currentPlayer.a.id = 'player';
       playerDiv.appendChild(currentPlayer.a);
-      currentPlayer.a.style.height = '390px';
-      currentPlayer.a.style.width = '640px';
+      currentPlayer.a.style.width = '100%';
+      currentPlayer.a.style.height = '100%';
 
       // Update next player
       nextPlayer.a.id = 'next-player';
-      nextPlayer.a.style.height = '1px';
       nextPlayer.a.style.width = '1px';
+      nextPlayer.a.style.height = '1px';
       nextPlayer.a.style.display = 'none';
 
       // Get next song info
@@ -299,8 +272,6 @@
         videoId: nextSong.id,
         startSeconds: 0
       });
-
-      updateNowPlaying(song);
     }
 
     // Periodic sync check (every 30 seconds)
@@ -313,7 +284,6 @@
             videoId: song.id,
             startSeconds: time
           });
-          updateNowPlaying(song);
           // Preload next song
           const nextSong = getNextSong(index, playlist);
           nextPlayer.loadVideoById({
@@ -328,6 +298,15 @@
         }
       }
     }, 30000);
+
+    // Handle Android orientation
+    if (/Android/i.test(navigator.userAgent)) {
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch((err) => {
+          console.warn("Orientation lock failed:", err);
+        });
+      }
+    }
   </script>
 </body>
 </html>
