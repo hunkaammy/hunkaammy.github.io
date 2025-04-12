@@ -48,7 +48,7 @@
     // Fixed broadcast start time in UTC
     const broadcastStartUTC = new Date("2025-04-01T08:00:00Z").getTime();
 
-    // Playlist (fixed incorrect titles)
+    // Playlist (added new songs)
     const playlist = [
       {
         id: "-2RAq5o5pwc",
@@ -67,6 +67,24 @@
         title: "Yaarr Ni Milyaa",
         artist: "Hardy Sandhu",
         duration: 320 // 5 minutes 20 seconds
+      },
+      {
+        id: "c8YqH5K3uXI",
+        title: "Tu Hi Ah",
+        artist: "The PropheC",
+        duration: 239 // 3 minutes 59 seconds
+      },
+      {
+        id: "pFLO4n1z8oA",
+        title: "Magic – Coke Studio Pakistan Season 14",
+        artist: "Hasan Raheem & Abdullah Kasumbi",
+        duration: 242 // 4 minutes 2 seconds
+      },
+      {
+        id: "rM53cBl98eE",
+        title: "Baarishein",
+        artist: "Anuv Jain",
+        duration: 206 // 3 minutes 26 seconds
       }
     ];
 
@@ -173,9 +191,10 @@
           onStateChange: (event) => {
             if (event.data === YT.PlayerState.PLAYING) {
               event.target.unMute();
+              monitorSongProgress(song, index, playlist); // Start monitoring
             }
             if (event.data === YT.PlayerState.ENDED) {
-              switchToNextPlayer();
+              switchToNextPlayer(); // Fallback if monitoring misses
             }
           },
           onError: (event) => {
@@ -226,6 +245,20 @@
     function getNextSong(currentIndex, shuffledPlaylist) {
       const nextIndex = (currentIndex + 1) % shuffledPlaylist.length;
       return shuffledPlaylist[nextIndex];
+    }
+
+    // Monitor song progress to switch 10 seconds before end
+    function monitorSongProgress(song, index, playlist) {
+      const checkInterval = setInterval(() => {
+        if (currentPlayer && currentPlayer.getCurrentTime) {
+          const currentTime = currentPlayer.getCurrentTime();
+          const timeRemaining = song.duration - currentTime;
+          if (timeRemaining <= 10 && timeRemaining > 0) {
+            clearInterval(checkInterval);
+            switchToNextPlayer();
+          }
+        }
+      }, 1000); // Check every second
     }
 
     // Switch to next player
