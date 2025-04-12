@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🎶 Love Songs TV</title>
   <style>
     body {
@@ -21,69 +22,185 @@
       font-size: 1.2em;
       color: #2c3e50;
     }
+    #error {
+      color: red;
+      display: none;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
-  <h1>💖 Bollywood & Punjabi Love Songs TV</h1>
+  <h1>💖 Love Songs TV</h1>
   <div id="now-playing">Loading...</div>
   <div id="player"></div>
+  <div id="error"></div>
 
   <script>
-    // Load the YouTube IFrame API
+    // YouTube API script
     const tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     document.body.appendChild(tag);
 
     let player;
 
-    // Global broadcast start time (UTC)
-    const broadcastStart = new Date("2025-04-01T08:00:00Z").getTime();
+    // Fixed broadcast start time in UTC
+    const broadcastStartUTC = new Date("2025-04-01T08:00:00Z").getTime();
 
-    // Verified working songs
+    // Playlist
     const playlist = [
-      { id: "vC-bRnJ2xm8", title: "Mast Magan – 2 States", artist: "Arijit Singh, Chinmayi", duration: 250 },
-      { id: "YqeW9_5kURI", title: "High Rated Gabru", artist: "Guru Randhawa", duration: 180 },
-      { id: "CHekNnySAfM", title: "Tera Ban Jaunga – Kabir Singh", artist: "Akhil, Tulsi Kumar", duration: 220 },
-      { id: "RgKAFK5djSk", title: "See You Again – Wiz Khalifa", artist: "ft. Charlie Puth", duration: 230 },
-      { id: "8ybW48rKBME", title: "Tum Hi Ho – Aashiqui 2", artist: "Arijit Singh", duration: 270 }
+      {
+        id: "-2RAq5o5pwc",
+        title: "Jhol – Coke Studio Pakistan Season 15",
+        artist: "Maanu & Annural Khalid",
+        duration: 300 // 5 minutes
+      },
+      {
+        id: "tmAXbPGOf0Q",
+        title: "Chal Diye Tumse – Coke Studio Pakistan Season 15",
+        artist: "Maanu & Annural Khalid",
+        duration: 276 // 4 minutes 36 seconds
+      }
     ];
 
-    function getCurrentVideo() {
-      const now = Date.now();
-      let elapsed = Math.floor((now - broadcastStart) / 1000);
-      let index = 0;
-
-      while (elapsed >= playlist[index].duration) {
-        elapsed -= playlist[index].duration;
-        index = (index + 1) % playlist.length;
+    // Deterministic shuffle based on a seed (same for all users)
+    function seededShuffle(array, seed) {
+      const result = [...array];
+      let m = result.length, t, i;
+      while (m) {
+        i = Math.floor(seededRandom(seed + m) * m--);
+        t = result[m];
+        result[m] = result[i];
+        result[i] = t;
       }
-
-      return { index, startTime: elapsed };
+      return result;
     }
 
-    function onYouTubeIframeAPIReady() {
-      const { index, startTime } = getCurrentVideo();
-      const video = playlist[index];
+    // Seeded random number generator (same sequence for same seed)
+    function seededRandom(seed) {
+      const x = Math.sin(seed) * 10000;
+      return x - Math.floor(x);
+    }
 
-      document.getElementById("now-playing").innerHTML = `
-        Now Playing: <strong>${video.title}</strong><br>
-        Artist: <strong>${video.artist}</strong>
-      `;
+    // Get total playlist duration
+    function getTotalDuration() {
+      return playlist.reduce((sum, song) => sum + song.duration, 0);
+    }
 
-      player = new YT.Player('player', {
-        height: '390',
-        width: '640',
-        videoId: video.id,
-        playerVars: {
-          autoplay: 1,
-          controls: 1,
-          start: startTime
-        },
-        events: {
-          onReady: (event) => event.target.playVideo()
+    // Calculate current song and time
+    function getCurrentSongAndTime() {
+      const nowUTC = Date.now();
+      const elapsed = Math.floor((nowUTC - broadcastStartUTC) / 1000);
+      const totalDuration = getTotalDuration();
+      const cycleTime = elapsed % totalDuration;
+
+      // Use a seed based on the cycle number to shuffle consistently
+      const cycleNumber = Math.floor(elapsed / totalDuration);
+      const seed = cycleNumber;
+      const shuffledPlaylist = seededShuffle(playlist, seed);
+
+      let accumulatedTime = 0;
+      for (let i = 0; i < shuffledPlaylist.length; i++) {
+        const song = shuffledPlaylist[i];
+        if (cycleTime < accumulatedTime + song.duration) {
+          return {
+            song: song,
+            time: cycleTime - accumulatedTime
+          };
         }
-      });
+        accumulatedTime += song.duration;
+      }
+      return {
+        song: shuffledPlaylist[0],
+        time: 0
+      };
     }
+
+    // Update now-playing display
+    function updateNowPlaying(song) {
+      document.getElementById("now-playing").innerHTML = `
+        Now Playing: <strong>${song.title}</strong><br>
+        Artist: <strong>${song.artist}</strong>
+      `;
+    }
+
+    // Handle errors
+    function showError(message) {
+      const errorDiv = document.getElementById("error");
+      errorDiv.textContent = message;
+      errorDiv.style.display = "block";
+    }
+
+    // YouTube API ready callback
+    function onYouTubeIframeAPIReady() {
+      try {
+        const { song, time } = getCurrentSongAndTime();
+
+        // Initialize YouTube player
+        player = new YT.Player('player', {
+          height: '390',
+          width: '640',
+          videoId: song.id,
+          playerVars: {
+            autoplay: 1,
+            mute: 1,
+            controls: 1,
+            start: time,
+            rel: 0,
+            modestbranding: 1
+          },
+          events: {
+            onReady: (event) => {
+              updateNowPlaying(song);
+              event.target.playVideo();
+            },
+            onStateChange: (event) => {
+              if (event.data === YT.PlayerState.PLAYING) {
+                event.target.unMute();
+              }
+              if (event.data === YT.PlayerState.ENDED) {
+                loadNextSong();
+              }
+            },
+            onError: (event) => {
+              showError("Failed to load video. Please try refreshing the page.");
+            }
+          }
+        });
+      } catch (e) {
+        showError("Error initializing player: " + e.message);
+      }
+    }
+
+    // Load next song
+    function loadNextSong() {
+      const { song, time } = getCurrentSongAndTime();
+      player.loadVideoById({
+        videoId: song.id,
+        startSeconds: time
+      });
+      updateNowPlaying(song);
+    }
+
+    // Periodic sync check (every 30 seconds)
+    setInterval(() => {
+      if (player && player.getCurrentTime) {
+        const { song, time } = getCurrentSongAndTime();
+        const currentSongId = player.getVideoData().video_id;
+        if (currentSongId !== song.id) {
+          player.loadVideoById({
+            videoId: song.id,
+            startSeconds: time
+          });
+          updateNowPlaying(song);
+        } else {
+          const currentTime = Math.floor(player.getCurrentTime());
+          if (Math.abs(currentTime - time) > 5) {
+            player.seekTo(time, true);
+          }
+        }
+      }
+    }, 30000);
   </script>
 </body>
+
 </html>
