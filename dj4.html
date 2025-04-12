@@ -41,12 +41,14 @@
     tag.src = "https://www.youtube.com/iframe_api";
     document.body.appendChild(tag);
 
-    let player;
+    let currentPlayer;
+    let nextPlayer;
+    let playersReady = 0;
 
     // Fixed broadcast start time in UTC
     const broadcastStartUTC = new Date("2025-04-01T08:00:00Z").getTime();
 
-    // Playlist
+    // Playlist (fixed incorrect titles)
     const playlist = [
       {
         id: "-2RAq5o5pwc",
@@ -56,13 +58,19 @@
       },
       {
         id: "tmAXbPGOf0Q",
-        title: "Chal Diye Tumse – Coke Studio Pakistan Season 15",
-        artist: "Maanu & Annural Khalid",
-        duration: 276 // 4 minutes 36 seconds
+        title: "Teri Meri Ladayi",
+        artist: "Maninder Buttar feat. Tania",
+        duration: 241 // 4 minutes 1 second
+      },
+      {
+        id: "FVPdfPhXmR0",
+        title: "Yaarr Ni Milyaa",
+        artist: "Hardy Sandhu",
+        duration: 320 // 5 minutes 20 seconds
       }
     ];
 
-    // Deterministic shuffle based on a seed (same for all users)
+    // Deterministic shuffle based on a seed
     function seededShuffle(array, seed) {
       const result = [...array];
       let m = result.length, t, i;
@@ -75,7 +83,7 @@
       return result;
     }
 
-    // Seeded random number generator (same sequence for same seed)
+    // Seeded random number generator
     function seededRandom(seed) {
       const x = Math.sin(seed) * 10000;
       return x - Math.floor(x);
@@ -93,7 +101,7 @@
       const totalDuration = getTotalDuration();
       const cycleTime = elapsed % totalDuration;
 
-      // Use a seed based on the cycle number to shuffle consistently
+      // Use a seed based on the cycle number
       const cycleNumber = Math.floor(elapsed / totalDuration);
       const seed = cycleNumber;
       const shuffledPlaylist = seededShuffle(playlist, seed);
@@ -104,14 +112,18 @@
         if (cycleTime < accumulatedTime + song.duration) {
           return {
             song: song,
-            time: cycleTime - accumulatedTime
+            time: cycleTime - accumulatedTime,
+            index: i,
+            playlist: shuffledPlaylist
           };
         }
         accumulatedTime += song.duration;
       }
       return {
         song: shuffledPlaylist[0],
-        time: 0
+        time: 0,
+        index: 0,
+        playlist: shuffledPlaylist
       };
     }
 
@@ -133,74 +145,156 @@
     // YouTube API ready callback
     function onYouTubeIframeAPIReady() {
       try {
-        const { song, time } = getCurrentSongAndTime();
-
-        // Initialize YouTube player
-        player = new YT.Player('player', {
-          height: '390',
-          width: '640',
-          videoId: song.id,
-          playerVars: {
-            autoplay: 1,
-            mute: 1,
-            controls: 1,
-            start: time,
-            rel: 0,
-            modestbranding: 1
-          },
-          events: {
-            onReady: (event) => {
-              updateNowPlaying(song);
-              event.target.playVideo();
-            },
-            onStateChange: (event) => {
-              if (event.data === YT.PlayerState.PLAYING) {
-                event.target.unMute();
-              }
-              if (event.data === YT.PlayerState.ENDED) {
-                loadNextSong();
-              }
-            },
-            onError: (event) => {
-              showError("Failed to load video. Please try refreshing the page.");
-            }
-          }
-        });
+        initializePlayers();
       } catch (e) {
-        showError("Error initializing player: " + e.message);
+        showError("Error initializing players: " + e.message);
       }
     }
 
-    // Load next song
-    function loadNextSong() {
-      const { song, time } = getCurrentSongAndTime();
-      player.loadVideoById({
+    // Initialize both players
+    function initializePlayers() {
+      const { song, time, index, playlist } = getCurrentSongAndTime();
+
+      // Create current player (visible)
+      currentPlayer = new YT.Player('player', {
+        height: '390',
+        width: '640',
+        videoId: song.id,
+        playerVars: {
+          autoplay: 1,
+          mute: 1,
+          controls: 1,
+          start: time,
+          rel: 0,
+          modestbranding: 1
+        },
+        events: {
+          onReady: onPlayerReady,
+          onStateChange: (event) => {
+            if (event.data === YT.PlayerState.PLAYING) {
+              event.target.unMute();
+            }
+            if (event.data === YT.PlayerState.ENDED) {
+              switchToNextPlayer();
+            }
+          },
+          onError: (event) => {
+            showError("Failed to load video. Please try refreshing the page.");
+          }
+        }
+      });
+
+      // Create next player (hidden)
+      const nextPlayerDiv = document.createElement('div');
+      nextPlayerDiv.id = 'next-player';
+      nextPlayerDiv.style.display = 'none';
+      document.body.appendChild(nextPlayerDiv);
+
+      const nextSong = getNextSong(index, playlist);
+      nextPlayer = new YT.Player('next-player', {
+        height: '1',
+        width: '1',
+        videoId: nextSong.id,
+        playerVars: {
+          autoplay: 0,
+          mute: 1,
+          controls: 0,
+          start: 0,
+          rel: 0,
+          modestbranding: 1
+        },
+        events: {
+          onReady: onPlayerReady,
+          onError: (event) => {
+            showError("Failed to preload next video.");
+          }
+        }
+      });
+    }
+
+    // Handle player ready
+    function onPlayerReady() {
+      playersReady++;
+      if (playersReady === 2) {
+        const { song } = getCurrentSongAndTime();
+        updateNowPlaying(song);
+        currentPlayer.playVideo();
+      }
+    }
+
+    // Get next song
+    function getNextSong(currentIndex, shuffledPlaylist) {
+      const nextIndex = (currentIndex + 1) % shuffledPlaylist.length;
+      return shuffledPlaylist[nextIndex];
+    }
+
+    // Switch to next player
+    function switchToNextPlayer() {
+      // Swap players
+      const tempPlayer = currentPlayer;
+      currentPlayer = nextPlayer;
+      nextPlayer = tempPlayer;
+
+      // Update current player styles
+      const playerDiv = document.getElementById('player');
+      playerDiv.innerHTML = '';
+      currentPlayer.a.id = 'player';
+      playerDiv.appendChild(currentPlayer.a);
+      currentPlayer.a.style.height = '390px';
+      currentPlayer.a.style.width = '640px';
+
+      // Update next player
+      nextPlayer.a.id = 'next-player';
+      nextPlayer.a.style.height = '1px';
+      nextPlayer.a.style.width = '1px';
+      nextPlayer.a.style.display = 'none';
+
+      // Get next song info
+      const { song, time, index, playlist } = getCurrentSongAndTime();
+
+      // Start current player
+      currentPlayer.loadVideoById({
         videoId: song.id,
         startSeconds: time
       });
+      currentPlayer.mute();
+      currentPlayer.playVideo();
+
+      // Preload next song
+      const nextSong = getNextSong(index, playlist);
+      nextPlayer.loadVideoById({
+        videoId: nextSong.id,
+        startSeconds: 0
+      });
+
       updateNowPlaying(song);
     }
 
     // Periodic sync check (every 30 seconds)
     setInterval(() => {
-      if (player && player.getCurrentTime) {
-        const { song, time } = getCurrentSongAndTime();
-        const currentSongId = player.getVideoData().video_id;
+      if (currentPlayer && currentPlayer.getCurrentTime) {
+        const { song, time, index, playlist } = getCurrentSongAndTime();
+        const currentSongId = currentPlayer.getVideoData().video_id;
         if (currentSongId !== song.id) {
-          player.loadVideoById({
+          currentPlayer.loadVideoById({
             videoId: song.id,
             startSeconds: time
           });
           updateNowPlaying(song);
+          // Preload next song
+          const nextSong = getNextSong(index, playlist);
+          nextPlayer.loadVideoById({
+            videoId: nextSong.id,
+            startSeconds: 0
+          });
         } else {
-          const currentTime = Math.floor(player.getCurrentTime());
+          const currentTime = Math.floor(currentPlayer.getCurrentTime());
           if (Math.abs(currentTime - time) > 5) {
-            player.seekTo(time, true);
+            currentPlayer.seekTo(time, true);
           }
         }
       }
     }, 30000);
   </script>
 </body>
-
 </html>
