@@ -1,10 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Hindi Pop 2024-2025 Audio Player</title>
+  <title>Hindi Pop 2024-2025 Video Player</title>
   <style>
-    audio {
-      display: none; /* Audio element is hidden */
+    video {
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      display: none; /* Hidden until play button is clicked */
+      object-fit: cover; /* Ensure video fills screen */
     }
     button {
       position: fixed;
@@ -23,15 +30,30 @@
     button:hover {
       background-color: #0056b3;
     }
+    .watermark {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 1002;
+      background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+      color: white;
+      padding: 5px 10px;
+      font-size: 16px;
+      font-family: Arial, sans-serif;
+      display: none; /* Hidden until playback starts */
+      border-radius: 3px;
+    }
   </style>
 </head>
 <body>
-  <audio id="player"></audio>
+  <video id="player"></video>
   <button id="playButton">Play</button>
+  <div id="watermark" class="watermark">Sammy TV</div>
 
   <script>
     const player = document.getElementById('player');
     const playButton = document.getElementById('playButton');
+    const watermark = document.getElementById('watermark');
     const originalPlaylist = [
       { title: "Song ID 2390", url: "https://pagalworld.video/files/download/type/320/id/2390", duration: 180 },
       { title: "Song ID 2389", url: "https://pagalworld.video/files/download/type/320/id/2389", duration: 180 },
@@ -89,7 +111,7 @@
       { title: "Song ID 2337", url: "https://pagalworld.video/files/download/type/320/id/2337", duration: 180 },
       { title: "Song ID 2336", url: "https://pagalworld.video/files/download/type/320/id/2336", duration: 180 },
       { title: "Song ID 2335", url: "https://pagalworld.video/files/download/type/320/id/2335", duration: 180 },
-      { title: "Song ID 2334", url: "https://pagalworld.video/files/download/type/320/id/2344", duration: 180 },
+      { title: "Song ID 2334", url: "https://pagalworld.video/files/download/type/320/id/2334", duration: 180 },
       { title: "Song ID 2333", url: "https://pagalworld.video/files/download/type/320/id/2333", duration: 180 },
       { title: "Song ID 2332", url: "https://pagalworld.video/files/download/type/320/id/2332", duration: 180 },
       { title: "Song ID 2331", url: "https://pagalworld.video/files/download/type/320/id/2331", duration: 180 }
@@ -112,7 +134,7 @@
       return newArray;
     }
 
-    // Use startTime as the seed for consistent shuffling across users
+    // Use startTime as the seed for consistent shuffling
     const startTime = new Date("2025-04-20T00:00:00Z").getTime();
     const playlist = seededShuffle(originalPlaylist, startTime / 1000);
     const totalDuration = playlist.reduce((sum, song) => sum + song.duration, 0); // 10800 seconds
@@ -136,7 +158,7 @@
       }
     }
 
-    function syncAudio() {
+    function syncVideo() {
       const now = Date.now();
       const elapsedSeconds = (now - startTime) / 1000;
       const playlistPosition = elapsedSeconds % totalDuration;
@@ -154,37 +176,40 @@
       const songStartTime = accumulatedTime - currentSong.duration;
       const positionInSong = playlistPosition - songStartTime;
 
-      console.log(`Syncing: ${currentSong.title} at ${positionInSong.toFixed(2)} sekund`);
+      console.log(`Syncing: ${currentSong.title} at ${positionInSong.toFixed(2)}s`);
 
       if (currentSongUrl !== currentSong.url) {
         player.src = currentSong.url;
         currentSongUrl = currentSong.url;
-        console.log(`Ładuję nowy utwór: ${currentSong.url}`);
+        console.log(`Loading new video: ${currentSong.url}`);
       }
       player.currentTime = positionInSong;
     }
 
     player.addEventListener('ended', () => {
-      console.log("Utwór zakończony, przełączanie na następny");
-      syncAudio();
-      player.play().catch(e => console.error("Nie udało się odtworzyć:", e));
+      console.log("Video Ended, Switching Track");
+      syncVideo();
+      player.play().catch(e => console.error("Playback failed:", e));
     });
 
     // Play button click handler
     playButton.addEventListener('click', () => {
       // Hide the play button
       playButton.style.display = 'none';
+      // Show the video and watermark
+      player.style.display = 'block';
+      watermark.style.display = 'block';
       // Sync and start playback
-      syncAudio();
-      player.play().catch(e => console.error("Nie udało się odtworzyć:", e));
+      syncVideo();
+      player.play().catch(e => console.error("Playback failed:", e));
       // Enter fullscreen
       enterFullScreen();
     });
 
     // Sync on page load (set correct song and position, but don't play)
-    syncAudio();
+    syncVideo();
     // Sync every 10 minutes (600,000 milliseconds)
-    setInterval(syncAudio, 600000);
+    setInterval(syncVideo, 600000);
   </script>
 </body>
 </html>
