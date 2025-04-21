@@ -33,8 +33,8 @@
     .watermark {
       position: fixed;
       top: 10px;
-      left: 10px;
-      z-index: 1002;
+      right: 10px; /* Positioned in top-right corner */
+      z-index: 1002; /* Higher than video z-index */
       background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
       color: white;
       padding: 5px 10px;
@@ -42,6 +42,7 @@
       font-family: Arial, sans-serif;
       display: none; /* Hidden until playback starts */
       border-radius: 3px;
+      pointer-events: none; /* Prevents watermark from intercepting clicks */
     }
   </style>
 </head>
@@ -153,6 +154,8 @@
         }
         console.log("Full Screen Requested");
         hasEnteredFullscreen = true;
+        // Ensure watermark is visible in fullscreen
+        watermark.style.display = 'block';
       } catch (e) {
         console.error("Full Screen Error:", e);
       }
@@ -204,6 +207,23 @@
       player.play().catch(e => console.error("Playback failed:", e));
       // Enter fullscreen
       enterFullScreen();
+    });
+
+    // Ensure watermark stays visible in fullscreen
+    document.addEventListener('fullscreenchange', () => {
+      if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+        watermark.style.display = 'block';
+      }
+    });
+    document.addEventListener('webkitfullscreenchange', () => {
+      if (document.webkitFullscreenElement) {
+        watermark.style.display = 'block';
+      }
+    });
+    document.addEventListener('msfullscreenchange', () => {
+      if (document.msFullscreenElement) {
+        watermark.style.display = 'block';
+      }
     });
 
     // Sync on page load (set correct song and position, but don't play)
