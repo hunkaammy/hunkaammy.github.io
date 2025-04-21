@@ -2,6 +2,9 @@
 <html>
 <head>
   <title>Hindi Pop 2024-2025 Video Player</title>
+  <!-- Update Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <style>
     .video-container {
       position: fixed;
@@ -58,72 +61,62 @@
   <button id="playButton">Play</button>
 
   <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDM7HUVDfdy_UXAaCx3kYWmDhxrF0y8jyA",
+  authDomain: "model-poses.firebaseapp.com",
+  databaseURL: "https://model-poses.firebaseio.com",
+  projectId: "model-poses",
+  storageBucket: "model-poses.firebasestorage.app",
+  messagingSenderId: "10510371385",
+  appId: "1:10510371385:web:1f93c15f032b729fe61be8"
+};
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
     const player = document.getElementById('player');
     const playButton = document.getElementById('playButton');
     const watermark = document.getElementById('watermark');
     const videoContainer = document.querySelector('.video-container');
-    const originalPlaylist = [
-      { title: "Song ID 2390", url: "https://pagalworld.video/files/download/type/320/id/2390", duration: 180 },
-      { title: "Song ID 2389", url: "https://pagalworld.video/files/download/type/320/id/2389", duration: 180 },
-      { title: "Song ID 2388", url: "https://pagalworld.video/files/download/type/320/id/2388", duration: 180 },
-      { title: "Song ID 2387", url: "https://pagalworld.video/files/download/type/320/id/2387", duration: 180 },
-      { title: "Song ID 2386", url: "https://pagalworld.video/files/download/type/320/id/2386", duration: 180 },
-      { title: "Song ID 2385", url: "https://pagalworld.video/files/download/type/320/id/2385", duration: 180 },
-      { title: "Song ID 2384", url: "https://pagalworld.video/files/download/type/320/id/2384", duration: 180 },
-      { title: "Song ID 2383", url: "https://pagalworld.video/files/download/type/320/id/2383", duration: 180 },
-      { title: "Song ID 2382", url: "https://pagalworld.video/files/download/type/320/id/2382", duration: 180 },
-      { title: "Song ID 2381", url: "https://pagalworld.video/files/download/type/320/id/2381", duration: 180 },
-      { title: "Song ID 2380", url: "https://pagalworld.video/files/download/type/320/id/2380", duration: 180 },
-      { title: "Song ID 2379", url: "https://pagalworld.video/files/download/type/320/id/2379", duration: 180 },
-      { title: "Song ID 2378", url: "https://pagalworld.video/files/download/type/320/id/2378", duration: 180 },
-      { title: "Song ID 2377", url: "https://pagalworld.video/files/download/type/320/id/2377", duration: 180 },
-      { title: "Song ID 2376", url: "https://pagalworld.video/files/download/type/320/id/2376", duration: 180 },
-      { title: "Song ID 2375", url: "https://pagalworld.video/files/download/type/320/id/2375", duration: 180 },
-      { title: "Song ID 2374", url: "https://pagalworld.video/files/download/type/320/id/2374", duration: 180 },
-      { title: "Song ID 2373", url: "https://pagalworld.video/files/download/type/320/id/2373", duration: 180 },
-      { title: "Song ID 2372", url: "https://pagalworld.video/files/download/type/320/id/2372", duration: 180 },
-      { title: "Song ID 2371", url: "https://pagalworld.video/files/download/type/320/id/2371", duration: 180 },
-      { title: "Song ID 2370", url: "https://pagalworld.video/files/download/type/320/id/2370", duration: 180 },
-      { title: "Song ID 2369", url: "https://pagalworld.video/files/download/type/320/id/2369", duration: 180 },
-      { title: "Song ID 2368", url: "https://pagalworld.video/files/download/type/320/id/2368", duration: 180 },
-      { title: "Song ID 2367", url: "https://pagalworld.video/files/download/type/320/id/2367", duration: 180 },
-      { title: "Song ID 2366", url: "https://pagalworld.video/files/download/type/320/id/2366", duration: 180 },
-      { title: "Song ID 2365", url: "https://pagalworld.video/files/download/type/320/id/2365", duration: 180 },
-      { title: "Song ID 2364", url: "https://pagalworld.video/files/download/type/320/id/2364", duration: 180 },
-      { title: "Song ID 2363", url: "https://pagalworld.video/files/download/type/320/id/2363", duration: 180 },
-      { title: "Song ID 2362", url: "https://pagalworld.video/files/download/type/320/id/2362", duration: 180 },
-      { title: "Song ID 2361", url: "https://pagalworld.video/files/download/type/320/id/2361", duration: 180 },
-      { title: "Song ID 2360", url: "https://pagalworld.video/files/download/type/320/id/2360", duration: 180 },
-      { title: "Song ID 2359", url: "https://pagalworld.video/files/download/type/320/id/2359", duration: 180 },
-      { title: "Song ID 2358", url: "https://pagalworld.video/files/download/type/320/id/2358", duration: 180 },
-      { title: "Song ID 2357", url: "https://pagalworld.video/files/download/type/320/id/2357", duration: 180 },
-      { title: "Song ID 2356", url: "https://pagalworld.video/files/download/type/320/id/2356", duration: 180 },
-      { title: "Song ID 2355", url: "https://pagalworld.video/files/download/type/320/id/2355", duration: 180 },
-      { title: "Song ID 2354", url: "https://pagalworld.video/files/download/type/320/id/2354", duration: 180 },
-      { title: "Song ID 2353", url: "https://pagalworld.video/files/download/type/320/id/2353", duration: 180 },
-      { title: "Song ID 2352", url: "https://pagalworld.video/files/download/type/320/id/2352", duration: 180 },
-      { title: "Song ID 2351", url: "https://pagalworld.video/files/download/type/320/id/2351", duration: 180 },
-      { title: "Song ID 2350", url: "https://pagalworld.video/files/download/type/320/id/2350", duration: 180 },
-      { title: "Song ID 2349", url: "https://pagalworld.video/files/download/type/320/id/2349", duration: 180 },
-      { title: "Song ID 2348", url: "https://pagalworld.video/files/download/type/320/id/2348", duration: 180 },
-      { title: "Song ID 2347", url: "https://pagalworld.video/files/download/type/320/id/2347", duration: 180 },
-      { title: "Song ID 2346", url: "https://pagalworld.video/files/download/type/320/id/2346", duration: 180 },
-      { title: "Song ID 2345", url: "https://pagalworld.video/files/download/type/320/id/2345", duration: 180 },
-      { title: "Song ID 2344", url: "https://pagalworld.video/files/download/type/320/id/2344", duration: 180 },
-      { title: "Song ID 2343", url: "https://pagalworld.video/files/download/type/320/id/2343", duration: 180 },
-      { title: "Song ID 2342", url: "https://pagalworld.video/files/download/type/320/id/2342", duration: 180 },
-      { title: "Song ID 2341", url: "https://pagalworld.video/files/download/type/320/id/2341", duration: 180 },
-      { title: "Song ID 2340", url: "https://pagalworld.video/files/download/type/320/id/2340", duration: 180 },
-      { title: "Song ID 2339", url: "https://pagalworld.video/files/download/type/320/id/2339", duration: 180 },
-      { title: "Song ID 2338", url: "https://pagalworld.video/files/download/type/320/id/2338", duration: 180 },
-      { title: "Song ID 2337", url: "https://pagalworld.video/files/download/type/320/id/2337", duration: 180 },
-      { title: "Song ID 2336", url: "https://pagalworld.video/files/download/type/320/id/2336", duration: 180 },
-      { title: "Song ID 2335", url: "https://pagalworld.video/files/download/type/320/id/2335", duration: 180 },
-      { title: "Song ID 2334", url: "https://pagalworld.video/files/download/type/320/id/2334", duration: 180 },
-      { title: "Song ID 2333", url: "https://pagalworld.video/files/download/type/320/id/2333", duration: 180 },
-      { title: "Song ID 2332", url: "https://pagalworld.video/files/download/type/320/id/2332", duration: 180 },
-      { title: "Song ID 2331", url: "https://pagalworld.video/files/download/type/320/id/2331", duration: 180 }
-    ];
+    let originalPlaylist = [];
+    let playlist = [];
+    let totalDuration = 0;
+
+    // Function to fetch playlist from Firebase
+    async function fetchPlaylist() {
+      try {
+        const snapshot = await database.ref('videos').once('value');
+        const data = snapshot.val();
+        console.log("Received data from Firebase:", data);
+        
+        if (!data) {
+          throw new Error("No data received from Firebase");
+        }
+        
+        // Convert object to array
+        const playlistArray = Object.keys(data).map(key => ({
+          ...data[key],
+          id: key
+        }));
+        
+        if (playlistArray.length === 0) {
+          throw new Error("Received empty data from Firebase");
+        }
+        
+        originalPlaylist = playlistArray;
+        playlist = seededShuffle(originalPlaylist, startTime / 1000);
+        totalDuration = playlist.reduce((sum, song) => sum + Number(song.duration), 0);
+        console.log("Successfully loaded playlist with", playlist.length, "songs");
+      } catch (error) {
+        console.error("Error fetching playlist:", error);
+        // Set default empty playlist to prevent further errors
+        originalPlaylist = [];
+        playlist = [];
+        totalDuration = 0;
+      }
+    }
 
     // Deterministic shuffle function using a seed
     function seededShuffle(array, seed) {
@@ -144,10 +137,65 @@
 
     // Use startTime as the seed for consistent shuffling
     const startTime = new Date("2025-04-20T00:00:00Z").getTime();
-    const playlist = seededShuffle(originalPlaylist, startTime / 1000);
-    const totalDuration = playlist.reduce((sum, song) => sum + song.duration, 0); // 10800 seconds
+    playlist = seededShuffle(originalPlaylist, startTime / 1000);
+    totalDuration = playlist.reduce((sum, song) => sum + song.duration, 0);
     let currentSongUrl = '';
     let hasEnteredFullscreen = false;
+
+    // Add function to calculate current position
+    function getCurrentPosition() {
+      const now = Date.now();
+      return (now - startTime) / 1000 % totalDuration;
+    }
+
+    // Modify syncVideo to use calculated position
+    function syncVideo() {
+      if (playlist.length === 0) {
+        console.error("Playlist is empty");
+        return;
+      }
+
+      const playlistPosition = getCurrentPosition();
+
+      let accumulatedTime = 0;
+      let currentSong = null;
+      for (let i = 0; i < playlist.length; i++) {
+        accumulatedTime += playlist[i].duration;
+        if (playlistPosition < accumulatedTime) {
+          currentSong = playlist[i];
+          break;
+        }
+      }
+
+      if (!currentSong) {
+        console.error("No current song found");
+        return;
+      }
+
+      const songStartTime = accumulatedTime - currentSong.duration;
+      const positionInSong = playlistPosition - songStartTime;
+
+      console.log(`Syncing: ${currentSong.title} at ${positionInSong.toFixed(2)}s`);
+
+      if (currentSongUrl !== currentSong.url) {
+        player.src = currentSong.url;
+        currentSongUrl = currentSong.url;
+        
+        player.addEventListener('canplay', () => {
+          console.log(`Successfully loaded video: ${currentSong.url}`);
+          player.currentTime = positionInSong;
+          player.play().catch(e => console.error("Playback failed:", e));
+        }, { once: true });
+
+        player.addEventListener('error', () => {
+          console.error(`Error loading video: ${currentSong.url}`);
+          setTimeout(() => syncVideo(), 1000);
+        }, { once: true });
+      } else {
+        player.currentTime = positionInSong;
+        player.play().catch(e => console.error("Playback failed:", e));
+      }
+    }
 
     function enterFullScreen() {
       if (hasEnteredFullscreen) return;
@@ -168,33 +216,12 @@
       }
     }
 
-    function syncVideo() {
-      const now = Date.now();
-      const elapsedSeconds = (now - startTime) / 1000;
-      const playlistPosition = elapsedSeconds % totalDuration;
-
-      let accumulatedTime = 0;
-      let currentSong = null;
-      for (let i = 0; i < playlist.length; i++) {
-        accumulatedTime += playlist[i].duration;
-        if (playlistPosition < accumulatedTime) {
-          currentSong = playlist[i];
-          break;
-        }
+    // Add periodic sync to maintain synchronization
+    setInterval(() => {
+      if (!player.paused) {
+        syncVideo();
       }
-
-      const songStartTime = accumulatedTime - currentSong.duration;
-      const positionInSong = playlistPosition - songStartTime;
-
-      console.log(`Syncing: ${currentSong.title} at ${positionInSong.toFixed(2)}s`);
-
-      if (currentSongUrl !== currentSong.url) {
-        player.src = currentSong.url;
-        currentSongUrl = currentSong.url;
-        console.log(`Loading new video: ${currentSong.url}`);
-      }
-      player.currentTime = positionInSong;
-    }
+    }, 10000); // Sync every 10 seconds
 
     player.addEventListener('ended', () => {
       console.log("Video Ended, Switching Track");
@@ -233,10 +260,17 @@
       }
     });
 
-    // Sync on page load (set correct song and position, but don't play)
-    syncVideo();
-    // Sync every 10 minutes (600,000 milliseconds)
-    setInterval(syncVideo, 600000);
+    // Initialize playlist on page load
+    fetchPlaylist().then(() => {
+      if (playlist.length > 0) {
+        // Sync on page load after playlist is fetched
+        syncVideo();
+        // Sync every 10 minutes
+        setInterval(syncVideo, 600000);
+      } else {
+        console.error("Failed to load playlist");
+      }
+    });
   </script>
 </body>
 </html>
