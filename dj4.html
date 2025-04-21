@@ -64,13 +64,13 @@
     // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDM7HUVDfdy_UXAaCx3kYWmDhxrF0y8jyA",
-  authDomain: "model-poses.firebaseapp.com",
-  databaseURL: "https://model-poses.firebaseio.com",
-  projectId: "model-poses",
-  storageBucket: "model-poses.firebasestorage.app",
-  messagingSenderId: "10510371385",
-  appId: "1:10510371385:web:1f93c15f032b729fe61be8"
-};
+      authDomain: "model-poses.firebaseapp.com",
+      databaseURL: "https://model-poses.firebaseio.com",
+      projectId: "model-poses",
+      storageBucket: "model-poses.firebasestorage.app",
+      messagingSenderId: "10510371385",
+      appId: "1:10510371385:web:1f93c15f032b729fe61be8"
+    };
 
     // Initialize Firebase
     const app = firebase.initializeApp(firebaseConfig);
@@ -83,6 +83,9 @@
     let originalPlaylist = [];
     let playlist = [];
     let totalDuration = 0;
+    let currentSongUrl = '';
+    let hasEnteredFullscreen = false;
+    let isSyncing = false; // Flag to prevent concurrent syncs
 
     // Function to fetch playlist from Firebase
     async function fetchPlaylist() {
@@ -111,7 +114,6 @@
         console.log("Successfully loaded playlist with", playlist.length, "songs");
       } catch (error) {
         console.error("Error fetching playlist:", error);
-        // Set default empty playlist to prevent further errors
         originalPlaylist = [];
         playlist = [];
         totalDuration = 0;
@@ -137,63 +139,85 @@
 
     // Use startTime as the seed for consistent shuffling
     const startTime = new Date("2025-04-20T00:00:00Z").getTime();
-    playlist = seededShuffle(originalPlaylist, startTime / 1000);
-    totalDuration = playlist.reduce((sum, song) => sum + song.duration, 0);
-    let currentSongUrl = '';
-    let hasEnteredFullscreen = false;
 
-    // Add function to calculate current position
+    // Corrected function to calculate current position
     function getCurrentPosition() {
       const now = Date.now();
-      return (now - startTime) / 1000 % totalDuration;
+      const elapsed = (now - startTime) / 1000;
+      return ((elapsed % totalDuration) + totalDuration) % totalDuration;
     }
 
-    // Modify syncVideo to use calculated position
-    function syncVideo() {
-      if (playlist.length === 0) {
-        console.error("Playlist is empty");
-        return;
+    // Optimized syncVideo function for smooth playback
+    async function syncVideo() {
+      if (isSyncing || playlist.length === 0) {
+        return; // Prevent concurrent syncs or empty playlist
       }
+      isSyncing = true;
 
-      const playlistPosition = getCurrentPosition();
+      try {
+        const playlistPosition = getCurrentPosition();
 
-      let accumulatedTime = 0;
-      let currentSong = null;
-      for (let i = 0; i < playlist.length; i++) {
-        accumulatedTime += playlist[i].duration;
-        if (playlistPosition < accumulatedTime) {
-          currentSong = playlist[i];
-          break;
+        let accumulatedTime = 0;
+        let currentSong = null;
+        for (let i = 0; i < playlist.length; i++) {
+          accumulatedTime += Number(playlist[i].duration);
+          if (playlistPosition < accumulatedTime) {
+            currentSong = playlist[i];
+            break;
+          }
         }
-      }
 
-      if (!currentSong) {
-        console.error("No current song found");
-        return;
-      }
+        if (!currentSong) {
+          console.error("No current song found");
+          isSyncing = false;
+          return;
+        }
 
-      const songStartTime = accumulatedTime - currentSong.duration;
-      const positionInSong = playlistPosition - songStartTime;
+        const songStartTime = accumulatedTime - Number(currentSong.duration);
+        const positionInSong = playlistPosition - songStartTime;
 
-      console.log(`Syncing: ${currentSong.title} at ${positionInSong.toFixed(2)}s`);
+        // Log syncing details
+        console.log(`Syncing: ${currentSong.title} at ${positionInSong.toFixed(2)}s`);
 
-      if (currentSongUrl !== currentSong.url) {
-        player.src = currentSong.url;
-        currentSongUrl = currentSong.url;
-        
-        player.addEventListener('canplay', () => {
-          console.log(`Successfully loaded video: ${currentSong.url}`);
+        // Check if the current song is still playing and position is close
+        if (currentSongUrl === currentSong.url && !player.paused) {
+          const currentTime = player.currentTime;
+          const desync = Math.abs(currentTime - positionInSong);
+          if (desync < 1) { // Allow 1-second tolerance
+            isSyncing = false;
+            return; // No need to adjust if within tolerance
+          }
+          // Adjust position if desync is significant
+          player.currentTime = positionInSong;
+          console.log(`Adjusted position to ${positionInSong.toFixed(2)}s due to desync of ${desync.toFixed(2)}s`);
+          isSyncing = false;
+          return;
+        }
+
+        // Load new song if different
+        if (currentSongUrl !== currentSong.url) {
+          currentSongUrl = currentSong.url;
+          player.src = currentSong.url;
+
+          player.addEventListener('canplay', () => {
+            console.log(`Successfully loaded video: ${currentSong.url}`);
+            player.currentTime = positionInSong;
+            player.play().catch(e => console.error("Playback failed:", e));
+          }, { once: true });
+
+          player.addEventListener('error', () => {
+            console.error(`Error loading video: ${currentSong.url}`);
+            setTimeout(() => syncVideo(), 1000);
+          }, { once: true });
+        } else {
+          // Same song, just adjust position
           player.currentTime = positionInSong;
           player.play().catch(e => console.error("Playback failed:", e));
-        }, { once: true });
-
-        player.addEventListener('error', () => {
-          console.error(`Error loading video: ${currentSong.url}`);
-          setTimeout(() => syncVideo(), 1000);
-        }, { once: true });
-      } else {
-        player.currentTime = positionInSong;
-        player.play().catch(e => console.error("Playback failed:", e));
+        }
+      } catch (e) {
+        console.error("Sync error:", e);
+      } finally {
+        isSyncing = false;
       }
     }
 
@@ -209,20 +233,20 @@
         }
         console.log("Full Screen Requested");
         hasEnteredFullscreen = true;
-        // Ensure watermark is visible in fullscreen
         watermark.style.display = 'block';
       } catch (e) {
         console.error("Full Screen Error:", e);
       }
     }
 
-    // Add periodic sync to maintain synchronization
+    // Periodic sync to maintain synchronization
     setInterval(() => {
-      if (!player.paused) {
+      if (!player.paused && !isSyncing) {
         syncVideo();
       }
     }, 10000); // Sync every 10 seconds
 
+    // Handle video end for smooth transitions
     player.addEventListener('ended', () => {
       console.log("Video Ended, Switching Track");
       syncVideo();
@@ -231,15 +255,11 @@
 
     // Play button click handler
     playButton.addEventListener('click', () => {
-      // Hide the play button
       playButton.style.display = 'none';
-      // Show the video and watermark
       player.style.display = 'block';
       watermark.style.display = 'block';
-      // Sync and start playback
       syncVideo();
       player.play().catch(e => console.error("Playback failed:", e));
-      // Enter fullscreen
       enterFullScreen();
     });
 
@@ -263,10 +283,13 @@
     // Initialize playlist on page load
     fetchPlaylist().then(() => {
       if (playlist.length > 0) {
-        // Sync on page load after playlist is fetched
-        syncVideo();
-        // Sync every 10 minutes
-        setInterval(syncVideo, 600000);
+        // Remove initial syncVideo call to avoid premature playback
+        // Sync every 10 minutes for long-term alignment
+        setInterval(() => {
+          if (!isSyncing) {
+            syncVideo();
+          }
+        }, 600000);
       } else {
         console.error("Failed to load playlist");
       }
