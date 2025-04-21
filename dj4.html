@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Hindi Pop 2024-2025 Custom Player Sync</title>
+  <title>Hindi Pop 2024-2025 Video Player</title>
   <style>
     video {
       width: 100%;
@@ -10,29 +10,39 @@
       top: 0;
       left: 0;
       z-index: 1000;
+      display: none; /* Hidden until play button is clicked */
     }
-    .info {
+    button {
       position: fixed;
-      bottom: 10px;
-      left: 10px;
-      color: white;
-      background: rgba(0, 0, 0, 0.7);
-      padding: 5px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 20px 40px;
+      font-size: 24px;
+      cursor: pointer;
       z-index: 1001;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #0056b3;
     }
   </style>
 </head>
 <body>
-  <video id="player" controls autoplay></video>
-  <div class="info">Now playing: <span id="currentSong">Loading...</span></div>
+  <video id="player"></video>
+  <button id="playButton">Play</button>
 
   <script>
     const player = document.getElementById('player');
+    const playButton = document.getElementById('playButton');
     const originalPlaylist = [
       { 
-        title: "Nadaaniyan | Akshath Acharya", 
-        url: "https://pagalworld.video/files/download/id/2379", 
-        duration: 171 
+        title: "Jatt Mehkma - GLORY by Yo Yo Honey Singh", 
+        url: "https://pagalworld.video/files/download/type/320/id/2360", 
+        duration: 243 
       },
       { 
         title: "Attach | Sidhu Moose Wala ft Fredo", 
@@ -45,7 +55,6 @@
     function seededShuffle(array, seed) {
       const newArray = [...array];
       let m = newArray.length, t, i;
-      // Use a simple seeded random number generator
       function seededRandom() {
         const x = Math.sin(seed++) * 10000;
         return x - Math.floor(x);
@@ -67,7 +76,7 @@
     let hasEnteredFullscreen = false;
 
     function enterFullScreen() {
-      if (hasEnteredFullscreen) return; // Prevent repeated fullscreen requests
+      if (hasEnteredFullscreen) return;
       try {
         if (player.requestFullscreen) {
           player.requestFullscreen();
@@ -109,22 +118,29 @@
         console.log(`Loading new video: ${currentSong.url}`);
       }
       player.currentTime = positionInSong;
-
-      if (player.paused) {
-        player.play().catch(e => console.error("Playback failed:", e));
-      }
-
-      document.getElementById('currentSong').textContent = currentSong.title;
     }
 
     player.addEventListener('ended', () => {
       console.log("Song Ended, Switching Track");
       syncVideo();
+      player.play().catch(e => console.error("Playback failed:", e));
     });
 
-    // Sync and enter fullscreen on page load
+    // Play button click handler
+    playButton.addEventListener('click', () => {
+      // Hide the play button
+      playButton.style.display = 'none';
+      // Show the video
+      player.style.display = 'block';
+      // Sync and start playback
+      syncVideo();
+      player.play().catch(e => console.error("Playback failed:", e));
+      // Enter fullscreen
+      enterFullScreen();
+    });
+
+    // Sync on page load (set correct song and position, but don't play)
     syncVideo();
-    enterFullScreen();
     // Sync every 10 minutes (600,000 milliseconds)
     setInterval(syncVideo, 600000);
   </script>
