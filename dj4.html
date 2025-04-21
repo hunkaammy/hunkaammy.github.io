@@ -1,17 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Hindi Pop 2024-2025 Video Player</title>
+  <title>Hindi Pop 2024-2025 Audio Player</title>
   <style>
-    video {
-      width: 100%;
-      height: 100%;
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 1000;
-      display: none; /* Hidden until play button is clicked */
-      object-fit: cover; /* Ensure video fills screen without distortion */
+    audio {
+      display: none; /* Audio element is hidden */
     }
     button {
       position: fixed;
@@ -33,23 +26,73 @@
   </style>
 </head>
 <body>
-  <video id="player"></video>
+  <audio id="player"></audio>
   <button id="playButton">Play</button>
 
   <script>
     const player = document.getElementById('player');
     const playButton = document.getElementById('playButton');
     const originalPlaylist = [
-      { 
-        title: "Nadaaniyan | Akshath Acharya", 
-        url: "https://pagalworld.video/files/download/id/2379", 
-        duration: 171 
-      },
-      { 
-        title: "Attach | Sidhu Moose Wala ft Fredo", 
-        url: "https://pagalworld.video/files/download/type/320/id/2303", 
-        duration: 306 
-      }
+      { title: "Song ID 2390", url: "https://pagalworld.video/files/download/type/320/id/2390", duration: 180 },
+      { title: "Song ID 2389", url: "https://pagalworld.video/files/download/type/320/id/2389", duration: 180 },
+      { title: "Song ID 2388", url: "https://pagalworld.video/files/download/type/320/id/2388", duration: 180 },
+      { title: "Song ID 2387", url: "https://pagalworld.video/files/download/type/320/id/2387", duration: 180 },
+      { title: "Song ID 2386", url: "https://pagalworld.video/files/download/type/320/id/2386", duration: 180 },
+      { title: "Song ID 2385", url: "https://pagalworld.video/files/download/type/320/id/2385", duration: 180 },
+      { title: "Song ID 2384", url: "https://pagalworld.video/files/download/type/320/id/2384", duration: 180 },
+      { title: "Song ID 2383", url: "https://pagalworld.video/files/download/type/320/id/2383", duration: 180 },
+      { title: "Song ID 2382", url: "https://pagalworld.video/files/download/type/320/id/2382", duration: 180 },
+      { title: "Song ID 2381", url: "https://pagalworld.video/files/download/type/320/id/2381", duration: 180 },
+      { title: "Song ID 2380", url: "https://pagalworld.video/files/download/type/320/id/2380", duration: 180 },
+      { title: "Song ID 2379", url: "https://pagalworld.video/files/download/type/320/id/2379", duration: 180 },
+      { title: "Song ID 2378", url: "https://pagalworld.video/files/download/type/320/id/2378", duration: 180 },
+      { title: "Song ID 2377", url: "https://pagalworld.video/files/download/type/320/id/2377", duration: 180 },
+      { title: "Song ID 2376", url: "https://pagalworld.video/files/download/type/320/id/2376", duration: 180 },
+      { title: "Song ID 2375", url: "https://pagalworld.video/files/download/type/320/id/2375", duration: 180 },
+      { title: "Song ID 2374", url: "https://pagalworld.video/files/download/type/320/id/2374", duration: 180 },
+      { title: "Song ID 2373", url: "https://pagalworld.video/files/download/type/320/id/2373", duration: 180 },
+      { title: "Song ID 2372", url: "https://pagalworld.video/files/download/type/320/id/2372", duration: 180 },
+      { title: "Song ID 2371", url: "https://pagalworld.video/files/download/type/320/id/2371", duration: 180 },
+      { title: "Song ID 2370", url: "https://pagalworld.video/files/download/type/320/id/2370", duration: 180 },
+      { title: "Song ID 2369", url: "https://pagalworld.video/files/download/type/320/id/2369", duration: 180 },
+      { title: "Song ID 2368", url: "https://pagalworld.video/files/download/type/320/id/2368", duration: 180 },
+      { title: "Song ID 2367", url: "https://pagalworld.video/files/download/type/320/id/2367", duration: 180 },
+      { title: "Song ID 2366", url: "https://pagalworld.video/files/download/type/320/id/2366", duration: 180 },
+      { title: "Song ID 2365", url: "https://pagalworld.video/files/download/type/320/id/2365", duration: 180 },
+      { title: "Song ID 2364", url: "https://pagalworld.video/files/download/type/320/id/2364", duration: 180 },
+      { title: "Song ID 2363", url: "https://pagalworld.video/files/download/type/320/id/2363", duration: 180 },
+      { title: "Song ID 2362", url: "https://pagalworld.video/files/download/type/320/id/2362", duration: 180 },
+      { title: "Song ID 2361", url: "https://pagalworld.video/files/download/type/320/id/2361", duration: 180 },
+      { title: "Song ID 2360", url: "https://pagalworld.video/files/download/type/320/id/2360", duration: 180 },
+      { title: "Song ID 2359", url: "https://pagalworld.video/files/download/type/320/id/2359", duration: 180 },
+      { title: "Song ID 2358", url: "https://pagalworld.video/files/download/type/320/id/2358", duration: 180 },
+      { title: "Song ID 2357", url: "https://pagalworld.video/files/download/type/320/id/2357", duration: 180 },
+      { title: "Song ID 2356", url: "https://pagalworld.video/files/download/type/320/id/2356", duration: 180 },
+      { title: "Song ID 2355", url: "https://pagalworld.video/files/download/type/320/id/2355", duration: 180 },
+      { title: "Song ID 2354", url: "https://pagalworld.video/files/download/type/320/id/2354", duration: 180 },
+      { title: "Song ID 2353", url: "https://pagalworld.video/files/download/type/320/id/2353", duration: 180 },
+      { title: "Song ID 2352", url: "https://pagalworld.video/files/download/type/320/id/2352", duration: 180 },
+      { title: "Song ID 2351", url: "https://pagalworld.video/files/download/type/320/id/2351", duration: 180 },
+      { title: "Song ID 2350", url: "https://pagalworld.video/files/download/type/320/id/2350", duration: 180 },
+      { title: "Song ID 2349", url: "https://pagalworld.video/files/download/type/320/id/2349", duration: 180 },
+      { title: "Song ID 2348", url: "https://pagalworld.video/files/download/type/320/id/2348", duration: 180 },
+      { title: "Song ID 2347", url: "https://pagalworld.video/files/download/type/320/id/2347", duration: 180 },
+      { title: "Song ID 2346", url: "https://pagalworld.video/files/download/type/320/id/2346", duration: 180 },
+      { title: "Song ID 2345", url: "https://pagalworld.video/files/download/type/320/id/2345", duration: 180 },
+      { title: "Song ID 2344", url: "https://pagalworld.video/files/download/type/320/id/2344", duration: 180 },
+      { title: "Song ID 2343", url: "https://pagalworld.video/files/download/type/320/id/2343", duration: 180 },
+      { title: "Song ID 2342", url: "https://pagalworld.video/files/download/type/320/id/2342", duration: 180 },
+      { title: "Song ID 2341", url: "https://pagalworld.video/files/download/type/320/id/2341", duration: 180 },
+      { title: "Song ID 2340", url: "https://pagalworld.video/files/download/type/320/id/2340", duration: 180 },
+      { title: "Song ID 2339", url: "https://pagalworld.video/files/download/type/320/id/2339", duration: 180 },
+      { title: "Song ID 2338", url: "https://pagalworld.video/files/download/type/320/id/2338", duration: 180 },
+      { title: "Song ID 2337", url: "https://pagalworld.video/files/download/type/320/id/2337", duration: 180 },
+      { title: "Song ID 2336", url: "https://pagalworld.video/files/download/type/320/id/2336", duration: 180 },
+      { title: "Song ID 2335", url: "https://pagalworld.video/files/download/type/320/id/2335", duration: 180 },
+      { title: "Song ID 2334", url: "https://pagalworld.video/files/download/type/320/id/2344", duration: 180 },
+      { title: "Song ID 2333", url: "https://pagalworld.video/files/download/type/320/id/2333", duration: 180 },
+      { title: "Song ID 2332", url: "https://pagalworld.video/files/download/type/320/id/2332", duration: 180 },
+      { title: "Song ID 2331", url: "https://pagalworld.video/files/download/type/320/id/2331", duration: 180 }
     ];
 
     // Deterministic shuffle function using a seed
@@ -72,7 +115,7 @@
     // Use startTime as the seed for consistent shuffling across users
     const startTime = new Date("2025-04-20T00:00:00Z").getTime();
     const playlist = seededShuffle(originalPlaylist, startTime / 1000);
-    const totalDuration = playlist.reduce((sum, song) => sum + song.duration, 0); // 477 seconds
+    const totalDuration = playlist.reduce((sum, song) => sum + song.duration, 0); // 10800 seconds
     let currentSongUrl = '';
     let hasEnteredFullscreen = false;
 
@@ -93,7 +136,7 @@
       }
     }
 
-    function syncVideo() {
+    function syncAudio() {
       const now = Date.now();
       const elapsedSeconds = (now - startTime) / 1000;
       const playlistPosition = elapsedSeconds % totalDuration;
@@ -111,39 +154,37 @@
       const songStartTime = accumulatedTime - currentSong.duration;
       const positionInSong = playlistPosition - songStartTime;
 
-      console.log(`Syncing: ${currentSong.title} at ${positionInSong.toFixed(2)}s`);
+      console.log(`Syncing: ${currentSong.title} at ${positionInSong.toFixed(2)} sekund`);
 
       if (currentSongUrl !== currentSong.url) {
         player.src = currentSong.url;
         currentSongUrl = currentSong.url;
-        console.log(`Loading new video: ${currentSong.url}`);
+        console.log(`Ładuję nowy utwór: ${currentSong.url}`);
       }
       player.currentTime = positionInSong;
     }
 
     player.addEventListener('ended', () => {
-      console.log("Song Ended, Switching Track");
-      syncVideo();
-      player.play().catch(e => console.error("Playback failed:", e));
+      console.log("Utwór zakończony, przełączanie na następny");
+      syncAudio();
+      player.play().catch(e => console.error("Nie udało się odtworzyć:", e));
     });
 
     // Play button click handler
     playButton.addEventListener('click', () => {
       // Hide the play button
       playButton.style.display = 'none';
-      // Show the video
-      player.style.display = 'block';
       // Sync and start playback
-      syncVideo();
-      player.play().catch(e => console.error("Playback failed:", e));
+      syncAudio();
+      player.play().catch(e => console.error("Nie udało się odtworzyć:", e));
       // Enter fullscreen
       enterFullScreen();
     });
 
     // Sync on page load (set correct song and position, but don't play)
-    syncVideo();
+    syncAudio();
     // Sync every 10 minutes (600,000 milliseconds)
-    setInterval(syncVideo, 600000);
+    setInterval(syncAudio, 600000);
   </script>
 </body>
 </html>
