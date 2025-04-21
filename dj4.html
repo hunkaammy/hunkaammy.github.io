@@ -1,342 +1,132 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>🎶 Love Songs TV</title>
+  <title>Hindi Pop 2024-2025 Custom Player Sync</title>
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
+    video {
       width: 100%;
       height: 100%;
-      overflow: hidden;
-      background: black; /* Fallback for letterboxed areas */
-    }
-    #player {
-      width: 100vw;
-      height: 100vh;
       position: fixed;
       top: 0;
       left: 0;
-      object-fit: contain; /* Maintains 16:9 aspect ratio */
-      background: black;
+      z-index: 1000;
     }
-    #next-player {
-      display: none; /* Ensure hidden player stays invisible */
-    }
-    /* Encourage landscape on mobile */
-    @media screen and (orientation: portrait) and (max-width: 768px) {
-      #player {
-        transform: rotate(90deg);
-        transform-origin: center;
-        width: 100vh;
-        height: 100vw;
-        top: calc((100vw - 100vh) / 2);
-        left: calc((100vh - 100vw) / 2);
-      }
+    .info {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      color: white;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 5px;
+      z-index: 1001;
     }
   </style>
 </head>
 <body>
-  <div id="player"></div>
+  <video id="player" controls autoplay></video>
+  <div class="info">Now playing: <span id="currentSong">Loading...</span></div>
 
   <script>
-    // YouTube API script
-    const tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api";
-    document.body.appendChild(tag);
-
-    let currentPlayer;
-    let nextPlayer;
-    let playersReady = 0;
-
-    // Fixed broadcast start time in UTC
-    const broadcastStartUTC = new Date("2025-04-01T08:00:00Z").getTime();
-
-    // Original playlist (rolled back)
-    const playlist = [
-      {
-        id: "-2RAq5o5pwc",
-        title: "Jhol – Coke Studio Pakistan Season 15",
-        artist: "Maanu & Annural Khalid",
-        duration: 300 // 5 minutes
+    const player = document.getElementById('player');
+    const originalPlaylist = [
+      { 
+        title: "Nadaaniyan | Akshath Acharya", 
+        url: "https://pagalworld.video/files/download/id/2379", 
+        duration: 171 
       },
-      {
-        id: "tmAXbPGOf0Q",
-        title: "Teri Meri Ladayi",
-        artist: "Maninder Buttar feat. Tania",
-        duration: 241 // 4 minutes 1 second
-      },
-      {
-        id: "FVPdfPhXmR0",
-        title: "Yaarr Ni Milyaa",
-        artist: "Hardy Sandhu",
-        duration: 320 // 5 minutes 20 seconds
-      },
-      {
-        id: "FVPdfPhXmR0",
-        title: "Yaarr Ni Milyaa",
-        artist: "Hardy Sandhu",
-        duration: 320 // 5 minutes 20 seconds
+      { 
+        title: "Attach | Sidhu Moose Wala ft Fredo", 
+        url: "https://pagalworld.video/files/download/type/320/id/2303", 
+        duration: 306 
       }
-,
-      {
-        id: "I1nX5EuvwzE",
-        title: "Shubh - Elevated",
-        artist: "Shubh",
-        duration: 229 // 5 minutes 20 seconds
-      }
-,
-      {
-        id: "V5En3Ks3OjE",
-        title: "Kale Je Libaas Di ",
-        artist: "KAKA",
-        duration: 275 // 5 minutes 20 seconds
-      }
-,
-      {
-        id: "AZmAgoir1Tc",
-        title: "Feelings ",
-        artist: "SUMIT GOSWAMI",
-        duration: 295 // 5 minutes 20 seconds
-      }
-
-
     ];
 
-    // Deterministic shuffle based on a seed
+    // Deterministic shuffle function using a seed
     function seededShuffle(array, seed) {
-      const result = [...array];
-      let m = result.length, t, i;
-      while (m) {
-        i = Math.floor(seededRandom(seed + m) * m--);
-        t = result[m];
-        result[m] = result[i];
-        result[i] = t;
+      const newArray = [...array];
+      let m = newArray.length, t, i;
+      // Use a simple seeded random number generator
+      function seededRandom() {
+        const x = Math.sin(seed++) * 10000;
+        return x - Math.floor(x);
       }
-      return result;
+      while (m) {
+        i = Math.floor(seededRandom() * m--);
+        t = newArray[m];
+        newArray[m] = newArray[i];
+        newArray[i] = t;
+      }
+      return newArray;
     }
 
-    // Seeded random number generator
-    function seededRandom(seed) {
-      const x = Math.sin(seed) * 10000;
-      return x - Math.floor(x);
+    // Use startTime as the seed for consistent shuffling across users
+    const startTime = new Date("2025-04-20T00:00:00Z").getTime();
+    const playlist = seededShuffle(originalPlaylist, startTime / 1000);
+    const totalDuration = playlist.reduce((sum, song) => sum + song.duration, 0); // 477 seconds
+    let currentSongUrl = '';
+    let hasEnteredFullscreen = false;
+
+    function enterFullScreen() {
+      if (hasEnteredFullscreen) return; // Prevent repeated fullscreen requests
+      try {
+        if (player.requestFullscreen) {
+          player.requestFullscreen();
+        } else if (player.webkitRequestFullscreen) {
+          player.webkitRequestFullscreen();
+        } else if (player.msRequestFullscreen) {
+          player.msRequestFullscreen();
+        }
+        console.log("Full Screen Requested");
+        hasEnteredFullscreen = true;
+      } catch (e) {
+        console.error("Full Screen Error:", e);
+      }
     }
 
-    // Get total playlist duration
-    function getTotalDuration() {
-      return playlist.reduce((sum, song) => sum + song.duration, 0);
-    }
-
-    // Calculate current song and time
-    function getCurrentSongAndTime() {
-      const nowUTC = Date.now();
-      const elapsed = Math.floor((nowUTC - broadcastStartUTC) / 1000);
-      const totalDuration = getTotalDuration();
-      const cycleTime = elapsed % totalDuration;
-
-      // Use a seed based on the cycle number
-      const cycleNumber = Math.floor(elapsed / totalDuration);
-      const seed = cycleNumber;
-      const shuffledPlaylist = seededShuffle(playlist, seed);
+    function syncVideo() {
+      const now = Date.now();
+      const elapsedSeconds = (now - startTime) / 1000;
+      const playlistPosition = elapsedSeconds % totalDuration;
 
       let accumulatedTime = 0;
-      for (let i = 0; i < shuffledPlaylist.length; i++) {
-        const song = shuffledPlaylist[i];
-        if (cycleTime < accumulatedTime + song.duration) {
-          return {
-            song: song,
-            time: cycleTime - accumulatedTime,
-            index: i,
-            playlist: shuffledPlaylist
-          };
-        }
-        accumulatedTime += song.duration;
-      }
-      return {
-        song: shuffledPlaylist[0],
-        time: 0,
-        index: 0,
-        playlist: shuffledPlaylist
-      };
-    }
-
-    // YouTube API ready callback
-    function onYouTubeIframeAPIReady() {
-      try {
-        initializePlayers();
-      } catch (e) {
-        console.error("Error initializing players:", e);
-      }
-    }
-
-    // Initialize both players
-    function initializePlayers() {
-      const { song, time, index, playlist } = getCurrentSongAndTime();
-
-      // Create current player (visible)
-      currentPlayer = new YT.Player('player', {
-        width: '100%',
-        height: '100%',
-        videoId: song.id,
-        playerVars: {
-          autoplay: 1,
-          mute: 1,
-          controls: 1,
-          start: time,
-          rel: 0,
-          modestbranding: 1,
-          playsinline: 1 // Prevent iOS auto-fullscreen
-        },
-        events: {
-          onReady: onPlayerReady,
-          onStateChange: (event) => {
-            if (event.data === YT.PlayerState.PLAYING) {
-              event.target.unMute();
-              monitorSongProgress(song, index, playlist);
-            }
-            if (event.data === YT.PlayerState.ENDED) {
-              switchToNextPlayer();
-            }
-          },
-          onError: (event) => {
-            console.error("Video error:", event.data);
-            switchToNextPlayer(); // Skip to next on error
-          }
-        }
-      });
-
-      // Create next player (hidden)
-      const nextPlayerDiv = document.createElement('div');
-      nextPlayerDiv.id = 'next-player';
-      nextPlayerDiv.style.display = 'none';
-      document.body.appendChild(nextPlayerDiv);
-
-      const nextSong = getNextSong(index, playlist);
-      nextPlayer = new YT.Player('next-player', {
-        width: '1',
-        height: '1',
-        videoId: nextSong.id,
-        playerVars: {
-          autoplay: 0,
-          mute: 1,
-          controls: 0,
-          start: 0,
-          rel: 0,
-          modestbranding: 1
-        },
-        events: {
-          onReady: onPlayerReady,
-          onError: (event) => {
-            console.error("Next video preload error:", event.data);
-          }
-        }
-      });
-    }
-
-    // Handle player ready
-    function onPlayerReady() {
-      playersReady++;
-      if (playersReady === 2) {
-        currentPlayer.playVideo();
-      }
-    }
-
-    // Get next song
-    function getNextSong(currentIndex, shuffledPlaylist) {
-      const nextIndex = (currentIndex + 1) % shuffledPlaylist.length;
-      return shuffledPlaylist[nextIndex];
-    }
-
-    // Monitor song progress to switch 10 seconds before end
-    function monitorSongProgress(song, index, playlist) {
-      const checkInterval = setInterval(() => {
-        if (currentPlayer && currentPlayer.getCurrentTime) {
-          const currentTime = currentPlayer.getCurrentTime();
-          const timeRemaining = song.duration - currentTime;
-          if (timeRemaining <= 10 && timeRemaining > 0) {
-            clearInterval(checkInterval);
-            switchToNextPlayer();
-          }
-        }
-      }, 1000);
-    }
-
-    // Switch to next player
-    function switchToNextPlayer() {
-      // Swap players
-      const tempPlayer = currentPlayer;
-      currentPlayer = nextPlayer;
-      nextPlayer = tempPlayer;
-
-      // Update current player styles
-      const playerDiv = document.getElementById('player');
-      playerDiv.innerHTML = '';
-      currentPlayer.a.id = 'player';
-      playerDiv.appendChild(currentPlayer.a);
-      currentPlayer.a.style.width = '100%';
-      currentPlayer.a.style.height = '100%';
-
-      // Update next player
-      nextPlayer.a.id = 'next-player';
-      nextPlayer.a.style.width = '1px';
-      nextPlayer.a.style.height = '1px';
-      nextPlayer.a.style.display = 'none';
-
-      // Get next song info
-      const { song, time, index, playlist } = getCurrentSongAndTime();
-
-      // Start current player
-      currentPlayer.loadVideoById({
-        videoId: song.id,
-        startSeconds: time
-      });
-      currentPlayer.mute();
-      currentPlayer.playVideo();
-
-      // Preload next song
-      const nextSong = getNextSong(index, playlist);
-      nextPlayer.loadVideoById({
-        videoId: nextSong.id,
-        startSeconds: 0
-      });
-    }
-
-    // Periodic sync check (every 30 seconds)
-    setInterval(() => {
-      if (currentPlayer && currentPlayer.getCurrentTime) {
-        const { song, time, index, playlist } = getCurrentSongAndTime();
-        const currentSongId = currentPlayer.getVideoData().video_id;
-        if (currentSongId !== song.id) {
-          currentPlayer.loadVideoById({
-            videoId: song.id,
-            startSeconds: time
-          });
-          // Preload next song
-          const nextSong = getNextSong(index, playlist);
-          nextPlayer.loadVideoById({
-            videoId: nextSong.id,
-            startSeconds: 0
-          });
-        } else {
-          const currentTime = Math.floor(currentPlayer.getCurrentTime());
-          if (Math.abs(currentTime - time) > 5) {
-            currentPlayer.seekTo(time, true);
-          }
+      let currentSong = null;
+      for (let i = 0; i < playlist.length; i++) {
+        accumulatedTime += playlist[i].duration;
+        if (playlistPosition < accumulatedTime) {
+          currentSong = playlist[i];
+          break;
         }
       }
-    }, 30000);
 
-    // Handle Android orientation
-    if (/Android/i.test(navigator.userAgent)) {
-      if (screen.orientation && screen.orientation.lock) {
-        screen.orientation.lock('landscape').catch((err) => {
-          console.warn("Orientation lock failed:", err);
-        });
+      const songStartTime = accumulatedTime - currentSong.duration;
+      const positionInSong = playlistPosition - songStartTime;
+
+      console.log(`Syncing: ${currentSong.title} at ${positionInSong.toFixed(2)}s`);
+
+      if (currentSongUrl !== currentSong.url) {
+        player.src = currentSong.url;
+        currentSongUrl = currentSong.url;
+        console.log(`Loading new video: ${currentSong.url}`);
       }
+      player.currentTime = positionInSong;
+
+      if (player.paused) {
+        player.play().catch(e => console.error("Playback failed:", e));
+      }
+
+      document.getElementById('currentSong').textContent = currentSong.title;
     }
 
+    player.addEventListener('ended', () => {
+      console.log("Song Ended, Switching Track");
+      syncVideo();
+    });
+
+    // Sync and enter fullscreen on page load
+    syncVideo();
+    enterFullScreen();
+    // Sync every 10 minutes (600,000 milliseconds)
+    setInterval(syncVideo, 600000);
   </script>
 </body>
 </html>
