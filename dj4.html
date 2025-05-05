@@ -1,299 +1,1096 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Hindi Pop 2024-2025 Video Player</title>
-  <!-- Update Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-  <style>
-    .video-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1000;
-    }
-    video {
-      width: 100%;
-      height: 100%;
-      display: none; /* Hidden until play button is clicked */
-      object-fit: cover; /* Ensure video fills screen */
-    }
-    button {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      padding: 20px 40px;
-      font-size: 24px;
-      cursor: pointer;
-      z-index: 1001;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    .watermark {
-      position: absolute;
-      top: 10px;
-      right: 10px; /* Positioned in top-right corner */
-      z-index: 1002; /* Higher than video z-index */
-      background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
-      color: white;
-      padding: 5px 10px;
-      font-size: 16px;
-      font-family: Arial, sans-serif;
-      display: none; /* Hidden until playback starts */
-      border-radius: 3px;
-      pointer-events: none; /* Prevents watermark from intercepting clicks */
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube DJ Player with Played History and AI Suggestions</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            background: linear-gradient(135deg, #1a1a1a, #333333);
+            color: #f0f0f0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #ff5500;
+            text-shadow: 0 0 10px rgba(255, 85, 0, 0.7);
+            font-size: 28px;
+            letter-spacing: 2px;
+        }
+
+        .track-control-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 600px;
+            margin: 20px 0;
+        }
+
+        .track-selector {
+            margin-right: 10px;
+            flex: 1;
+            position: relative;
+        }
+
+        label, input, select, button {
+            display: block;
+            margin-top: 10px;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            background-color: #222222;
+            color: #f0f0f0;
+        }
+
+        button {
+            cursor: pointer;
+            background-color: #ff5500;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #ff7700;
+        }
+
+        .player-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin: 20px 0;
+            max-width: 900px;
+        }
+
+        .video-player {
+            flex: 1;
+            margin: 0 10px;
+            border: 2px solid #444444;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 45%;
+            background-color: #111111;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .tempo-controls {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 0 0 10px 10px;
+        }
+
+        .tempo-slider {
+            width: 100%;
+            margin: 10px 0;
+            height: 10px;
+            background: #333333;
+            border-radius: 5px;
+        }
+
+        .tempo-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #ff5500;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .balance-control {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 600px;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            padding: 20px;
+        }
+
+        .balance-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 25px;
+            background: #333333;
+            border-radius: 10px;
+            outline: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            border: 1px solid #ff5500;
+        }
+
+        .balance-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 30px;
+            height: 30px;
+            background: #ff5500;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 85, 0, 0.7);
+        }
+
+        .balance-slider::-moz-range-thumb {
+            width: 30px;
+            height: 30px;
+            background: #ff5500;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 85, 0, 0.7);
+        }
+
+        .volume-percentage {
+            font-size: 20px;
+            color: #fff;
+            margin-top: 10px;
+        }
+
+        .history-container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            overflow-x: auto;
+            border: 1px solid #444444;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #444444;
+        }
+
+        th {
+            background-color: #222222;
+            color: #ff5500;
+        }
+
+        td button {
+            padding: 5px 10px;
+            background-color: #222222;
+            color: white;
+            border: 1px solid #444444;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .beat-btn:hover {
+            background-color: #444444;
+        }
+
+        .beat-btn.active {
+            background-color: #ff5500;
+            box-shadow: 0 0 10px rgba(255, 85, 0, 0.7);
+        }
+
+        td button:hover {
+            background-color: #1abc9c;
+        }
+
+        .edit-btn {
+            background-color: #f39c12;
+        }
+
+        .edit-btn:hover {
+            background-color: #e67e22;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+        }
+
+        .modal-content {
+            background-color: #34495e;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        #notes-textarea {
+            width: 100%;
+            height: 200px;
+            margin: 10px 0;
+            background: #2c3e50;
+            border: 1px solid #444;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        #notes-btn {
+            margin-left: 10px;
+            padding: 8px 15px;
+            background: #1abc9c;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        #notes-btn:hover {
+            background: #16a085;
+        }
+
+        .buttons-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        #backup-btn, #restore-btn {
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .player-container {
+                align-items: center;
+            }
+
+            .video-player {
+                width: 90%;
+                margin: 10px 0;
+            }
+        }
+
+        .current-track-info {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+        }
+
+        table {
+            font-size: 14px;
+        }
+
+        .custom-dropdown {
+            position: absolute;
+            width: 100%;
+            max-width: 300px;
+            margin: 10px 0;
+            z-index: 10;
+            background: #34495e;
+            max-height: 200px;
+            overflow-y: auto;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .custom-dropdown .dropdown-item {
+            display: flex;
+            cursor: pointer;
+            margin-bottom: 5px;
+            color: white;
+            background-color: transparent;
+            transition: background-color 0.3s ease;
+        }
+
+        .custom-dropdown .dropdown-item:hover {
+            background-color: #2980b9;
+        }
+
+        .custom-dropdown img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+
+        .custom-dropdown .title {
+            flex: 1;
+            font-size: 10px;
+        }
+
+        .tempo-controls {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 0 0 10px 10px;
+        }
+
+        .tempo-slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .beat-loop {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .beat-loop-select {
+            padding: 5px;
+            background: #34495e;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .beat-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .beat-btn {
+            flex: 1;
+            padding: 5px 10px;
+            background-color: #34495e;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .beat-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .beat-btn.active {
+            background-color: #e74c3c;
+        }
+
+        #ai-suggestions-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+        }
+
+        #ai-suggestions-modal .modal-content {
+            background-color: #34495e;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        #ai-suggestions-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .ai-suggestion-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #2c3e50;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .ai-suggestion-item:hover {
+            background-color: #2980b9;
+        }
+
+        .ai-suggestion-item img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+            border-radius: 5px;
+        }
+
+        .ai-suggestion-item span {
+            flex: 1;
+            font-size: 14px;
+            color: white;
+        }
+    </style>
 </head>
 <body>
-  <div class="video-container">
-    <video id="player"></video>
-    <div id="watermark" class="watermark">Sammy TV</div>
-  </div>
-  <button id="playButton">Play</button>
+    <h1>SAMMY'S YT DJ PROJECT</h1>
 
-  <script>
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyDM7HUVDfdy_UXAaCx3kYWmDhxrF0y8jyA",
-      authDomain: "model-poses.firebaseapp.com",
-      databaseURL: "https://model-poses.firebaseio.com",
-      projectId: "model-poses",
-      storageBucket: "model-poses.firebasestorage.app",
-      messagingSenderId: "10510371385",
-      appId: "1:10510371385:web:1f93c15f032b729fe61be8"
-    };
+    <select id="api-key-select">
+        <option value="AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A">API Key 1</option>
+        <option value="AIzaSyDX2n08WCf5Ol1nffaqJU_aJp_BODlw1H4">API Key 2</option>
+    </select>
 
-    // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    <button id="notes-btn" onclick="openNotesModal()">Notes</button>
 
-    const player = document.getElementById('player');
-    const playButton = document.getElementById('playButton');
-    const watermark = document.getElementById('watermark');
-    const videoContainer = document.querySelector('.video-container');
-    let originalPlaylist = [];
-    let playlist = [];
-    let totalDuration = 0;
-    let currentSongUrl = '';
-    let hasEnteredFullscreen = false;
-    let isSyncing = false; // Flag to prevent concurrent syncs
+    <div id="notes-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeNotesModal()">×</span>
+            <h3>DJ Notes</h3>
+            <textarea id="notes-textarea" placeholder="Add your notes here..."></textarea>
+            <button onclick="saveNotes()">Save Notes</button>
+        </div>
+    </div>
 
-    // Function to fetch playlist from Firebase
-    async function fetchPlaylist() {
-      try {
-        const snapshot = await database.ref('videos').once('value');
-        const data = snapshot.val();
-        console.log("Received data from Firebase:", data);
-        
-        if (!data) {
-          throw new Error("No data received from Firebase");
-        }
-        
-        // Convert object to array
-        const playlistArray = Object.keys(data).map(key => ({
-          ...data[key],
-          id: key
-        }));
-        
-        if (playlistArray.length === 0) {
-          throw new Error("Received empty data from Firebase");
-        }
-        
-        originalPlaylist = playlistArray;
-        playlist = seededShuffle(originalPlaylist, startTime / 1000);
-        totalDuration = playlist.reduce((sum, song) => sum + Number(song.duration), 0);
-        console.log("Successfully loaded playlist with", playlist.length, "songs");
-      } catch (error) {
-        console.error("Error fetching playlist:", error);
-        originalPlaylist = [];
-        playlist = [];
-        totalDuration = 0;
-      }
-    }
+    <div class="track-control-container">
+        <div class="track-selector">
+            <label for="search-deck1">Search DECK-1:</label>
+            <input type="text" id="search-deck1" placeholder="Search YouTube">
+            <button onclick="searchYouTubeForDeck('deck1')">Search</button>
+            <div id="custom-dropdown1" class="custom-dropdown"></div>
+            <select id="track-list1" style="display:none;"></select>
+        </div>
 
-    // Deterministic shuffle function using a seed
-    function seededShuffle(array, seed) {
-      const newArray = [...array];
-      let m = newArray.length, t, i;
-      function seededRandom() {
-        const x = Math.sin(seed++) * 10000;
-        return x - Math.floor(x);
-      }
-      while (m) {
-        i = Math.floor(seededRandom() * m--);
-        t = newArray[m];
-        newArray[m] = newArray[i];
-        newArray[i] = t;
-      }
-      return newArray;
-    }
+        <div class="track-selector">
+            <label for="search-deck2">Search DECK-2:</label>
+            <input type="text" id="search-deck2" placeholder="Search YouTube">
+            <button onclick="searchYouTubeForDeck('deck2')">Search</button>
+            <div id="custom-dropdown2" class="custom-dropdown"></div>
+            <select id="track-list2" style="display:none;"></select>
+        </div>
+    </div>
 
-    // Use startTime as the seed for consistent shuffling
-    const startTime = new Date("2025-04-20T00:00:00Z").getTime();
+    <div class="player-container">
+        <div class="video-player" id="player1">
+            <iframe id="youtube-player1" width="100%" height="315" 
+                src="https://www.youtube.com/embed?enablejsapi=1&playsinline=1&disablekb=1" 
+                frameborder="0" 
+                allowfullscreen
+                allow="autoplay">
+            </iframe>
+            <div class="tempo-controls">
+                <label>BPM: <span id="tempo1-value">120</span></label>
+                <input type="range" id="tempo1" min="60" max="180" step="1" value="120" class="tempo-slider">
+                <div class="beat-loop">
+                    <label>Beat Loop:</label>
+                    <div class="beat-buttons">
+                        <button class="beat-btn" data-beats="1" onclick="toggleBeatLoop(1, 1)">1</button>
+                        <button class="beat-btn" data-beats="2" onclick="toggleBeatLoop(1, 2)">2</button>
+                        <button class="beat-btn" data-beats="3" onclick="toggleBeatLoop(1, 3)">3</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="video-player" id="player2">
+            <iframe id="youtube-player2" width="100%" height="315" 
+                src="https://www.youtube.com/embed?enablejsapi=1&playsinline=1&disablekb=1" 
+                frameborder="0" 
+                allowfullscreen
+                allow="autoplay">
+            </iframe>
+            <div class="tempo-controls">
+                <label>BPM: <span id="tempo2-value">120</span></label>
+                <input type="range" id="tempo2" min="60" max="180" step="1" value="120" class="tempo-slider">
+                <div class="beat-loop">
+                    <label>Beat Loop:</label>
+                    <div class="beat-buttons">
+                        <button class="beat-btn" data-beats="1" onclick="toggleBeatLoop(2, 1)">1</button>
+                        <button class="beat-btn" data-beats="2" onclick="toggleBeatLoop(2, 2)">2</button>
+                        <button class="beat-btn" data-beats="3" onclick="toggleBeatLoop(2, 3)">3</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    // Corrected function to calculate current position
-    function getCurrentPosition() {
-      const now = Date.now();
-      const elapsed = (now - startTime) / 1000;
-      return ((elapsed % totalDuration) + totalDuration) % totalDuration;
-    }
+    <div class="balance-control">
+        <input type="range" id="balance-slider" class="balance-slider" min="0" max="100" value="50">
+    </div>
 
-    // Optimized syncVideo function for smooth playback
-    async function syncVideo() {
-      if (isSyncing || playlist.length === 0) {
-        return; // Prevent concurrent syncs or empty playlist
-      }
-      isSyncing = true;
+    <div class="volume-percentage" id="volume-percentage">Center (0%)</div>
 
-      try {
-        const playlistPosition = getCurrentPosition();
+    <div class="current-track-info">
+        <h2>Current Track</h2>
+        <p id="current-track-deck1">Deck 1: <span id="current-track-title1">None</span></p>
+        <p id="current-track-deck2">Deck 2: <span id="current-track-title2">None</span></p>
+    </div>
 
-        let accumulatedTime = 0;
-        let currentSong = null;
-        for (let i = 0; i < playlist.length; i++) {
-          accumulatedTime += Number(playlist[i].duration);
-          if (playlistPosition < accumulatedTime) {
-            currentSong = playlist[i];
-            break;
-          }
-        }
+    <div class="history-container">
+        <h2>Played History</h2>
+        <input type="text" id="history-search" placeholder="Search in history" onkeyup="filterHistory()">
+        <table id="history-list">
+            <p>Total Tracks Played: <span id="track-count">0</span></p>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 
-        if (!currentSong) {
-          console.error("No current song found");
-          isSyncing = false;
-          return;
-        }
+    <button id="backup-btn" onclick="backupHistory()">Backup History</button>
+    <input type="file" id="restore-input" style="display:none" onchange="restoreHistory(event)">
+    <button id="restore-btn" onclick="document.getElementById('restore-input').click()">Restore History</button>
 
-        const songStartTime = accumulatedTime - Number(currentSong.duration);
-        const positionInSong = playlistPosition - songStartTime;
+    <div id="ai-suggestions-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAISuggestionsModal()">×</span>
+            <h3>AI Suggested Tracks</h3>
+            <div id="ai-suggestions-list"></div>
+        </div>
+    </div>
 
-        // Log syncing details
-        console.log(`Syncing: ${currentSong.title} at ${positionInSong.toFixed(2)}s`);
+    <script>
+        const apiKeys = [
+            'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A',
+            'AIzaSyDX2n08WCf5Ol1nffaqJU_aJp_BODlw1H4'
+        ];
 
-        // Check if the current song is still playing and position is close
-        if (currentSongUrl === currentSong.url && !player.paused) {
-          const currentTime = player.currentTime;
-          const desync = Math.abs(currentTime - positionInSong);
-          if (desync < 1) { // Allow 1-second tolerance
-            isSyncing = false;
-            return; // No need to adjust if within tolerance
-          }
-          // Adjust position if desync is significant
-          player.currentTime = positionInSong;
-          console.log(`Adjusted position to ${positionInSong.toFixed(2)}s due to desync of ${desync.toFixed(2)}s`);
-          isSyncing = false;
-          return;
+        const geminiApiKey = 'AIzaSyB_eDEcv0TA2gWEJ7dJ3hJ0ExWwrXgcOzw';
+
+        let currentApiKeyIndex = 0;
+        let apiKey = apiKeys[currentApiKeyIndex];
+
+        function switchApiKey() {
+            currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length;
+            apiKey = apiKeys[currentApiKeyIndex];
+            alert(`API Key switched to: ${apiKey}`);
         }
 
-        // Load new song if different
-        if (currentSongUrl !== currentSong.url) {
-          currentSongUrl = currentSong.url;
-          player.src = currentSong.url;
-
-          player.addEventListener('canplay', () => {
-            console.log(`Successfully loaded video: ${currentSong.url}`);
-            player.currentTime = positionInSong;
-            player.play().catch(e => console.error("Playback failed:", e));
-          }, { once: true });
-
-          player.addEventListener('error', () => {
-            console.error(`Error loading video: ${currentSong.url}`);
-            setTimeout(() => syncVideo(), 1000);
-          }, { once: true });
-        } else {
-          // Same song, just adjust position
-          player.currentTime = positionInSong;
-          player.play().catch(e => console.error("Playback failed:", e));
+        function loadYouTubeAPI() {
+            const script = document.createElement('script');
+            script.src = "https://www.youtube.com/iframe_api";
+            document.body.appendChild(script);
         }
-      } catch (e) {
-        console.error("Sync error:", e);
-      } finally {
-        isSyncing = false;
-      }
-    }
 
-    function enterFullScreen() {
-      if (hasEnteredFullscreen) return;
-      try {
-        if (videoContainer.requestFullscreen) {
-          videoContainer.requestFullscreen();
-        } else if (videoContainer.webkitRequestFullscreen) {
-          videoContainer.webkitRequestFullscreen();
-        } else if (videoContainer.msRequestFullscreen) {
-          videoContainer.msRequestFullscreen();
+        let player1, player2;
+
+        function onYouTubeIframeAPIReady() {
+            player1 = new YT.Player('youtube-player1', {
+                events: {
+                    'onReady': onPlayer1Ready,
+                    'onStateChange': onPlayer1StateChange
+                }
+            });
+
+            player2 = new YT.Player('youtube-player2', {
+                events: {
+                    'onReady': onPlayer2Ready,
+                    'onStateChange': onPlayer2StateChange
+                }
+            });
         }
-        console.log("Full Screen Requested");
-        hasEnteredFullscreen = true;
-        watermark.style.display = 'block';
-      } catch (e) {
-        console.error("Full Screen Error:", e);
-      }
-    }
 
-    // Periodic sync to maintain synchronization
-    setInterval(() => {
-      if (!player.paused && !isSyncing) {
-        syncVideo();
-      }
-    }, 10000); // Sync every 10 seconds
+        function openNotesModal() {
+            document.getElementById('notes-modal').style.display = 'block';
+            loadNotes();
+        }
 
-    // Handle video end for smooth transitions
-    player.addEventListener('ended', () => {
-      console.log("Video Ended, Switching Track");
-      syncVideo();
-      player.play().catch(e => console.error("Playback failed:", e));
-    });
+        function closeNotesModal() {
+            document.getElementById('notes-modal').style.display = 'none';
+        }
 
-    // Play button click handler
-    playButton.addEventListener('click', () => {
-      playButton.style.display = 'none';
-      player.style.display = 'block';
-      watermark.style.display = 'block';
-      syncVideo();
-      player.play().catch(e => console.error("Playback failed:", e));
-      enterFullScreen();
-    });
+        function saveNotes() {
+            const notes = document.getElementById('notes-textarea').value;
+            localStorage.setItem('djNotes', notes);
+            closeNotesModal();
+        }
 
-    // Ensure watermark stays visible in fullscreen
-    document.addEventListener('fullscreenchange', () => {
-      if (document.fullscreenElement) {
-        watermark.style.display = 'block';
-      }
-    });
-    document.addEventListener('webkitfullscreenchange', () => {
-      if (document.webkitFullscreenElement) {
-        watermark.style.display = 'block';
-      }
-    });
-    document.addEventListener('msfullscreenchange', () => {
-      if (document.msFullscreenElement) {
-        watermark.style.display = 'block';
-      }
-    });
+        function loadNotes() {
+            const savedNotes = localStorage.getItem('djNotes') || '';
+            document.getElementById('notes-textarea').value = savedNotes;
+        }
 
-    // Initialize playlist on page load
-    fetchPlaylist().then(() => {
-      if (playlist.length > 0) {
-        // Remove initial syncVideo call to avoid premature playback
-        // Sync every 10 minutes for long-term alignment
-        setInterval(() => {
-          if (!isSyncing) {
-            syncVideo();
-          }
-        }, 600000);
-      } else {
-        console.error("Failed to load playlist");
-      }
-    });
-  </script>
+        function onPlayer1Ready(event) {
+            player1.setVolume(50);
+            initTempoControl(1);
+        }
+
+        function onPlayer2Ready(event) {
+            player2.setVolume(50);
+            initTempoControl(2);
+        }
+
+        function toggleBeatLoop(deckNumber, beats) {
+            const player = deckNumber === 1 ? player1 : player2;
+            const button = document.querySelector(`#player${deckNumber} .beat-btn[data-beats="${beats}"]`);
+
+            if (button.classList.contains('active')) {
+                button.classList.remove('active');
+                window['loopActive' + deckNumber] = false;
+                window['loopBeats' + deckNumber] = 0;
+
+                if (window['loopInterval' + deckNumber]) {
+                    clearInterval(window['loopInterval' + deckNumber]);
+                    window['loopInterval' + deckNumber] = null;
+                }
+                console.log(`Beat loop turned OFF for deck ${deckNumber}`);
+                return;
+            }
+
+            if (window['loopInterval' + deckNumber]) {
+                clearInterval(window['loopInterval' + deckNumber]);
+                window['loopInterval' + deckNumber] = null;
+            }
+
+            document.querySelectorAll(`#player${deckNumber} .beat-btn`).forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            button.classList.add('active');
+
+            if (player && player.getPlayerState) {
+                if (player.getPlayerState() === YT.PlayerState.PLAYING) {
+                    startLoop(deckNumber, beats);
+                } else {
+                    window['loopBeats' + deckNumber] = beats;
+                }
+            }
+        }
+
+        function startLoop(deckNumber, beats) {
+            const player = deckNumber === 1 ? player1 : player2;
+
+            if (window['loopInterval' + deckNumber]) {
+                clearInterval(window['loopInterval' + deckNumber]);
+            }
+
+            window['loopStartTime' + deckNumber] = player.getCurrentTime();
+            window['loopActive' + deckNumber] = true;
+
+            const loopDuration = beats * 2;
+            console.log(`Starting simple loop for deck ${deckNumber}: ${beats} beats`);
+
+            window['loopInterval' + deckNumber] = setInterval(() => {
+                if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
+                    const currentTime = player.getCurrentTime();
+                    const endTime = window['loopStartTime' + deckNumber] + loopDuration;
+
+                    if (currentTime >= endTime) {
+                        player.seekTo(window['loopStartTime' + deckNumber], true);
+                        console.log(`Loop reset to ${window['loopStartTime' + deckNumber]}`);
+                    }
+                }
+            }, 20);
+        }
+
+        function onPlayer1StateChange(event) {
+            handlePlayerStateChange(1, event);
+        }
+
+        function onPlayer2StateChange(event) {
+            handlePlayerStateChange(2, event);
+        }
+
+        function handlePlayerStateChange(deckNumber, event) {
+            const player = deckNumber === 1 ? player1 : player2;
+
+            if (event.data === YT.PlayerState.PLAYING) {
+                const beats = window['loopBeats' + deckNumber];
+                if (beats > 0) {
+                    startLoop(deckNumber, beats);
+
+                    document.querySelectorAll(`.video-player:nth-child(${deckNumber}) .beat-btn`).forEach(btn => {
+                        if (parseInt(btn.getAttribute('data-beats')) === beats) {
+                            btn.classList.add('active');
+                        } else {
+                            btn.classList.remove('active');
+                        }
+                    });
+                }
+            }
+
+            if (event.data === YT.PlayerState.ENDED || event.data === YT.PlayerState.PAUSED) {
+                if (window['loopInterval' + deckNumber]) {
+                    clearInterval(window['loopInterval' + deckNumber]);
+                    window['loopInterval' + deckNumber] = null;
+                }
+                window['loopActive' + deckNumber] = false;
+            }
+        }
+
+        function initTempoControl(deckNumber) {
+            const tempoSlider = document.getElementById(`tempo${deckNumber}`);
+            const tempoValue = document.getElementById(`tempo${deckNumber}-value`);
+            const player = deckNumber === 1 ? player1 : player2;
+            let currentBPM = 120;
+            let targetBPM = 120;
+            let tempoInterval = null;
+
+            window[`referenceBPM${deckNumber}`] = 120;
+
+            tempoSlider.addEventListener('input', () => {
+                targetBPM = parseInt(tempoSlider.value);
+                tempoValue.textContent = targetBPM;
+
+                const targetRate = targetBPM / window[`referenceBPM${deckNumber}`];
+
+                if (tempoInterval) {
+                    clearInterval(tempoInterval);
+                }
+
+                tempoInterval = setInterval(() => {
+                    if (Math.abs(currentBPM - targetBPM) < 1) {
+                        currentBPM = targetBPM;
+                        const exactRate = currentBPM / window[`referenceBPM${deckNumber}`];
+
+                        if (player && typeof player.setPlaybackRate === 'function') {
+                            player.setPlaybackRate(exactRate);
+                        }
+                        clearInterval(tempoInterval);
+                        tempoInterval = null;
+                        return;
+                    }
+
+                    if (currentBPM < targetBPM) {
+                        currentBPM += 1;
+                    } else {
+                        currentBPM -= 1;
+                    }
+
+                    const newRate = currentBPM / window[`referenceBPM${deckNumber}`];
+
+                    if (player && typeof player.setPlaybackRate === 'function') {
+                        player.setPlaybackRate(newRate);
+                        console.log(`Deck ${deckNumber} BPM: ${currentBPM} (rate: ${newRate.toFixed(2)}x)`);
+                    }
+                }, 50);
+            });
+
+            window[`setReferenceBPM${deckNumber}`] = function(bpm) {
+                window[`referenceBPM${deckNumber}`] = bpm;
+                if (player && typeof player.setPlaybackRate === 'function') {
+                    const newRate = targetBPM / bpm;
+                    player.setPlaybackRate(newRate);
+                }
+            };
+        }
+
+        function searchYouTubeForDeck(deck) {
+            const query = document.getElementById(`search-${deck}`).value;
+            if (query.trim() === '') {
+                alert('Please enter a search term.');
+                return;
+            }
+
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=50&key=${apiKey}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error && data.error.code === 403) {
+                        alert('Quota exceeded for the current API key. Switching to a new API key...');
+                        switchApiKey();
+                        searchYouTubeForDeck(deck);
+                    } else {
+                        const dropdown = document.getElementById(`custom-dropdown${deck === 'deck1' ? 1 : 2}`);
+                        dropdown.innerHTML = '';
+                        dropdown.style.display = 'block';
+
+                        if (data.items.length > 0) {
+                            data.items.forEach(video => {
+                                const dropdownItem = document.createElement('div');
+                                dropdownItem.className = 'dropdown-item';
+                                dropdownItem.onclick = () => {
+                                    const selectedVideoId = video.id.videoId;
+                                    const trackTitle = video.snippet.title;
+                                    const trackDescription = video.snippet.description;
+
+                                    if (deck === 'deck1') {
+                                        player1.loadVideoById(selectedVideoId);
+                                        document.getElementById('current-track-title1').textContent = trackTitle;
+                                    } else {
+                                        player2.loadVideoById(selectedVideoId);
+                                        document.getElementById('current-track-title2').textContent = trackTitle;
+                                    }
+
+                                    dropdown.style.display = 'none';
+                                    addToHistory(trackTitle, selectedVideoId);
+                                    saveHistoryToLocalStorage();
+                                    fetchAISuggestions(trackTitle, trackDescription, deck);
+                                };
+
+                                dropdownItem.innerHTML = `
+                                    <img src="${video.snippet.thumbnails.default.url}" alt="${video.snippet.title} thumbnail">
+                                    <span class="title">${video.snippet.title}</span>
+                                `;
+                                dropdown.appendChild(dropdownItem);
+                            });
+                        }
+                    }
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        function fetchAISuggestions(trackTitle, trackDescription, deck) {
+            const prompt = {
+                contents: [
+                    {
+                        parts: [
+                            {
+                                text: `Based on the track titled "${trackTitle}" with description "${trackDescription}", suggest 5 similar tracks or songs that would complement it in a DJ mix. Provide the artist and track name for each suggestion. Return the response in JSON format with the following structure:
+                                [
+                                    {"artist": "Artist Name", "track": "Track Name"},
+                                    ...
+                                ]`
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(prompt)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.candidates && data.candidates[0].content) {
+                        let suggestionsText = data.candidates[0].content.parts[0].text;
+                        // Remove markdown code fences if present
+                        suggestionsText = suggestionsText.replace(/```json\n|\n```/g, '');
+                        const suggestions = JSON.parse(suggestionsText);
+                        displayAISuggestions(suggestions, deck);
+                    } else {
+                        throw new Error('Invalid response from Gemini API');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching AI suggestions:', error);
+                    alert('Failed to fetch AI suggestions. Please try again later.');
+                });
+        }
+
+        function displayAISuggestions(suggestions, deck) {
+            const suggestionsList = document.getElementById('ai-suggestions-list');
+            suggestionsList.innerHTML = '';
+
+            suggestions.forEach(suggestion => {
+                const suggestionItem = document.createElement('div');
+                suggestionItem.className = 'ai-suggestion-item';
+                suggestionItem.onclick = () => {
+                    const searchQuery = `${suggestion.artist} ${suggestion.track}`;
+                    document.getElementById(`search-${deck}`).value = searchQuery;
+                    searchYouTubeForDeck(deck);
+                    closeAISuggestionsModal();
+                };
+
+                suggestionItem.innerHTML = `
+                    <img src="https://via.placeholder.com/50" alt="${suggestion.track} thumbnail">
+                    <span>${suggestion.artist} - ${suggestion.track}</span>
+                `;
+                suggestionsList.appendChild(suggestionItem);
+            });
+
+            document.getElementById('ai-suggestions-modal').style.display = 'block';
+        }
+
+        function closeAISuggestionsModal() {
+            document.getElementById('ai-suggestions-modal').style.display = 'none';
+        }
+
+        function addToHistory(title, videoId) {
+            const historyList = document.getElementById('history-list').getElementsByTagName('tbody')[0];
+            const historyItem = document.createElement('tr');
+
+            historyItem.innerHTML = `
+                <td contenteditable="true" class="track-title">${title}</td>
+                <td>
+                    <div class="buttons-container">
+                        <button onclick="replayTrack('player1', '${videoId}')">Play on Deck 1</button>
+                        <button onclick="replayTrack('player2', '${videoId}')">Play on Deck 2</button>
+                    </div>
+                    <button class="edit-btn" onclick="editTrackTitle(this)">Edit Title</button>
+                    <button class="delete-btn" onclick="deleteTrack(this)">Delete</button>
+                </td>
+            `;
+            historyItem.setAttribute('data-video-id', videoId);
+
+            historyList.insertBefore(historyItem, historyList.firstChild);
+            document.getElementById('track-count').textContent = historyList.children.length;
+        }
+
+        function replayTrack(playerId, videoId) {
+            const player = playerId === 'player1' ? player1 : player2;
+
+            if (player) {
+                player.loadVideoById(videoId);
+                const historyItems = document.querySelectorAll('#history-list tbody tr');
+                let trackTitle = 'Unknown Track';
+
+                historyItems.forEach(item => {
+                    if (item.getAttribute('data-video-id') === videoId) {
+                        trackTitle = item.querySelector('.track-title').textContent;
+                    }
+                });
+
+                if (playerId === 'player1') {
+                    document.getElementById('current-track-title1').textContent = trackTitle;
+                } else {
+                    document.getElementById('current-track-title2').textContent = trackTitle;
+                }
+            }
+        }
+
+        function editTrackTitle(button) {
+            const trackTitle = button.closest('tr').querySelector('.track-title');
+            trackTitle.contentEditable = true;
+            trackTitle.focus();
+            button.textContent = "Save Title";
+            button.setAttribute('onclick', 'saveTrackTitle(this)');
+        }
+
+        function saveTrackTitle(button) {
+            const trackTitle = button.closest('tr').querySelector('.track-title');
+            trackTitle.contentEditable = false;
+            button.textContent = "Edit Title";
+            button.setAttribute('onclick', 'editTrackTitle(this)');
+            saveHistoryToLocalStorage();
+        }
+
+        function deleteTrack(button) {
+            const historyItem = button.closest('tr');
+            historyItem.remove();
+            saveHistoryToLocalStorage();
+            document.getElementById('track-count').textContent = document.getElementById('history-list').getElementsByTagName('tbody')[0].children.length;
+        }
+
+        function saveHistoryToLocalStorage() {
+            const historyItems = document.querySelectorAll('#history-list tbody tr');
+            const historyData = [];
+            historyItems.forEach(item => {
+                const title = item.querySelector('.track-title').textContent;
+                const videoId = item.getAttribute('data-video-id');
+                historyData.push({ title, videoId });
+            });
+            localStorage.setItem('playedHistory', JSON.stringify(historyData));
+        }
+
+        function loadHistoryFromLocalStorage() {
+            const savedHistory = JSON.parse(localStorage.getItem('playedHistory')) || [];
+            document.getElementById('track-count').textContent = savedHistory.length;
+            savedHistory.reverse().forEach(track => {
+                addToHistory(track.title, track.videoId);
+            });
+        }
+
+        function backupHistory() {
+            const historyData = JSON.parse(localStorage.getItem('playedHistory')) || [];
+            const blob = new Blob([JSON.stringify(historyData, null, 2)], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'played-history.json';
+            link.click();
+        }
+
+        function restoreHistory(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const historyData = JSON.parse(e.target.result);
+                if (Array.isArray(historyData)) {
+                    document.getElementById('history-list').getElementsByTagName('tbody')[0].innerHTML = '';
+                    historyData.reverse().forEach(track => {
+                        addToHistory(track.title, track.videoId);
+                    });
+                    localStorage.setItem('playedHistory', JSON.stringify(historyData));
+                    document.getElementById('track-count').textContent = historyData.length;
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function initBalanceControl() {
+            const balanceSlider = document.getElementById('balance-slider');
+            const volumePercentage = document.getElementById('volume-percentage');
+
+            balanceSlider.addEventListener('input', () => {
+                const balance = balanceSlider.value;
+                const percentage = balance < 50 ? (50 - balance) : (balance - 50);
+                volumePercentage.textContent = `${percentage}%`;
+                if (player1 && player2) {
+                    player1.setVolume(100 - balance);
+                    player2.setVolume(balance);
+                }
+            });
+        }
+
+        function filterHistory() {
+            const query = document.getElementById('history-search').value.toLowerCase();
+            const rows = document.querySelectorAll('#history-list tbody tr');
+            rows.forEach(row => {
+                const title = row.querySelector('.track-title').textContent.toLowerCase();
+                if (title.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('click', (event) => {
+            const dropdown1 = document.getElementById('custom-dropdown1');
+            const dropdown2 = document.getElementById('custom-dropdown2');
+            const searchDeck1 = document.getElementById('search-deck1');
+            const searchDeck2 = document.getElementById('search-deck2');
+
+            const clickedInsideDropdown1 = dropdown1.contains(event.target);
+            const clickedInsideDropdown2 = dropdown2.contains(event.target);
+            const clickedOnSearchDeck1 = searchDeck1.contains(event.target);
+            const clickedOnSearchDeck2 = searchDeck2.contains(event.target);
+
+            if (!clickedInsideDropdown1 && !clickedOnSearchDeck1) {
+                dropdown1.style.display = 'none';
+            }
+            if (!clickedInsideDropdown2 && !clickedOnSearchDeck2) {
+                dropdown2.style.display = 'none';
+            }
+        });
+
+        window.onload = () => {
+            loadYouTubeAPI();
+            initBalanceControl();
+            loadHistoryFromLocalStorage();
+            loadNotes();
+        };
+    </script>
 </body>
 </html>
