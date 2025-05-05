@@ -503,8 +503,9 @@
     <h1>SAMMY'S YT DJ PROJECT</h1>
 
     <select id="api-key-select">
-        <option value="AIzaSyBccpNgklv37FjQYGTvuKeCKaBOdc3jbKs">API Key 1</option>
+        <option value="AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A">API Key 1</option>
         <option value="AIzaSyDX2n08WCf5Ol1nffaqJU_aJp_BODlw1H4">API Key 2</option>
+        <option value="AIzaSyBccpNgklv37FjQYGTvuKeCKaBOdc3jbKs" selected>API Key 3</option>
     </select>
 
     <div class="control-buttons">
@@ -623,21 +624,22 @@
 
     <script>
         const apiKeys = [
-            'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A',
-            'AIzaSyDX2n08WCf5Ol1nffaqJU_aJp_BODlw1H4'
+            'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A', // API Key 1
+            'AIzaSyDX2n08WCf5Ol1nffaqJU_aJp_BODlw1H4', // API Key 2
+            'AIzaSyBccpNgklv37FjQYGTvuKeCKaBOdc3jbKs'  // API Key 3
         ];
 
         const geminiApiKey = 'AIzaSyB_eDEcv0TA2gWEJ7dJ3hJ0ExWwrXgcOzw';
 
-        let currentApiKeyIndex = 0;
+        let currentApiKeyIndex = 2; // Start with API Key 3
         let apiKey = apiKeys[currentApiKeyIndex];
-        let lastSuggestions = null;
-        let lastDeck = null;
 
         function switchApiKey() {
             currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length;
             apiKey = apiKeys[currentApiKeyIndex];
-            alert(`API Key switched to: ${apiKey}`);
+            const apiKeySelect = document.getElementById('api-key-select');
+            apiKeySelect.value = apiKey;
+            alert(`API Key switched to: API Key ${currentApiKeyIndex + 1}`);
         }
 
         function loadYouTubeAPI() {
@@ -1214,6 +1216,8 @@
             initBalanceControl();
             loadHistoryFromLocalStorage();
             loadNotes();
+            // Sync API key selector with default key
+            document.getElementById('api-key-select').value = apiKey;
         };
     </script>
 </body>
