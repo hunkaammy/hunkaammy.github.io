@@ -63,6 +63,18 @@
             background-color: #ff7700;
         }
 
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+
+        .control-buttons button {
+            flex: 1;
+        }
+
         .player-container {
             display: flex;
             justify-content: space-between;
@@ -297,6 +309,14 @@
                 width: 90%;
                 margin: 10px 0;
             }
+
+            .control-buttons {
+                flex-direction: column;
+            }
+
+            .control-buttons button {
+                width: 100%;
+            }
         }
 
         .current-track-info {
@@ -428,7 +448,7 @@
 
         .ai-suggestion-item {
             display: flex;
-            align-items: center;
+            flex-direction: column;
             padding: 10px;
             margin-bottom: 10px;
             background-color: #2c3e50;
@@ -440,32 +460,24 @@
             background-color: #2980b9;
         }
 
-        .ai-suggestion-item img {
-            width: 50px;
-            height: 50px;
-            margin-right: 10px;
-            border-radius: 5px;
-            object-fit: cover;
-        }
-
-        .ai-suggestion-item .suggestion-content {
-            flex: 1;
+        .suggestion-content {
             display: flex;
             flex-direction: column;
+            width: 100%;
         }
 
-        .ai-suggestion-item .suggestion-title {
+        .suggestion-title {
             font-size: 14px;
             color: white;
+            margin-bottom: 5px;
         }
 
-        .ai-suggestion-item .deck-buttons {
+        .deck-buttons {
             display: flex;
             gap: 5px;
-            margin-top: 5px;
         }
 
-        .ai-suggestion-item .deck-button {
+        .deck-button {
             padding: 5px 10px;
             background-color: #ff5500;
             color: white;
@@ -475,7 +487,7 @@
             font-size: 12px;
         }
 
-        .ai-suggestion-item .deck-button:hover {
+        .deck-button:hover {
             background-color: #ff7700;
         }
 
@@ -491,11 +503,14 @@
     <h1>SAMMY'S YT DJ PROJECT</h1>
 
     <select id="api-key-select">
-        <option value="AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A">API Key 1</option>
+        <option value="AIzaSyBccpNgklv37FjQYGTvuKeCKaBOdc3jbKs">API Key 1</option>
         <option value="AIzaSyDX2n08WCf5Ol1nffaqJU_aJp_BODlw1H4">API Key 2</option>
     </select>
 
-    <button id="notes-btn" onclick="openNotesModal()">Notes</button>
+    <div class="control-buttons">
+        <button id="notes-btn" onclick="openNotesModal()">Notes</button>
+        <button id="ai-suggestions-btn" onclick="reopenAISuggestionsModal()">View AI Suggestions</button>
+    </div>
 
     <div id="notes-modal" class="modal">
         <div class="modal-content">
@@ -616,6 +631,8 @@
 
         let currentApiKeyIndex = 0;
         let apiKey = apiKeys[currentApiKeyIndex];
+        let lastSuggestions = null;
+        let lastDeck = null;
 
         function switchApiKey() {
             currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length;
@@ -979,70 +996,46 @@
             }
         }
 
-        async function fetchThumbnail(artist, track) {
-            const query = `${artist} ${track}`;
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=1&key=${apiKey}`;
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                if (data.error && data.error.code === 403) {
-                    console.warn('Quota exceeded for current API key, switching...');
-                    switchApiKey();
-                    return fetchThumbnail(artist, track); // Retry with new key
-                }
-                if (data.items && data.items.length > 0) {
-                    return data.items[0].snippet.thumbnails.default.url;
-                }
-                return 'https://via.placeholder.com/50'; // Fallback if no results
-            } catch (error) {
-                console.error(`Error fetching thumbnail for ${query}:`, error);
-                return 'https://via.placeholder.com/50'; // Fallback on error
-            }
-        }
-
-        async function displayAISuggestions(suggestions, deck) {
+        function displayAISuggestions(suggestions, deck) {
             const suggestionsList = document.getElementById('ai-suggestions-list');
             suggestionsList.innerHTML = '<div class="loading">Loading suggestions...</div>';
 
-            // Fetch thumbnails for all suggestions concurrently
-            const thumbnailPromises = suggestions.map(suggestion =>
-                fetchThumbnail(suggestion.artist, suggestion.track).then(thumbnail => ({
-                    ...suggestion,
-                    thumbnail
-                }))
-            );
+            // Store suggestions and deck globally
+            lastSuggestions = suggestions;
+            lastDeck = deck;
 
-            try {
-                const suggestionsWithThumbnails = await Promise.all(thumbnailPromises);
-                suggestionsList.innerHTML = ''; // Clear loading message
-
-                suggestionsWithThumbnails.forEach(suggestion => {
-                    const suggestionItem = document.createElement('div');
-                    suggestionItem.className = 'ai-suggestion-item';
-                    suggestionItem.innerHTML = `
-                        <img src="${suggestion.thumbnail}" alt="${suggestion.track} thumbnail">
-                        <div class="suggestion-content">
-                            <span class="suggestion-title">${suggestion.artist} - ${suggestion.track}</span>
-                            <div class="deck-buttons">
-                                <button class="deck-button" onclick="playSuggestionOnDeck('${suggestion.artist}', '${suggestion.track}', 'deck1')">Play on Deck 1</button>
-                                <button class="deck-button" onclick="playSuggestionOnDeck('${suggestion.artist}', '${suggestion.track}', 'deck2')">Play on Deck 2</button>
-                            </div>
+            // Render suggestions without thumbnails
+            suggestionsList.innerHTML = ''; // Clear loading message
+            suggestions.forEach(suggestion => {
+                const suggestionItem = document.createElement('div');
+                suggestionItem.className = 'ai-suggestion-item';
+                suggestionItem.innerHTML = `
+                    <div class="suggestion-content">
+                        <span class="suggestion-title">${suggestion.artist} - ${suggestion.track}</span>
+                        <div class="deck-buttons">
+                            <button class="deck-button" onclick="playSuggestionOnDeck('${suggestion.artist}', '${suggestion.track}', 'deck1')">Play on Deck 1</button>
+                            <button class="deck-button" onclick="playSuggestionOnDeck('${suggestion.artist}', '${suggestion.track}', 'deck2')">Play on Deck 2</button>
                         </div>
-                    `;
-                    suggestionsList.appendChild(suggestionItem);
-                });
+                    </div>
+                `;
+                suggestionsList.appendChild(suggestionItem);
+            });
 
-                document.getElementById('ai-suggestions-modal').style.display = 'block';
-            } catch (error) {
-                console.error('Error loading thumbnails:', error);
-                displayAISuggestionsError('Failed to load thumbnails for suggestions. Please try again.');
-            }
+            document.getElementById('ai-suggestions-modal').style.display = 'block';
         }
 
         function displayAISuggestionsError(message) {
             const suggestionsList = document.getElementById('ai-suggestions-list');
             suggestionsList.innerHTML = `<div class="error">${message}</div>`;
             document.getElementById('ai-suggestions-modal').style.display = 'block';
+        }
+
+        function reopenAISuggestionsModal() {
+            if (lastSuggestions && lastDeck) {
+                displayAISuggestions(lastSuggestions, lastDeck);
+            } else {
+                displayAISuggestionsError('No suggestions available. Select a track to generate suggestions.');
+            }
         }
 
         function playSuggestionOnDeck(artist, track, deck) {
