@@ -630,6 +630,7 @@
             'AIzaSyBccpNgklv37FjQYGTvuKeCKaBOdc3jbKs'  // API Key 3
         ];
 
+        // Note: Verify that this Gemini API key is valid and has appropriate permissions/quotas.
         const geminiApiKey = 'AIzaSyB_eDEcv0TA2gWEJ7dJ3hJ0ExWwrXgcOzw';
         let currentApiKeyIndex = 2; // Start with API Key 3
         let apiKey = apiKeys[currentApiKeyIndex];
@@ -839,14 +840,6 @@
             };
         }
 
-        function debounce(func, wait) {
-            let timeout;
-            return function (...args) {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => func.apply(this, args), wait);
-            };
-        }
-
         function parseISO8601Duration(duration) {
             if (!duration) return 0;
             const match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
@@ -862,13 +855,30 @@
             return `${minutes}:${secs.toString().padStart(2, '0')}`;
         }
 
+        function inferGenre(title, description) {
+            const keywords = {
+                'edm': ['electronic', 'dance', 'house', 'techno', 'trance'],
+                'hip-hop': ['rap', 'hip-hop', 'trap', 'rnb'],
+                'pop': ['pop', 'chart', 'top 40'],
+                'rock': ['rock', 'alternative', 'indie']
+            };
+            const text = (title + ' ' + description).toLowerCase();
+            for (const [genre, words] of Object.entries(keywords)) {
+                if (words.some(word => text.includes(word))) return genre;
+            }
+            return 'unknown';
+        }
+
         async function searchYouTubeForDeck(deck) {
             const query = document.getElementById(`search-${deck}`).value + ' official audio';
+            const dropdown = document.getElementById(`custom-dropdown${deck === 'deck1' ? 1 : 2}`);
             if (query.trim() === '') {
                 alert('Please enter a search term.');
+                dropdown.style.display = 'none';
                 return;
             }
 
+            dropdown.style.display = 'block';
             trackApiCall(apiKey);
             const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=50&key=${apiKey}`;
 
@@ -888,10 +898,7 @@
                 const detailsResponse = await fetch(detailsUrl);
                 const details = await detailsResponse.json();
 
-                const dropdown = document.getElementById(`custom-dropdown${deck === 'deck1' ? 1 : 2}`);
                 dropdown.innerHTML = '';
-                dropdown.style.display = 'block';
-
                 data.items.forEach((video, index) => {
                     const title = video.snippet.title.toLowerCase();
                     const duration = details.items[index]?.contentDetails?.duration;
@@ -924,7 +931,33 @@
                 });
             } catch (error) {
                 console.error('Error fetching YouTube data:', error);
+                dropdown.innerHTML = '<div class="error">Error fetching results. Please try again.</div>';
             }
+        }
+
+        async function validateSuggestions(suggestions, deck) {
+            const validatedSuggestions = [];
+            for (const suggestion of suggestions) {
+                const query = `${suggestion.artist} ${suggestion.track} official audio`;
+                const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=1&key=${apiKey}`;
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    if (data.items.length > 0) {
+                        const video = data.items[0];
+                        const detailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${video.id.videoId}&key=${apiKey}`;
+                        const detailsResponse = await fetch(detailsUrl);
+                        const details = await detailsResponse.json();
+                        const duration = parseISO8601Duration(details.items[0]?.contentDetails?.duration);
+                        if (duration >= 60 && duration <= 600 && !video.snippet.title.toLowerCase().includes('live')) {
+                            validatedSuggestions.push(suggestion);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error validating suggestion:', error);
+                }
+            }
+            return validatedSuggestions.slice(0, 15);
         }
 
         async function fetchAISuggestions(trackTitle, trackDescription, deck, retries = 3) {
@@ -932,20 +965,28 @@
             const cacheKey = `${trackTitle}:${trackDescription}`;
             const cache = JSON.parse(localStorage.getItem('aiSuggestionsCache')) || {};
 
-            if (cache[cacheKey] && Date.now() - cache[cacheKey].timestamp < 172800000) { // 48 hours
+            if (cache[cacheKey] && Date.now() - cache[cacheKey].timestamp < 43200000) { // 12 hours
                 console.log('Using cached AI suggestions for:', trackTitle);
                 displayAISuggestions(cache[cacheKey].suggestions, deck);
                 return;
             }
 
             if (retries === 0) {
-                const fallbackSuggestions = JSON.parse(localStorage.getItem('playedHistory')) || [];
-                const limitedFallback = fallbackSuggestions.slice(0, 15).map(track => ({ artist: 'Unknown', track: track.title }));
-                displayAISuggestions(limitedFallback, deck);
-                displayAISuggestionsError('Using recent tracks as fallback due to API failure.');
+                const history = JSON.parse(localStorage.getItem('playedHistory')) || [];
+                const currentBPM = parseInt(document.getElementById(`tempo${deck === 'deck1' ? 1 : 2}-value`).textContent);
+                const fallbackSuggestions = history
+                    .filter(track => {
+                        const trackBPM = window[`referenceBPM${deck === 'deck1' ? 1 : 2}`] || 120;
+                        return Math.abs(trackBPM - currentBPM) <= 10;
+                    })
+                    .slice(0, 15)
+                    .map(track => ({ artist: 'Unknown', track: track.title }));
+                displayAISuggestions(fallbackSuggestions, deck);
+                displayAISuggestionsError('Failed to fetch suggestions after multiple attempts. Using history-based fallback.');
                 return;
             }
 
+            const genre = inferGenre(trackTitle, trackDescription);
             const currentBPM = document.getElementById(`tempo${deck === 'deck1' ? 1 : 2}-value`).textContent;
             const prompt = {
                 contents: [
@@ -953,9 +994,11 @@
                         parts: [
                             {
                                 text: `Suggest 15 unique tracks for a DJ mix based on "${trackTitle}" (${trackDescription}). Tracks should:
-                                    - Match the genre or mood, with tempo around ${currentBPM} BPM (±10 BPM).
-                                    - Exclude live performances, covers, or non-music content.
-                                    - Be available on YouTube.
+                                    - Be in the ${genre} genre or complementary genres (e.g., ${genre === 'edm' ? 'techno, house' : 'similar styles'}).
+                                    - Match the mood (e.g., upbeat, chill, intense) and have a tempo around ${currentBPM} BPM (±10 BPM).
+                                    - Be official audio tracks available on YouTube, excluding live performances, covers, remixes, or non-music content.
+                                    - Have a duration between 1 and 10 minutes.
+                                    - Avoid suggesting "${trackTitle}" or its variations.
                                     - Return in JSON format:
                                     [
                                         {"artist": "Artist Name", "track": "Track Name"},
@@ -970,7 +1013,7 @@
             const startTime = Date.now();
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
 
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
                     method: 'POST',
@@ -983,20 +1026,43 @@
                 const elapsed = Date.now() - startTime;
                 if (elapsed > 5000) console.warn(`Slow Gemini API response: ${elapsed}ms`);
 
-                if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error ${response.status}: ${errorText}`);
+                }
 
                 const data = await response.json();
-                let suggestionsText = data.candidates[0].content.parts[0].text.replace(/```json\n|\n```/g, '').trim();
-                let suggestions = JSON.parse(suggestionsText);
 
-                // Client-side filtering
+                // Validate response structure
+                if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0].text) {
+                    throw new Error('Invalid API response structure');
+                }
+
+                let suggestionsText = data.candidates[0].content.parts[0].text.replace(/```json\n|\n```/g, '').trim();
+                let suggestions;
+                try {
+                    suggestions = JSON.parse(suggestionsText);
+                } catch (parseError) {
+                    console.error('Error parsing suggestions JSON:', parseError, 'Raw text:', suggestionsText);
+                    throw new Error('Failed to parse API response as JSON');
+                }
+
+                // Validate suggestions format
+                if (!Array.isArray(suggestions) || suggestions.some(s => !s.artist || !s.track)) {
+                    throw new Error('Invalid suggestions format: Expected array of {artist, track} objects');
+                }
+
                 const lowerTrackTitle = trackTitle.toLowerCase().replace(/(remix|version|cover|\(|\))/g, '').trim();
+                const rejected = JSON.parse(localStorage.getItem('rejectedSuggestions')) || [];
                 suggestions = suggestions.filter(suggestion => {
                     const suggestionTitle = suggestion.track.toLowerCase().replace(/(remix|version|cover|\(|\))/g, '').trim();
-                    return suggestionTitle !== lowerTrackTitle;
-                }).slice(0, 15);
+                    const suggestionKey = `${suggestion.artist} - ${suggestion.track}`;
+                    return !rejected.includes(suggestionKey) && suggestionTitle !== lowerTrackTitle;
+                });
 
+                suggestions = await validateSuggestions(suggestions, deck);
                 if (suggestions.length < 10) {
+                    console.warn(`Only ${suggestions.length} valid suggestions found, retrying...`);
                     await new Promise(resolve => setTimeout(resolve, 1000));
                     return fetchAISuggestions(trackTitle, trackDescription, deck, retries - 1);
                 }
@@ -1008,15 +1074,35 @@
                 lastTrackDescription = trackDescription;
                 displayAISuggestions(suggestions, deck);
             } catch (error) {
-                console.error('Error fetching AI suggestions:', error);
+                console.error('Error fetching AI suggestions:', error.message, error.stack);
+                let errorMessage = 'Failed to fetch AI suggestions. ';
                 if (error.name === 'AbortError') {
-                    displayAISuggestionsError('API request timed out. Using cached or recent tracks.');
-                    const fallbackSuggestions = JSON.parse(localStorage.getItem('playedHistory')) || [];
-                    const limitedFallback = fallbackSuggestions.slice(0, 15).map(track => ({ artist: 'Unknown', track: track.title }));
-                    displayAISuggestions(limitedFallback, deck);
+                    errorMessage += 'Request timed out. ';
+                } else if (error.message.includes('HTTP error')) {
+                    errorMessage += 'API request failed, possibly due to an invalid API key or quota limit. ';
+                } else if (error.message.includes('parse')) {
+                    errorMessage += 'Invalid response format from API. ';
                 } else {
+                    errorMessage += 'Unexpected error occurred. ';
+                }
+                errorMessage += 'Retrying...';
+
+                if (retries > 1) {
+                    displayAISuggestionsError(errorMessage);
                     await new Promise(resolve => setTimeout(resolve, 1000));
                     fetchAISuggestions(trackTitle, trackDescription, deck, retries - 1);
+                } else {
+                    const history = JSON.parse(localStorage.getItem('playedHistory')) || [];
+                    const currentBPM = parseInt(document.getElementById(`tempo${deck === 'deck1' ? 1 : 2}-value`).textContent);
+                    const fallbackSuggestions = history
+                        .filter(track => {
+                            const trackBPM = window[`referenceBPM${deck === 'deck1' ? 1 : 2}`] || 120;
+                            return Math.abs(trackBPM - currentBPM) <= 10;
+                        })
+                        .slice(0, 15)
+                        .map(track => ({ artist: 'Unknown', track: track.title }));
+                    displayAISuggestions(fallbackSuggestions, deck);
+                    displayAISuggestionsError('Failed to fetch suggestions. Using history-based fallback.');
                 }
             }
         }
@@ -1038,6 +1124,7 @@
                         <div class="deck-buttons">
                             <button class="deck-button" onclick="playSuggestionOnDeck('${suggestion.artist}', '${suggestion.track}', 'deck1')">Play on Deck 1</button>
                             <button class="deck-button" onclick="playSuggestionOnDeck('${suggestion.artist}', '${suggestion.track}', 'deck2')">Play on Deck 2</button>
+                            <button class="deck-button" onclick="rejectSuggestion('${suggestion.artist}', '${suggestion.track}')">Reject</button>
                         </div>
                     </div>
                 `;
@@ -1051,6 +1138,13 @@
             const suggestionsList = document.getElementById('ai-suggestions-list');
             suggestionsList.innerHTML = `<div class="error">${message}</div>`;
             document.getElementById('ai-suggestions-modal').style.display = 'block';
+        }
+
+        function rejectSuggestion(artist, track) {
+            const rejected = JSON.parse(localStorage.getItem('rejectedSuggestions')) || [];
+            rejected.push(`${artist} - ${track}`);
+            localStorage.setItem('rejectedSuggestions', JSON.stringify(rejected));
+            reopenAISuggestionsModal();
         }
 
         function clearAICacheAndRefresh() {
@@ -1208,11 +1302,21 @@
             const dropdown2 = document.getElementById('custom-dropdown2');
             const searchDeck1 = document.getElementById('search-deck1');
             const searchDeck2 = document.getElementById('search-deck2');
+            const button1 = searchDeck1.nextElementSibling;
+            const button2 = searchDeck2.nextElementSibling;
 
-            if (!dropdown1.contains(event.target) && !searchDeck1.contains(event.target)) {
+            if (
+                !dropdown1.contains(event.target) &&
+                !searchDeck1.contains(event.target) &&
+                !button1.contains(event.target)
+            ) {
                 dropdown1.style.display = 'none';
             }
-            if (!dropdown2.contains(event.target) && !searchDeck2.contains(event.target)) {
+            if (
+                !dropdown2.contains(event.target) &&
+                !searchDeck2.contains(event.target) &&
+                !button2.contains(event.target)
+            ) {
                 dropdown2.style.display = 'none';
             }
         });
@@ -1223,8 +1327,6 @@
             loadHistoryFromLocalStorage();
             loadNotes();
             document.getElementById('api-key-select').value = apiKey;
-            document.getElementById('search-deck1').addEventListener('input', debounce(() => searchYouTubeForDeck('deck1'), 500));
-            document.getElementById('search-deck2').addEventListener('input', debounce(() => searchYouTubeForDeck('deck2'), 500));
         };
     </script>
 </body>
