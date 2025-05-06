@@ -626,11 +626,11 @@
     <script>
         const apiKeys = [
             'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A', // API Key 1
-            'AIzaSyDX2n08WCf5Ol1nffaqJU_aJp_BODlw1H4', // API Key 2
+            'AIaSyDX2n08WCf5Ol1nffaqJU_aJp_BODlw1H4', // API Key 2
             'AIzaSyBccpNgklv37FjQYGTvuKeCKaBOdc3jbKs'  // API Key 3
         ];
 
-        // Note: Verify that this Gemini API key is valid and has appropriate permissions/quotas.
+        // Note: Verify that this Gemini API key is valid, enabled for the Gemini API, and has sufficient quota.
         const geminiApiKey = 'AIzaSyB_eDEcv0TA2gWEJ7dJ3hJ0ExWwrXgcOzw';
         let currentApiKeyIndex = 2; // Start with API Key 3
         let apiKey = apiKeys[currentApiKeyIndex];
@@ -1013,7 +1013,7 @@
             const startTime = Date.now();
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000);
+                const timeoutId = setTimeout(() => controller.abort(), 15000); // Increased timeout to 15s
 
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
                     method: 'POST',
@@ -1024,10 +1024,15 @@
 
                 clearTimeout(timeoutId);
                 const elapsed = Date.now() - startTime;
-                if (elapsed > 5000) console.warn(`Slow Gemini API response: ${elapsed}ms`);
+                if (elapsed > 10000) console.warn(`Slow Gemini API response: ${elapsed}ms`);
 
                 if (!response.ok) {
                     const errorText = await response.text();
+                    if (response.status === 403) {
+                        throw new Error(`HTTP error ${response.status}: Forbidden - Check if Gemini API key is valid or quota exceeded. ${errorText}`);
+                    } else if (response.status === 429) {
+                        throw new Error(`HTTP error ${response.status}: Rate limit exceeded. ${errorText}`);
+                    }
                     throw new Error(`HTTP error ${response.status}: ${errorText}`);
                 }
 
@@ -1035,7 +1040,7 @@
 
                 // Validate response structure
                 if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0].text) {
-                    throw new Error('Invalid API response structure');
+                    throw new Error('Invalid API response structure: Missing expected fields');
                 }
 
                 let suggestionsText = data.candidates[0].content.parts[0].text.replace(/```json\n|\n```/g, '').trim();
@@ -1075,17 +1080,28 @@
                 displayAISuggestions(suggestions, deck);
             } catch (error) {
                 console.error('Error fetching AI suggestions:', error.message, error.stack);
-                let errorMessage = 'Failed to fetch AI suggestions. ';
+                let errorMessage = 'Failed to fetch suggestions. ';
+                let userAlert = false;
                 if (error.name === 'AbortError') {
-                    errorMessage += 'Request timed out. ';
-                } else if (error.message.includes('HTTP error')) {
-                    errorMessage += 'API request failed, possibly due to an invalid API key or quota limit. ';
+                    errorMessage += 'Request timed out after 15 seconds. ';
+                } else if (error.message.includes('HTTP error 403')) {
+                    errorMessage += 'Invalid Gemini API key or quota exceeded. ';
+                    userAlert = true;
+                } else if (error.message.includes('HTTP error 429')) {
+                    errorMessage += 'Gemini API rate limit exceeded. ';
+                    userAlert = true;
                 } else if (error.message.includes('parse')) {
                     errorMessage += 'Invalid response format from API. ';
+                } else if (error.message.includes('Invalid API response structure')) {
+                    errorMessage += 'Unexpected API response structure. ';
                 } else {
                     errorMessage += 'Unexpected error occurred. ';
                 }
-                errorMessage += 'Retrying...';
+                errorMessage += `Retrying (${retries} attempts left)...`;
+
+                if (userAlert) {
+                    alert(`${errorMessage}\nPlease verify the Gemini API key in Google Cloud Console or check quota limits.`);
+                }
 
                 if (retries > 1) {
                     displayAISuggestionsError(errorMessage);
@@ -1102,7 +1118,7 @@
                         .slice(0, 15)
                         .map(track => ({ artist: 'Unknown', track: track.title }));
                     displayAISuggestions(fallbackSuggestions, deck);
-                    displayAISuggestionsError('Failed to fetch suggestions. Using history-based fallback.');
+                    displayAISuggestionsError('Failed to fetch suggestions after multiple attempts. Using history-based fallback.');
                 }
             }
         }
