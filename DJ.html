@@ -11,11 +11,11 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <style>
     body {
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-size: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
       line-height: 1.5;
       color: #333;
-      background-color: #fff;
+      background-color: #f8f9fa;
       overscroll-behavior-y: none;
       margin: 0;
     }
@@ -29,33 +29,39 @@
     #login-container {
       background-image: url(https://hunkaammy.github.io/mywebsite/NEWWEBSITE/loginpg.jpeg);
       background-size: cover;
+      background-position: center;
       height: 100vh;
       max-width: 100%;
       padding: 20px;
       display: flex;
       justify-content: center;
       align-items: center;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
     #inside {
-      background-color: rgba(255, 255, 255, 0.9);
-      padding: 30px;
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 25px;
       border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       text-align: center;
       width: 100%;
-      max-width: 400px;
+      max-width: 360px;
     }
 
     input {
       width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
+      padding: 10px;
+      margin-bottom: 12px;
       box-sizing: border-box;
-      font-size: 16px;
+      font-size: 14px;
       border-radius: 6px;
-      border: 1px solid #ccc;
+      border: 1px solid #ced4da;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      border-color: #4caf50;
+      outline: none;
     }
 
     button {
@@ -66,7 +72,8 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 14px;
+      transition: background-color 0.2s;
     }
 
     button:hover {
@@ -75,8 +82,8 @@
 
     /* Navbar */
     .navbar {
-      background-color: white;
-      padding: 10px;
+      background-color: #fff;
+      padding: 10px 15px;
       position: fixed;
       width: 100%;
       top: 0;
@@ -88,129 +95,149 @@
       display: flex;
       align-items: center;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
     }
 
     #topBtn {
       flex: 1;
-      padding: 10px;
-      font-size: 14px;
+      padding: 8px;
+      font-size: 13px;
       border-radius: 6px;
-      border: 1px solid #ccc;
+      border: 1px solid #ced4da;
     }
 
     .sort-dropdown {
-      padding: 10px;
-      font-size: 14px;
+      padding: 8px;
+      font-size: 13px;
       border-radius: 6px;
+      border: 1px solid #ced4da;
     }
 
     .logout-btn {
       color: #333;
-      font-size: 14px;
+      font-size: 13px;
       cursor: pointer;
-      padding: 10px;
+      padding: 8px;
+      font-weight: 500;
     }
 
     .welcome-text {
       text-align: center;
       color: #333;
-      font-size: 16px;
-      margin-top: 10px;
-      font-family: system-ui, sans-serif;
+      font-size: 14px;
+      margin-top: 8px;
+      font-weight: 500;
     }
 
     /* Product Grid */
     .skeleton-wrapper {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
-      width: 90%;
-      margin: 100px auto 20px auto;
-      padding: 0 10px;
+      gap: 12px;
+      width: 95%;
+      margin: 80px auto 20px auto;
+      padding: 0 8px;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 480px) {
       .skeleton-wrapper {
-        grid-template-columns: 1fr;
+        gap: 10px;
+        width: 98%;
       }
     }
 
     .card {
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      transition: box-shadow 0.3s;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
       width: 100%;
-      max-width: 300px;
+      max-width: 200px;
       margin: 0 auto;
-      border: 1px solid #ccc;
       border-radius: 8px;
       text-align: center;
-      background: white;
+      background: #fff;
+      overflow: hidden;
     }
 
     .card:hover {
-      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
     }
 
     .card img {
       width: 100%;
-      max-width: 200px;
+      max-width: 140px;
       height: auto;
-      margin: 10px auto;
-      border: 1px solid lightgrey;
-      border-radius: 8px;
+      margin: 8px auto;
+      border-radius: 6px;
       object-fit: cover;
+      transition: opacity 0.3s;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 480px) {
+      .card {
+        max-width: 160px;
+      }
       .card img {
-        max-width: 150px;
+        max-width: 120px;
       }
     }
 
     .containers {
-      padding: 10px;
+      padding: 8px;
     }
 
     .qtyclass {
-      height: 40px;
-      width: 60px;
-      margin: 10px 5px 0 0;
-      font-size: 14px;
-      border-radius: 6px;
+      height: 34px;
+      width: 50px;
+      margin: 8px 4px 0 0;
+      font-size: 12px;
+      border-radius: 4px;
+      border: 1px solid #ced4da;
     }
 
     .submit {
       cursor: pointer;
-      background: white;
-      color: green;
-      font-weight: 700;
-      width: 60px;
-      height: 40px;
-      border: 1px solid grey;
-      border-radius: 6px;
-      margin: 10px 0 0 5px;
-      font-size: 14px;
+      background: #fff;
+      color: #28a745;
+      font-weight: 600;
+      width: 50px;
+      height: 34px;
+      border: 1px solid #28a745;
+      border-radius: 4px;
+      margin: 8px 0 0 4px;
+      font-size: 12px;
+    }
+
+    .submit:hover {
+      background: #28a745;
+      color: #fff;
     }
 
     .btn-primary {
       position: fixed;
-      bottom: 20px;
-      right: 20px;
+      bottom: 15px;
+      right: 15px;
       color: #fff;
-      background-color: #337ab7;
-      border-color: #2e6da4;
+      background-color: #007bff;
+      border-color: #007bff;
       z-index: 1;
-      padding: 10px 20px;
-      font-size: 16px;
+      padding: 8px 16px;
+      font-size: 14px;
+      border-radius: 6px;
     }
 
     p {
-      margin: 0 0 5px;
+      margin: 0 0 4px;
       white-space: nowrap;
       text-overflow: ellipsis;
       overflow: hidden;
+      font-size: 12px;
+    }
+
+    h4 {
+      margin: 0 0 4px;
       font-size: 14px;
+      color: #333;
     }
 
     /* Enlarged Image */
@@ -220,98 +247,113 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.8);
+      background-color: rgba(0, 0, 0, 0.85);
       display: flex;
       justify-content: center;
       align-items: center;
       z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .enlarged-image-container.show {
+      opacity: 1;
     }
 
     .enlarged-image img {
-      max-width: 90%;
-      max-height: 90%;
+      max-width: 95%;
+      max-height: 95%;
       width: auto;
       height: auto;
+      border-radius: 8px;
     }
 
     .enlarged-image button {
       position: absolute;
-      top: 15px;
-      right: 15px;
-      background-color: transparent;
-      color: white;
+      top: 12px;
+      right: 12px;
+      background-color: rgba(0,0,0,0.5);
+      color: #fff;
       border: none;
       cursor: pointer;
-      font-size: 20px;
+      font-size: 18px;
+      padding: 8px;
+      border-radius: 50%;
     }
 
     /* Tabs */
     .tab-scroll-wrapper {
-      margin-top: 70px;
+      margin-top: 60px;
       overflow-y: auto;
-      height: calc(100vh - 70px);
+      height: calc(100vh - 60px);
       position: fixed;
-      width: 90px;
-      background: #f5f5f5;
-      padding: 10px 5px;
+      width: 80px;
+      background: #fff;
+      padding: 8px 4px;
+      box-shadow: 2px 0 4px rgba(0,0,0,0.1);
     }
 
     .tab-items {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
 
     .tab-item {
-      width: 80px;
-      height: 100px;
+      width: 72px;
+      height: 80px;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      background-color: white;
-      border-radius: 8px;
+      background-color: #f8f9fa;
+      border-radius: 6px;
       text-align: center;
       font-family: Arial, sans-serif;
-      font-size: 10px;
+      font-size: 9px;
       color: #333;
       cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      transition: background-color 0.2s;
+      transition: background-color 0.2s, transform 0.2s;
+    }
+
+    .tab-item:hover {
+      background-color: #e9ecef;
+      transform: scale(1.05);
     }
 
     .tab-item.active {
-      background-color: #5A55A3;
-      color: white;
+      background-color: #4caf50;
+      color: #fff;
       font-weight: bold;
-      height: 110px;
+      height: 88px;
     }
 
     .tab-item img {
-      width: 50px;
-      height: 50px;
+      width: 40px;
+      height: 40px;
       object-fit: cover;
-      margin: 5px auto;
+      margin: 4px auto;
+      border-radius: 4px;
     }
 
     .tab-scroll-wrapper::-webkit-scrollbar {
-      width: 6px;
+      width: 5px;
     }
 
     .tab-scroll-wrapper::-webkit-scrollbar-thumb {
-      background-color: #ccc;
+      background-color: #adb5bd;
       border-radius: 3px;
     }
 
     .tab-scroll-wrapper::-webkit-scrollbar-track {
-      background-color: #f1f1f1;
+      background-color: #f1f3f5;
     }
 
     /* Skeleton Loading */
     .skeleton-item {
       width: 100%;
-      max-width: 300px;
-      height: 300px;
-      background-color: #f0f0f0;
+      max-width: 200px;
+      height: 240px;
+      background-color: #e9ecef;
       border-radius: 8px;
       overflow: hidden;
       position: relative;
@@ -319,10 +361,17 @@
       margin: 0 auto;
     }
 
+    @media (max-width: 480px) {
+      .skeleton-item {
+        max-width: 160px;
+        height: 220px;
+      }
+    }
+
     @keyframes skeleton-pulse {
-      0% { opacity: 0.6; }
+      0% { opacity: 0.7; }
       50% { opacity: 1; }
-      100% { opacity: 0.6; }
+      100% { opacity: 0.7; }
     }
 
     .skeleton-item .skeleton-text {
@@ -331,22 +380,22 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 15px;
+      padding: 12px;
     }
 
     .skeleton-item .skeleton-line {
       width: 100%;
-      height: 14px;
-      background-color: #e0e0e0;
-      margin-bottom: 10px;
+      height: 12px;
+      background-color: #dee2e6;
+      margin-bottom: 8px;
       border-radius: 4px;
     }
 
     /* Microphone Animation */
     @keyframes pulse {
-      0% { transform: scale(1); color: black; }
-      50% { transform: scale(1.2); color: blue; }
-      100% { transform: scale(1); color: black; }
+      0% { transform: scale(1); color: #333; }
+      50% { transform: scale(1.2); color: #007bff; }
+      100% { transform: scale(1); color: #333; }
     }
 
     #micIcon.animating {
@@ -366,7 +415,7 @@
   <!-- Login Section -->
   <div id="login-container">
     <div id="inside">
-      <h2 style="font-size: 20px; margin-bottom: 20px;">WELCOME TO HINDUSTAN TOYS</h2>
+      <h2 style="font-size: 18px; margin-bottom: 20px; color: #333;">WELCOME TO HINDUSTAN TOYS</h2>
       <input type="text" id="name" ng-model="dynamicField2Value" placeholder="Enter your shop name" autocomplete="off">
       <input type="tel" id="mobile" placeholder="Enter your mobile number" autocomplete="off">
       <button onclick="validateLogin()">Login</button>
@@ -387,14 +436,14 @@
           <option value="GUN"></option>
           <option value="BASKET BALL"></option>
         </datalist>
-        <i id="micIcon" class="fas fa-microphone" onclick="startVoiceRecognition()" style="font-size: 20px; cursor: pointer; margin-left: 10px;"></i>
+        <i id="micIcon" class="fas fa-microphone" onclick="startVoiceRecognition()" style="font-size: 18px; cursor: pointer; margin-left: 8px;"></i>
         <div class="logout-btn" ng-click="logout()">Logout</div>
         <div>
-          <label for="sort" style="font-size: 14px;">Sort by:</label>
+          <label for="sort" style="font-size: 13px; margin-right: 4px;">Sort:</label>
           <select id="sort" ng-model="sortOrder" ng-change="scrollToTop(); applyFilter()" ng-init="sortOrder='-date'" class="sort-dropdown">
-            <option value="-date">NEW</option>
-            <option value="price">LOW</option>
-            <option value="-price">HIGH</option>
+            <option value="-date">Newest</option>
+            <option value="price">Price: Low</option>
+            <option value="-price">Price: High</option>
           </select>
         </div>
       </div>
@@ -538,17 +587,17 @@
                 <button onclick="closeEnlarged()">✖</button>
               </div>
             </div>
-            <button ng-if="!image.outOfStock && dynamicField2Value === 'sammyadmin'" class="btn btn-warning btn-sm" ng-click="markOutOfStock(image)" style="margin: 5px 0;">
+            <button ng-if="!image.outOfStock && dynamicField2Value === 'sammyadmin'" class="btn btn-warning btn-sm" ng-click="markOutOfStock(image)" style="margin: 4px 0; font-size: 12px;">
               Mark Out of Stock
             </button>
             <div class="containers">
-              <h4><b><p>{{image.price}} Rs.</p></b></h4>
+              <h4><b>{{image.price}} Rs.</b></h4>
               <p>{{image.name}}</p>
-              <p><a href="https://hunkaammy.github.io/mywebsite/videos/{{image.videourl}}.mp4" target="_blank" ng-if="image.videourl">Watch Video</a></p>
+              <p><a href="https://hunkaammy.github.io/mywebsite/videos/{{image.videourl}}.mp4" target="_blank" ng-if="image.videourl" style="color: #007bff;">Watch Video</a></p>
               <input type="hidden" id="{{'inputa' + $index}}" ng-model="image.url">
               <input type="hidden" id="{{'inputb' + $index}}" ng-model="dynamicField2Value" ng-value="dynamicField2Value">
               <input type="number" class="qtyclass" id="{{'inputc' + $index}}" placeholder="Qty" ng-model="image.field3" ng-change="submitData(image, $index)" ng-model-options="{ debounce: 500 }">
-              <p ng-show="showItemAdded" style="color: green;">Item Added</p>
+              <p ng-show="showItemAdded" style="color: #28a745; font-size: 12px;">Item Added</p>
             </div>
           </div>
         </div>
@@ -665,11 +714,13 @@
       var enlargedContainer = document.getElementById('enlarged-image-container');
       enlargedImg.src = src;
       enlargedContainer.style.display = 'flex';
+      setTimeout(() => enlargedContainer.classList.add('show'), 10);
     }
 
     function closeEnlarged() {
       var enlargedContainer = document.getElementById('enlarged-image-container');
-      enlargedContainer.style.display = 'none';
+      enlargedContainer.classList.remove('show');
+      setTimeout(() => enlargedContainer.style.display = 'none', 300);
     }
 
     document.getElementById('enlarged-image-container')?.addEventListener('click', function(event) {
