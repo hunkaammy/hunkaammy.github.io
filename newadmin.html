@@ -52,13 +52,6 @@
             z-index: 10;
             background-color: white;
         }
-        #voiceSearchNameBtn.active, #voiceSearchPartyCodeBtn.active {
-            background-color: #e53e3e;
-        }
-        #voiceSearchNameBtn.disabled, #voiceSearchPartyCodeBtn.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -92,22 +85,8 @@
         <div class="search-container sticky top-0 z-10 max-w-xl mx-auto mb-12 bg-white p-6 rounded-lg shadow-lg">
             <h2 class="text-2xl font-semibold text-gray-800 mb-4">Search Products</h2>
             <div class="grid grid-cols-2 gap-4 mb-4">
-                <div class="relative">
-                    <input type="text" id="searchName" placeholder="Search by Name" class="w-full p-2 border rounded">
-                    <button id="voiceSearchNameBtn" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gray-200 p-2 rounded-full hover:bg-gray-300" title="Search by Name with Voice">
-                        <svg class="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
-                        </svg>
-                    </button>
-                </div>
-                <div class="relative">
-                    <input type="text" id="searchPartyCode" placeholder="Search by Party Code" class="w-full p-2 border rounded">
-                    <button id="voiceSearchPartyCodeBtn" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gray-200 p-2 rounded-full hover:bg-gray-300" title="Search by Party Code with Voice">
-                        <svg class="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
-                        </svg>
-                    </button>
-                </div>
+                <input type="text" id="searchName" placeholder="Search by Name" class="w-full p-2 border rounded">
+                <input type="text" id="searchPartyCode" placeholder="Search by Party Code" class="w-full p-2 border rounded">
             </div>
             <button onclick="resetSearch()" class="w-full bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition-colors">
                 Reset
@@ -281,7 +260,7 @@
             imageInput.value = '';
             document.getElementById('nameInput').value = '';
             document.getElementById('priceInput').value = '';
-            document.getElementById('partyCodeInput').value = '';
+     
             document.getElementById('videourlInput').value = '';
             preview.innerHTML = '';
 
@@ -464,9 +443,9 @@
                 container.innerHTML = `
                     <img src="${image.url}" alt="${image.name}" class="w-full object-cover" loading="lazy">
                     <div class="p-4">
-                        <h3 class="font-semibold text-lg mb-2 editable-field" onclick="makeEditable(this, '${image.key}', 'name')">${image.name}</h3>
-                        <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${image.key}', 'price')">Price: ${image.price}</p>
-                        <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${image.key}', 'partyCode')">Party Code: ${image.partyCode}</p>
+                        <h3 class="font-semibold text-lg mb-2 editable-field" onclick="makeEditable(this, '${key}', 'name')">${image.name}</h3>
+                        <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${key}', 'price')">Price: ${image.price}</p>
+                        <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${key}', 'partyCode')">Party Code: ${image.partyCode}</p>
                         <p class="text-gray-600">Status: ${image.outOfStock ? 'Out of Stock' : 'Available'}</p>
                         <p class="text-sm text-gray-500 mt-2">Uploaded: ${new Date(image.date).toLocaleString()}</p>
                     </div>
@@ -556,155 +535,6 @@
         // Add real-time search listeners
         document.getElementById('searchName').addEventListener('input', debouncedSearch);
         document.getElementById('searchPartyCode').addEventListener('input', debouncedSearch);
-
-        // Voice Search Functionality
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const voiceSearchNameBtn = document.getElementById('voiceSearchNameBtn');
-        const voiceSearchPartyCodeBtn = document.getElementById('voiceSearchPartyCodeBtn');
-
-        if (SpeechRecognition) {
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'en-US';
-            recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
-
-            let isRecording = false;
-
-            // Check microphone permission status
-            function checkMicrophonePermission() {
-                navigator.permissions.query({ name: 'microphone' }).then((result) => {
-                    if (result.state === 'denied') {
-                        voiceSearchNameBtn.classList.add('disabled');
-                        voiceSearchPartyCodeBtn.classList.add('disabled');
-                        voiceSearchNameBtn.title = 'Microphone access denied. Please enable it in your browser settings.';
-                        voiceSearchPartyCodeBtn.title = 'Microphone access denied. Please enable it in your browser settings.';
-                        alert('Microphone access is denied. Please enable microphone permissions in your browser settings to use voice search.');
-                    } else if (result.state === 'prompt') {
-                        voiceSearchNameBtn.title = 'Click to grant microphone access and start voice search';
-                        voiceSearchPartyCodeBtn.title = 'Click to grant microphone access and start voice search';
-                    }
-                    // If granted, no action needed
-                }).catch((error) => {
-                    console.error('Error checking microphone permission:', error);
-                });
-            }
-
-            // Initialize permission check on page load
-            checkMicrophonePermission();
-
-            function startVoiceSearch(targetField) {
-                if (isRecording) {
-                    recognition.stop();
-                    return;
-                }
-
-                // Request microphone access
-                navigator.mediaDevices.getUserMedia({ audio: true })
-                    .then((stream) => {
-                        stream.getTracks().forEach(track => track.stop()); // Stop the stream immediately as we only need permission
-                        isRecording = true;
-                        const button = targetField === 'name' ? voiceSearchNameBtn : voiceSearchPartyCodeBtn;
-                        button.classList.add('active');
-                        button.querySelector('svg').classList.add('text-white');
-                        button.title = 'Recording... Click to stop';
-
-                        try {
-                            recognition.start();
-                        } catch (error) {
-                            console.error('Error starting recognition:', error);
-                            alert('Failed to start voice recognition. Please try again.');
-                            isRecording = false;
-                            button.classList.remove('active');
-                            button.querySelector('svg').classList.remove('text-white');
-                            button.title = targetField === 'name' ? 'Search by Name with Voice' : 'Search by Party Code with Voice';
-                        }
-                    })
-                    .catch((error) => {
-                        console.error('Microphone access error:', error);
-                        alert('Microphone access is required for voice search. Please allow microphone access in your browser.');
-                        isRecording = false;
-                        voiceSearchNameBtn.classList.add('disabled');
-                        voiceSearchPartyCodeBtn.classList.add('disabled');
-                        voiceSearchNameBtn.title = 'Microphone access denied. Please enable it in your browser settings.';
-                        voiceSearchPartyCodeBtn.title = 'Microphone access denied. Please enable it in your browser settings.';
-                    });
-
-                recognition.onresult = (event) => {
-                    const transcript = event.results[0][0].transcript.trim();
-                    if (targetField === 'name') {
-                        document.getElementById('searchName').value = transcript;
-                    } else {
-                        document.getElementById('searchPartyCode').value = transcript;
-                    }
-                    debouncedSearch();
-                };
-
-                recognition.onend = () => {
-                    isRecording = false;
-                    const button = targetField === 'name' ? voiceSearchNameBtn : voiceSearchPartyCodeBtn;
-                    button.classList.remove('active');
-                    button.querySelector('svg').classList.remove('text-white');
-                    button.title = targetField === 'name' ? 'Search by Name with Voice' : 'Search by Party Code with Voice';
-                };
-
-                recognition.onerror = (event) => {
-                    isRecording = false;
-                    const button = targetField === 'name' ? voiceSearchNameBtn : voiceSearchPartyCodeBtn;
-                    button.classList.remove('active');
-                    button.querySelector('svg').classList.remove('text-white');
-                    button.title = targetField === 'name' ? 'Search by Name with Voice' : 'Search by Party Code with Voice';
-
-                    let errorMessage = 'An error occurred during voice recognition.';
-                    switch (event.error) {
-                        case 'no-speech':
-                            errorMessage = 'No speech was detected. Please try speaking clearly.';
-                            break;
-                        case 'audio-capture':
-                            errorMessage = 'Microphone access failed. Please ensure your microphone is working and try again.';
-                            break;
-                        case 'not-allowed':
-                            errorMessage = 'Microphone access was denied. Please allow microphone access in your browser settings.';
-                            voiceSearchNameBtn.classList.add('disabled');
-                            voiceSearchPartyCodeBtn.classList.add('disabled');
-                            voiceSearchNameBtn.title = 'Microphone access denied. Please enable it in your browser settings.';
-                            voiceSearchPartyCodeBtn.title = 'Microphone access denied. Please enable it in your browser settings.';
-                            break;
-                        case 'aborted':
-                            errorMessage = 'Voice recognition was aborted. Please try again.';
-                            break;
-                        case 'network':
-                            errorMessage = 'Network error occurred. Please check your internet connection and try again.';
-                            break;
-                        case 'service-not-allowed':
-                            errorMessage = 'Voice recognition service is not available. Please try again later.';
-                            break;
-                        default:
-                            errorMessage = `Voice recognition error: ${event.error}. Please try again.`;
-                    }
-                    console.error(`Voice recognition error: ${event.error}`, event);
-                    alert(errorMessage);
-                };
-            }
-
-            voiceSearchNameBtn.addEventListener('click', () => {
-                if (!voiceSearchNameBtn.classList.contains('disabled')) {
-                    startVoiceSearch('name');
-                }
-            });
-
-            voiceSearchPartyCodeBtn.addEventListener('click', () => {
-                if (!voiceSearchPartyCodeBtn.classList.contains('disabled')) {
-                    startVoiceSearch('partyCode');
-                }
-            });
-        } else {
-            console.warn('SpeechRecognition API not supported in this browser.');
-            voiceSearchNameBtn.classList.add('disabled');
-            voiceSearchPartyCodeBtn.classList.add('disabled');
-            voiceSearchNameBtn.title = 'Voice search is not supported in this browser.';
-            voiceSearchPartyCodeBtn.title = 'Voice search is not supported in this browser.';
-            alert('Voice search is not supported in your browser. Please use text input to search.');
-        }
     </script>
 </body>
 </html>
