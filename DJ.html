@@ -9,25 +9,46 @@
       overflow-y: scroll;
       scroll-snap-type: y mandatory;
     }
+
     .reel {
       height: 100vh;
       scroll-snap-align: start;
       position: relative;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
+
     video {
-      object-fit: cover;
-      width: 100%;
-      height: 100%;
+      max-height: 100%;
+      max-width: 100%;
+      object-fit: contain;
+    }
+
+    .mute-btn {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 10;
     }
   </style>
 </head>
 <body>
 
   <div class="reel">
-    <video muted playsinline></video>
+    <video playsinline></video>
+    <button class="mute-btn">Unmute</button>
   </div>
   <div class="reel">
-    <video muted playsinline></video>
+    <video playsinline></video>
+    <button class="mute-btn">Unmute</button>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -37,23 +58,38 @@
       "https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/9xm/11b9a56c-7990-4a79-828f-fbfe93f8674a/0.m3u8"
     ];
 
-    const reels = document.querySelectorAll(".reel video");
+    const reels = document.querySelectorAll(".reel");
 
-    reels.forEach((video, index) => {
+    reels.forEach((reel, index) => {
+      const video = reel.querySelector("video");
+      const btn = reel.querySelector(".mute-btn");
+
       const source = videoSources[index];
       if (Hls.isSupported()) {
-        const hls = new Hls();
+        const hls = new Hls({
+          startLevel: 1,
+          maxBufferLength: 10,
+          maxMaxBufferLength: 20
+        });
         hls.loadSource(source);
         hls.attachMedia(video);
       } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
         video.src = source;
       }
+
+      video.muted = true;
+      btn.addEventListener("click", () => {
+        video.muted = !video.muted;
+        btn.textContent = video.muted ? "Unmute" : "Mute";
+      });
     });
 
     function handleScroll() {
-      reels.forEach(video => {
-        const rect = video.getBoundingClientRect();
+      reels.forEach((reel, idx) => {
+        const video = reel.querySelector("video");
+        const rect = reel.getBoundingClientRect();
         const inView = rect.top >= 0 && rect.bottom <= window.innerHeight;
+
         if (inView) {
           video.play();
         } else {
