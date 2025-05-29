@@ -2,28 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Reel Scroll</title>
+  <title>Fast Reels Scroll</title>
   <style>
     body {
       margin: 0;
-      overflow-y: scroll;
       scroll-snap-type: y mandatory;
+      overflow-y: scroll;
+      background: #000;
     }
 
     .reel {
       height: 100vh;
       scroll-snap-align: start;
-      position: relative;
-      background: #000;
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
     }
 
     video {
-      max-height: 100%;
       max-width: 100%;
+      max-height: 100%;
       object-fit: contain;
+      background: #000;
     }
 
     .mute-btn {
@@ -42,47 +43,51 @@
 </head>
 <body>
 
-  <div class="reel">
-    <video playsinline></video>
+  <!-- Placeholder Reels -->
+  <div class="reel" data-src="https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/punjabi-hits/d59adabb-4927-4146-87f1-35f6530e9ad1/0.m3u8">
+    <video playsinline muted></video>
     <button class="mute-btn">Unmute</button>
   </div>
-  <div class="reel">
-    <video playsinline></video>
+
+  <div class="reel" data-src="https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/9xm/11b9a56c-7990-4a79-828f-fbfe93f8674a/0.m3u8">
+    <video playsinline muted></video>
     <button class="mute-btn">Unmute</button>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
-    const videoSources = [
-      "https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/punjabi-hits/d59adabb-4927-4146-87f1-35f6530e9ad1/0.m3u8",
-      "https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/9xm/11b9a56c-7990-4a79-828f-fbfe93f8674a/0.m3u8"
-    ];
-
     const reels = document.querySelectorAll(".reel");
+    const players = [];
 
-    reels.forEach((reel, index) => {
+    function setupVideo(reel) {
       const video = reel.querySelector("video");
-      const btn = reel.querySelector(".mute-btn");
+      const src = reel.dataset.src;
 
-      const source = videoSources[index];
-      if (Hls.isSupported()) {
-        const hls = new Hls({
-          startLevel: 1,
-          maxBufferLength: 10,
-          maxMaxBufferLength: 20
-        });
-        hls.loadSource(source);
-        hls.attachMedia(video);
-      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        video.src = source;
+      if (!video.dataset.loaded) {
+        if (Hls.isSupported()) {
+          const hls = new Hls({
+            startLevel: 0,
+            autoStartLoad: false,
+            maxBufferLength: 10,
+            maxMaxBufferLength: 20
+          });
+          hls.loadSource(src);
+          hls.attachMedia(video);
+          hls.startLoad(0);
+          video.dataset.loaded = "true";
+          players.push({ video, hls });
+        } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+          video.src = src;
+          video.dataset.loaded = "true";
+        }
       }
 
-      video.muted = true;
+      const btn = reel.querySelector(".mute-btn");
       btn.addEventListener("click", () => {
         video.muted = !video.muted;
         btn.textContent = video.muted ? "Unmute" : "Mute";
       });
-    });
+    }
 
     function handleScroll() {
       reels.forEach((reel, idx) => {
@@ -90,10 +95,17 @@
         const rect = reel.getBoundingClientRect();
         const inView = rect.top >= 0 && rect.bottom <= window.innerHeight;
 
+        // Lazy load and play
         if (inView) {
+          setupVideo(reel);
           video.play();
         } else {
           video.pause();
+        }
+
+        // Preload next reel one ahead
+        if (Math.abs(rect.top) < window.innerHeight * 1.5) {
+          setupVideo(reel);
         }
       });
     }
