@@ -14,152 +14,484 @@
       background-color: #000;
       color: #fff;
       font-family: Arial, sans-serif;
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
+      padding: 10px;
+      overscroll-behavior: none;
     }
 
-    .poster-section,
-    .video-section {
+    .section {
       display: none;
       width: 100%;
-      height: 100%;
+      max-width: 1600px;
       justify-content: center;
       align-items: center;
       flex-direction: column;
     }
 
-    .poster-section.active,
-    .video-section.active {
+    .section.active {
       display: flex;
     }
 
-    .poster img {
-      width: 80%;
-      max-width: 320px;
-      border-radius: 8px;
+    .poster-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+      width: 100%;
+      padding: 15px;
+    }
+
+    .poster {
+      position: relative;
       cursor: pointer;
-      transition: transform 0.3s ease;
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+      outline: none;
     }
 
-    .poster img:hover {
+    .poster:focus {
       transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
     }
 
-    .controls {
+    .poster img {
+      width: 100%;
+      border-radius: 8px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    }
+
+    .poster-title {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 1rem;
+    }
+
+    .poster-actions {
       position: absolute;
-      top: 10px;
-      left: 10px;
+      top: 8px;
+      right: 8px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .poster-actions button {
+      padding: 8px 14px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border: 2px solid #fff;
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.9rem;
+      outline: none;
+      transition: background-color 0.3s, box-shadow 0.3s;
+    }
+
+    .poster-actions button:focus,
+    .poster-actions button:hover {
+      background-color: rgba(255, 255, 255, 0.5);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+    }
+
+    .add-movie-button {
+      padding: 14px 28px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border: 2px solid #fff;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      outline: none;
+      transition: background-color 0.3s, box-shadow 0.3s;
+    }
+
+    .add-movie-button:focus,
+    .add-movie-button:hover {
+      background-color: rgba(255, 255, 255, 0.5);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.85);
+      justify-content: center;
+      align-items: center;
       z-index: 1000;
     }
 
-    .back-button {
-      padding: 12px 20px;
-      font-size: 1rem;
-      background-color: rgba(255, 255, 255, 0.1);
-      border: 1px solid #fff;
-      color: #fff;
-      border-radius: 8px;
-      cursor: pointer;
-      touch-action: manipulation;
+    .modal.active {
+      display: flex;
     }
 
-    .back-button:hover {
+    .modal-content {
+      background-color: #222;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .modal-content input {
+      padding: 12px;
+      border: 2px solid #fff;
+      border-radius: 6px;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .modal-content input:focus {
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+    }
+
+    .modal-content button {
+      padding: 12px;
       background-color: rgba(255, 255, 255, 0.2);
+      border: 2px solid #fff;
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 1rem;
+      outline: none;
+      transition: background-color 0.3s, box-shadow 0.3s;
+    }
+
+    .modal-content button:focus,
+    .modal-content button:hover {
+      background-color: rgba(255, 255, 255, 0.5);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
     }
 
     video {
       width: 100%;
-      height: 100%;
+      max-height: 85vh;
       background: black;
       object-fit: contain;
     }
 
-    /* Tablet and Desktop */
-    @media (min-width: 768px) {
-      .poster img {
-        max-width: 400px;
+    /* Mobile */
+    @media (max-width: 767px) {
+      .poster-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
       }
 
-      .back-button {
-        font-size: 1.2rem;
-        padding: 14px 24px;
+      .poster-title {
+        font-size: 0.85rem;
+      }
+
+      .poster-actions button {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+      }
+
+      .add-movie-button {
+        padding: 12px 24px;
+        font-size: 1rem;
+      }
+
+      .modal-content {
+        width: 95%;
+        padding: 15px;
+      }
+
+      .modal-content input,
+      .modal-content button {
+        font-size: 0.9rem;
       }
     }
 
-    /* 4K TVs or large screens */
+    /* Tablet */
+    @media (min-width: 768px) and (max-width: 1199px) {
+      .poster-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 18px;
+      }
+
+      .poster-title {
+        font-size: 1.1rem;
+      }
+    }
+
+    /* Fire Stick / Large Screens */
     @media (min-width: 1200px) {
-      .poster img {
-        max-width: 500px;
+      .poster-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 25px;
+      }
+
+      .add-movie-button {
+        padding: 16px 32px;
+        font-size: 1.4rem;
+      }
+
+      .modal-content {
+        max-width: 600px;
+        padding: 25px;
+      }
+
+      .modal-content input,
+      .modal-content button {
+        font-size: 1.2rem;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Poster Section -->
-  <div class="poster-section active" id="posterSection">
-    <div class="poster">
-      <img src="https://stat4.bollywoodhungama.in/wp-content/uploads/2023/12/KesariChapter2-1-306x393.jpeg"
-        alt="Kesari Chapter 2 Poster" id="posterImage" />
-    </div>
+  <!-- Home Section (Movie List) -->
+  <div class="section active" id="homeSection">
+    <h2>Movie Library</h2>
+    <button class="add-movie-button" id="openModalButton" tabindex="0">Add New Movie</button>
+    <div class="poster-grid" id="posterGrid"></div>
   </div>
 
   <!-- Video Section -->
-  <div class="video-section" id="videoSection">
-    <div class="controls">
-      <button class="back-button" id="backButton">← Back</button>
-    </div>
+  <div class="section" id="videoSection">
     <video id="moviePlayer" controls>
-      <source
-        src="http://0vwc.a9h8.com/vod/1/2025/05/07/94d37152b464/858509975.mp4?wsSecret=bd9b829fc3309733e837db95767043cf&wsTime=68383482"
-        type="video/mp4" />
+      <source id="videoSource" src="" type="video/mp4" />
       Your browser does not support the video tag.
     </video>
   </div>
 
+  <!-- Modal for Add/Edit Movie -->
+  <div class="modal" id="movieModal">
+    <div class="modal-content">
+      <h3 id="modalTitle">Add Movie</h3>
+      <input type="text" id="movieTitle" placeholder="Movie Title" required tabindex="0" />
+      <input type="url" id="posterUrl" placeholder="Poster URL" required tabindex="0" />
+      <input type="url" id="videoUrl" placeholder="Video URL" required tabindex="0" />
+      <button id="submitMovieButton" tabindex="0">Add Movie</button>
+      <button id="closeModalButton" tabindex="0">Cancel</button>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
   <script>
-    const posterSection = document.getElementById('posterSection');
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDM7HUVDfdy_UXAaCx3kYWmDhxrF0y8jyA",
+      authDomain: "model-poses.firebaseapp.com",
+      databaseURL: "https://model-poses.firebaseio.com",
+      projectId: "model-poses",
+      storageBucket: "model-poses.firebasestorage.app",
+      messagingSenderId: "10510371385",
+      appId: "1:10510371385:web:1f93c15f032b729fe61be8"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const moviesRef = database.ref('movies');
+
+    // DOM elements
+    const homeSection = document.getElementById('homeSection');
     const videoSection = document.getElementById('videoSection');
     const moviePlayer = document.getElementById('moviePlayer');
-    const backButton = document.getElementById('backButton');
-    const posterImage = document.getElementById('posterImage');
-    const STORAGE_KEY = 'kesari2_playback_position';
+    const videoSource = document.getElementById('videoSource');
+    const posterGrid = document.getElementById('posterGrid');
+    const movieModal = document.getElementById('movieModal');
+    const openModalButton = document.getElementById('openModalButton');
+    const closeModalButton = document.getElementById('closeModalButton');
+    const submitMovieButton = document.getElementById('submitMovieButton');
+    const movieTitleInput = document.getElementById('movieTitle');
+    const posterUrlInput = document.getElementById('posterUrl');
+    const videoUrlInput = document.getElementById('videoUrl');
+    const modalTitle = document.getElementById('modalTitle');
+    const STORAGE_KEY_PREFIX = 'movie_playback_';
+    let editingMovieKey = null;
 
-    // Click poster to start video
-    posterImage.addEventListener('click', () => {
-      posterSection.classList.remove('active');
-      videoSection.classList.add('active');
+    // Open modal for adding movie
+    openModalButton.addEventListener('click', () => {
+      modalTitle.textContent = 'Add Movie';
+      submitMovieButton.textContent = 'Add Movie';
+      movieTitleInput.value = '';
+      posterUrlInput.value = '';
+      videoUrlInput.value = '';
+      editingMovieKey = null;
+      movieModal.classList.add('active');
+      movieTitleInput.focus();
+    });
 
-      // Resume previous time if available
-      const savedTime = localStorage.getItem(STORAGE_KEY);
-      if (savedTime) {
-        moviePlayer.currentTime = parseFloat(savedTime);
-      }
+    // Close modal
+    closeModalButton.addEventListener('click', () => {
+      movieModal.classList.remove('active');
+      openModalButton.focus();
+    });
 
-      moviePlayer.play();
+    // Submit movie (add or edit)
+    submitMovieButton.addEventListener('click', () => {
+      const title = movieTitleInput.value.trim();
+      const posterUrl = posterUrlInput.value.trim();
+      const videoUrl = videoUrlInput.value.trim();
 
-      // Try entering fullscreen
-      if (moviePlayer.requestFullscreen) {
-        moviePlayer.requestFullscreen();
-      } else if (moviePlayer.webkitRequestFullscreen) {
-        moviePlayer.webkitRequestFullscreen();
-      } else if (moviePlayer.msRequestFullscreen) {
-        moviePlayer.msRequestFullscreen();
+      if (title && posterUrl && videoUrl) {
+        const movieData = {
+          title: title,
+          posterUrl: posterUrl,
+          videoUrl: videoUrl,
+          createdAt: firebase.database.ServerValue.TIMESTAMP
+        };
+
+        if (editingMovieKey) {
+          moviesRef.child(editingMovieKey).update(movieData)
+            .then(() => {
+              movieModal.classList.remove('active');
+              alert('Movie updated successfully!');
+              openModalButton.focus();
+            })
+            .catch(error => {
+              console.error('Error updating movie:', error);
+              alert('Failed to update movie.');
+            });
+        } else {
+          const newMovieRef = moviesRef.push();
+          newMovieRef.set(movieData)
+            .then(() => {
+              movieModal.classList.remove('active');
+              alert('Movie added successfully!');
+              openModalButton.focus();
+            })
+            .catch(error => {
+              console.error('Error adding movie:', error);
+              alert('Failed to add movie.');
+            });
+        }
+        movieTitleInput.value = '';
+        posterUrlInput.value = '';
+        videoUrlInput.value = '';
+        editingMovieKey = null;
+      } else {
+        alert('Please fill in all fields.');
       }
     });
 
-    // Save progress to localStorage
-    moviePlayer.addEventListener('timeupdate', () => {
-      localStorage.setItem(STORAGE_KEY, moviePlayer.currentTime);
+    // Fetch and display movies
+    moviesRef.on('value', (snapshot) => {
+      posterGrid.innerHTML = ''; // Clear grid to avoid duplicates
+      const movies = snapshot.val();
+      if (movies) {
+        Object.entries(movies).forEach(([key, movie]) => {
+          const posterDiv = document.createElement('div');
+          posterDiv.className = 'poster';
+          posterDiv.tabIndex = 0;
+          posterDiv.innerHTML = `
+            <img src="${movie.posterUrl}" alt="${movie.title}" />
+            <div class="poster-title">${movie.title}</div>
+            <div class="poster-actions">
+              <button class="edit-button" data-key="${key}" tabindex="0">Edit</button>
+              <button class="delete-button" data-key="${key}" tabindex="0">Delete</button>
+            </div>
+          `;
+          // Play movie on poster click or select key
+          const playMovie = () => {
+            homeSection.classList.remove('active');
+            videoSection.classList.add('active');
+            videoSource.src = movie.videoUrl;
+            moviePlayer.load();
+
+            // Resume from saved playback position
+            const savedTime = localStorage.getItem(STORAGE_KEY_PREFIX + key);
+            if (savedTime && !isNaN(parseFloat(savedTime))) {
+              moviePlayer.currentTime = parseFloat(savedTime);
+            }
+
+            moviePlayer.play().catch(error => {
+              console.error('Error playing video:', error);
+              alert('Failed to play video. Check the video URL.');
+            });
+
+            // Try entering fullscreen
+            if (moviePlayer.requestFullscreen) {
+              moviePlayer.requestFullscreen();
+            } else if (moviePlayer.webkitRequestFullscreen) {
+              moviePlayer.webkitRequestFullscreen();
+            } else if (moviePlayer.msRequestFullscreen) {
+              moviePlayer.msRequestFullscreen();
+            }
+
+            // Save playback position to localStorage
+            let lastUpdate = 0;
+            moviePlayer.addEventListener('timeupdate', () => {
+              const now = Date.now();
+              if (now - lastUpdate >= 2000 && !moviePlayer.paused) { // Update every 2 seconds
+                localStorage.setItem(STORAGE_KEY_PREFIX + key, moviePlayer.currentTime.toFixed(2));
+                lastUpdate = now;
+              }
+            });
+          };
+
+          posterDiv.querySelector('img').addEventListener('click', playMovie);
+          posterDiv.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === 'Select' || e.keyCode === 13) {
+              playMovie();
+            }
+          });
+
+          // Edit movie
+          posterDiv.querySelector('.edit-button').addEventListener('click', () => {
+            editingMovieKey = key;
+            modalTitle.textContent = 'Edit Movie';
+            submitMovieButton.textContent = 'Update Movie';
+            movieTitleInput.value = movie.title;
+            posterUrlInput.value = movie.posterUrl;
+            videoUrlInput.value = movie.videoUrl;
+            movieModal.classList.add('active');
+            movieTitleInput.focus();
+          });
+
+          // Delete movie
+          posterDiv.querySelector('.delete-button').addEventListener('click', () => {
+            if (confirm(`Are you sure you want to delete "${movie.title}"?`)) {
+              localStorage.removeItem(STORAGE_KEY_PREFIX + key);
+              moviesRef.child(key).remove()
+                .then(() => {
+                  alert('Movie deleted successfully!');
+                  openModalButton.focus();
+                })
+                .catch(error => {
+                  console.error('Error deleting movie:', error);
+                  alert('Failed to delete movie.');
+                });
+            }
+          });
+
+          posterGrid.appendChild(posterDiv);
+        });
+      }
+      // Set focus to first poster or add button
+      const firstFocusable = posterGrid.querySelector('.poster') || openModalButton;
+      firstFocusable.focus();
     });
 
-    // Back to poster section
-    backButton.addEventListener('click', () => {
-      moviePlayer.pause();
-      videoSection.classList.remove('active');
-      posterSection.classList.add('active');
+    // Handle Fire Stick remote back button
+    document.addEventListener('keydown', (e) => {
+      if (videoSection.classList.contains('active') && 
+          (e.key === 'Escape' || e.keyCode === 27 || e.keyCode === 166)) {
+        e.preventDefault();
+        moviePlayer.pause();
+        if (moviePlayer.currentTime > 0) {
+          localStorage.setItem(STORAGE_KEY_PREFIX + videoSource.src, moviePlayer.currentTime.toFixed(2));
+        }
+        videoSection.classList.remove('active');
+        homeSection.classList.add('active');
+        openModalButton.focus();
+      } else if (movieModal.classList.contains('active') && 
+                 (e.key === 'Escape' || e.keyCode === 27 || e.keyCode === 166)) {
+        e.preventDefault();
+        movieModal.classList.remove('active');
+        openModalButton.focus();
+      }
     });
   </script>
 </body>
