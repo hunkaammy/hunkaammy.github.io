@@ -1,118 +1,166 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Fast Reels Scroll</title>
+  <meta charset="UTF-8" />
+  <title>Kesari Chapter 2 - Movie App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body {
-      margin: 0;
-      scroll-snap-type: y mandatory;
-      overflow-y: scroll;
-      background: #000;
+    * {
+      box-sizing: border-box;
     }
 
-    .reel {
+    body {
+      margin: 0;
+      background-color: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
       height: 100vh;
-      scroll-snap-align: start;
       display: flex;
-      align-items: center;
       justify-content: center;
-      position: relative;
+      align-items: center;
+    }
+
+    .poster-section,
+    .video-section {
+      display: none;
+      width: 100%;
+      height: 100%;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .poster-section.active,
+    .video-section.active {
+      display: flex;
+    }
+
+    .poster img {
+      width: 80%;
+      max-width: 320px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+
+    .poster img:hover {
+      transform: scale(1.05);
+    }
+
+    .controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 1000;
+    }
+
+    .back-button {
+      padding: 12px 20px;
+      font-size: 1rem;
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid #fff;
+      color: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .back-button:hover {
+      background-color: rgba(255, 255, 255, 0.2);
     }
 
     video {
-      max-width: 100%;
-      max-height: 100%;
+      width: 100%;
+      height: 100%;
+      background: black;
       object-fit: contain;
-      background: #000;
     }
 
-    .mute-btn {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      background: rgba(0, 0, 0, 0.6);
-      color: white;
-      border: none;
-      padding: 10px 14px;
-      border-radius: 5px;
-      cursor: pointer;
-      z-index: 10;
+    /* Tablet and Desktop */
+    @media (min-width: 768px) {
+      .poster img {
+        max-width: 400px;
+      }
+
+      .back-button {
+        font-size: 1.2rem;
+        padding: 14px 24px;
+      }
+    }
+
+    /* 4K TVs or large screens */
+    @media (min-width: 1200px) {
+      .poster img {
+        max-width: 500px;
+      }
     }
   </style>
 </head>
 <body>
-
-  <!-- Placeholder Reels -->
-  <div class="reel" data-src="https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/punjabi-hits/d59adabb-4927-4146-87f1-35f6530e9ad1/0.m3u8">
-    <video playsinline muted></video>
-    <button class="mute-btn">Unmute</button>
+  <!-- Poster Section -->
+  <div class="poster-section active" id="posterSection">
+    <div class="poster">
+      <img src="https://stat4.bollywoodhungama.in/wp-content/uploads/2023/12/KesariChapter2-1-306x393.jpeg"
+        alt="Kesari Chapter 2 Poster" id="posterImage" />
+    </div>
   </div>
 
-  <div class="reel" data-src="https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/9xm/11b9a56c-7990-4a79-828f-fbfe93f8674a/0.m3u8">
-    <video playsinline muted></video>
-    <button class="mute-btn">Unmute</button>
+  <!-- Video Section -->
+  <div class="video-section" id="videoSection">
+    <div class="controls">
+      <button class="back-button" id="backButton">← Back</button>
+    </div>
+    <video id="moviePlayer" controls>
+      <source
+        src="http://0vwc.a9h8.com/vod/1/2025/05/07/94d37152b464/858509975.mp4?wsSecret=bd9b829fc3309733e837db95767043cf&wsTime=68383482"
+        type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
-    const reels = document.querySelectorAll(".reel");
-    const players = [];
+    const posterSection = document.getElementById('posterSection');
+    const videoSection = document.getElementById('videoSection');
+    const moviePlayer = document.getElementById('moviePlayer');
+    const backButton = document.getElementById('backButton');
+    const posterImage = document.getElementById('posterImage');
+    const STORAGE_KEY = 'kesari2_playback_position';
 
-    function setupVideo(reel) {
-      const video = reel.querySelector("video");
-      const src = reel.dataset.src;
+    // Click poster to start video
+    posterImage.addEventListener('click', () => {
+      posterSection.classList.remove('active');
+      videoSection.classList.add('active');
 
-      if (!video.dataset.loaded) {
-        if (Hls.isSupported()) {
-          const hls = new Hls({
-            startLevel: 0,
-            autoStartLoad: false,
-            maxBufferLength: 10,
-            maxMaxBufferLength: 20
-          });
-          hls.loadSource(src);
-          hls.attachMedia(video);
-          hls.startLoad(0);
-          video.dataset.loaded = "true";
-          players.push({ video, hls });
-        } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-          video.src = src;
-          video.dataset.loaded = "true";
-        }
+      // Resume previous time if available
+      const savedTime = localStorage.getItem(STORAGE_KEY);
+      if (savedTime) {
+        moviePlayer.currentTime = parseFloat(savedTime);
       }
 
-      const btn = reel.querySelector(".mute-btn");
-      btn.addEventListener("click", () => {
-        video.muted = !video.muted;
-        btn.textContent = video.muted ? "Unmute" : "Mute";
-      });
-    }
+      moviePlayer.play();
 
-    function handleScroll() {
-      reels.forEach((reel, idx) => {
-        const video = reel.querySelector("video");
-        const rect = reel.getBoundingClientRect();
-        const inView = rect.top >= 0 && rect.bottom <= window.innerHeight;
+      // Try entering fullscreen
+      if (moviePlayer.requestFullscreen) {
+        moviePlayer.requestFullscreen();
+      } else if (moviePlayer.webkitRequestFullscreen) {
+        moviePlayer.webkitRequestFullscreen();
+      } else if (moviePlayer.msRequestFullscreen) {
+        moviePlayer.msRequestFullscreen();
+      }
+    });
 
-        // Lazy load and play
-        if (inView) {
-          setupVideo(reel);
-          video.play();
-        } else {
-          video.pause();
-        }
+    // Save progress to localStorage
+    moviePlayer.addEventListener('timeupdate', () => {
+      localStorage.setItem(STORAGE_KEY, moviePlayer.currentTime);
+    });
 
-        // Preload next reel one ahead
-        if (Math.abs(rect.top) < window.innerHeight * 1.5) {
-          setupVideo(reel);
-        }
-      });
-    }
-
-    window.addEventListener("scroll", handleScroll);
-    window.addEventListener("load", handleScroll);
+    // Back to poster section
+    backButton.addEventListener('click', () => {
+      moviePlayer.pause();
+      videoSection.classList.remove('active');
+      posterSection.classList.add('active');
+    });
   </script>
-
 </body>
 </html>
