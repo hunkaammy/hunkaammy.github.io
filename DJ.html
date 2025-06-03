@@ -373,7 +373,7 @@
       .poster-grid,
       .episode-grid {
         grid-template-columns: repeat(6, minmax(180px, 1fr));
-        gap: 30px;
+        gap: 25px;
       }
 
       .add-movie-button {
@@ -389,7 +389,7 @@
       .modal-content input,
       .modal-content select,
       .modal-content button {
-        font-size: 1.2rem;
+        font-size: 16px;
       }
 
       .episode-item img {
@@ -492,6 +492,8 @@
     const STORAGE_KEY_PREFIX = 'content_playback_';
     let editingContentKey = null;
     let episodeCount = 0;
+    let currentContentKey = null;
+    let currentEpisodeKey = null;
 
     // Toggle input fields based on content type
     contentTypeSelect.addEventListener('change', () => {
@@ -623,14 +625,12 @@
       }).catch(error => {
         console.error(`Fullscreen attempt ${attempt} failed:`, error);
         if (attempt < maxAttempts) {
-          // Retry after a delay
           return new Promise((resolve, reject) => {
             setTimeout(() => {
               requestFullscreen(element, attempt + 1, maxAttempts).then(resolve).catch(reject);
             }, 500);
           });
         } else {
-          // Apply fallback and notify user
           element.classList.add('fullscreen-fallback');
           alert('Unable to enter fullscreen automatically. Please click the fullscreen button in the video controls or allow fullscreen in your browser settings.');
           throw error;
@@ -688,6 +688,8 @@
           };
 
           const playEpisode = (contentKey, episodeKey, videoUrl) => {
+            currentContentKey = contentKey;
+            currentEpisodeKey = episodeKey;
             episodeSection.classList.remove('active');
             videoSection.classList.add('active');
             videoSource.src = videoUrl;
@@ -700,12 +702,11 @@
               moviePlayer.currentTime = parseFloat(savedTime);
             }
 
-            // Attempt fullscreen when video starts playing
             const onPlay = () => {
               requestFullscreen(moviePlayer).catch(error => {
                 console.error('Fullscreen request failed:', error);
               });
-              moviePlayer.removeEventListener('play', onPlay); // Remove listener after first play
+              moviePlayer.removeEventListener('play', onPlay);
             };
             moviePlayer.addEventListener('play', onPlay);
 
@@ -805,9 +806,10 @@
           (e.key === 'Escape' || e.keyCode === 27 || e.keyCode === 166)) {
         e.preventDefault();
         moviePlayer.pause();
-        const storageKey = videoSource.src.includes('_') ? 
-          `${STORAGE_KEY_PREFIX}${videoSource.src.split('/').pop().split('.')[0]}` : 
-          `${STORAGE_KEY_PREFIX}${videoSource.src.split('/').pop().split('.')[0]}`;
+        moviePlayer.classList.remove('fullscreen-fallback');
+        const storageKey = currentEpisodeKey ? 
+          `${STORAGE_KEY_PREFIX}${currentContentKey}_${currentEpisodeKey}` : 
+          `${STORAGE_KEY_PREFIX}${currentContentKey}`;
         if (moviePlayer.currentTime > 0) {
           localStorage.setItem(storageKey, moviePlayer.currentTime.toFixed(2));
         }
