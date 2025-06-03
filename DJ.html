@@ -47,7 +47,7 @@
 
     .poster-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      grid-template-columns: repeat(2, minmax(150px, 1fr));
       gap: 25px;
       width: 100%;
       padding: 20px;
@@ -255,7 +255,7 @@
 
     .episode-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      grid-template-columns: repeat(2, minmax(150px, 1fr));
       gap: 20px;
       width: 100%;
     }
@@ -299,11 +299,22 @@
       border-radius: 8px;
     }
 
+    video.fullscreen-fallback {
+      width: 100vw;
+      height: 100vh;
+      max-height: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      border-radius: 0;
+    }
+
     /* Mobile */
     @media (max-width: 767px) {
       .poster-grid,
       .episode-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        grid-template-columns: repeat(2, minmax(140px, 1fr));
         gap: 15px;
       }
 
@@ -347,7 +358,7 @@
     @media (min-width: 768px) and (max-width: 1199px) {
       .poster-grid,
       .episode-grid {
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        grid-template-columns: repeat(5, minmax(160px, 1fr));
         gap: 20px;
       }
 
@@ -357,11 +368,11 @@
       }
     }
 
-    /* Fire Stick / Large Screens */
+    /* TV / PC */
     @media (min-width: 1200px) {
       .poster-grid,
       .episode-grid {
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        grid-template-columns: repeat(6, minmax(180px, 1fr));
         gap: 30px;
       }
 
@@ -593,6 +604,40 @@
       }
     });
 
+    // Function to attempt fullscreen
+    function requestFullscreen(element, attempt = 1, maxAttempts = 3) {
+      return new Promise((resolve, reject) => {
+        try {
+          if (element.requestFullscreen) {
+            element.requestFullscreen().then(resolve).catch(reject);
+          } else if (element.webkitRequestFullscreen) {
+            element.webkitRequestFullscreen().then(resolve).catch(reject);
+          } else if (element.msRequestFullscreen) {
+            element.msRequestFullscreen().then(resolve).catch(reject);
+          } else {
+            reject(new Error('Fullscreen API not supported'));
+          }
+        } catch (error) {
+          reject(error);
+        }
+      }).catch(error => {
+        console.error(`Fullscreen attempt ${attempt} failed:`, error);
+        if (attempt < maxAttempts) {
+          // Retry after a delay
+          return new Promise((resolve, reject) => {
+            setTimeout(() => {
+              requestFullscreen(element, attempt + 1, maxAttempts).then(resolve).catch(reject);
+            }, 500);
+          });
+        } else {
+          // Apply fallback and notify user
+          element.classList.add('fullscreen-fallback');
+          alert('Unable to enter fullscreen automatically. Please click the fullscreen button in the video controls or allow fullscreen in your browser settings.');
+          throw error;
+        }
+      });
+    }
+
     // Fetch and display content
     contentRef.on('value', (snapshot) => {
       posterGrid.innerHTML = '';
@@ -647,6 +692,7 @@
             videoSection.classList.add('active');
             videoSource.src = videoUrl;
             moviePlayer.load();
+            moviePlayer.classList.remove('fullscreen-fallback');
 
             const storageKey = episodeKey ? `${STORAGE_KEY_PREFIX}${contentKey}_${episodeKey}` : `${STORAGE_KEY_PREFIX}${contentKey}`;
             const savedTime = localStorage.getItem(storageKey);
@@ -654,18 +700,19 @@
               moviePlayer.currentTime = parseFloat(savedTime);
             }
 
+            // Attempt fullscreen when video starts playing
+            const onPlay = () => {
+              requestFullscreen(moviePlayer).catch(error => {
+                console.error('Fullscreen request failed:', error);
+              });
+              moviePlayer.removeEventListener('play', onPlay); // Remove listener after first play
+            };
+            moviePlayer.addEventListener('play', onPlay);
+
             moviePlayer.play().catch(error => {
               console.error('Error playing video:', error);
               alert('Failed to play video. Check the video URL.');
             });
-
-            if (moviePlayer.requestFullscreen) {
-              moviePlayer.requestFullscreen();
-            } else if (moviePlayer.webkitRequestFullscreen) {
-              moviePlayer.webkitRequestFullscreen();
-            } else if (moviePlayer.msRequestFullscreen) {
-              moviePlayer.msRequestFullscreen();
-            }
 
             let lastUpdate = 0;
             moviePlayer.addEventListener('timeupdate', () => {
@@ -758,6 +805,12 @@
           (e.key === 'Escape' || e.keyCode === 27 || e.keyCode === 166)) {
         e.preventDefault();
         moviePlayer.pause();
+        const storageKey = videoSource.src.includes('_') ? 
+          `${STORAGE_KEY_PREFIX}${videoSource.src.split('/').pop().split('.')[0]}` : 
+          `${STORAGE_KEY_PREFIX}${videoSource.src.split('/').pop().split('.')[0]}`;
+        if (moviePlayer.currentTime > 0) {
+          localStorage.setItem(storageKey, moviePlayer.currentTime.toFixed(2));
+        }
         videoSection.classList.remove('active');
         homeSection.classList.add('active');
         openModalButton.focus();
