@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Kesari Chapter 2 - Movie App</title>
+  <title>Kesari Chapter 2 - Series App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     * {
@@ -11,15 +11,24 @@
 
     body {
       margin: 0;
-      background-color: #000;
+      background-color: #1a1a1a;
       color: #fff;
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Arial, sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 10px;
+      padding: 20px;
       overscroll-behavior: none;
+    }
+
+    .header {
+      width: 100%;
+      max-width: 1600px;
+      padding: 15px;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
     }
 
     .section {
@@ -29,6 +38,7 @@
       justify-content: center;
       align-items: center;
       flex-direction: column;
+      padding: 20px;
     }
 
     .section.active {
@@ -37,79 +47,103 @@
 
     .poster-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 25px;
       width: 100%;
-      padding: 15px;
+      padding: 20px;
     }
 
     .poster {
       position: relative;
       cursor: pointer;
       outline: none;
+      transition: transform 0.3s ease;
     }
 
     .poster:focus {
       transform: scale(1.05);
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
     }
 
     .poster img {
       width: 100%;
-      border-radius: 8px;
+      border-radius: 10px;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
     }
 
     .poster-title {
       text-align: center;
-      margin-top: 10px;
-      font-size: 1rem;
+      margin-top: 12px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    }
+
+    .series-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: #e50914;
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: bold;
     }
 
     .poster-actions {
       position: absolute;
-      top: 8px;
-      right: 8px;
+      top: 10px;
+      right: 10px;
       display: flex;
-      gap: 8px;
+      gap: 10px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .poster:hover .poster-actions,
+    .poster:focus .poster-actions {
+      opacity: 1;
     }
 
     .poster-actions button {
       padding: 8px 14px;
-      background-color: rgba(255, 255, 255, 0.2);
-      border: 2px solid #fff;
+      background: linear-gradient(45deg, #e50914, #ff4500);
+      border: none;
       border-radius: 6px;
       color: #fff;
       cursor: pointer;
       font-size: 0.9rem;
+      font-weight: 500;
       outline: none;
-      transition: background-color 0.3s, box-shadow 0.3s;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
 
     .poster-actions button:focus,
     .poster-actions button:hover {
-      background-color: rgba(255, 255, 255, 0.5);
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(255, 69, 0, 0.5);
     }
 
     .add-movie-button {
       padding: 14px 28px;
-      background-color: rgba(255, 255, 255, 0.2);
-      border: 2px solid #fff;
+      background: linear-gradient(45deg, #e50914, #ff4500);
+      border: none;
       border-radius: 8px;
       color: #fff;
       cursor: pointer;
       font-size: 1.2rem;
+      font-weight: 600;
       margin-bottom: 20px;
       outline: none;
-      transition: background-color 0.3s, box-shadow 0.3s;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
 
     .add-movie-button:focus,
     .add-movie-button:hover {
-      background-color: rgba(255, 255, 255, 0.5);
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(255, 69, 0, 0.5);
     }
 
     .modal {
@@ -119,57 +153,142 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.85);
+      background-color: rgba(0, 0, 0, 0.9);
       justify-content: center;
       align-items: center;
       z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
 
     .modal.active {
       display: flex;
+      opacity: 1;
     }
 
     .modal-content {
-      background-color: #222;
-      padding: 20px;
-      border-radius: 10px;
+      background-color: #2a2a2a;
+      padding: 25px;
+      border-radius: 12px;
       width: 90%;
-      max-width: 500px;
+      max-width: 700px;
+      max-height: 85vh;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 15px;
+      transform: scale(0.8);
+      transition: transform 0.3s ease;
     }
 
-    .modal-content input {
+    .modal.active .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-content input,
+    .modal-content select {
       padding: 12px;
-      border: 2px solid #fff;
+      border: 2px solid #e50914;
       border-radius: 6px;
       background-color: rgba(255, 255, 255, 0.1);
       color: #fff;
       font-size: 1rem;
       outline: none;
+      transition: border-color 0.2s;
     }
 
-    .modal-content input:focus {
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+    .modal-content input:focus,
+    .modal-content select:focus {
+      border-color: #ff4500;
+      box-shadow: 0 0 8px rgba(255, 69, 0, 0.5);
     }
 
     .modal-content button {
       padding: 12px;
-      background-color: rgba(255, 255, 255, 0.2);
-      border: 2px solid #fff;
+      background: linear-gradient(45deg, #e50914, #ff4500);
+      border: none;
       border-radius: 6px;
       color: #fff;
       cursor: pointer;
       font-size: 1rem;
+      font-weight: 500;
       outline: none;
-      transition: background-color 0.3s, box-shadow 0.3s;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
 
     .modal-content button:focus,
     .modal-content button:hover {
-      background-color: rgba(255, 255, 255, 0.5);
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(255, 69, 0, 0.5);
+    }
+
+    .episode-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 15px;
+      padding: 10px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+    }
+
+    .episode-input {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .episode-input input {
+      flex: 1;
+    }
+
+    .episode-input button {
+      padding: 8px 12px;
+      font-size: 0.9rem;
+    }
+
+    .episode-section {
+      background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    .episode-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+      width: 100%;
+    }
+
+    .episode-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .episode-item:hover,
+    .episode-item:focus {
+      background-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-3px);
+    }
+
+    .episode-item img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+
+    .episode-title {
+      font-size: 1rem;
+      text-align: center;
+      font-weight: 500;
     }
 
     video {
@@ -177,17 +296,20 @@
       max-height: 85vh;
       background: black;
       object-fit: contain;
+      border-radius: 8px;
     }
 
     /* Mobile */
     @media (max-width: 767px) {
-      .poster-grid {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        gap: 12px;
+      .poster-grid,
+      .episode-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
       }
 
-      .poster-title {
-        font-size: 0.85rem;
+      .poster-title,
+      .episode-title {
+        font-size: 0.9rem;
       }
 
       .poster-actions button {
@@ -206,28 +328,41 @@
       }
 
       .modal-content input,
+      .modal-content select,
       .modal-content button {
         font-size: 0.9rem;
+      }
+
+      .episode-input button {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+      }
+
+      .episode-item img {
+        height: 100px;
       }
     }
 
     /* Tablet */
     @media (min-width: 768px) and (max-width: 1199px) {
-      .poster-grid {
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 18px;
+      .poster-grid,
+      .episode-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 20px;
       }
 
-      .poster-title {
+      .poster-title,
+      .episode-title {
         font-size: 1.1rem;
       }
     }
 
     /* Fire Stick / Large Screens */
     @media (min-width: 1200px) {
-      .poster-grid {
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 25px;
+      .poster-grid,
+      .episode-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 30px;
       }
 
       .add-movie-button {
@@ -236,23 +371,38 @@
       }
 
       .modal-content {
-        max-width: 600px;
-        padding: 25px;
+        max-width: 800px;
+        padding: 30px;
       }
 
       .modal-content input,
+      .modal-content select,
       .modal-content button {
         font-size: 1.2rem;
+      }
+
+      .episode-item img {
+        height: 160px;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Home Section (Movie List) -->
+  <div class="header">
+    <h1>Series & Movies Library</h1>
+  </div>
+
+  <!-- Home Section (Content List) -->
   <div class="section active" id="homeSection">
-    <h2>Movie Library</h2>
-    <button class="add-movie-button" id="openModalButton" tabindex="0">Add New Movie</button>
+    <button class="add-movie-button" id="openModalButton" tabindex="0">Add New Content</button>
     <div class="poster-grid" id="posterGrid"></div>
+  </div>
+
+  <!-- Episode Selection Section -->
+  <div class="section episode-section" id="episodeSection">
+    <h2 id="seriesTitle"></h2>
+    <div class="episode-grid" id="episodeList"></div>
+    <button id="backToHomeButton" tabindex="0">Back to Library</button>
   </div>
 
   <!-- Video Section -->
@@ -263,14 +413,25 @@
     </video>
   </div>
 
-  <!-- Modal for Add/Edit Movie -->
+  <!-- Modal for Add/Edit Content -->
   <div class="modal" id="movieModal">
     <div class="modal-content">
-      <h3 id="modalTitle">Add Movie</h3>
-      <input type="text" id="movieTitle" placeholder="Movie Title" required tabindex="0" />
+      <h3 id="modalTitle">Add Content</h3>
+      <select id="contentType" tabindex="0">
+        <option value="movie">Movie</option>
+        <option value="series">Series</option>
+      </select>
+      <input type="text" id="movieTitle" placeholder="Title" required tabindex="0" />
       <input type="url" id="posterUrl" placeholder="Poster URL" required tabindex="0" />
-      <input type="url" id="videoUrl" placeholder="Video URL" required tabindex="0" />
-      <button id="submitMovieButton" tabindex="0">Add Movie</button>
+      <div id="movieUrlContainer" style="display: block;">
+        <input type="url" id="videoUrl" placeholder="Video URL" tabindex="0" />
+      </div>
+      <div id="episodeContainer" style="display: none;">
+        <h4>Episodes</h4>
+        <div id="episodeInputs"></div>
+        <button id="addEpisodeButton" tabindex="0">Add Episode</button>
+      </div>
+      <button id="submitMovieButton" tabindex="0">Add Content</button>
       <button id="closeModalButton" tabindex="0">Cancel</button>
     </div>
   </div>
@@ -292,35 +453,76 @@
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
-    const moviesRef = database.ref('movies');
+    const contentRef = database.ref('content');
 
     // DOM elements
     const homeSection = document.getElementById('homeSection');
+    const episodeSection = document.getElementById('episodeSection');
     const videoSection = document.getElementById('videoSection');
     const moviePlayer = document.getElementById('moviePlayer');
     const videoSource = document.getElementById('videoSource');
     const posterGrid = document.getElementById('posterGrid');
+    const episodeList = document.getElementById('episodeList');
+    const seriesTitle = document.getElementById('seriesTitle');
+    const backToHomeButton = document.getElementById('backToHomeButton');
     const movieModal = document.getElementById('movieModal');
     const openModalButton = document.getElementById('openModalButton');
     const closeModalButton = document.getElementById('closeModalButton');
     const submitMovieButton = document.getElementById('submitMovieButton');
+    const contentTypeSelect = document.getElementById('contentType');
     const movieTitleInput = document.getElementById('movieTitle');
     const posterUrlInput = document.getElementById('posterUrl');
     const videoUrlInput = document.getElementById('videoUrl');
+    const movieUrlContainer = document.getElementById('movieUrlContainer');
+    const episodeContainer = document.getElementById('episodeContainer');
+    const episodeInputs = document.getElementById('episodeInputs');
+    const addEpisodeButton = document.getElementById('addEpisodeButton');
     const modalTitle = document.getElementById('modalTitle');
-    const STORAGE_KEY_PREFIX = 'movie_playback_';
-    let editingMovieKey = null;
+    const STORAGE_KEY_PREFIX = 'content_playback_';
+    let editingContentKey = null;
+    let episodeCount = 0;
 
-    // Open modal for adding movie
+    // Toggle input fields based on content type
+    contentTypeSelect.addEventListener('change', () => {
+      const isSeries = contentTypeSelect.value === 'series';
+      movieUrlContainer.style.display = isSeries ? 'none' : 'block';
+      episodeContainer.style.display = isSeries ? 'block' : 'none';
+      videoUrlInput.required = !isSeries;
+    });
+
+    // Add episode input fields
+    addEpisodeButton.addEventListener('click', () => {
+      episodeCount++;
+      const episodeDiv = document.createElement('div');
+      episodeDiv.className = 'episode-input';
+      episodeDiv.innerHTML = `
+        <input type="text" placeholder="Episode Title" class="episode-title" required tabindex="0" />
+        <input type="url" placeholder="Episode Video URL" class="episode-url" required tabindex="0" />
+        <button class="remove-episode" tabindex="0">Remove</button>
+      `;
+      episodeDiv.querySelector('.remove-episode').addEventListener('click', () => {
+        episodeDiv.remove();
+      });
+      episodeInputs.appendChild(episodeDiv);
+      episodeDiv.querySelector('.episode-title').focus();
+    });
+
+    // Open modal for adding content
     openModalButton.addEventListener('click', () => {
-      modalTitle.textContent = 'Add Movie';
-      submitMovieButton.textContent = 'Add Movie';
+      modalTitle.textContent = 'Add Content';
+      submitMovieButton.textContent = 'Add Content';
+      contentTypeSelect.value = 'movie';
       movieTitleInput.value = '';
       posterUrlInput.value = '';
       videoUrlInput.value = '';
-      editingMovieKey = null;
+      episodeInputs.innerHTML = '';
+      episodeCount = 0;
+      movieUrlContainer.style.display = 'block';
+      episodeContainer.style.display = 'none';
+      videoUrlInput.required = true;
+      editingContentKey = null;
       movieModal.classList.add('active');
-      movieTitleInput.focus();
+      contentTypeSelect.focus();
     });
 
     // Close modal
@@ -329,79 +531,125 @@
       openModalButton.focus();
     });
 
-    // Submit movie (add or edit)
+    // Submit content (add or edit)
     submitMovieButton.addEventListener('click', () => {
       const title = movieTitleInput.value.trim();
       const posterUrl = posterUrlInput.value.trim();
-      const videoUrl = videoUrlInput.value.trim();
+      const isSeries = contentTypeSelect.value === 'series';
 
-      if (title && posterUrl && videoUrl) {
-        const movieData = {
-          title: title,
-          posterUrl: posterUrl,
-          videoUrl: videoUrl,
-          createdAt: firebase.database.ServerValue.TIMESTAMP
-        };
+      let contentData = {
+        title: title,
+        posterUrl: posterUrl,
+        type: contentTypeSelect.value,
+        createdAt: firebase.database.ServerValue.TIMESTAMP
+      };
 
-        if (editingMovieKey) {
-          moviesRef.child(editingMovieKey).update(movieData)
-            .then(() => {
-              movieModal.classList.remove('active');
-              alert('Movie updated successfully!');
-              openModalButton.focus();
-            })
-            .catch(error => {
-              console.error('Error updating movie:', error);
-              alert('Failed to update movie.');
-            });
-        } else {
-          const newMovieRef = moviesRef.push();
-          newMovieRef.set(movieData)
-            .then(() => {
-              movieModal.classList.remove('active');
-              alert('Movie added successfully!');
-              openModalButton.focus();
-            })
-            .catch(error => {
-              console.error('Error adding movie:', error);
-              alert('Failed to add movie.');
-            });
+      if (isSeries) {
+        const episodeTitles = Array.from(episodeInputs.querySelectorAll('.episode-title')).map(input => input.value.trim());
+        const episodeUrls = Array.from(episodeInputs.querySelectorAll('.episode-url')).map(input => input.value.trim());
+        const episodes = episodeTitles.reduce((acc, title, index) => {
+          if (title && episodeUrls[index]) {
+            acc[`episode${index + 1}`] = { title: title, videoUrl: episodeUrls[index] };
+          }
+          return acc;
+        }, {});
+        if (Object.keys(episodes).length === 0) {
+          alert('Please add at least one valid episode.');
+          return;
         }
-        movieTitleInput.value = '';
-        posterUrlInput.value = '';
-        videoUrlInput.value = '';
-        editingMovieKey = null;
+        contentData.episodes = episodes;
       } else {
-        alert('Please fill in all fields.');
+        const videoUrl = videoUrlInput.value.trim();
+        if (!title || !posterUrl || !videoUrl) {
+          alert('Please fill in all fields.');
+          return;
+        }
+        contentData.videoUrl = videoUrl;
+      }
+
+      if (editingContentKey) {
+        contentRef.child(editingContentKey).update(contentData)
+          .then(() => {
+            movieModal.classList.remove('active');
+            alert('Content updated successfully!');
+            openModalButton.focus();
+          })
+          .catch(error => {
+            console.error('Error updating content:', error);
+            alert('Failed to update content.');
+          });
+      } else {
+        const newContentRef = contentRef.push();
+        newContentRef.set(contentData)
+          .then(() => {
+            movieModal.classList.remove('active');
+            alert('Content added successfully!');
+            openModalButton.focus();
+          })
+          .catch(error => {
+            console.error('Error adding content:', error);
+            alert('Failed to add content.');
+          });
       }
     });
 
-    // Fetch and display movies
-    moviesRef.on('value', (snapshot) => {
-      posterGrid.innerHTML = ''; // Clear grid to avoid duplicates
-      const movies = snapshot.val();
-      if (movies) {
-        Object.entries(movies).forEach(([key, movie]) => {
+    // Fetch and display content
+    contentRef.on('value', (snapshot) => {
+      posterGrid.innerHTML = '';
+      const contents = snapshot.val();
+      if (contents) {
+        Object.entries(contents).forEach(([key, content]) => {
           const posterDiv = document.createElement('div');
           posterDiv.className = 'poster';
           posterDiv.tabIndex = 0;
           posterDiv.innerHTML = `
-            <img src="${movie.posterUrl}" alt="${movie.title}" />
-            <div class="poster-title">${movie.title}</div>
+            <img src="${content.posterUrl}" alt="${content.title}" />
+            ${content.type === 'series' ? '<div class="series-badge">Series</div>' : ''}
+            <div class="poster-title">${content.title}</div>
             <div class="poster-actions">
               <button class="edit-button" data-key="${key}" tabindex="0">Edit</button>
               <button class="delete-button" data-key="${key}" tabindex="0">Delete</button>
             </div>
           `;
-          // Play movie on poster click or select key
-          const playMovie = () => {
-            homeSection.classList.remove('active');
+
+          const selectContent = () => {
+            if (content.type === 'series') {
+              homeSection.classList.remove('active');
+              episodeSection.classList.add('active');
+              seriesTitle.textContent = content.title;
+              episodeList.innerHTML = '';
+              if (content.episodes) {
+                Object.entries(content.episodes).forEach(([epKey, episode]) => {
+                  const episodeItem = document.createElement('div');
+                  episodeItem.className = 'episode-item';
+                  episodeItem.tabIndex = 0;
+                  episodeItem.innerHTML = `
+                    <img src="${content.posterUrl}" alt="${episode.title}" />
+                    <div class="episode-title">${episode.title}</div>
+                  `;
+                  episodeItem.addEventListener('click', () => playEpisode(key, epKey, episode.videoUrl));
+                  episodeItem.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === 'Select' || e.keyCode === 13) {
+                      playEpisode(key, epKey, episode.videoUrl);
+                    }
+                  });
+                  episodeList.appendChild(episodeItem);
+                });
+              }
+              episodeList.querySelector('.episode-item')?.focus();
+            } else {
+              playEpisode(key, null, content.videoUrl);
+            }
+          };
+
+          const playEpisode = (contentKey, episodeKey, videoUrl) => {
+            episodeSection.classList.remove('active');
             videoSection.classList.add('active');
-            videoSource.src = movie.videoUrl;
+            videoSource.src = videoUrl;
             moviePlayer.load();
 
-            // Resume from saved playback position
-            const savedTime = localStorage.getItem(STORAGE_KEY_PREFIX + key);
+            const storageKey = episodeKey ? `${STORAGE_KEY_PREFIX}${contentKey}_${episodeKey}` : `${STORAGE_KEY_PREFIX}${contentKey}`;
+            const savedTime = localStorage.getItem(storageKey);
             if (savedTime && !isNaN(parseFloat(savedTime))) {
               moviePlayer.currentTime = parseFloat(savedTime);
             }
@@ -411,7 +659,6 @@
               alert('Failed to play video. Check the video URL.');
             });
 
-            // Try entering fullscreen
             if (moviePlayer.requestFullscreen) {
               moviePlayer.requestFullscreen();
             } else if (moviePlayer.webkitRequestFullscreen) {
@@ -420,48 +667,73 @@
               moviePlayer.msRequestFullscreen();
             }
 
-            // Save playback position to localStorage
             let lastUpdate = 0;
             moviePlayer.addEventListener('timeupdate', () => {
               const now = Date.now();
-              if (now - lastUpdate >= 2000 && !moviePlayer.paused) { // Update every 2 seconds
-                localStorage.setItem(STORAGE_KEY_PREFIX + key, moviePlayer.currentTime.toFixed(2));
+              if (now - lastUpdate >= 2000 && !moviePlayer.paused) {
+                localStorage.setItem(storageKey, moviePlayer.currentTime.toFixed(2));
                 lastUpdate = now;
               }
             });
           };
 
-          posterDiv.querySelector('img').addEventListener('click', playMovie);
+          posterDiv.querySelector('img').addEventListener('click', selectContent);
           posterDiv.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === 'Select' || e.keyCode === 13) {
-              playMovie();
+              selectContent();
             }
           });
 
-          // Edit movie
           posterDiv.querySelector('.edit-button').addEventListener('click', () => {
-            editingMovieKey = key;
-            modalTitle.textContent = 'Edit Movie';
-            submitMovieButton.textContent = 'Update Movie';
-            movieTitleInput.value = movie.title;
-            posterUrlInput.value = movie.posterUrl;
-            videoUrlInput.value = movie.videoUrl;
+            editingContentKey = key;
+            modalTitle.textContent = 'Edit Content';
+            submitMovieButton.textContent = 'Update Content';
+            contentTypeSelect.value = content.type;
+            movieTitleInput.value = content.title;
+            posterUrlInput.value = content.posterUrl;
+            movieUrlContainer.style.display = content.type === 'movie' ? 'block' : 'none';
+            episodeContainer.style.display = content.type === 'series' ? 'block' : 'none';
+            videoUrlInput.required = content.type === 'movie';
+            videoUrlInput.value = content.type === 'movie' ? content.videoUrl || '' : '';
+            episodeInputs.innerHTML = '';
+            episodeCount = 0;
+            if (content.type === 'series' && content.episodes) {
+              Object.values(content.episodes).forEach(episode => {
+                episodeCount++;
+                const episodeDiv = document.createElement('div');
+                episodeDiv.className = 'episode-input';
+                episodeDiv.innerHTML = `
+                  <input type="text" placeholder="Episode Title" class="episode-title" value="${episode.title}" required tabindex="0" />
+                  <input type="url" placeholder="Episode Video URL" class="episode-url" value="${episode.videoUrl}" required tabindex="0" />
+                  <button class="remove-episode" tabindex="0">Remove</button>
+                `;
+                episodeDiv.querySelector('.remove-episode').addEventListener('click', () => {
+                  episodeDiv.remove();
+                });
+                episodeInputs.appendChild(episodeDiv);
+              });
+            }
             movieModal.classList.add('active');
-            movieTitleInput.focus();
+            contentTypeSelect.focus();
           });
 
-          // Delete movie
           posterDiv.querySelector('.delete-button').addEventListener('click', () => {
-            if (confirm(`Are you sure you want to delete "${movie.title}"?`)) {
-              localStorage.removeItem(STORAGE_KEY_PREFIX + key);
-              moviesRef.child(key).remove()
+            if (confirm(`Are you sure you want to delete "${content.title}"?`)) {
+              if (content.type === 'series' && content.episodes) {
+                Object.keys(content.episodes).forEach(epKey => {
+                  localStorage.removeItem(`${STORAGE_KEY_PREFIX}${key}_${epKey}`);
+                });
+              } else {
+                localStorage.removeItem(`${STORAGE_KEY_PREFIX}${key}`);
+              }
+              contentRef.child(key).remove()
                 .then(() => {
-                  alert('Movie deleted successfully!');
+                  alert('Content deleted successfully!');
                   openModalButton.focus();
                 })
                 .catch(error => {
-                  console.error('Error deleting movie:', error);
-                  alert('Failed to delete movie.');
+                  console.error('Error deleting content:', error);
+                  alert('Failed to delete content.');
                 });
             }
           });
@@ -469,9 +741,15 @@
           posterGrid.appendChild(posterDiv);
         });
       }
-      // Set focus to first poster or add button
       const firstFocusable = posterGrid.querySelector('.poster') || openModalButton;
       firstFocusable.focus();
+    });
+
+    // Back to home from episode selection
+    backToHomeButton.addEventListener('click', () => {
+      episodeSection.classList.remove('active');
+      homeSection.classList.add('active');
+      openModalButton.focus();
     });
 
     // Handle Fire Stick remote back button
@@ -480,10 +758,13 @@
           (e.key === 'Escape' || e.keyCode === 27 || e.keyCode === 166)) {
         e.preventDefault();
         moviePlayer.pause();
-        if (moviePlayer.currentTime > 0) {
-          localStorage.setItem(STORAGE_KEY_PREFIX + videoSource.src, moviePlayer.currentTime.toFixed(2));
-        }
         videoSection.classList.remove('active');
+        homeSection.classList.add('active');
+        openModalButton.focus();
+      } else if (episodeSection.classList.contains('active') && 
+                 (e.key === 'Escape' || e.keyCode === 27 || e.keyCode === 166)) {
+        e.preventDefault();
+        episodeSection.classList.remove('active');
         homeSection.classList.add('active');
         openModalButton.focus();
       } else if (movieModal.classList.contains('active') && 
