@@ -389,7 +389,7 @@
       .modal-content input,
       .modal-content select,
       .modal-content button {
-        font-size: 16px;
+        font-size: 1rem;
       }
 
       .episode-item img {
@@ -494,6 +494,7 @@
     let episodeCount = 0;
     let currentContentKey = null;
     let currentEpisodeKey = null;
+    let appState = { currentPage: 'home' };
 
     // Toggle input fields based on content type
     contentTypeSelect.addEventListener('change', () => {
@@ -638,6 +639,24 @@
       });
     }
 
+    // Function to handle back navigation
+    function handleBackNavigation() {
+      if (videoSection.classList.contains('active')) {
+        moviePlayer.pause();
+        moviePlayer.classList.remove('fullscreen-fallback');
+        const storageKey = currentEpisodeKey ? 
+          `${STORAGE_KEY_PREFIX}${currentContentKey}_${currentEpisodeKey}` : 
+          `${STORAGE_KEY_PREFIX}${currentContentKey}`;
+        if (moviePlayer.currentTime > 0) {
+          localStorage.setItem(storageKey, moviePlayer.currentTime.toFixed(2));
+        }
+        videoSection.classList.remove('active');
+        homeSection.classList.add('active');
+        appState.currentPage = 'home';
+        openModalButton.focus();
+      }
+    }
+
     // Fetch and display content
     contentRef.on('value', (snapshot) => {
       posterGrid.innerHTML = '';
@@ -663,6 +682,7 @@
               episodeSection.classList.add('active');
               seriesTitle.textContent = content.title;
               episodeList.innerHTML = '';
+              appState.currentPage = 'episode';
               if (content.episodes) {
                 Object.entries(content.episodes).forEach(([epKey, episode]) => {
                   const episodeItem = document.createElement('div');
@@ -695,6 +715,7 @@
             videoSource.src = videoUrl;
             moviePlayer.load();
             moviePlayer.classList.remove('fullscreen-fallback');
+            appState.currentPage = 'video';
 
             const storageKey = episodeKey ? `${STORAGE_KEY_PREFIX}${contentKey}_${episodeKey}` : `${STORAGE_KEY_PREFIX}${contentKey}`;
             const savedTime = localStorage.getItem(storageKey);
@@ -797,36 +818,48 @@
     backToHomeButton.addEventListener('click', () => {
       episodeSection.classList.remove('active');
       homeSection.classList.add('active');
+      appState.currentPage = 'home';
       openModalButton.focus();
     });
 
-    // Handle Fire Stick remote back button
+    // Handle Fire Stick and keyboard back button
     document.addEventListener('keydown', (e) => {
       if (videoSection.classList.contains('active') && 
           (e.key === 'Escape' || e.keyCode === 27 || e.keyCode === 166)) {
         e.preventDefault();
-        moviePlayer.pause();
-        moviePlayer.classList.remove('fullscreen-fallback');
-        const storageKey = currentEpisodeKey ? 
-          `${STORAGE_KEY_PREFIX}${currentContentKey}_${currentEpisodeKey}` : 
-          `${STORAGE_KEY_PREFIX}${currentContentKey}`;
-        if (moviePlayer.currentTime > 0) {
-          localStorage.setItem(storageKey, moviePlayer.currentTime.toFixed(2));
-        }
-        videoSection.classList.remove('active');
-        homeSection.classList.add('active');
-        openModalButton.focus();
+        handleBackNavigation();
       } else if (episodeSection.classList.contains('active') && 
                  (e.key === 'Escape' || e.keyCode === 27 || e.keyCode === 166)) {
         e.preventDefault();
         episodeSection.classList.remove('active');
         homeSection.classList.add('active');
+        appState.currentPage = 'home';
         openModalButton.focus();
       } else if (movieModal.classList.contains('active') && 
                  (e.key === 'Escape' || e.keyCode === 27 || e.keyCode === 166)) {
         e.preventDefault();
         movieModal.classList.remove('active');
         openModalButton.focus();
+      }
+    });
+
+    // Handle mobile back button via popstate
+    window.addEventListener('popstate', (e) => {
+      if (appState.currentPage === 'video') {
+        handleBackNavigation();
+      } else if (appState.currentPage === 'episode') {
+        episodeSection.classList.remove('active');
+        homeSection.classList.add('active');
+        appState.currentPage = 'home';
+        openModalButton.focus();
+      }
+    });
+
+    // Handle fullscreen exit (e.g., mobile back button exiting fullscreen)
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement && 
+          videoSection.classList.contains('active')) {
+        handleBackNavigation();
       }
     });
   </script>
