@@ -172,11 +172,11 @@
     }
 
     .ad-banner-card img {
-      width: 100%;
-      height: 160px;
-      object-fit: cover;
-      border-radius: 6px 6px 0 0;
-    }
+    width: 57%;
+    height: 79%;
+    object-fit: cover;
+    border-radius: 6px 6px 0 0;
+}
 
     .ad-banner-card span {
       display: block;
@@ -358,15 +358,15 @@
 
     /* Tabs */
     .tab-scroll-wrapper {
-      overflow-y: auto;
-      height: calc(100vh - 50px);
-      position: fixed;
-      width: 66px;
-      background: #fff;
-      padding: 4px;
-      box-shadow: 2px 0 4px rgba(0,0,0,0.1);
-      -webkit-overflow-scrolling: touch;
-    }
+    overflow-y: auto;
+    height: calc(100vh - 50px);
+    position: ABSOLUTE;
+    width: 66px;
+    background: #fff;
+    padding: 4px;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+    -webkit-overflow-scrolling: touch;
+}
 
     .tab-items {
       display: flex;
@@ -525,20 +525,24 @@
     <div class="ad-banner-container">
       <div class="ad-banner-scroll">
         <div class="ad-banner-card">
-          <img src="https://via.placeholder.com/140x200" alt="Trending Near You">
-          <span>Trending Near You</span>
+		
+<div  ng-click="setTab('UMBRELLA', 38)" ng-class="{ 'active': activeTab === 38 }">
+             
+		
+          <img src="https://www.hindustantoys.in/images/P1.jpeg" alt="Trending Near You">
+          <span>NEW UMBRELLA</span>  </div>
         </div>
         <div class="ad-banner-card">
-          <img src="https://via.placeholder.com/140x200" alt="Fashion Vouchers">
-          <span>Fashion Vouchers</span>
+          <img src="https://www.hindustantoys.in/images/P1.jpeg" alt="Trending Near You">
+          <span>NEW UMBRELLA</span>
+        </div>
+         <div class="ad-banner-card">
+          <img src="https://www.hindustantoys.in/images/P1.jpeg" alt="Trending Near You">
+          <span>NEW UMBRELLA</span>
         </div>
         <div class="ad-banner-card">
-          <img src="https://via.placeholder.com/140x200" alt="Faces Canada">
-          <span>Faces Canada</span>
-        </div>
-        <div class="ad-banner-card">
-          <img src="https://via.placeholder.com/140x200" alt="Home Decor">
-          <span>Home Decor</span>
+          <img src="https://www.hindustantoys.in/images/P1.jpeg" alt="Trending Near You">
+          <span>NEW UMBRELLA</span>
         </div>
       </div>
     </div>
