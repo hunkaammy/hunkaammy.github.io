@@ -1,867 +1,1201 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="myApp">
 <head>
-  <meta charset="UTF-8" />
-  <title>Kesari Chapter 2 - Series App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HINDUSTAN TOYS ORDER PORTAL</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
+  <link rel="stylesheet" href="https://fezvrasta.github.io/bootstrap-material-design/dist/css/bootstrap-material-design.css">
+  <link rel="stylesheet" href="https://fezvrasta.github.io/bootstrap-material-design/dist/css/ripples.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #333;
+      background-color: #f8f9fa;
+      overscroll-behavior-y: none;
       margin: 0;
-      background-color: #1a1a1a;
-      color: #fff;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    }
+
+    html {
+      font-size: 10px;
+      -webkit-tap-highlight-color: rgba(0,0,0,0);
+    }
+
+    /* Login Container */
+    #login-container {
+      background-image: url(https://hunkaammy.github.io/mywebsite/NEWWEBSITE/loginpg.jpeg);
+      background-size: cover;
+      background-position: center;
+      height: 100vh;
+      max-width: 100%;
       padding: 20px;
-      overscroll-behavior: none;
-    }
-
-    .header {
-      width: 100%;
-      max-width: 1600px;
-      padding: 15px;
-      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
-      text-align: center;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-    }
-
-    .section {
-      display: none;
-      width: 100%;
-      max-width: 1600px;
+      display: flex;
       justify-content: center;
       align-items: center;
-      flex-direction: column;
-      padding: 20px;
     }
 
-    .section.active {
-      display: flex;
-    }
-
-    .poster-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(150px, 1fr));
-      gap: 25px;
-      width: 100%;
-      padding: 20px;
-    }
-
-    .poster {
-      position: relative;
-      cursor: pointer;
-      outline: none;
-      transition: transform 0.3s ease;
-    }
-
-    .poster:focus {
-      transform: scale(1.05);
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
-    }
-
-    .poster img {
-      width: 100%;
-      border-radius: 10px;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
-    }
-
-    .poster-title {
+    #inside {
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       text-align: center;
-      margin-top: 12px;
-      font-size: 1.1rem;
-      font-weight: 500;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+      width: 100%;
+      max-width: 360px;
     }
 
-    .series-badge {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background-color: #e50914;
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      box-sizing: border-box;
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid #ced4da;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      border-color: #388e3c;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #388e3c;
       color: #fff;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 0.8rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.25s;
+    }
+
+    button:hover {
+      background-color: #2e7d32;
+    }
+
+    /* Navbar */
+    .navbar {
+      background-color: #fff;
+      padding: 6px 10px;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .navbar .search-container {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    #topBtn {
+      flex: 1;
+      padding: 8px;
+      font-size: 11px;
+      border-radius: 6px;
+      border: 1px solid #ced4da;
+    }
+
+    .sort-dropdown {
+      padding: 8px;
+      font-size: 11px;
+      border-radius: 6px;
+      border: 1px solid #ced4da;
+    }
+
+    .sort-dropdown option[selected] {
       font-weight: bold;
     }
 
-    .poster-actions {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      display: flex;
-      gap: 10px;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .poster:hover .poster-actions,
-    .poster:focus .poster-actions {
-      opacity: 1;
-    }
-
-    .poster-actions button {
-      padding: 8px 14px;
-      background: linear-gradient(45deg, #e50914, #ff4500);
-      border: none;
-      border-radius: 6px;
-      color: #fff;
+    .logout-btn {
+      color: #333;
+      font-size: 11px;
       cursor: pointer;
-      font-size: 0.9rem;
+      padding: 8px;
       font-weight: 500;
-      outline: none;
-      transition: transform 0.2s, box-shadow 0.2s;
     }
 
-    .poster-actions button:focus,
-    .poster-actions button:hover {
+    .welcome-text {
+      text-align: center;
+      color: #333;
+      font-size: 12px;
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    /* Ad Banner Container */
+    .ad-banner-container {
+    left: 0px;
+    right: 0;
+    MARGIN-TOP: 92PX;
+    background-color: #fff;
+    padding: 8px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 900;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+}
+
+    .ad-banner-scroll {
+      display: inline-flex;
+      gap: 8px;
+      padding: 0 12px;
+    }
+
+    .ad-banner-card {
+    display: inline-block;
+    width: 116px;
+    height: 125px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    text-align: center;
+    vertical-align: top;
+    transition: transform 0.25s, box-shadow 0.25s;
+}
+
+    .ad-banner-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(255, 69, 0, 0.5);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
     }
 
-    .add-movie-button {
-      padding: 14px 28px;
-      background: linear-gradient(45deg, #e50914, #ff4500);
-      border: none;
-      border-radius: 8px;
-      color: #fff;
-      cursor: pointer;
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-bottom: 20px;
-      outline: none;
-      transition: transform 0.2s, box-shadow 0.2s;
+    .ad-banner-card img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 6px 6px 0 0;
     }
 
-    .add-movie-button:focus,
-    .add-movie-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(255, 69, 0, 0.5);
+    .ad-banner-card span {
+      display: block;
+      padding: 6px;
+      font-size: 12px;
+      color: #333;
+      font-weight: 500;
+      white-space: normal;
     }
 
-    .modal {
+    /* Hide scrollbar for WebKit browsers */
+    .ad-banner-container::-webkit-scrollbar {
       display: none;
+    }
+
+    /* Hide scrollbar for Firefox */
+    .ad-banner-container {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Product Grid */
+    .skeleton-wrapper {
+      width: 95%;
+      margin: 270px auto 16px auto; /* Adjusted for ad banner height */
+      padding: 0 6px;
+    }
+
+    .grid-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 480px) {
+   .skeleton-wrapper {
+        width: 81%;
+        margin-left: 64px;
+        margin-top: 4px;
+    }}
+      .grid-row {
+        gap: 6px;
+        margin-bottom: 6px;
+      }
+    }
+
+    .card {
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      transition: transform 0.25s, box-shadow 0.25s;
+      width: 100%;
+      max-width: 160px;
+      margin: 0 auto;
+      border-radius: 8px;
+      text-align: center;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+    }
+
+    .card img {
+      width: 100%;
+      max-width: 140px;
+      height: auto;
+      margin: 4px auto;
+      border-radius: 6px;
+      object-fit: cover;
+      cursor: pointer;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        max-width: 140px;
+      }
+      .card img {
+        max-width: 140px;
+      }
+    }
+
+    .containers {
+      padding: 4px;
+    }
+
+    .qtyclass {
+      height: 30px;
+      width: 46px;
+      margin: 6px 4px 0 0;
+      font-size: 11px;
+      border-radius: 4px;
+      border: 1px solid #ced4da;
+    }
+
+    .submit {
+      cursor: pointer;
+      background: #fff;
+      color: #388e3c;
+      font-weight: 600;
+      width: 46px;
+      height: 30px;
+      border: 1px solid #388e3c;
+      border-radius: 4px;
+      margin: 6px 0 0 4px;
+      font-size: 11px;
+    }
+
+    .submit:hover {
+      background: #388e3c;
+      color: #fff;
+    }
+
+    .btn-primary {
+      position: fixed;
+      bottom: 12px;
+      right: 12px;
+      color: #fff;
+      background-color: #1565c0;
+      border-color: #1565c0;
+      z-index: 1;
+      padding: 8px 16px;
+      font-size: 12px;
+      border-radius: 6px;
+    }
+
+    p {
+      margin: 0 0 4px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      font-size: 11px;
+    }
+
+    h4 {
+      margin: 0 0 4px;
+      font-size: 12px;
+      color: #333;
+    }
+
+    /* Enlarged Image Overlay */
+    .enlarged-image-overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.9);
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
       justify-content: center;
       align-items: center;
-      z-index: 1000;
-      opacity: 0;
-      transition: opacity 0.3s ease;
+      z-index: 9999;
+      cursor: pointer;
     }
 
-    .modal.active {
+    .enlarged-image-overlay.show {
       display: flex;
-      opacity: 1;
     }
 
-    .modal-content {
-      background-color: #2a2a2a;
-      padding: 25px;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 700px;
-      max-height: 85vh;
+    .enlarged-image-content {
+      max-width: 90%;
+      max-height: 90%;
+      width: auto;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    @media (max-width: 480px) {
+      .enlarged-image-content {
+        max-width: 89%;
+        margin-top: 38%;
+        margin-left: 6%;
+        align-content: center;
+        max-height: 93%;
+      }
+    }
+
+    /* Tabs */
+    .tab-scroll-wrapper {
       overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      transform: scale(0.8);
-      transition: transform 0.3s ease;
-    }
-
-    .modal.active .modal-content {
-      transform: scale(1);
-    }
-
-    .modal-content input,
-    .modal-content select {
-      padding: 12px;
-      border: 2px solid #e50914;
-      border-radius: 6px;
-      background-color: rgba(255, 255, 255, 0.1);
-      color: #fff;
-      font-size: 1rem;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .modal-content input:focus,
-    .modal-content select:focus {
-      border-color: #ff4500;
-      box-shadow: 0 0 8px rgba(255, 69, 0, 0.5);
-    }
-
-    .modal-content button {
-      padding: 12px;
-      background: linear-gradient(45deg, #e50914, #ff4500);
-      border: none;
-      border-radius: 6px;
-      color: #fff;
-      cursor: pointer;
-      font-size: 1rem;
-      font-weight: 500;
-      outline: none;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .modal-content button:focus,
-    .modal-content button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(255, 69, 0, 0.5);
-    }
-
-    .episode-container {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 15px;
-      padding: 10px;
-      background-color: rgba(255, 255, 255, 0.05);
-      border-radius: 8px;
-    }
-
-    .episode-input {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .episode-input input {
-      flex: 1;
-    }
-
-    .episode-input button {
-      padding: 8px 12px;
-      font-size: 0.9rem;
-    }
-
-    .episode-section {
-      background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
-      padding: 20px;
-      border-radius: 12px;
-    }
-
-    .episode-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(150px, 1fr));
-      gap: 20px;
-      width: 100%;
-    }
-
-    .episode-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 10px;
-      background-color: rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s, transform 0.2s;
-    }
-
-    .episode-item:hover,
-    .episode-item:focus {
-      background-color: rgba(255, 255, 255, 0.2);
-      transform: translateY(-3px);
-    }
-
-    .episode-item img {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
-      border-radius: 6px;
-      margin-bottom: 8px;
-    }
-
-    .episode-title {
-      font-size: 1rem;
-      text-align: center;
-      font-weight: 500;
-    }
-
-    video {
-      width: 100%;
-      max-height: 85vh;
-      background: black;
-      object-fit: contain;
-      border-radius: 8px;
-    }
-
-    video.fullscreen-fallback {
-      width: 100vw;
-      height: 100vh;
-      max-height: none;
+      height: calc(100vh - 50px);
       position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 1000;
-      border-radius: 0;
+      width: 66px;
+      background: #fff;
+      padding: 4px;
+      box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+      -webkit-overflow-scrolling: touch;
     }
 
-    /* Mobile */
-    @media (max-width: 767px) {
-      .poster-grid,
-      .episode-grid {
-        grid-template-columns: repeat(2, minmax(140px, 1fr));
-        gap: 15px;
-      }
+    .tab-items {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
 
-      .poster-title,
-      .episode-title {
-        font-size: 0.9rem;
-      }
+    .tab-item {
+      width: 60px;
+      height: 66px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background-color: #f8f9fa;
+      border-radius: 6px;
+      text-align: center;
+      font-family: Arial, sans-serif;
+      font-size: 7px;
+      color: #333;
+      cursor: pointer;
+      transition: background-color 0.25s, transform 0.25s;
+    }
 
-      .poster-actions button {
-        padding: 6px 10px;
-        font-size: 0.8rem;
-      }
+    .tab-item:hover {
+      background-color: #e9ecef;
+      transform: scale(1.05);
+    }
 
-      .add-movie-button {
-        padding: 12px 24px;
-        font-size: 1rem;
-      }
+    .tab-item.active {
+      background-color: #388e3c;
+      color: #fff;
+      font-weight: bold;
+      height: 72px;
+    }
 
-      .modal-content {
-        width: 95%;
-        padding: 15px;
-      }
+    .tab-item img {
+      width: 32px;
+      height: 32px;
+      object-fit: cover;
+      margin: 4px auto;
+      border-radius: 4px;
+    }
 
-      .modal-content input,
-      .modal-content select,
-      .modal-content button {
-        font-size: 0.9rem;
-      }
+    .tab-scroll-wrapper::-webkit-scrollbar {
+      display: none;
+    }
 
-      .episode-input button {
-        padding: 6px 10px;
-        font-size: 0.8rem;
-      }
+    .tab-scroll-wrapper {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
 
-      .episode-item img {
-        height: 100px;
+    /* Skeleton Loading */
+    .skeleton-item {
+      width: 100%;
+      max-width: 160px;
+      height: 200px;
+      background-color: #e9ecef;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      animation: skeleton-pulse 1.5s ease-in-out infinite;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 480px) {
+      .skeleton-item {
+        max-width: 140px;
+        height: 180px;
       }
     }
 
-    /* Tablet */
-    @media (min-width: 768px) and (max-width: 1199px) {
-      .poster-grid,
-      .episode-grid {
-        grid-template-columns: repeat(5, minmax(160px, 1fr));
-        gap: 20px;
-      }
-
-      .poster-title,
-      .episode-title {
-        font-size: 1.1rem;
-      }
+    @keyframes skeleton-pulse {
+      0% { opacity: 0.7; }
+      50% { opacity: 1; }
+      100% { opacity: 0.7; }
     }
 
-    /* TV / PC */
-    @media (min-width: 1200px) {
-      .poster-grid,
-      .episode-grid {
-        grid-template-columns: repeat(6, minmax(180px, 1fr));
-        gap: 25px;
-      }
+    .skeleton-item .skeleton-text {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 10px;
+    }
 
-      .add-movie-button {
-        padding: 16px 32px;
-        font-size: 1.4rem;
-      }
+    .skeleton-item .skeleton-line {
+      width: 100%;
+      height: 10px;
+      background-color: #dee2e6;
+      margin-bottom: 6px;
+      border-radius: 4px;
+    }
 
-      .modal-content {
-        max-width: 800px;
-        padding: 30px;
-      }
+    /* Microphone Animation */
+    @keyframes pulse {
+      0% { transform: scale(1); color: #333; }
+      50% { transform: scale(1.2); color: #1565c0; }
+      100% { transform: scale(1); color: #333; }
+    }
 
-      .modal-content input,
-      .modal-content select,
-      .modal-content button {
-        font-size: 1rem;
-      }
-
-      .episode-item img {
-        height: 160px;
-      }
+    #micIcon.animating {
+      animation: pulse 1s infinite;
     }
   </style>
 </head>
-<body>
-  <div class="header">
-    <h1>Series & Movies Library</h1>
-  </div>
+<body ng-controller="imagesController as vm">
+  <!-- Prevent Browser Back -->
+  <script>
+    history.pushState(null, null, location.href);
+    window.onpopstate = function () {
+      history.go(1);
+    };
+  </script>
 
-  <!-- Home Section (Content List) -->
-  <div class="section active" id="homeSection">
-    <button class="add-movie-button" id="openModalButton" tabindex="0">Add New Content</button>
-    <div class="poster-grid" id="posterGrid"></div>
-  </div>
-
-  <!-- Episode Selection Section -->
-  <div class="section episode-section" id="episodeSection">
-    <h2 id="seriesTitle"></h2>
-    <div class="episode-grid" id="episodeList"></div>
-    <button id="backToHomeButton" tabindex="0">Back to Library</button>
-  </div>
-
-  <!-- Video Section -->
-  <div class="section" id="videoSection">
-    <video id="moviePlayer" controls>
-      <source id="videoSource" src="" type="video/mp4" />
-      Your browser does not support the video tag.
-    </video>
-  </div>
-
-  <!-- Modal for Add/Edit Content -->
-  <div class="modal" id="movieModal">
-    <div class="modal-content">
-      <h3 id="modalTitle">Add Content</h3>
-      <select id="contentType" tabindex="0">
-        <option value="movie">Movie</option>
-        <option value="series">Series</option>
-      </select>
-      <input type="text" id="movieTitle" placeholder="Title" required tabindex="0" />
-      <input type="url" id="posterUrl" placeholder="Poster URL" required tabindex="0" />
-      <div id="movieUrlContainer" style="display: block;">
-        <input type="url" id="videoUrl" placeholder="Video URL" tabindex="0" />
-      </div>
-      <div id="episodeContainer" style="display: none;">
-        <h4>Episodes</h4>
-        <div id="episodeInputs"></div>
-        <button id="addEpisodeButton" tabindex="0">Add Episode</button>
-      </div>
-      <button id="submitMovieButton" tabindex="0">Add Content</button>
-      <button id="closeModalButton" tabindex="0">Cancel</button>
+  <!-- Login Section -->
+  <div id="login-container">
+    <div id="inside">
+      <h2 style="font-size: 18px; margin-bottom: 20px; color: #333;">WELCOME TO HINDUSTAN TOYS</h2>
+      <input type="text" id="name" ng-model="dynamicField2Value" placeholder="Enter your shop name" autocomplete="off">
+      <input type="tel" id="mobile" placeholder="Enter your mobile number" autocomplete="off">
+      <button onclick="validateLogin()">Login</button>
     </div>
   </div>
 
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+  <!-- Main Content -->
+  <div id="content" style="display: none;">
+    <!-- Navbar -->
+    <div class="navbar">
+      <div class="search-container">
+        <input type="text" ng-model="searchQuery" placeholder="Search by product" id="topBtn" ng-click="resetFilters()" list="productNames">
+        <datalist id="productNames">
+          <option value="REMOTE CAR"></option>
+          <option value="JCB"></option>
+          <option value="CLAY"></option>
+          <option value="SLIME"></option>
+          <option value="GUN"></option>
+          <option value="BASKET BALL"></option>
+        </datalist>
+        <i id="micIcon" class="fas fa-microphone" onclick="startVoiceRecognition()" style="font-size: 15px; cursor: pointer; margin-left: 6px;"></i>
+        <div class="logout-btn" ng-click="logout()">Logout</div>
+        <div>
+          <label for="sort" style="font-size: 11px; margin-right: 4px;">Sort:</label>
+          <select id="sort" ng-model="sortOrder" ng-change="scrollToTop(); applyFilter()" ng-init="sortOrder='default'" class="sort-dropdown">
+            <option value="default" selected>Default</option>
+            <option value="price">Price: Low</option>
+            <option value="-price">Price: High</option>
+          </select>
+        </div>
+      </div>
+      <div class="welcome-text">Welcome {{dynamicField2Value}}</div>
+    </div>
+
+    <!-- Ad Banner Section -->
+    <div class="ad-banner-container">
+      <div class="ad-banner-scroll">
+        <div class="ad-banner-card">
+          <img src="https://via.placeholder.com/140x200" alt="Trending Near You">
+          <span>Trending Near You</span>
+        </div>
+        <div class="ad-banner-card">
+          <img src="https://via.placeholder.com/140x200" alt="Fashion Vouchers">
+          <span>Fashion Vouchers</span>
+        </div>
+        <div class="ad-banner-card">
+          <img src="https://via.placeholder.com/140x200" alt="Faces Canada">
+          <span>Faces Canada</span>
+        </div>
+        <div class="ad-banner-card">
+          <img src="https://via.placeholder.com/140x200" alt="Home Decor">
+          <span>Home Decor</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tab-scroll-wrapper">
+      <div class="tab-items" onclick="scrollToTop()">
+        <div class="tab-item" ng-click="setTab('', 0)" ng-class="{ 'active': activeTab === 0 }">
+          <img src="https://www.hindustantoys.in/images/all.jpeg" alt="All Products"> ALL PRODUCTS
+        </div>
+        <div class="tab-item" ng-click="setTab('UMBRELLA', 38)" ng-class="{ 'active': activeTab === 38 }">
+          <img src="https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2024-06-24T16%3A35%3A31.407Z_RAINBOW%20UMBRELLA_IMG-20240529-WA0047.jpg?alt=media&token=64ee5147-65c7-4de8-897d-55df6cb84857" alt="Umbrella"> UMBRELLA
+        </div>
+        <div class="tab-item" ng-click="setTab('LUMO', 10)" ng-class="{ 'active': activeTab === 10 }">
+          <img src="https://www.hindustantoys.in/images/lumo.jpeg" alt="Lumo Products"> LUMO & OTHER
+        </div>
+        <div class="tab-item" ng-click="setTab('BAT BALL', 36)" ng-class="{ 'active': activeTab === 36 }">
+          <img src="https://www.hindustantoys.in/images/bat.jpeg" alt="Bat Ball"> BAT BALL & SET
+        </div>
+        <div class="tab-item" ng-click="setTab('CARROM', 35)" ng-class="{ 'active': activeTab === 35 }">
+          <img src="https://www.hindustantoys.in/images/carrom.jpeg" alt="Carrom Board"> CARROM BOARD
+        </div>
+        <div class="tab-item" ng-click="setTab('SWING', 37)" ng-class="{ 'active': activeTab === 37 }">
+          <img src="https://www.hindustantoys.in/images/swing.jpeg" alt="Swings"> SWINGS
+        </div>
+        <div class="tab-item" ng-click="setTab('INDIAN TOYS', 3)" ng-class="{ 'active': activeTab === 3 }">
+          <img src="https://www.hindustantoys.in/images/JCB.jpeg" alt="Indian Toys"> INDIAN TOYS
+        </div>
+        <div class="tab-item" ng-click="setTab('MIX', 9)" ng-class="{ 'active': activeTab === 9 }">
+          <img src="https://www.hindustantoys.in/images/mix.jpeg" alt="Mix Toys"> MIX TOYS
+        </div>
+        <div class="tab-item" ng-click="setTab('BATTERY', 13)" ng-class="{ 'active': activeTab === 13 }">
+          <img src="https://www.hindustantoys.in/images/battery.jpeg" alt="Battery Operated"> BATTERY OPERATED
+        </div>
+        <div class="tab-item" ng-click="setTab('TEDDY', 34)" ng-class="{ 'active': activeTab === 34 }">
+          <img src="https://www.hindustantoys.in/images/TEDDY.jpg" alt="Teddy"> VALENTINES/TEDDY
+        </div>
+        <div class="tab-item" ng-click="setTab('KITCHEN', 31)" ng-class="{ 'active': activeTab === 31 }">
+          <img src="https://www.hindustantoys.in/images/KITCHEN.jpg" alt="Kitchen Sets"> KITCHEN SETS
+        </div>
+        <div class="tab-item" ng-click="setTab('RACKET', 6)" ng-class="{ 'active': activeTab === 6 }">
+          <img src="https://www.hindustantoys.in/images/racket.jpeg" alt="Racket"> RACKET
+        </div>
+        <div class="tab-item" ng-click="setTab('REMOTE', 7)" ng-class="{ 'active': activeTab === 7 }">
+          <img src="https://www.hindustantoys.in/images/remote.jpeg" alt="Remote Car"> REMOTE CAR
+        </div>
+        <div class="tab-item" ng-click="setTab('RIDDER', 11)" ng-class="{ 'active': activeTab === 11 }">
+          <img src="https://www.hindustantoys.in/images/ridder.jpeg" alt="Magic Ridder"> MAGIC RIDDER
+        </div>
+        <div class="tab-item" ng-click="setTab('HIGH QUALITY', 25)" ng-class="{ 'active': activeTab === 25 }">
+          <img src="https://www.hindustantoys.in/images/high.jpeg" alt="High Quality Indian Toys"> HIGH QUALITY
+        </div>
+        <div class="tab-item" ng-click="setTab('OWN', 30)" ng-class="{ 'active': activeTab === 30 }">
+          <img src="https://www.hindustantoys.in/images/htquality.jpg" alt="HT Products"> HT PRODUCTS
+        </div>
+        <div class="tab-item" ng-click="setTab('PALNA', 29)" ng-class="{ 'active': activeTab === 29 }">
+          <img src="https://www.hindustantoys.in/images/palna.png" alt="Palna"> PALNA
+        </div>
+        <div class="tab-item" ng-click="setTab('WALKER', 5)" ng-class="{ 'active': activeTab === 5 }">
+          <img src="https://www.hindustantoys.in/images/walker.jpeg" alt="Walker"> WALKER
+        </div>
+        <div class="tab-item" ng-click="setTab('LUNCH BOX', 28)" ng-class="{ 'active': activeTab === 28 }">
+          <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Lunch Box"> LUNCH BOX
+        </div>
+        <div class="tab-item" ng-click="setTab('PENCIL BOX', 27)" ng-class="{ 'active': activeTab === 27 }">
+          <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Pencil Box"> PENCIL BOX
+        </div>
+        <div class="tab-item" ng-click="setTab('BOTTLE', 23)" ng-class="{ 'active': activeTab === 23 }">
+          <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Water Bottle"> WATER BOTTLE
+        </div>
+        <div class="tab-item" ng-click="setTab('BOARD GAME', 26)" ng-class="{ 'active': activeTab === 26 }">
+          <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Board Game"> BOARD GAME
+        </div>
+        <div class="tab-item" ng-click="setTab('EDUCATIONAL', 22)" ng-class="{ 'active': activeTab === 22 }">
+          <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Educational Toys"> EDUCATIONAL
+        </div>
+        <div class="tab-item" ng-click="setTab('BIG', 21)" ng-class="{ 'active': activeTab === 21 }">
+          <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Big Items"> BIG
+        </div>
+        <div class="tab-item" ng-click="setTab('STUDY TABLE', 20)" ng-class="{ 'active': activeTab === 20 }">
+          <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Study Table"> STUDY TABLE
+        </div>
+        <div class="tab-item" ng-click="setTab('TRICYCLE', 19)" ng-class="{ 'active': activeTab === 19 }">
+          <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Tricycles"> TRICYCLES
+        </div>
+        <div class="tab-item" ng-click="setTab('SPORTS', 18)" ng-class="{ 'active': activeTab === 18 }">
+          <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Sports Item"> SPORTS ITEM
+        </div>
+        <div class="tab-item" ng-click="setTab('PATTA', 17)" ng-class="{ 'active': activeTab === 17 }">
+          <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Patta Items"> PATTA ITEMS
+        </div>
+        <div class="tab-item" ng-click="setTab('GUN', 15)" ng-class="{ 'active': activeTab === 15 }">
+          <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Guns Variety"> GUNS VARIETY
+        </div>
+        <div class="tab-item" ng-click="setTab('STATIONERY', 1)" ng-class="{ 'active': activeTab === 1 }">
+          <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Stationery Items"> STATIONERY
+        </div>
+        <div class="tab-item" ng-click="setTab('DOLL', 8)" ng-class="{ 'active': activeTab === 8 }">
+          <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Doll"> DOLL
+        </div>
+        <div class="tab-item" ng-click="setTab('FANCY', 12)" ng-class="{ 'active': activeTab === 12 }">
+          <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Fancy Items"> FANCY ITEMS
+        </div>
+        <div class="tab-item" ng-click="setTab('DOZEN', 14)" ng-class="{ 'active': activeTab === 14 }">
+          <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Dozen Packing"> DOZEN PACKING
+        </div>
+        <div class="tab-item" ng-click="setTab('G1', 32)" ng-class="{ 'active': activeTab === 32 }">
+          <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Godown-1"> GODOWN-1
+        </div>
+        <div class="tab-item" ng-click="setTab('G2', 33)" ng-class="{ 'active': activeTab === 33 }">
+          <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Godown-2"> GODOWN-2
+        </div>
+        <div class="tab-item" ng-click="setTab('GUN', 16)" ng-class="{ 'active': activeTab === 16 }">
+          <img src="https://www.hindustantoys.in/images/DUMMY.jpeg" alt="Empty"> EMPTY
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="skeleton-wrapper" ng-if="!vm.images.$resolved">
+      <div class="grid-row">
+        <div class="skeleton-item" ng-repeat="n in [].constructor(2) track by $index">
+          <div class="skeleton-text">
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line" style="width: 80%;"></div>
+            <div class="skeleton-line" style="width: 50%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="skeleton-wrapper" ng-if="vm.images.$resolved">
+      <div class="grid-row" ng-repeat="row in vm.getRows() track by $index">
+        <div ng-repeat="image in row track by image.$id" ng-if="!image.outOfStock">
+          <div class="card">
+            <img src="{{image.url}}" alt="{{image.name}}" ng-click="showEnlargedImage(image.url)" loading="lazy">
+            <button ng-if="!image.outOfStock && dynamicField2Value === 'sammyadmin'" class="btn btn-warning btn-sm" ng-click="markOutOfStock(image)" style="margin: 4px 0; font-size: 10px;">
+              Mark Out of Stock
+            </button>
+            <div class="containers">
+              <h4><b>{{image.price}} Rs.</b></h4>
+              <p>{{image.name}}</p>
+              <p><a href="https://hunkaammy.github.io/mywebsite/videos/{{image.videourl}}.mp4" target="_blank" ng-if="image.videourl" style="color: #1565c0;">Watch Video</a></p>
+              <input type="hidden" id="{{'inputa' + ($parent.$index * 2 + $index)}}" ng-model="image.url">
+              <input type="hidden" id="{{'inputb' + ($parent.$index * 2 + $index)}}" ng-model="dynamicField2Value" ng-value="dynamicField2Value">
+              <input type="number" class="qtyclass" id="{{'inputc' + ($parent.$index * 2 + $index)}}" placeholder="Qty" ng-model="image.field3" ng-change="submitData(image, ($parent.$index * 2 + $index))" ng-model-options="{ debounce: 500 }">
+              <p ng-show="showItemAdded" style="color: #388e3c; font-size: 10px;">Item Added</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enlarged Image Overlay -->
+    <div id="enlarged-image-overlay" class="enlarged-image-overlay" ng-click="closeEnlargedImage()">
+      <img class="enlarged-image-content" id="enlarged-image" src="" alt="Enlarged Image">
+    </div>
+
+    <!-- Order Modal -->
+    <div class="container mt-3">
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal">Your Order</button>
+    </div>
+    <div class="modal" id="myModal">
+      <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">{{dynamicField2Value}} Your Order List</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal">Close</button>
+          </div>
+          <div class="modal-body">
+            <object data="https://hunkaammy.github.io/mywebsite/NEWWEBSITE/order1#myInput={{dynamicField2Value}}" width="100%" height="400">
+              <embed src="https://hunkaammy.github.io/mywebsite/cart#myInput=samrat" width="100%" height="400"> </embed>
+              Error: Embedded data could not be displayed.
+            </object>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.lazyload/1.9.7/jquery.lazyload.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+  <script src="https://cdn.firebase.com/libs/angularfire/2.1.0/angularfire.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+  <script src="https://fezvrasta.github.io/bootstrap-material-design/dist/js/material.min.js"></script>
+
   <script>
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyDM7HUVDfdy_UXAaCx3kYWmDhxrF0y8jyA",
-      authDomain: "model-poses.firebaseapp.com",
-      databaseURL: "https://model-poses.firebaseio.com",
-      projectId: "model-poses",
-      storageBucket: "model-poses.firebasestorage.app",
-      messagingSenderId: "10510371385",
-      appId: "1:10510371385:web:1f93c15f032b729fe61be8"
+    try {
+      var firebaseConfig = {
+        apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
+        authDomain: "shop-reminder-3ce10.firebaseapp.com",
+        databaseURL: "https://shop-reminder-3ce10-default-rtdb.firebaseio.com",
+        projectId: "shop-reminder-3ce10",
+        storageBucket: "shop-reminder-3ce10.appspot.com",
+        messagingSenderId: "555627569260",
+        appId: "1:555627569260:web:3948ae391eab6eb5ea7849",
+        measurementId: "G-BP5EYR6ET1"
+      };
+      firebase.initializeApp(firebaseConfig);
+    } catch (error) {
+      console.error('Firebase initialization failed:', error.message, error.stack);
+    }
+
+    var blockedNumbers = ['7000913701', '9876543210', '9123456789', '8987854256', '9039199794'];
+
+    function validateLogin() {
+      try {
+        var name = document.getElementById('name').value.trim();
+        var mobile = document.getElementById('mobile').value.trim();
+        if (name.length < 4) {
+          alert('Please enter a valid shop name.');
+          return;
+        }
+        if (!/^[6-9]\d{9}$/.test(mobile)) {
+          alert('Please enter a valid mobile number.');
+          return;
+        }
+        if (blockedNumbers.includes(mobile)) {
+          window.location.href = '/mywebsite/NEWWEBSITE/blocked.html';
+          return;
+        }
+        var lowerName = name.toLowerCase();
+        if (lowerName === 'mohit chawla' || lowerName === 'honey digital' || lowerName === 'bab el mandeb' || lowerName === 'saha resources') {
+          window.location.href = '/mywebsite/NEWWEBSITE/blocked.html';
+          return;
+        }
+        var database = firebase.database();
+        var userRef = database.ref('users').push({
+          name: name,
+          mobile: mobile,
+          timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+        localStorage.setItem('name', name);
+        localStorage.setItem('mobile', mobile);
+        localStorage.setItem('loggedIn', 'true');
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+      } catch (error) {
+        console.error('validateLogin failed:', error.message, error.stack);
+        alert('Login failed. Please try again.');
+      }
+    }
+
+    function autoLogin() {
+      try {
+        var storedName = localStorage.getItem('name');
+        var storedMobile = localStorage.getItem('mobile');
+        if (storedMobile === '7000913701' || (storedName && storedName.toLowerCase() === 'mohit chawla')) {
+          return;
+        }
+        if (storedName && storedMobile) {
+          document.getElementById('name').value = storedName;
+          document.getElementById('mobile').value = storedMobile;
+          validateLogin();
+        }
+      } catch (error) {
+        console.error('autoLogin failed:', error.message, error.stack);
+      }
+    }
+
+    function logout() {
+      try {
+        localStorage.removeItem('name');
+        localStorage.removeItem('mobile');
+        localStorage.removeItem('loggedIn');
+        window.location.href = 'https://hindustantoys.in/pagdi';
+      } catch (error) {
+        console.error('logout failed:', error.message, error.stack);
+      }
+    }
+
+    window.onload = function() {
+      try {
+        autoLogin();
+      } catch (error) {
+        console.error('window.onload failed:', error.message, error.stack);
+      }
     };
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    const contentRef = database.ref('content');
-
-    // DOM elements
-    const homeSection = document.getElementById('homeSection');
-    const episodeSection = document.getElementById('episodeSection');
-    const videoSection = document.getElementById('videoSection');
-    const moviePlayer = document.getElementById('moviePlayer');
-    const videoSource = document.getElementById('videoSource');
-    const posterGrid = document.getElementById('posterGrid');
-    const episodeList = document.getElementById('episodeList');
-    const seriesTitle = document.getElementById('seriesTitle');
-    const backToHomeButton = document.getElementById('backToHomeButton');
-    const movieModal = document.getElementById('movieModal');
-    const openModalButton = document.getElementById('openModalButton');
-    const closeModalButton = document.getElementById('closeModalButton');
-    const submitMovieButton = document.getElementById('submitMovieButton');
-    const contentTypeSelect = document.getElementById('contentType');
-    const movieTitleInput = document.getElementById('movieTitle');
-    const posterUrlInput = document.getElementById('posterUrl');
-    const videoUrlInput = document.getElementById('videoUrl');
-    const movieUrlContainer = document.getElementById('movieUrlContainer');
-    const episodeContainer = document.getElementById('episodeContainer');
-    const episodeInputs = document.getElementById('episodeInputs');
-    const addEpisodeButton = document.getElementById('addEpisodeButton');
-    const modalTitle = document.getElementById('modalTitle');
-    const STORAGE_KEY_PREFIX = 'content_playback_';
-    let editingContentKey = null;
-    let episodeCount = 0;
-    let currentContentKey = null;
-    let currentEpisodeKey = null;
-    let appState = { currentPage: 'home' };
-
-    // Toggle input fields based on content type
-    contentTypeSelect.addEventListener('change', () => {
-      const isSeries = contentTypeSelect.value === 'series';
-      movieUrlContainer.style.display = isSeries ? 'none' : 'block';
-      episodeContainer.style.display = isSeries ? 'block' : 'none';
-      videoUrlInput.required = !isSeries;
-    });
-
-    // Add episode input fields
-    addEpisodeButton.addEventListener('click', () => {
-      episodeCount++;
-      const episodeDiv = document.createElement('div');
-      episodeDiv.className = 'episode-input';
-      episodeDiv.innerHTML = `
-        <input type="text" placeholder="Episode Title" class="episode-title" required tabindex="0" />
-        <input type="url" placeholder="Episode Video URL" class="episode-url" required tabindex="0" />
-        <button class="remove-episode" tabindex="0">Remove</button>
-      `;
-      episodeDiv.querySelector('.remove-episode').addEventListener('click', () => {
-        episodeDiv.remove();
-      });
-      episodeInputs.appendChild(episodeDiv);
-      episodeDiv.querySelector('.episode-title').focus();
-    });
-
-    // Open modal for adding content
-    openModalButton.addEventListener('click', () => {
-      modalTitle.textContent = 'Add Content';
-      submitMovieButton.textContent = 'Add Content';
-      contentTypeSelect.value = 'movie';
-      movieTitleInput.value = '';
-      posterUrlInput.value = '';
-      videoUrlInput.value = '';
-      episodeInputs.innerHTML = '';
-      episodeCount = 0;
-      movieUrlContainer.style.display = 'block';
-      episodeContainer.style.display = 'none';
-      videoUrlInput.required = true;
-      editingContentKey = null;
-      movieModal.classList.add('active');
-      contentTypeSelect.focus();
-    });
-
-    // Close modal
-    closeModalButton.addEventListener('click', () => {
-      movieModal.classList.remove('active');
-      openModalButton.focus();
-    });
-
-    // Submit content (add or edit)
-    submitMovieButton.addEventListener('click', () => {
-      const title = movieTitleInput.value.trim();
-      const posterUrl = posterUrlInput.value.trim();
-      const isSeries = contentTypeSelect.value === 'series';
-
-      let contentData = {
-        title: title,
-        posterUrl: posterUrl,
-        type: contentTypeSelect.value,
-        createdAt: firebase.database.ServerValue.TIMESTAMP
-      };
-
-      if (isSeries) {
-        const episodeTitles = Array.from(episodeInputs.querySelectorAll('.episode-title')).map(input => input.value.trim());
-        const episodeUrls = Array.from(episodeInputs.querySelectorAll('.episode-url')).map(input => input.value.trim());
-        const episodes = episodeTitles.reduce((acc, title, index) => {
-          if (title && episodeUrls[index]) {
-            acc[`episode${index + 1}`] = { title: title, videoUrl: episodeUrls[index] };
-          }
-          return acc;
-        }, {});
-        if (Object.keys(episodes).length === 0) {
-          alert('Please add at least one valid episode.');
-          return;
-        }
-        contentData.episodes = episodes;
-      } else {
-        const videoUrl = videoUrlInput.value.trim();
-        if (!title || !posterUrl || !videoUrl) {
-          alert('Please fill in all fields.');
-          return;
-        }
-        contentData.videoUrl = videoUrl;
-      }
-
-      if (editingContentKey) {
-        contentRef.child(editingContentKey).update(contentData)
-          .then(() => {
-            movieModal.classList.remove('active');
-            alert('Content updated successfully!');
-            openModalButton.focus();
-          })
-          .catch(error => {
-            console.error('Error updating content:', error);
-            alert('Failed to update content.');
-          });
-      } else {
-        const newContentRef = contentRef.push();
-        newContentRef.set(contentData)
-          .then(() => {
-            movieModal.classList.remove('active');
-            alert('Content added successfully!');
-            openModalButton.focus();
-          })
-          .catch(error => {
-            console.error('Error adding content:', error);
-            alert('Failed to add content.');
-          });
-      }
-    });
-
-    // Function to attempt fullscreen
-    function requestFullscreen(element, attempt = 1, maxAttempts = 3) {
-      return new Promise((resolve, reject) => {
-        try {
-          if (element.requestFullscreen) {
-            element.requestFullscreen().then(resolve).catch(reject);
-          } else if (element.webkitRequestFullscreen) {
-            element.webkitRequestFullscreen().then(resolve).catch(reject);
-          } else if (element.msRequestFullscreen) {
-            element.msRequestFullscreen().then(resolve).catch(reject);
-          } else {
-            reject(new Error('Fullscreen API not supported'));
-          }
-        } catch (error) {
-          reject(error);
-        }
-      }).catch(error => {
-        console.error(`Fullscreen attempt ${attempt} failed:`, error);
-        if (attempt < maxAttempts) {
-          return new Promise((resolve, reject) => {
-            setTimeout(() => {
-              requestFullscreen(element, attempt + 1, maxAttempts).then(resolve).catch(reject);
-            }, 500);
-          });
-        } else {
-          element.classList.add('fullscreen-fallback');
-          alert('Unable to enter fullscreen automatically. Please click the fullscreen button in the video controls or allow fullscreen in your browser settings.');
-          throw error;
-        }
-      });
-    }
-
-    // Function to handle back navigation
-    function handleBackNavigation() {
-      if (videoSection.classList.contains('active')) {
-        moviePlayer.pause();
-        moviePlayer.classList.remove('fullscreen-fallback');
-        const storageKey = currentEpisodeKey ? 
-          `${STORAGE_KEY_PREFIX}${currentContentKey}_${currentEpisodeKey}` : 
-          `${STORAGE_KEY_PREFIX}${currentContentKey}`;
-        if (moviePlayer.currentTime > 0) {
-          localStorage.setItem(storageKey, moviePlayer.currentTime.toFixed(2));
-        }
-        videoSection.classList.remove('active');
-        homeSection.classList.add('active');
-        appState.currentPage = 'home';
-        openModalButton.focus();
-      }
-    }
-
-    // Fetch and display content
-    contentRef.on('value', (snapshot) => {
-      posterGrid.innerHTML = '';
-      const contents = snapshot.val();
-      if (contents) {
-        Object.entries(contents).forEach(([key, content]) => {
-          const posterDiv = document.createElement('div');
-          posterDiv.className = 'poster';
-          posterDiv.tabIndex = 0;
-          posterDiv.innerHTML = `
-            <img src="${content.posterUrl}" alt="${content.title}" />
-            ${content.type === 'series' ? '<div class="series-badge">Series</div>' : ''}
-            <div class="poster-title">${content.title}</div>
-            <div class="poster-actions">
-              <button class="edit-button" data-key="${key}" tabindex="0">Edit</button>
-              <button class="delete-button" data-key="${key}" tabindex="0">Delete</button>
-            </div>
-          `;
-
-          const selectContent = () => {
-            if (content.type === 'series') {
-              homeSection.classList.remove('active');
-              episodeSection.classList.add('active');
-              seriesTitle.textContent = content.title;
-              episodeList.innerHTML = '';
-              appState.currentPage = 'episode';
-              if (content.episodes) {
-                Object.entries(content.episodes).forEach(([epKey, episode]) => {
-                  const episodeItem = document.createElement('div');
-                  episodeItem.className = 'episode-item';
-                  episodeItem.tabIndex = 0;
-                  episodeItem.innerHTML = `
-                    <img src="${content.posterUrl}" alt="${episode.title}" />
-                    <div class="episode-title">${episode.title}</div>
-                  `;
-                  episodeItem.addEventListener('click', () => playEpisode(key, epKey, episode.videoUrl));
-                  episodeItem.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === 'Select' || e.keyCode === 13) {
-                      playEpisode(key, epKey, episode.videoUrl);
-                    }
-                  });
-                  episodeList.appendChild(episodeItem);
-                });
-              }
-              episodeList.querySelector('.episode-item')?.focus();
-            } else {
-              playEpisode(key, null, content.videoUrl);
-            }
-          };
-
-          const playEpisode = (contentKey, episodeKey, videoUrl) => {
-            currentContentKey = contentKey;
-            currentEpisodeKey = episodeKey;
-            episodeSection.classList.remove('active');
-            videoSection.classList.add('active');
-            videoSource.src = videoUrl;
-            moviePlayer.load();
-            moviePlayer.classList.remove('fullscreen-fallback');
-            appState.currentPage = 'video';
-
-            const storageKey = episodeKey ? `${STORAGE_KEY_PREFIX}${contentKey}_${episodeKey}` : `${STORAGE_KEY_PREFIX}${contentKey}`;
-            const savedTime = localStorage.getItem(storageKey);
-            if (savedTime && !isNaN(parseFloat(savedTime))) {
-              moviePlayer.currentTime = parseFloat(savedTime);
-            }
-
-            const onPlay = () => {
-              requestFullscreen(moviePlayer).catch(error => {
-                console.error('Fullscreen request failed:', error);
-              });
-              moviePlayer.removeEventListener('play', onPlay);
-            };
-            moviePlayer.addEventListener('play', onPlay);
-
-            moviePlayer.play().catch(error => {
-              console.error('Error playing video:', error);
-              alert('Failed to play video. Check the video URL.');
-            });
-
-            let lastUpdate = 0;
-            moviePlayer.addEventListener('timeupdate', () => {
-              const now = Date.now();
-              if (now - lastUpdate >= 2000 && !moviePlayer.paused) {
-                localStorage.setItem(storageKey, moviePlayer.currentTime.toFixed(2));
-                lastUpdate = now;
-              }
-            });
-          };
-
-          posterDiv.querySelector('img').addEventListener('click', selectContent);
-          posterDiv.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === 'Select' || e.keyCode === 13) {
-              selectContent();
-            }
-          });
-
-          posterDiv.querySelector('.edit-button').addEventListener('click', () => {
-            editingContentKey = key;
-            modalTitle.textContent = 'Edit Content';
-            submitMovieButton.textContent = 'Update Content';
-            contentTypeSelect.value = content.type;
-            movieTitleInput.value = content.title;
-            posterUrlInput.value = content.posterUrl;
-            movieUrlContainer.style.display = content.type === 'movie' ? 'block' : 'none';
-            episodeContainer.style.display = content.type === 'series' ? 'block' : 'none';
-            videoUrlInput.required = content.type === 'movie';
-            videoUrlInput.value = content.type === 'movie' ? content.videoUrl || '' : '';
-            episodeInputs.innerHTML = '';
-            episodeCount = 0;
-            if (content.type === 'series' && content.episodes) {
-              Object.values(content.episodes).forEach(episode => {
-                episodeCount++;
-                const episodeDiv = document.createElement('div');
-                episodeDiv.className = 'episode-input';
-                episodeDiv.innerHTML = `
-                  <input type="text" placeholder="Episode Title" class="episode-title" value="${episode.title}" required tabindex="0" />
-                  <input type="url" placeholder="Episode Video URL" class="episode-url" value="${episode.videoUrl}" required tabindex="0" />
-                  <button class="remove-episode" tabindex="0">Remove</button>
-                `;
-                episodeDiv.querySelector('.remove-episode').addEventListener('click', () => {
-                  episodeDiv.remove();
-                });
-                episodeInputs.appendChild(episodeDiv);
-              });
-            }
-            movieModal.classList.add('active');
-            contentTypeSelect.focus();
-          });
-
-          posterDiv.querySelector('.delete-button').addEventListener('click', () => {
-            if (confirm(`Are you sure you want to delete "${content.title}"?`)) {
-              if (content.type === 'series' && content.episodes) {
-                Object.keys(content.episodes).forEach(epKey => {
-                  localStorage.removeItem(`${STORAGE_KEY_PREFIX}${key}_${epKey}`);
-                });
-              } else {
-                localStorage.removeItem(`${STORAGE_KEY_PREFIX}${key}`);
-              }
-              contentRef.child(key).remove()
-                .then(() => {
-                  alert('Content deleted successfully!');
-                  openModalButton.focus();
-                })
-                .catch(error => {
-                  console.error('Error deleting content:', error);
-                  alert('Failed to delete content.');
-                });
-            }
-          });
-
-          posterGrid.appendChild(posterDiv);
+    function scrollToTop() {
+      try {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
         });
+      } catch (error) {
+        console.error('scrollToTop failed:', error.message, error.stack);
       }
-      const firstFocusable = posterGrid.querySelector('.poster') || openModalButton;
-      firstFocusable.focus();
-    });
+    }
 
-    // Back to home from episode selection
-    backToHomeButton.addEventListener('click', () => {
-      episodeSection.classList.remove('active');
-      homeSection.classList.add('active');
-      appState.currentPage = 'home';
-      openModalButton.focus();
-    });
-
-    // Handle Fire Stick and keyboard back button
-    document.addEventListener('keydown', (e) => {
-      if (videoSection.classList.contains('active') && 
-          (e.key === 'Escape' || e.keyCode === 27 || e.keyCode === 166)) {
-        e.preventDefault();
-        handleBackNavigation();
-      } else if (episodeSection.classList.contains('active') && 
-                 (e.key === 'Escape' || e.keyCode === 27 || e.keyCode === 166)) {
-        e.preventDefault();
-        episodeSection.classList.remove('active');
-        homeSection.classList.add('active');
-        appState.currentPage = 'home';
-        openModalButton.focus();
-      } else if (movieModal.classList.contains('active') && 
-                 (e.key === 'Escape' || e.keyCode === 27 || e.keyCode === 166)) {
-        e.preventDefault();
-        movieModal.classList.remove('active');
-        openModalButton.focus();
+    function showEnlargedImage(src) {
+      try {
+        var overlay = document.getElementById('enlarged-image-overlay');
+        var enlargedImg = document.getElementById('enlarged-image');
+        if (overlay && enlargedImg) {
+          enlargedImg.src = src;
+          overlay.style.display = 'flex';
+          overlay.classList.add('show');
+        } else {
+          console.error('showEnlargedImage: overlay or enlargedImg not found');
+        }
+      } catch (error) {
+        console.error('showEnlargedImage failed:', error.message, error.stack);
       }
-    });
+    }
 
-    // Handle mobile back button via popstate
-    window.addEventListener('popstate', (e) => {
-      if (appState.currentPage === 'video') {
-        handleBackNavigation();
-      } else if (appState.currentPage === 'episode') {
-        episodeSection.classList.remove('active');
-        homeSection.classList.add('active');
-        appState.currentPage = 'home';
-        openModalButton.focus();
+    function closeEnlargedImage() {
+      try {
+        var overlay = document.getElementById('enlarged-image-overlay');
+        if (overlay) {
+          overlay.classList.remove('show');
+          overlay.style.display = 'none';
+        } else {
+          console.error('closeEnlargedImage: overlay not found');
+        }
+      } catch (error) {
+        console.error('closeEnlargedImage failed:', error.message, error.stack);
       }
-    });
+    }
 
-    // Handle fullscreen exit (e.g., mobile back button exiting fullscreen)
-    document.addEventListener('fullscreenchange', () => {
-      if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement && 
-          videoSection.classList.contains('active')) {
-        handleBackNavigation();
+    function startVoiceRecognition() {
+      try {
+        const micIcon = document.getElementById('micIcon');
+        if (!micIcon) {
+          console.error('startVoiceRecognition: micIcon not found');
+          return;
+        }
+        micIcon.classList.add('animating');
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        if (!recognition) {
+          console.error('startVoiceRecognition: SpeechRecognition not supported');
+          micIcon.classList.remove('animating');
+          return;
+        }
+        recognition.lang = 'en-US';
+        recognition.onresult = function(event) {
+          try {
+            const transcript = event.results[0][0].transcript;
+            const topBtn = document.getElementById('topBtn');
+            if (topBtn) {
+              topBtn.value = transcript;
+              angular.element(topBtn).scope().$apply(function($scope) {
+                $scope.searchQuery = transcript;
+              });
+              filterData(transcript);
+              scrollToTop();
+            } else {
+              console.error('startVoiceRecognition: topBtn not found');
+            }
+            setTimeout(() => micIcon.classList.remove('animating'), 500);
+          } catch (error) {
+            console.error('Speech recognition result failed:', error.message, error.stack);
+          }
+        };
+        recognition.onerror = function(event) {
+          console.error('Speech recognition error:', event.error, event.message);
+          micIcon.classList.remove('animating');
+        };
+        recognition.start();
+      } catch (error) {
+        console.error('startVoiceRecognition failed:', error.message, error.stack);
       }
-    });
+    }
+
+    function filterData(query) {
+      try {
+        angular.element(document.getElementById('topBtn')).scope().$apply(function($scope) {
+          $scope.productNameFilter = query;
+        });
+      } catch (error) {
+        console.error('filterData failed:', error.message, error.stack);
+      }
+    }
+  </script>
+
+  <script>
+    try {
+      var app = angular.module('myApp', ['firebase']);
+      app.controller('imagesController', ['$scope', '$firebaseArray', '$window', '$location', '$timeout', function($scope, $firebaseArray, $window, $location, $timeout) {
+        $scope.vm = this;
+        $scope.vm.images = [];
+        $scope.sortOrder = 'default';
+        $scope.dynamicField2Value = localStorage.getItem('name') || '';
+        $scope.searchQuery = '';
+        $scope.productNameFilter = '';
+        $scope.activeTab = 0;
+
+        var firebaseConfigFetch = {
+          apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
+          authDomain: "htshop-e9c51.firebaseapp.com",
+          databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com",
+          projectId: "htshop-e9c51",
+          storageBucket: "htshop-e9c51.appspot.com",
+          messagingSenderId: "653137640907",
+          appId: "1:653137640907:web:672fd6a9e85ca448a70a4e",
+          measurementId: "G-FJ4Q0FHBEG"
+        };
+        var firebaseConfigSubmit = {
+          apiKey: "AIzaSyAMFjDnZaszneoR6nO8bmXUxwZJplLvNfU",
+          authDomain: "notes-12519.firebaseapp.com",
+          databaseURL: "https://notes-12519-default-rtdb.firebaseio.com",
+          projectId: "notes-12519",
+          storageBucket: "notes-12519.appspot.com",
+          messagingSenderId: "1073774450189",
+          appId: "1:1073774450189:web:0b6d4a9f95823abbf36744",
+          measurementId: "G-GZXYCJ33TR"
+        };
+
+        try {
+          var firebaseFetch = firebase.initializeApp(firebaseConfigFetch, 'fetchApp');
+          var firebaseSubmit = firebase.initializeApp(firebaseConfigSubmit, 'submitApp');
+          var databaseFetch = firebaseFetch.database().ref();
+          var listFetch = $firebaseArray(databaseFetch);
+          var databaseSubmit = firebaseSubmit.database().ref();
+          var listSubmit = $firebaseArray(databaseSubmit);
+
+          $scope.vm.images = listFetch;
+          listFetch.$loaded().then(function(data) {
+            console.log('Firebase data loaded:', data.length, 'items');
+            $scope.vm.images = data;
+          }).catch(function(error) {
+            console.error('Error loading Firebase data:', error.message, error.stack);
+          });
+        } catch (error) {
+          console.error('Firebase initialization error:', error.message, error.stack);
+        }
+
+        $scope.vm.getRows = function() {
+          try {
+            var filteredImages = ($scope.vm.images || []).filter(function(image) {
+              if (!image) return false;
+              var matchesFilter = !$scope.productNameFilter || (image.name || '').toLowerCase().includes($scope.productNameFilter.toLowerCase());
+              var matchesSearch = !$scope.searchQuery || (image.name || '').toLowerCase().includes($scope.searchQuery.toLowerCase());
+              return !image.outOfStock && matchesFilter && matchesSearch;
+            });
+
+            if ($scope.sortOrder === 'default') {
+              filteredImages.reverse();
+            } else if ($scope.sortOrder === 'price') {
+              filteredImages.sort(function(a, b) {
+                return (Number(a.price) || 0) - (Number(b.price) || 0); // Low to High
+              });
+            } else if ($scope.sortOrder === '-price') {
+              filteredImages.sort(function(a, b) {
+                return (Number(b.price) || 0) - (Number(a.price) || 0); // High to Low
+              });
+            }
+
+            console.log('Sorted images:', filteredImages.length, 'items, sortOrder:', $scope.sortOrder);
+            if (filteredImages.length > 0) {
+              console.log('Top item:', {
+                name: filteredImages[0].name,
+                id: filteredImages[0].$id,
+                price: filteredImages[0].price
+              });
+            }
+
+            var rows = [];
+            for (var i = 0; i < filteredImages.length; i += 2) {
+              rows.push(filteredImages.slice(i, i + 2));
+            }
+            return rows;
+          } catch (error) {
+            console.error('getRows failed:', error.message, error.stack);
+            return [];
+          }
+        };
+
+        function getUrlParameter(name) {
+          try {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec($location.absUrl());
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+          } catch (error) {
+            console.error('getUrlParameter failed:', error.message, error.stack);
+            return '';
+          }
+        }
+
+        try {
+          var filterParam = getUrlParameter('filter');
+          var tabParam = getUrlParameter('tab');
+          $scope.productNameFilter = filterParam || '';
+          $scope.activeTab = isNaN(tabParam) ? 0 : parseInt(tabParam, 10);
+        } catch (error) {
+          console.error('URL parameter initialization failed:', error.message, error.stack);
+        }
+
+        $scope.setTab = function(filter, tab) {
+          try {
+            $scope.productNameFilter = filter;
+            $scope.activeTab = tab;
+            $scope.searchQuery = '';
+            $scope.sortOrder = 'default';
+            $location.search('filter', filter);
+            $location.search('tab', tab);
+            scrollToTop();
+          } catch (error) {
+            console.error('setTab failed:', error.message, error.stack);
+          }
+        };
+
+        $scope.resetFilters = function() {
+          try {
+            $scope.productNameFilter = '';
+            $scope.activeTab = 0;
+            $scope.searchQuery = '';
+            $scope.sortOrder = 'default';
+            $location.search('filter', '');
+            $location.search('tab', 0);
+            scrollToTop();
+          } catch (error) {
+            console.error('resetFilters failed:', error.message, error.stack);
+          }
+        };
+
+        $scope.submitData = function(image, index) {
+          try {
+            if (!image) {
+              console.error('submitData: image is null or undefined');
+              return;
+            }
+            var inputa = image.url || '';
+            var inputb = $scope.dynamicField2Value || '';
+            var inputc = image.field3 || 0;
+            var currentDate = new Date();
+            var day = String(currentDate.getDate()).padStart(2, '0');
+            var month = String(currentDate.getMonth() + 1).padStart(2, '0');
+            var year = currentDate.getFullYear();
+            var submitDate = day + '-' + month + '-' + year;
+            var hours = currentDate.getHours();
+            var minutes = String(currentDate.getMinutes()).padStart(2, '0');
+            var ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            var submitTime = hours + ':' + minutes + ' ' + ampm;
+
+            if (image.quantityId) {
+              databaseSubmit.child(image.quantityId).update({
+                field3: inputc
+              }).then(() => {
+                $scope.showItemAdded = true;
+                $timeout(() => {
+                  $scope.showItemAdded = false;
+                }, 2000);
+              }).catch((error) => {
+                console.error('Error updating quantity:', error.message, error.stack);
+              });
+            } else {
+              var newDataKey = databaseSubmit.push().key;
+              image.quantityId = newDataKey;
+              databaseSubmit.child(newDataKey).set({
+                field1: inputa,
+                field2: inputb,
+                field3: inputc,
+                productName: image.name || '',
+                productPrice: image.price || 0,
+                submitDate: submitDate,
+                submitTime: submitTime,
+                submittedDate: firebase.database.ServerValue.TIMESTAMP
+              }).then(() => {
+                $scope.showItemAdded = true;
+                $timeout(() => {
+                  $scope.showItemAdded = false;
+                }, 2000);
+              }).catch((error) => {
+                console.error('Error adding item:', error.message, error.stack);
+              });
+            }
+          } catch (error) {
+            console.error('submitData failed:', error.message, error.stack);
+          }
+        };
+
+        $scope.markOutOfStock = function(image) {
+          try {
+            if (!image || !image.$id) {
+              console.error('markOutOfStock: image or image.$id is null or undefined');
+              return;
+            }
+            var databaseRef = firebaseFetch.database().ref(image.$id);
+            databaseRef.update({
+              outOfStock: true,
+              lastModified: firebase.database.ServerValue.TIMESTAMP
+            }).then(function() {
+              image.outOfStock = true;
+              image.lastModified = Date.now();
+            }).catch(function(error) {
+              console.error('Error updating stock status:', error.message, error.stack);
+            });
+          } catch (error) {
+            console.error('markOutOfStock failed:', error.message, error.stack);
+          }
+        };
+
+        $scope.logout = function() {
+          try {
+            localStorage.removeItem('name');
+            localStorage.removeItem('mobile');
+            localStorage.removeItem('loggedIn');
+            $window.location.href = '/mywebsite/index.html';
+          } catch (error) {
+            console.error('logout failed:', error.message, error.stack);
+          }
+        };
+
+        $scope.applyFilter = function() {
+          try {
+            $scope.$applyAsync(); // Ensure the view updates
+          } catch (error) {
+            console.error('applyFilter failed:', error.message, error.stack);
+          }
+        };
+
+        $scope.showEnlargedImage = function(src) {
+          try {
+            showEnlargedImage(src);
+          } catch (error) {
+            console.error('showEnlargedImage scope failed:', error.message, error.stack);
+          }
+        };
+
+        $scope.closeEnlargedImage = function() {
+          try {
+            closeEnlargedImage();
+          } catch (error) {
+            console.error('closeEnlargedImage scope failed:', error.message, error.stack);
+          }
+        };
+      }]);
+
+      angular.module('myApp').directive('customOnChange', function() {
+        return {
+          restrict: 'A',
+          link: function(scope, element, attrs) {
+            try {
+              var onChangeHandler = scope.$eval(attrs.customOnChange);
+              element.bind('change', onChangeHandler);
+            } catch (error) {
+              console.error('customOnChange directive failed:', error.message, error.stack);
+            }
+          }
+        };
+      });
+    } catch (error) {
+      console.error('Angular module initialization failed:', error.message, error.stack);
+    }
   </script>
 </body>
 </html>
