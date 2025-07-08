@@ -3,1333 +3,398 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube DJ Player with Played History and AI Suggestions</title>
+    <title>Customer Contact Manager</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 0;
-            background: linear-gradient(135deg, #1a1a1a, #333333);
-            color: #f0f0f0;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 15px;
-            color: #ff5500;
-            text-shadow: 0 0 10px rgba(255, 85, 0, 0.7);
-            font-size: 28px;
-            letter-spacing: 2px;
-        }
-
-        .track-control-container {
-            display: flex;
-            justify-content: space-around;
-            width: 100%;
-            max-width: 600px;
-            margin: 20px 0;
-        }
-
-        .track-selector {
-            margin-right: 10px;
-            flex: 1;
-            position: relative;
-        }
-
-        label, input, select, button {
-            display: block;
-            margin-top: 10px;
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 5px;
-            border: none;
-            background-color: #222222;
-            color: #f0f0f0;
-        }
-
-        button {
-            cursor: pointer;
-            background-color: #ff5500;
-            transition: background-color 0.3s;
-            font-weight: bold;
-        }
-
-        button:hover {
-            background-color: #ff7700;
-        }
-
-        .control-buttons {
-            display: flex;
-            gap: 10px;
-            width: 100%;
-            max-width: 600px;
-            margin-bottom: 20px;
-        }
-
-        .control-buttons button {
-            flex: 1;
-        }
-
-        .player-container {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            margin: 20px 0;
-            max-width: 900px;
-        }
-
-        .video-player {
-            flex: 1;
-            margin: 0 10px;
-            border: 2px solid #444444;
-            border-radius: 10px;
-            overflow: hidden;
-            width: 45%;
-            background-color: #111111;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-        }
-
-        .tempo-controls {
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 0 0 10px 10px;
-        }
-
-        .tempo-slider {
-            width: 100%;
-            margin: 10px 0;
-            height: 10px;
-            background: #333333;
-            border-radius: 5px;
-        }
-
-        .tempo-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: #ff5500;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
-        .balance-control {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 20px;
-            width: 100%;
-            max-width: 600px;
-            flex-direction: column;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            padding: 20px;
-        }
-
-        .balance-slider {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 25px;
-            background: #333333;
-            border-radius: 10px;
-            outline: none;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            border: 1px solid #ff5500;
-        }
-
-        .balance-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 30px;
-            height: 30px;
-            background: #ff5500;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(255, 85, 0, 0.7);
-        }
-
-        .balance-slider::-moz-range-thumb {
-            width: 30px;
-            height: 30px;
-            background: #ff5500;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(255, 85, 0, 0.7);
-        }
-
-        .volume-percentage {
-            font-size: 20px;
-            color: #fff;
-            margin-top: 10px;
-        }
-
-        .history-container {
-            width: 100%;
-            max-width: 900px;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            overflow-x: auto;
-            border: 1px solid #444444;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #444444;
-        }
-
-        th {
-            background-color: #222222;
-            color: #ff5500;
-        }
-
-        td button {
-            padding: 5px 10px;
-            background-color: #222222;
-            color: white;
-            border: 1px solid #444444;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .beat-btn:hover {
-            background-color: #444444;
-        }
-
-        .beat-btn.active {
-            background-color: #ff5500;
-            box-shadow: 0 0 10px rgba(255, 85, 0, 0.7);
-        }
-
-        td button:hover {
-            background-color: #1abc9c;
-        }
-
-        .edit-btn {
-            background-color: #f39c12;
-        }
-
-        .edit-btn:hover {
-            background-color: #e67e22;
-        }
-
-        .delete-btn {
-            background-color: #e74c3c;
-        }
-
-        .delete-btn:hover {
-            background-color: #c0392b;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.8);
-        }
-
-        .modal-content {
-            background-color: #34495e;
-            margin: 5% auto;
-            padding: 20px;
-            border-radius: 8px;
-            width: 80%;
-            max-width: 800px;
-            position: relative;
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            cursor: pointer;
-        }
-
-        #notes-textarea {
-            width: 100%;
-            height: 200px;
-            margin: 10px 0;
-            background: #2c3e50;
-            border: 1px solid #444;
-            color: white;
-            padding: 10px;
-            border-radius: 4px;
-            resize: vertical;
-        }
-
-        #notes-btn {
-            margin-left: 10px;
-            padding: 8px 15px;
-            background: #1abc9c;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        #notes-btn:hover {
-            background: #16a085;
-        }
-
-        .buttons-container {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        #backup-btn, #restore-btn {
-            margin-top: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .player-container {
-                align-items: center;
-            }
-
-            .video-player {
-                width: 90%;
-                margin: 10px 0;
-            }
-
-            .control-buttons {
-                flex-direction: column;
-            }
-
-            .control-buttons button {
-                width: 100%;
-            }
-        }
-
-        .current-track-info {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            width: 100%;
-            max-width: 900px;
-            text-align: center;
-        }
-
-        table {
-            font-size: 14px;
-        }
-
-        .custom-dropdown {
-            position: absolute;
-            width: 100%;
-            max-width: 300px;
-            margin: 10px 0;
-            z-index: 10;
-            background: #34495e;
-            max-height: 200px;
-            overflow-y: auto;
-            border-radius: 5px;
-            display: none;
-        }
-
-        .custom-dropdown .dropdown-item {
-            display: flex;
-            cursor: pointer;
-            margin-bottom: 5px;
-            color: white;
-            background-color: transparent;
-            transition: background-color 0.3s ease;
-        }
-
-        .custom-dropdown .dropdown-item:hover {
-            background-color: #2980b9;
-        }
-
-        .custom-dropdown img {
-            width: 50px;
-            height: 50px;
-            margin-right: 10px;
-            border-radius: 5px;
-            object-fit: cover;
-        }
-
-        .custom-dropdown .title {
-            flex: 1;
-            font-size: 10px;
-        }
-
-        .tempo-controls {
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 0 0 10px 10px;
-        }
-
-        .tempo-slider {
-            width: 100%;
-            margin: 10px 0;
-        }
-
-        .beat-loop {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .beat-loop-select {
-            padding: 5px;
-            background: #34495e;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-
-        .beat-buttons {
-            display: flex;
-            gap: 5px;
-        }
-
-        .beat-btn {
-            flex: 1;
-            padding: 5px 10px;
-            background-color: #34495e;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .beat-btn:hover {
-            background-color: #2980b9;
-        }
-
-        .beat-btn.active {
-            background-color: #e74c3c;
-        }
-
-        #ai-suggestions-modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.8);
-        }
-
-        #ai-suggestions-modal .modal-content {
-            background-color: #34495e;
-            margin: 5% auto;
-            padding: 20px;
-            border-radius: 8px;
-            width: 80%;
-            max-width: 800px;
-        }
-
-        #ai-suggestions-list {
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .ai-suggestion-item {
-            display: flex;
-            flex-direction: column;
-            padding: 10px;
-            margin-bottom: 10px;
-            background-color: #2c3e50;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .ai-suggestion-item:hover {
-            background-color: #2980b9;
-        }
-
-        .suggestion-content {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-        }
-
-        .suggestion-title {
-            font-size: 14px;
-            color: white;
-            margin-bottom: 5px;
-        }
-
-        .deck-buttons {
-            display: flex;
-            gap: 5px;
-        }
-
-        .deck-button {
-            padding: 5px 10px;
-            background-color: #ff5500;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .deck-button:hover {
-            background-color: #ff7700;
-        }
-
-        .loading, .error {
-            text-align: center;
-            padding: 20px;
-            color: #ff5500;
-            font-size: 16px;
+            font-family: 'Inter', sans-serif;
         }
     </style>
 </head>
-<body>
-    <h1>SAMMY'S YT DJ PROJECT</h1>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 flex flex-col items-center">
 
-    <select id="api-key-select">
-        <option value="AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A">API Key 1</option>
-        <option value="AIzaSyDX2n08WCf5Ol1nffaqJU_aJp_BODlw1H4">API Key 2</option>
-        <option value="AIzaSyBccpNgklv37FjQYGTvuKeCKaBOdc3jbKs" selected>API Key 3</option>
-    </select>
-
-    <div class="control-buttons">
-        <button id="notes-btn" onclick="openNotesModal()">Notes</button>
-        <button id="ai-suggestions-btn" onclick="reopenAISuggestionsModal()">View AI Suggestions</button>
-    </div>
-
-    <div id="notes-modal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeNotesModal()">×</span>
-            <h3>DJ Notes</h3>
-            <textarea id="notes-textarea" placeholder="Add your notes here..."></textarea>
-            <button onclick="saveNotes()">Save Notes</button>
+    <!-- Custom Modal Structure -->
+    <div id="modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+            <p id="modal-message" class="text-gray-800 text-lg mb-4"></p>
+            <button id="modal-close-button"
+                class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out">
+                Close
+            </button>
         </div>
     </div>
 
-    <div class="track-control-container">
-        <div class="track-selector">
-            <label for="search-deck1">Search DECK-1:</label>
-            <input type="text" id="search-deck1" placeholder="Search YouTube">
-            <button onclick="searchYouTubeForDeck('deck1')">Search</button>
-            <div id="custom-dropdown1" class="custom-dropdown"></div>
-            <select id="track-list1" style="display:none;"></select>
-        </div>
+    <!-- Header -->
+    <h1 class="text-4xl font-extrabold text-gray-800 mb-8 mt-4 text-center">
+        Customer Contact Manager
+    </h1>
 
-        <div class="track-selector">
-            <label for="search-deck2">Search DECK-2:</label>
-            <input type="text" id="search-deck2" placeholder="Search YouTube">
-            <button onclick="searchYouTubeForDeck('deck2')">Search</button>
-            <div id="custom-dropdown2" class="custom-dropdown"></div>
-            <select id="track-list2" style="display:none;"></select>
-        </div>
-    </div>
-
-    <div class="player-container">
-        <div class="video-player" id="player1">
-            <iframe id="youtube-player1" width="100%" height="315" 
-                src="https://www.youtube.com/embed?enablejsapi=1&playsinline=1&disablekb=1" 
-                frameborder="0" 
-                allowfullscreen
-                allow="autoplay">
-            </iframe>
-            <div class="tempo-controls">
-                <label>BPM: <span id="tempo1-value">120</span></label>
-                <input type="range" id="tempo1" min="60" max="180" step="1" value="120" class="tempo-slider">
-                <div class="beat-loop">
-                    <label>Beat Loop:</label>
-                    <div class="beat-buttons">
-                        <button class="beat-btn" data-beats="1" onclick="toggleBeatLoop(1, 1)">1</button>
-                        <button class="beat-btn" data-beats="2" onclick="toggleBeatLoop(1, 2)">2</button>
-                        <button class="beat-btn" data-beats="3" onclick="toggleBeatLoop(1, 3)">3</button>
-                    </div>
-                </div>
+    <!-- Add New Customer Form -->
+    <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md mb-8">
+        <h2 class="text-2xl font-semibold text-gray-700 mb-5">Add New Contact</h2>
+        <div class="space-y-4">
+            <div>
+                <label for="customer-name" class="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
+                <input
+                    type="text"
+                    id="customer-name"
+                    class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="e.g., John Doe"
+                />
             </div>
-        </div>
-        <div class="video-player" id="player2">
-            <iframe id="youtube-player2" width="100%" height="315" 
-                src="https://www.youtube.com/embed?enablejsapi=1&playsinline=1&disablekb=1" 
-                frameborder="0" 
-                allowfullscreen
-                allow="autoplay">
-            </iframe>
-            <div class="tempo-controls">
-                <label>BPM: <span id="tempo2-value">120</span></label>
-                <input type="range" id="tempo2" min="60" max="180" step="1" value="120" class="tempo-slider">
-                <div class="beat-loop">
-                    <label>Beat Loop:</label>
-                    <div class="beat-buttons">
-                        <button class="beat-btn" data-beats="1" onclick="toggleBeatLoop(2, 1)">1</button>
-                        <button class="beat-btn" data-beats="2" onclick="toggleBeatLoop(2, 2)">2</button>
-                        <button class="beat-btn" data-beats="3" onclick="toggleBeatLoop(2, 3)">3</button>
-                    </div>
-                </div>
+            <div>
+                <label for="customer-number" class="block text-sm font-medium text-gray-700 mb-1">Contact Number</label>
+                <input
+                    type="text"
+                    id="customer-number"
+                    class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="e.g., +1234567890"
+                />
             </div>
+            <div>
+                <label for="customer-category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <select
+                    id="customer-category"
+                    class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white"
+                >
+                    <option value="Retail">Retail</option>
+                    <option value="Wholesale">Wholesale</option>
+                </select>
+            </div>
+            <button
+                id="add-customer-button"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md shadow-md transition duration-300 ease-in-out transform hover:scale-105"
+            >
+                Add Contact
+            </button>
         </div>
     </div>
 
-    <div class="balance-control">
-        <input type="range" id="balance-slider" class="balance-slider" min="0" max="100" value="50">
-    </div>
+    <!-- Customer List Section -->
+    <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-2xl">
+        <!-- Tab Navigation -->
+        <div class="flex border-b border-gray-200 mb-4">
+            <button
+                id="retail-tab-button"
+                class="py-3 px-6 text-lg font-medium rounded-t-lg transition duration-300 ease-in-out border-b-4 border-blue-600 text-blue-600"
+            >
+                Retail Customers
+            </button>
+            <button
+                id="wholesale-tab-button"
+                class="py-3 px-6 text-lg font-medium rounded-t-lg transition duration-300 ease-in-out text-gray-500 hover:text-gray-700"
+            >
+                Wholesale Customers
+            </button>
+        </div>
 
-    <div class="volume-percentage" id="volume-percentage">Center (0%)</div>
-
-    <div class="current-track-info">
-        <h2>Current Track</h2>
-        <p id="current-track-deck1">Deck 1: <span id="current-track-title1">None</span></p>
-        <p id="current-track-deck2">Deck 2: <span id="current-track-title2">None</span></p>
-    </div>
-
-    <div class="history-container">
-        <h2>Played History</h2>
-        <input type="text" id="history-search" placeholder="Search in history" onkeyup="filterHistory()">
-        <table id="history-list">
-            <p>Total Tracks Played: <span id="track-count">0</span></p>
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-
-    <button id="backup-btn" onclick="backupHistory()">Backup History</button>
-    <input type="file" id="restore-input" style="display:none" onchange="restoreHistory(event)">
-    <button id="restore-btn" onclick="document.getElementById('restore-input').click()">Restore History</button>
-
-    <div id="ai-suggestions-modal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeAISuggestionsModal()">×</span>
-            <h3>AI Suggested Tracks</h3>
-            <button onclick="clearAICacheAndRefresh()">Refresh Suggestions</button>
-            <div id="ai-suggestions-list" class="loading">Loading suggestions...</div>
+        <!-- Customer List Container -->
+        <div id="customer-list-container" class="space-y-3">
+            <p id="no-customers-message" class="text-gray-500 text-center py-8">No Retail customers added yet.</p>
         </div>
     </div>
 
-    <script>
-        const apiKeys = [
-            'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A', // API Key 1
-            'AIzaSyDX2n08WCf5Ol1nffaqJU_aJp_BODlw1H4', // API Key 2 (corrected)
-            'AIzaSyBccpNgklv37FjQYGTvuKeCKaBOdc3jbKs'  // API Key 3
-        ];
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        // Import Realtime Database functions
+        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 
-        // Note: Verify that this Gemini API key is valid, enabled for the Gemini API, and has sufficient quota.
-        const geminiApiKey = 'AIzaSyB_eDEcv0TA2gWEJ7dJ3hJ0ExWwrXgcOzw';
-        let currentApiKeyIndex = 2; // Start with API Key 3
-        let apiKey = apiKeys[currentApiKeyIndex];
-        let apiCallCounts = apiKeys.reduce((acc, key) => ({ ...acc, [key]: 0 }), {});
-        let lastSuggestions = null;
-        let lastDeck = null;
-        let lastTrackTitle = '';
-        let lastTrackDescription = '';
+        // Global variables for Firebase instances and data
+        let app;
+        let db; // This will now be the Realtime Database instance
+        let isAppReady = false;
+        let customers = [];
+        let activeTab = 'Retail'; // Default active tab
 
-        function trackApiCall(key) {
-            apiCallCounts[key]++;
-            if (apiCallCounts[key] > 9500) { // Switch before hitting 10,000/day quota
-                switchApiKey();
-            }
+        // DOM Elements
+        const customerNameInput = document.getElementById('customer-name');
+        const customerNumberInput = document.getElementById('customer-number');
+        const customerCategorySelect = document.getElementById('customer-category');
+        const addCustomerButton = document.getElementById('add-customer-button');
+        const retailTabButton = document.getElementById('retail-tab-button');
+        const wholesaleTabButton = document.getElementById('wholesale-tab-button');
+        const customerListContainer = document.getElementById('customer-list-container');
+        const noCustomersMessage = document.getElementById('no-customers-message');
+
+        // Modal Elements
+        const modal = document.getElementById('modal');
+        const modalMessageElement = document.getElementById('modal-message');
+        const modalCloseButton = document.getElementById('modal-close-button');
+
+        /**
+         * Displays a custom modal with a given message.
+         * @param {string} message - The message to display in the modal.
+         */
+        function showCustomModal(message) {
+            modalMessageElement.textContent = message;
+            modal.classList.remove('hidden');
         }
 
-        function switchApiKey() {
-            currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length;
-            apiKey = apiKeys[currentApiKeyIndex];
-            document.getElementById('api-key-select').value = apiKey;
-            alert(`API Key switched to: API Key ${currentApiKeyIndex + 1}`);
+        /**
+         * Hides the custom modal.
+         */
+        function hideCustomModal() {
+            modal.classList.add('hidden');
         }
 
-        function loadYouTubeAPI() {
-            const script = document.createElement('script');
-            script.src = "https://www.youtube.com/iframe_api";
-            document.body.appendChild(script);
-        }
+        // Add event listener for modal close button
+        modalCloseButton.addEventListener('click', hideCustomModal);
 
-        let player1, player2;
-
-        function onYouTubeIframeAPIReady() {
-            player1 = new YT.Player('youtube-player1', {
-                events: {
-                    'onReady': onPlayer1Ready,
-                    'onStateChange': onPlayer1StateChange
-                }
-            });
-
-            player2 = new YT.Player('youtube-player2', {
-                events: {
-                    'onReady': onPlayer2Ready,
-                    'onStateChange': onPlayer2StateChange
-                }
-            });
-        }
-
-        function openNotesModal() {
-            document.getElementById('notes-modal').style.display = 'block';
-            loadNotes();
-        }
-
-        function closeNotesModal() {
-            document.getElementById('notes-modal').style.display = 'none';
-        }
-
-        function saveNotes() {
-            const notes = document.getElementById('notes-textarea').value;
-            localStorage.setItem('djNotes', notes);
-            closeNotesModal();
-        }
-
-        function loadNotes() {
-            const savedNotes = localStorage.getItem('djNotes') || '';
-            document.getElementById('notes-textarea').value = savedNotes;
-        }
-
-        function onPlayer1Ready(event) {
-            player1.setVolume(50);
-            initTempoControl(1);
-        }
-
-        function onPlayer2Ready(event) {
-            player2.setVolume(50);
-            initTempoControl(2);
-        }
-
-        function toggleBeatLoop(deckNumber, beats) {
-            const player = deckNumber === 1 ? player1 : player2;
-            const button = document.querySelector(`#player${deckNumber} .beat-btn[data-beats="${beats}"]`);
-
-            if (button.classList.contains('active')) {
-                button.classList.remove('active');
-                window['loopActive' + deckNumber] = false;
-                window['loopBeats' + deckNumber] = 0;
-                if (window['loopInterval' + deckNumber]) {
-                    clearInterval(window['loopInterval' + deckNumber]);
-                    window['loopInterval' + deckNumber] = null;
-                }
-                console.log(`Beat loop turned OFF for deck ${deckNumber}`);
-                return;
-            }
-
-            if (window['loopInterval' + deckNumber]) {
-                clearInterval(window['loopInterval' + deckNumber]);
-                window['loopInterval' + deckNumber] = null;
-            }
-
-            document.querySelectorAll(`#player${deckNumber} .beat-btn`).forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-
-            if (player && player.getPlayerState) {
-                if (player.getPlayerState() === YT.PlayerState.PLAYING) {
-                    startLoop(deckNumber, beats);
-                } else {
-                    window['loopBeats' + deckNumber] = beats;
-                }
-            }
-        }
-
-        function startLoop(deckNumber, beats) {
-            const player = deckNumber === 1 ? player1 : player2;
-            if (window['loopInterval' + deckNumber]) {
-                clearInterval(window['loopInterval' + deckNumber]);
-            }
-
-            window['loopStartTime' + deckNumber] = player.getCurrentTime();
-            window['loopActive' + deckNumber] = true;
-            const loopDuration = beats * 2;
-            console.log(`Starting loop for deck ${deckNumber}: ${beats} beats`);
-
-            window['loopInterval' + deckNumber] = setInterval(() => {
-                if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
-                    const currentTime = player.getCurrentTime();
-                    const endTime = window['loopStartTime' + deckNumber] + loopDuration;
-                    if (currentTime >= endTime) {
-                        player.seekTo(window['loopStartTime' + deckNumber], true);
-                        console.log(`Loop reset to ${window['loopStartTime' + deckNumber]}`);
-                    }
-                }
-            }, 20);
-        }
-
-        function onPlayer1StateChange(event) {
-            handlePlayerStateChange(1, event);
-        }
-
-        function onPlayer2StateChange(event) {
-            handlePlayerStateChange(2, event);
-        }
-
-        function handlePlayerStateChange(deckNumber, event) {
-            const player = deckNumber === 1 ? player1 : player2;
-            if (event.data === YT.PlayerState.PLAYING) {
-                const beats = window['loopBeats' + deckNumber];
-                if (beats > 0) {
-                    startLoop(deckNumber, beats);
-                    document.querySelectorAll(`.video-player:nth-child(${deckNumber}) .beat-btn`).forEach(btn => {
-                        btn.classList.toggle('active', parseInt(btn.getAttribute('data-beats')) === beats);
-                    });
-                }
-            }
-
-            if (event.data === YT.PlayerState.ENDED || event.data === YT.PlayerState.PAUSED) {
-                if (window['loopInterval' + deckNumber]) {
-                    clearInterval(window['loopInterval' + deckNumber]);
-                    window['loopInterval' + deckNumber] = null;
-                }
-                window['loopActive' + deckNumber] = false;
-            }
-        }
-
-        function initTempoControl(deckNumber) {
-            const tempoSlider = document.getElementById(`tempo${deckNumber}`);
-            const tempoValue = document.getElementById(`tempo${deckNumber}-value`);
-            const player = deckNumber === 1 ? player1 : player2;
-            let currentBPM = 120;
-            let targetBPM = 120;
-            let tempoInterval = null;
-
-            window[`referenceBPM${deckNumber}`] = 120;
-
-            tempoSlider.addEventListener('input', () => {
-                targetBPM = parseInt(tempoSlider.value);
-                tempoValue.textContent = targetBPM;
-
-                const targetRate = targetBPM / window[`referenceBPM${deckNumber}`];
-                if (tempoInterval) clearInterval(tempoInterval);
-
-                tempoInterval = setInterval(() => {
-                    if (Math.abs(currentBPM - targetBPM) < 1) {
-                        currentBPM = targetBPM;
-                        const exactRate = currentBPM / window[`referenceBPM${deckNumber}`];
-                        if (player && typeof player.setPlaybackRate === 'function') {
-                            player.setPlaybackRate(exactRate);
-                        }
-                        clearInterval(tempoInterval);
-                        tempoInterval = null;
-                        return;
-                    }
-
-                    currentBPM += currentBPM < targetBPM ? 1 : -1;
-                    const newRate = currentBPM / window[`referenceBPM${deckNumber}`];
-                    if (player && typeof player.setPlaybackRate === 'function') {
-                        player.setPlaybackRate(newRate);
-                        console.log(`Deck ${deckNumber} BPM: ${currentBPM} (rate: ${newRate.toFixed(2)}x)`);
-                    }
-                }, 50);
-            });
-
-            window[`setReferenceBPM${deckNumber}`] = function(bpm) {
-                window[`referenceBPM${deckNumber}`] = bpm;
-                if (player && typeof player.setPlaybackRate === 'function') {
-                    const newRate = targetBPM / bpm;
-                    player.setPlaybackRate(newRate);
-                }
-            };
-        }
-
-        function parseISO8601Duration(duration) {
-            if (!duration) return 0;
-            const match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
-            const hours = parseInt(match?.[1]) || 0;
-            const minutes = parseInt(match?.[2]) || 0;
-            const seconds = parseInt(match?.[3]) || 0;
-            return hours * 3600 + minutes * 60 + seconds;
-        }
-
-        function formatDuration(seconds) {
-            const minutes = Math.floor(seconds / 60);
-            const secs = seconds % 60;
-            return `${minutes}:${secs.toString().padStart(2, '0')}`;
-        }
-
-        function inferGenre(title, description) {
-            const keywords = {
-                'edm': ['electronic', 'dance', 'house', 'techno', 'trance'],
-                'hip-hop': ['rap', 'hip-hop', 'trap', 'rnb'],
-                'pop': ['pop', 'chart', 'top 40'],
-                'rock': ['rock', 'alternative', 'indie']
-            };
-            const text = (title + ' ' + description).toLowerCase();
-            for (const [genre, words] of Object.entries(keywords)) {
-                if (words.some(word => text.includes(word))) return genre;
-            }
-            return 'unknown';
-        }
-
-        async function searchYouTubeForDeck(deck) {
-            const query = document.getElementById(`search-${deck}`).value + ' official audio';
-            const dropdown = document.getElementById(`custom-dropdown${deck === 'deck1' ? 1 : 2}`);
-            if (query.trim() === '') {
-                alert('Please enter a search term.');
-                dropdown.style.display = 'none';
-                return;
-            }
-
-            dropdown.style.display = 'block';
-            trackApiCall(apiKey);
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=50&key=${apiKey}`;
-
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (data.error && data.error.code === 403) {
-                    alert('YouTube API quota exceeded. Switching API key...');
-                    switchApiKey();
-                    searchYouTubeForDeck(deck);
-                    return;
-                }
-
-                const videoIds = data.items.map(video => video.id.videoId).join(',');
-                const detailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoIds}&key=${apiKey}`;
-                const detailsResponse = await fetch(detailsUrl);
-                const details = await detailsResponse.json();
-
-                dropdown.innerHTML = '';
-                data.items.forEach((video, index) => {
-                    const title = video.snippet.title.toLowerCase();
-                    const duration = details.items[index]?.contentDetails?.duration;
-                    const durationSeconds = parseISO8601Duration(duration);
-
-                    if (
-                        !title.includes('live') &&
-                        !title.includes('interview') &&
-                        !title.includes('tutorial') &&
-                        durationSeconds >= 60 &&
-                        durationSeconds <= 600
-                    ) {
-                        const dropdownItem = document.createElement('div');
-                        dropdownItem.className = 'dropdown-item';
-                        dropdownItem.onclick = () => {
-                            const player = deck === 'deck1' ? player1 : player2;
-                            player.loadVideoById(video.id.videoId);
-                            document.getElementById(`current-track-title${deck === 'deck1' ? 1 : 2}`).textContent = video.snippet.title;
-                            dropdown.style.display = 'none';
-                            addToHistory(video.snippet.title, video.id.videoId);
-                            saveHistoryToLocalStorage();
-                            fetchAISuggestions(video.snippet.title, video.snippet.description, deck);
-                        };
-                        dropdownItem.innerHTML = `
-                            <img src="${video.snippet.thumbnails.default.url}" alt="${video.snippet.title} thumbnail">
-                            <span class="title">${video.snippet.title} (${formatDuration(durationSeconds)})</span>
-                        `;
-                        dropdown.appendChild(dropdownItem);
-                    }
-                });
-            } catch (error) {
-                console.error('Error fetching YouTube data:', error);
-                dropdown.innerHTML = '<div class="error">Error fetching results. Please try again.</div>';
-            }
-        }
-
-        async function validateSuggestions(suggestions, deck) {
-            // Skip YouTube API validation to avoid consuming quota
-            // Accept all suggestions from Gemini AI, slicing to 10
-            return suggestions.slice(0, 10);
-        }
-
-        async function fetchAISuggestions(trackTitle, trackDescription, deck, retries = 3) {
-            trackDescription = trackDescription || `A song in a popular music genre.`;
-            const cacheKey = `${trackTitle}:${trackDescription}`;
-            const cache = JSON.parse(localStorage.getItem('aiSuggestionsCache')) || {};
-
-            if (cache[cacheKey] && Date.now() - cache[cacheKey].timestamp < 43200000) { // 12 hours
-                console.log('Using cached AI suggestions for:', trackTitle);
-                displayAISuggestions(cache[cacheKey].suggestions, deck);
-                return;
-            }
-
-            if (retries === 0) {
-                const history = JSON.parse(localStorage.getItem('playedHistory')) || [];
-                const currentBPM = parseInt(document.getElementById(`tempo${deck === 'deck1' ? 1 : 2}-value`).textContent);
-                const fallbackSuggestions = history
-                    .filter(track => {
-                        const trackBPM = window[`referenceBPM${deck === 'deck1' ? 1 : 2}`] || 120;
-                        return Math.abs(trackBPM - currentBPM) <= 10;
-                    })
-                    .slice(0, 10)
-                    .map(track => ({ artist: 'Unknown', track: track.title }));
-                displayAISuggestions(fallbackSuggestions, deck);
-                displayAISuggestionsError('Failed to fetch suggestions after multiple attempts. Using history-based fallback.');
-                return;
-            }
-
-            const genre = inferGenre(trackTitle, trackDescription);
-            const currentBPM = document.getElementById(`tempo${deck === 'deck1' ? 1 : 2}-value`).textContent;
-            const prompt = {
-                contents: [
-                    {
-                        parts: [
-                            {
-                                text: `Suggest exactly 10 unique tracks for a DJ mix based on "${trackTitle}" (${trackDescription}). Tracks should:
-                                    - Be in the ${genre} genre or complementary genres (e.g., ${genre === 'edm' ? 'techno, house' : 'similar styles'}).
-                                    - Match the mood (e.g., upbeat, chill, intense) and have a tempo around ${currentBPM} BPM (±10 BPM).
-                                    - Be official audio tracks available on YouTube, excluding live performances, covers, remixes, or non-music content.
-                                    - Have a duration between 1 and 10 minutes.
-                                    - Avoid suggesting "${trackTitle}" or its variations.
-                                    - Return in JSON format:
-                                    [
-                                        {"artist": "Artist Name", "track": "Track Name"},
-                                        ...
-                                    ]`
-                            }
-                        ]
-                    }
-                ]
-            };
-
-            const startTime = Date.now();
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
-
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(prompt),
-                    signal: controller.signal
-                });
-
-                clearTimeout(timeoutId);
-                const elapsed = Date.now() - startTime;
-                if (elapsed > 10000) console.warn(`Slow Gemini API response: ${elapsed}ms`);
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    if (response.status === 403) {
-                        throw new Error(`HTTP error ${response.status}: Forbidden - Check if Gemini API key is valid or quota exceeded. ${errorText}`);
-                    } else if (response.status === 429) {
-                        throw new Error(`HTTP error ${response.status}: Rate limit exceeded. ${errorText}`);
-                    }
-                    throw new Error(`HTTP error ${response.status}: ${errorText}`);
-                }
-
-                const data = await response.json();
-
-                // Validate response structure
-                if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0].text) {
-                    throw new Error('Invalid API response structure: Missing expected fields');
-                }
-
-                let suggestionsText = data.candidates[0].content.parts[0].text.replace(/```json\n|\n```/g, '').trim();
-                let suggestions;
+        /**
+         * Saves a contact using the Contact Picker API.
+         * @param {string} name - The name of the contact.
+         * @param {string} number - The phone number of the contact.
+         */
+        async function saveContactUsingContactPicker(name, number) {
+            if ('contacts' in navigator && 'ContactsManager' in window) { // Check for Contacts API support
                 try {
-                    suggestions = JSON.parse(suggestionsText);
-                } catch (parseError) {
-                    console.error('Error parsing suggestions JSON:', parseError, 'Raw text:', suggestionsText);
-                    throw new Error('Failed to parse API response as JSON');
+                    const newContact = {
+                        name: [name],
+                        tel: [
+                            { value: number, type: 'mobile' }
+                        ]
+                    };
+                    // The select method with 'multiple: false' and 'options: { create: true }'
+                    // is typically used to prompt the user to create a new contact.
+                    // However, direct 'add' functionality isn't part of the public API for security.
+                    // The most common pattern is to let the user pick, and then they can save.
+                    // For direct saving/editing, the API is more about picking existing contacts.
+                    // To "save" a new contact, we can guide the user to manually add it.
+                    // The Contact Picker API is primarily for *selecting* contacts, not *creating* them directly.
+                    // A workaround for "saving" would be to open a new contact form,
+                    // but that's not a direct API call.
+
+                    // Since direct "add new contact" is not standard in Contact Picker API,
+                    // we'll inform the user and provide a VCF fallback as a reliable method.
+                    // For a true "add new contact" experience, it often requires platform-specific
+                    // intents (Android) or native app integration.
+
+                    // The Contact Picker API is for selecting contacts, not for creating them.
+                    // To "save" a contact, the user would typically select "new contact" in their
+                    // phone's contact app after being prompted by a VCF download.
+                    // Given the user's request for "single click save", the VCF remains the most
+                    // direct way to trigger the OS's "add new contact" workflow from a web app.
+
+                    // Reverting to VCF for reliable "save as new contact" experience.
+                    // The Contact Picker API is more for reading contacts or selecting existing ones.
+                    saveContactAsVcf(name, number); // Fallback to VCF for reliable saving
+                    showCustomModal(`Contact Picker API does not directly support adding new contacts. Downloading ${name}.vcf instead. Open this file on your Android device to save the contact.`);
+
+                } catch (error) {
+                    console.error('Error using Contact Picker API:', error);
+                    showCustomModal(`Failed to save contact using Contact Picker API: ${error.message}. Downloading ${name}.vcf instead.`);
+                    saveContactAsVcf(name, number); // Fallback to VCF on error
                 }
-
-                // Validate suggestions format
-                if (!Array.isArray(suggestions) || suggestions.some(s => !s.artist || !s.track)) {
-                    throw new Error('Invalid suggestions format: Expected array of {artist, track} objects');
-                }
-
-                const lowerTrackTitle = trackTitle.toLowerCase().replace(/(remix|version|cover|\(|\))/g, '').trim();
-                const rejected = JSON.parse(localStorage.getItem('rejectedSuggestions')) || [];
-                suggestions = suggestions.filter(suggestion => {
-                    const suggestionTitle = suggestion.track.toLowerCase().replace(/(remix|version|cover|\(|\))/g, '').trim();
-                    const suggestionKey = `${suggestion.artist} - ${suggestion.track}`;
-                    return !rejected.includes(suggestionKey) && suggestionTitle !== lowerTrackTitle;
-                });
-
-                suggestions = await validateSuggestions(suggestions, deck);
-                if (suggestions.length < 7) {
-                    console.warn(`Only ${suggestions.length} suggestions found, retrying...`);
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    return fetchAISuggestions(trackTitle, trackDescription, deck, retries - 1);
-                }
-
-                cache[cacheKey] = { suggestions, timestamp: Date.now() };
-                localStorage.setItem('aiSuggestionsCache', JSON.stringify(cache));
-
-                lastTrackTitle = trackTitle;
-                lastTrackDescription = trackDescription;
-                displayAISuggestions(suggestions, deck);
-            } catch (error) {
-                console.error('Error fetching AI suggestions:', error.message, error.stack);
-                let errorMessage = 'Failed to fetch suggestions. ';
-                let userAlert = false;
-                if (error.name === 'AbortError') {
-                    errorMessage += 'Request timed out after 15 seconds. ';
-                } else if (error.message.includes('HTTP error 403')) {
-                    errorMessage += 'Invalid Gemini API key or quota exceeded. ';
-                    userAlert = true;
-                } else if (error.message.includes('HTTP error 429')) {
-                    errorMessage += 'Gemini API rate limit exceeded. ';
-                    userAlert = true;
-                } else if (error.message.includes('parse')) {
-                    errorMessage += 'Invalid response format from API. ';
-                } else if (error.message.includes('Invalid API response structure')) {
-                    errorMessage += 'Unexpected API response structure. ';
-                } else {
-                    errorMessage += 'Unexpected error occurred. ';
-                }
-                errorMessage += `Retrying (${retries} attempts left)...`;
-
-                if (userAlert) {
-                    alert(`${errorMessage}\nPlease verify the Gemini API key in Google Cloud Console or check quota limits.`);
-                }
-
-                if (retries > 1) {
-                    displayAISuggestionsError(errorMessage);
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    fetchAISuggestions(trackTitle, trackDescription, deck, retries - 1);
-                } else {
-                    const history = JSON.parse(localStorage.getItem('playedHistory')) || [];
-                    const currentBPM = parseInt(document.getElementById(`tempo${deck === 'deck1' ? 1 : 2}-value`).textContent);
-                    const fallbackSuggestions = history
-                        .filter(track => {
-                            const trackBPM = window[`referenceBPM${deck === 'deck1' ? 1 : 2}`] || 120;
-                            return Math.abs(trackBPM - currentBPM) <= 10;
-                        })
-                        .slice(0, 10)
-                        .map(track => ({ artist: 'Unknown', track: track.title }));
-                    displayAISuggestions(fallbackSuggestions, deck);
-                    displayAISuggestionsError('Failed to fetch suggestions after multiple attempts. Using history-based fallback.');
-                }
-            }
-        }
-
-        function displayAISuggestions(suggestions, deck) {
-            const suggestionsList = document.getElementById('ai-suggestions-list');
-            suggestionsList.innerHTML = '<div class="loading">Loading suggestions...</div>';
-
-            lastSuggestions = suggestions;
-            lastDeck = deck;
-            suggestionsList.innerHTML = '';
-
-            suggestions.forEach(suggestion => {
-                const suggestionItem = document.createElement('div');
-                suggestionItem.className = 'ai-suggestion-item';
-                // Escape single quotes to prevent breaking onclick handlers
-                const escapedArtist = suggestion.artist.replace(/'/g, "\\'");
-                const escapedTrack = suggestion.track.replace(/'/g, "\\'");
-                suggestionItem.innerHTML = `
-                    <div class="suggestion-content">
-                        <span class="suggestion-title">${suggestion.artist} - ${suggestion.track}</span>
-                        <div class="deck-buttons">
-                            <button class="deck-button" onclick="playSuggestionOnDeck('${escapedArtist}', '${escapedTrack}', 'deck1')">Play on Deck 1</button>
-                            <button class="deck-button" onclick="playSuggestionOnDeck('${escapedArtist}', '${escapedTrack}', 'deck2')">Play on Deck 2</button>
-                            <button class="deck-button" onclick="rejectSuggestion('${escapedArtist}', '${escapedTrack}')">Reject</button>
-                        </div>
-                    </div>
-                `;
-                suggestionsList.appendChild(suggestionItem);
-            });
-
-            document.getElementById('ai-suggestions-modal').style.display = 'block';
-        }
-
-        function displayAISuggestionsError(message) {
-            const suggestionsList = document.getElementById('ai-suggestions-list');
-            suggestionsList.innerHTML = `<div class="error">${message}</div>`;
-            document.getElementById('ai-suggestions-modal').style.display = 'block';
-        }
-
-        function rejectSuggestion(artist, track) {
-            const rejected = JSON.parse(localStorage.getItem('rejectedSuggestions')) || [];
-            rejected.push(`${artist} - ${track}`);
-            localStorage.setItem('rejectedSuggestions', JSON.stringify(rejected));
-            reopenAISuggestionsModal();
-        }
-
-        function clearAICacheAndRefresh() {
-            const cacheKey = `${lastTrackTitle}:${lastTrackDescription}`;
-            const cache = JSON.parse(localStorage.getItem('aiSuggestionsCache')) || {};
-            delete cache[cacheKey];
-            localStorage.setItem('aiSuggestionsCache', JSON.stringify(cache));
-            fetchAISuggestions(lastTrackTitle, lastTrackDescription, lastDeck);
-        }
-
-        function reopenAISuggestionsModal() {
-            if (lastSuggestions && lastDeck) {
-                displayAISuggestions(lastSuggestions, lastDeck);
             } else {
-                displayAISuggestionsError('No suggestions available. Select a track to generate suggestions.');
+                showCustomModal('Contact Picker API is not supported in this browser. Downloading .vcf file instead.');
+                saveContactAsVcf(name, number); // Fallback to VCF if API not supported
             }
         }
 
-        function playSuggestionOnDeck(artist, track, deck) {
-            document.getElementById(`search-${deck}`).value = `${artist} ${track} official audio`;
-            searchYouTubeForDeck(deck);
-            closeAISuggestionsModal();
+        /**
+         * Generates and downloads a VCF file for a given contact.
+         * This file can then be opened on Android to save the contact.
+         * @param {string} name - The name of the contact.
+         * @param {string} number - The phone number of the contact.
+         */
+        function saveContactAsVcf(name, number) {
+            const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${number}\nEND:VCARD`;
+            const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${name}.vcf`;
+            document.body.appendChild(a); // Append to body to make it clickable in some browsers
+            a.click(); // Programmatically click the link to trigger download
+            document.body.removeChild(a); // Clean up the element
+            URL.revokeObjectURL(url); // Release the object URL
         }
 
-        function closeAISuggestionsModal() {
-            document.getElementById('ai-suggestions-modal').style.display = 'none';
-        }
+        /**
+         * Renders the customer list based on the active tab.
+         */
+        function renderCustomers() {
+            // Clear existing list
+            customerListContainer.innerHTML = '';
+            const filteredCustomers = customers.filter(customer => customer.category === activeTab);
 
-        function addToHistory(title, videoId) {
-            const historyList = document.getElementById('history-list').getElementsByTagName('tbody')[0];
-            const historyItem = document.createElement('tr');
-            // Escape single quotes in title to prevent HTML injection issues
-            const escapedTitle = title.replace(/'/g, "\\'");
-            historyItem.innerHTML = `
-                <td contenteditable="true" class="track-title">${escapedTitle}</td>
-                <td>
-                    <div class="buttons-container">
-                        <button onclick="replayTrack('player1', '${videoId}')">Play on Deck 1</button>
-                        <button onclick="replayTrack('player2', '${videoId}')">Play on Deck 2</button>
-                    </div>
-                    <button class="edit-btn" onclick="editTrackTitle(this)">Edit Title</button>
-                    <button class="delete-btn" onclick="deleteTrack(this)">Delete</button>
-                </td>
-            `;
-            historyItem.setAttribute('data-video-id', videoId);
-            historyList.insertBefore(historyItem, historyList.firstChild);
-            document.getElementById('track-count').textContent = historyList.children.length;
-        }
-
-        function replayTrack(playerId, videoId) {
-            const player = playerId === 'player1' ? player1 : player2;
-            if (player) {
-                player.loadVideoById(videoId);
-                const historyItems = document.querySelectorAll('#history-list tbody tr');
-                let trackTitle = 'Unknown Track';
-                historyItems.forEach(item => {
-                    if (item.getAttribute('data-video-id') === videoId) {
-                        trackTitle = item.querySelector('.track-title').textContent;
-                    }
+            if (filteredCustomers.length === 0) {
+                noCustomersMessage.textContent = `No ${activeTab} customers added yet.`;
+                customerListContainer.appendChild(noCustomersMessage);
+                noCustomersMessage.classList.remove('hidden');
+            } else {
+                noCustomersMessage.classList.add('hidden');
+                filteredCustomers.forEach(customer => {
+                    const customerDiv = document.createElement('div');
+                    customerDiv.className = "flex items-center justify-between bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200";
+                    customerDiv.innerHTML = `
+                        <div class="flex-1">
+                            <p class="text-lg font-semibold text-gray-800">${customer.name}</p>
+                            <p class="text-gray-600 text-sm">${customer.number}</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs font-medium bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full">
+                                ${customer.category}
+                            </span>
+                            <button
+                                class="save-contact-button bg-green-500 hover:bg-green-600 text-white text-xs font-bold py-1.5 px-3 rounded-md transition duration-300 ease-in-out"
+                                data-name="${customer.name}"
+                                data-number="${customer.number}"
+                            >
+                                Save as Contact
+                            </button>
+                        </div>
+                    `;
+                    customerListContainer.appendChild(customerDiv);
                 });
-                document.getElementById(`current-track-title${playerId === 'player1' ? 1 : 2}`).textContent = trackTitle;
+
+                // Attach event listeners to the newly created buttons
+                document.querySelectorAll('.save-contact-button').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const name = event.target.dataset.name;
+                        const number = event.target.dataset.number;
+                        // Call the Contact Picker API function
+                        saveContactUsingContactPicker(name, number);
+                    });
+                });
             }
         }
 
-        function editTrackTitle(button) {
-            const trackTitle = button.closest('tr').querySelector('.track-title');
-            trackTitle.contentEditable = true;
-            trackTitle.focus();
-            button.textContent = "Save Title";
-            button.setAttribute('onclick', 'saveTrackTitle(this)');
-        }
+        /**
+         * Updates the active tab styling and re-renders customers.
+         * @param {string} tabName - The name of the tab to activate ('Retail' or 'Wholesale').
+         */
+        function setActiveTab(tabName) {
+            activeTab = tabName;
+            retailTabButton.classList.remove('border-b-4', 'border-blue-600', 'text-blue-600');
+            retailTabButton.classList.add('text-gray-500', 'hover:text-gray-700');
+            wholesaleTabButton.classList.remove('border-b-4', 'border-blue-600', 'text-blue-600');
+            wholesaleTabButton.classList.add('text-gray-500', 'hover:text-gray-700');
 
-        function saveTrackTitle(button) {
-            const trackTitle = button.closest('tr').querySelector('.track-title');
-            trackTitle.contentEditable = false;
-            button.textContent = "Edit Title";
-            button.setAttribute('onclick', 'editTrackTitle(this)');
-            saveHistoryToLocalStorage();
-        }
-
-        function deleteTrack(button) {
-            const historyItem = button.closest('tr');
-            historyItem.remove();
-            saveHistoryToLocalStorage();
-            document.getElementById('track-count').textContent = document.getElementById('history-list').getElementsByTagName('tbody')[0].children.length;
-        }
-
-        function saveHistoryToLocalStorage() {
-            const historyItems = document.querySelectorAll('#history-list tbody tr');
-            const historyData = [];
-            historyItems.forEach(item => {
-                const title = item.querySelector('.track-title').textContent;
-                const videoId = item.getAttribute('data-video-id');
-                historyData.push({ title, videoId });
-            });
-            localStorage.setItem('playedHistory', JSON.stringify(historyData));
-        }
-
-        function loadHistoryFromLocalStorage() {
-            const savedHistory = JSON.parse(localStorage.getItem('playedHistory')) || [];
-            document.getElementById('track-count').textContent = savedHistory.length;
-            savedHistory.reverse().forEach(track => addToHistory(track.title, track.videoId));
-        }
-
-        function backupHistory() {
-            const historyData = JSON.parse(localStorage.getItem('playedHistory')) || [];
-            const blob = new Blob([JSON.stringify(historyData, null, 2)], { type: 'application/json' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'played-history.json';
-            link.click();
-        }
-
-        function restoreHistory(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const historyData = JSON.parse(e.target.result);
-                if (Array.isArray(historyData)) {
-                    document.getElementById('history-list').getElementsByTagName('tbody')[0].innerHTML = '';
-                    historyData.reverse().forEach(track => addToHistory(track.title, track.videoId));
-                    localStorage.setItem('playedHistory', JSON.stringify(historyData));
-                    document.getElementById('track-count').textContent = historyData.length;
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function initBalanceControl() {
-            const balanceSlider = document.getElementById('balance-slider');
-            const volumePercentage = document.getElementById('volume-percentage');
-
-            balanceSlider.addEventListener('input', () => {
-                const balance = balanceSlider.value;
-                const percentage = balance < 50 ? (50 - balance) : (balance - 50);
-                volumePercentage.textContent = `${percentage}%`;
-                if (player1 && player2) {
-                    player1.setVolume(100 - balance);
-                    player2.setVolume(balance);
-                }
-            });
-        }
-
-        function filterHistory() {
-            const query = document.getElementById('history-search').value.toLowerCase();
-            const rows = document.querySelectorAll('#history-list tbody tr');
-            rows.forEach(row => {
-                const title = row.querySelector('.track-title').textContent.toLowerCase();
-                row.style.display = title.includes(query) ? '' : 'none';
-            });
-        }
-
-        document.addEventListener('click', (event) => {
-            const dropdown1 = document.getElementById('custom-dropdown1');
-            const dropdown2 = document.getElementById('custom-dropdown2');
-            const searchDeck1 = document.getElementById('search-deck1');
-            const searchDeck2 = document.getElementById('search-deck2');
-            const button1 = searchDeck1.nextElementSibling;
-            const button2 = searchDeck2.nextElementSibling;
-
-            if (
-                !dropdown1.contains(event.target) &&
-                !searchDeck1.contains(event.target) &&
-                !button1.contains(event.target)
-            ) {
-                dropdown1.style.display = 'none';
+            if (activeTab === 'Retail') {
+                retailTabButton.classList.add('border-b-4', 'border-blue-600', 'text-blue-600');
+                retailTabButton.classList.remove('text-gray-500', 'hover:text-gray-700');
+            } else {
+                wholesaleTabButton.classList.add('border-b-4', 'border-blue-600', 'text-blue-600');
+                wholesaleTabButton.classList.remove('text-gray-500', 'hover:text-gray-700');
             }
-            if (
-                !dropdown2.contains(event.target) &&
-                !searchDeck2.contains(event.target) &&
-                !button2.contains(event.target)
-            ) {
-                dropdown2.style.display = 'none';
-            }
-        });
+            renderCustomers(); // Re-render customers for the new active tab
+        }
 
-        window.onload = () => {
-            loadYouTubeAPI();
-            initBalanceControl();
-            loadHistoryFromLocalStorage();
-            loadNotes();
-            document.getElementById('api-key-select').value = apiKey;
+        // Add event listeners for tab buttons
+        retailTabButton.addEventListener('click', () => setActiveTab('Retail'));
+        wholesaleTabButton.addEventListener('click', () => setActiveTab('Wholesale'));
+
+        /**
+         * Adds a new customer to Realtime Database.
+         */
+        async function addCustomer() {
+            const name = customerNameInput.value.trim();
+            const number = customerNumberInput.value.trim();
+            const category = customerCategorySelect.value;
+
+            if (!name || !number) {
+                showCustomModal('Please enter both name and contact number.');
+                return;
+            }
+            if (!db) {
+                showCustomModal('Database not ready. Please try again.');
+                return;
+            }
+
+            try {
+                const appId = firebaseConfig.appId;
+                // Path for Realtime Database - Publicly accessible
+                const contactsRef = ref(db, `artifacts/${appId}/contacts`);
+
+                // Use push() to generate a unique key for each new contact
+                await push(contactsRef, {
+                    name: name,
+                    number: number,
+                    category: category,
+                    timestamp: Date.now() // Use client-side timestamp for Realtime DB
+                });
+
+                customerNameInput.value = '';
+                customerNumberInput.value = '';
+                customerCategorySelect.value = 'Retail'; // Reset to default
+            } catch (error) {
+                console.error("Error adding customer:", error);
+                showCustomModal(`Error adding contact: ${error.message}`);
+            }
+        }
+
+        // Add event listener for the add customer button
+        addCustomerButton.addEventListener('click', addCustomer);
+
+        /**
+         * Sets up the real-time Realtime Database listener for customer data.
+         */
+        function setupRealtimeDatabaseListener() {
+            if (db && isAppReady) {
+                const appId = firebaseConfig.appId;
+                // Path for Realtime Database - Publicly accessible
+                const contactsRef = ref(db, `artifacts/${appId}/contacts`);
+
+                onValue(contactsRef, (snapshot) => {
+                    const data = snapshot.val();
+                    const customerList = [];
+                    if (data) {
+                        // Iterate over the object keys to get individual contacts
+                        for (const key in data) {
+                            customerList.push({
+                                id: key, // The unique key generated by push()
+                                ...data[key]
+                            });
+                        }
+                    }
+                    // Sort customers by timestamp in descending order in JavaScript
+                    customers = customerList.sort((a, b) => b.timestamp - a.timestamp);
+                    renderCustomers(); // Re-render the list whenever data changes
+                }, (error) => {
+                    console.error("Error fetching customers:", error);
+                    showCustomModal(`Error loading contacts: ${error.message}`);
+                });
+            }
+        }
+
+        // Define firebaseConfig globally
+        const firebaseConfig = {
+            apiKey: "AIzaSyBPc51z-pGrtKwtB5dKTMPei-fVRg4ePME",
+            authDomain: "pagdi-6f8ce.firebaseapp.com",
+            databaseURL: "https://pagdi-6f8ce-default-rtdb.firebaseio.com", // Ensure this is your Realtime Database URL
+            projectId: "pagdi-6f8ce",
+            storageBucket: "pagdi-6f8ce.appspot.com",
+            messagingSenderId: "746289566527",
+            appId: "1:746289566527:web:4c32c4fec73bb7e898798a",
+            measurementId: "G-CXW0QZRHFG"
         };
+
+        /**
+         * Initializes Firebase and sets up the application.
+         */
+        window.onload = async function() {
+            try {
+                console.log("Firebase Config:", firebaseConfig);
+
+                app = initializeApp(firebaseConfig);
+                db = getDatabase(app); // Get Realtime Database instance
+
+                isAppReady = true; // App is ready as soon as Firebase is initialized
+                setupRealtimeDatabaseListener(); // Start listening for data
+            } catch (error) {
+                console.error("Firebase initialization error:", error);
+                showCustomModal(`Error initializing app: ${error.message}`);
+            }
+        };
+
+        // Set initial active tab styling
+        setActiveTab('Retail');
     </script>
 </body>
 </html>
