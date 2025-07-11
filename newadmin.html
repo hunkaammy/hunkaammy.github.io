@@ -148,6 +148,7 @@
         const imageInput = document.getElementById('imageInput');
         const preview = document.getElementById('preview');
         const globalDropOverlay = document.getElementById('globalDropOverlay');
+        const gallery = document.getElementById('gallery');
 
         // Click to upload functionality
         dropZone.addEventListener('click', () => imageInput.click());
@@ -370,12 +371,10 @@
         }
 
         function appendImages(images) {
-            const gallery = document.getElementById('gallery');
             images.forEach(image => {
                 const container = document.createElement('div');
                 container.className = 'image-container bg-white rounded-lg shadow-lg overflow-hidden';
                 container.setAttribute('data-key', image.key);
-                // --- MODIFIED: Removed h-56 class to revert image height ---
                 container.innerHTML = `
                     <img src="${image.url}" alt="${image.name}" class="w-full object-cover" loading="lazy">
                     <div class="p-4">
@@ -487,11 +486,9 @@
             const key = snapshot.key;
             if (!loadedImageKeys.has(key)) {
                 const image = { ...snapshot.val(), key };
-                const gallery = document.getElementById('gallery');
                 const container = document.createElement('div');
                 container.className = 'image-container bg-white rounded-lg shadow-lg overflow-hidden';
                 container.setAttribute('data-key', key);
-                // --- MODIFIED: Removed h-56 class to revert image height ---
                 container.innerHTML = `
                     <img src="${image.url}" alt="${image.name}" class="w-full object-cover" loading="lazy">
                     <div class="p-4">
@@ -520,14 +517,17 @@
             };
         }
 
+        // --- MODIFIED: Added scroll to search function ---
         function searchProducts() {
+            // Scroll to the top of the gallery
+            gallery.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
             const searchName = document.getElementById('searchName').value.trim().toLowerCase();
             const searchPartyCode = document.getElementById('searchPartyCode').value.trim().toLowerCase();
-            const gallery = document.getElementById('gallery');
             
             gallery.innerHTML = '';
             loadedImageKeys.clear();
-            allImagesLoaded = false;
+            allImagesLoaded = true; // Prevent infinite scroll during search
             lastKey = null;
             loadingSpinner.style.display = 'block';
 
@@ -567,12 +567,15 @@
                 loadingSpinner.style.display = 'none';
             });
         }
-
+        
+        // --- MODIFIED: Added scroll to reset function ---
         function resetSearch() {
+            // Scroll to the top of the gallery
+            gallery.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
             document.getElementById('searchName').value = '';
             document.getElementById('searchPartyCode').value = '';
             
-            const gallery = document.getElementById('gallery');
             gallery.innerHTML = '';
             loadedImageKeys.clear();
             allImagesLoaded = false;
