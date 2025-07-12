@@ -1,173 +1,958 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="myApp">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Synced Punjabi Hits Playlist</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #f0f0f0;
-        }
-        #player {
-            width: 640px;
-            height: 360px;
-            margin-top: 20px;
-        }
-        #current-song {
-            font-size: 18px;
-            margin-top: 10px;
-        }
-        #error-log {
-            font-size: 14px;
-            color: red;
-            margin-top: 10px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HINDUSTAN TOYS ORDER PORTAL</title>
+  
+  <!-- Google Fonts & Font Awesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    /*
+    * HINDUSTAN TOYS ORDER PORTAL - CUSTOM STYLESHEET
+    * Version: 2.1
+    * Description: Modern, professional, and user-friendly design. Sidebar enabled on mobile.
+    */
+
+    /* ----------------------------------- */
+    /* Root Variables for Theming        */
+    /* ----------------------------------- */
+    :root {
+      --primary-color: #388e3c;
+      --primary-dark-color: #2e7d32;
+      --secondary-color: #1565c0;
+      --light-gray-color: #f8f9fa;
+      --medium-gray-color: #e9ecef;
+      --dark-gray-color: #ced4da;
+      --text-color: #333;
+      --white-color: #fff;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    /* ----------------------------------- */
+    /* General Body & HTML Styles        */
+    /* ----------------------------------- */
+    html {
+      font-size: 10px;
+      -webkit-tap-highlight-color: rgba(0,0,0,0);
+    }
+
+    body {
+      font-family: var(--font-family);
+      font-size: 1.4rem; /* Base font size: 14px */
+      line-height: 1.6;
+      color: var(--text-color);
+      background-color: var(--light-gray-color);
+      margin: 0;
+      overscroll-behavior-y: none;
+    }
+
+    /* ----------------------------------- */
+    /* Login Page Styling                */
+    /* ----------------------------------- */
+    #login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(to right, #ece9e6, #ffffff);
+      padding: 2rem;
+    }
+
+    #inside {
+      background-color: var(--white-color);
+      padding: 4rem;
+      border-radius: 1.2rem;
+      box-shadow: 0 0.8rem 2.4rem var(--shadow-color);
+      text-align: center;
+      width: 100%;
+      max-width: 40rem;
+    }
+
+    #inside h2 {
+      font-size: 2.4rem;
+      margin-bottom: 2.4rem;
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+
+    .login-input {
+      width: 100%;
+      padding: 1.2rem;
+      margin-bottom: 1.6rem;
+      box-sizing: border-box;
+      font-size: 1.4rem;
+      border-radius: 0.8rem;
+      border: 1px solid var(--dark-gray-color);
+      transition: all 0.3s ease;
+    }
+
+    .login-input:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(56, 142, 60, 0.1);
+      outline: none;
+    }
+
+    .login-button {
+      width: 100%;
+      padding: 1.4rem;
+      background-color: var(--primary-color);
+      color: var(--white-color);
+      border: none;
+      border-radius: 0.8rem;
+      cursor: pointer;
+      font-size: 1.6rem;
+      font-weight: 500;
+      transition: background-color 0.3s ease;
+    }
+
+    .login-button:hover {
+      background-color: var(--primary-dark-color);
+    }
+
+    /* ----------------------------------- */
+    /* Main Content Layout & Navbar      */
+    /* ----------------------------------- */
+    .navbar-custom {
+      background-color: var(--white-color);
+      padding: 1rem 2rem;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 0.2rem 0.4rem var(--shadow-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .search-container {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      flex: 1;
+      min-width: 250px;
+    }
+
+    #topBtn {
+      flex: 1;
+      padding: 1rem;
+      font-size: 1.4rem;
+      border-radius: 0.8rem;
+      border: 1px solid var(--dark-gray-color);
+    }
+
+    #micIcon {
+      font-size: 1.8rem;
+      cursor: pointer;
+      color: #777;
+      transition: color 0.3s, transform 0.2s;
+    }
+    #micIcon:hover {
+      color: var(--primary-color);
+    }
+    #micIcon.animating {
+      transform: scale(1.2);
+      color: var(--secondary-color);
+    }
+
+    .navbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+    }
+
+    .sort-dropdown {
+      padding: 1rem;
+      font-size: 1.4rem;
+      border-radius: 0.8rem;
+      border: 1px solid var(--dark-gray-color);
+      background-color: var(--white-color);
+    }
+
+    .logout-btn {
+      color: var(--text-color);
+      font-size: 1.4rem;
+      cursor: pointer;
+      padding: 1rem;
+      font-weight: 500;
+      border-radius: 0.8rem;
+      transition: background-color 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logout-btn:hover {
+      background-color: var(--medium-gray-color);
+    }
+
+    .welcome-text {
+      width: 100%;
+      text-align: center;
+      color: #555;
+      font-size: 1.3rem;
+      margin-top: 0.5rem;
+      font-weight: 500;
+    }
+    
+    .content-wrapper {
+      display: flex;
+      padding-top: 9rem; /* Adjust based on navbar height */
+    }
+
+    /* ----------------------------------- */
+    /* Vertical Tab Sidebar              */
+    /* ----------------------------------- */
+    .tab-scroll-wrapper {
+      position: fixed;
+      left: 0;
+      top: 9rem; /* Match content-wrapper padding-top */
+      bottom: 0;
+      width: 8rem;
+      background: var(--white-color);
+      padding: 1rem;
+      box-shadow: 0.2rem 0 0.5rem var(--shadow-color);
+      overflow-y: auto;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .tab-scroll-wrapper::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .tab-items {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 7rem;
+      border-radius: 1rem;
+      text-align: center;
+      font-size: 1rem;
+      color: var(--text-color);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      padding: 0.5rem;
+      background-color: var(--light-gray-color);
+    }
+
+    .tab-item:hover {
+      transform: scale(1.05);
+      background-color: var(--medium-gray-color);
+    }
+
+    .tab-item.active {
+      background-color: var(--primary-color);
+      color: var(--white-color);
+      font-weight: 600;
+    }
+    
+    .tab-item img {
+      width: 3.2rem;
+      height: 3.2rem;
+      object-fit: cover;
+      margin-bottom: 0.5rem;
+      border-radius: 50%;
+    }
+
+    /* ----------------------------------- */
+    /* Product Grid & Cards              */
+    /* ----------------------------------- */
+    .product-grid-container {
+      flex: 1;
+      padding: 2rem;
+      margin-left: 8rem; /* Same as tab-scroll-wrapper width */
+    }
+
+    .grid-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 2rem;
+    }
+
+    .card {
+      box-shadow: 0 0.4rem 1.2rem var(--shadow-color);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border-radius: 1.2rem;
+      background: var(--white-color);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border: none;
+    }
+
+    .card:hover {
+      transform: translateY(-0.5rem);
+      box-shadow: 0 0.8rem 2.4rem rgba(0,0,0,0.15);
+    }
+
+    .card-img-top {
+      width: 100%;
+      height: 20rem;
+      object-fit: cover;
+      cursor: pointer;
+      border-bottom: 1px solid var(--medium-gray-color);
+    }
+
+    .card-body {
+      padding: 1.6rem;
+      text-align: center;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .card-title {
+      font-size: 1.8rem;
+      color: var(--primary-color);
+      margin: 0 0 0.8rem;
+      font-weight: 600;
+    }
+    
+    .card-text {
+      margin: 0 0 0.8rem;
+      font-size: 1.4rem;
+      color: #666;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-link {
+        color: var(--secondary-color);
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    .qty-input {
+      width: 7rem;
+      padding: 0.8rem;
+      text-align: center;
+      border: 1px solid var(--dark-gray-color);
+      border-radius: 0.8rem;
+      margin: 1.2rem auto 0;
+      font-size: 1.4rem;
+    }
+
+    /* ----------------------------------- */
+    /* Modals & Overlays                 */
+    /* ----------------------------------- */
+    .enlarged-image-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      cursor: pointer;
+      backdrop-filter: blur(5px);
+    }
+
+    .enlarged-image-overlay.show {
+      display: flex;
+    }
+
+    .enlarged-image-content {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 1.2rem;
+      box-shadow: 0 0.8rem 3.2rem rgba(0, 0, 0, 0.2);
+    }
+
+    .your-order-btn {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background-color: var(--secondary-color);
+      color: var(--white-color);
+      padding: 1.2rem 2rem;
+      border-radius: 3rem;
+      box-shadow: 0 0.4rem 1.2rem rgba(0,0,0,0.2);
+      font-size: 1.6rem;
+      font-weight: 500;
+      cursor: pointer;
+      z-index: 1001;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .modal-body object, .modal-body embed {
+        border-radius: 0.8rem;
+        height: 85vh;
+    }
+
+    /* ----------------------------------- */
+    /* Responsive Adjustments            */
+    /* ----------------------------------- */
+    @media (max-width: 768px) {
+      .content-wrapper {
+        padding-top: 14rem; /* More space for wrapped navbar */
+      }
+      .tab-scroll-wrapper {
+        top: 14rem;
+        width: 7rem;
+      }
+      .product-grid-container {
+        margin-left: 7rem;
+      }
+      .grid-row {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      }
+    }
+    
+    @media (max-width: 480px) {
+      /* CHANGE: Sidebar is now visible on mobile */
+      .product-grid-container {
+        padding: 1.5rem;
+      }
+      .your-order-btn {
+        padding: 1rem 1.5rem;
+        font-size: 1.4rem;
+      }
+      .card-img-top {
+        height: 16rem;
+      }
+    }
+    
+  </style>
 </head>
-<body>
-    <h1>Synced Punjabi Hits Playlist</h1>
-    <div id="player"></div>
-    <p id="current-song"></p>
-    <p id="error-log"></p>
+<body ng-controller="imagesController as vm">
 
-    <script>
-        // Load YouTube IFrame API
-        const tag = document.createElement("script");
-        tag.src = "https://www.youtube.com/iframe_api";
-        const firstScriptTag = document.getElementsByTagName("script")[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+  <!-- Prevent Browser Back -->
+  <script>
+    history.pushState(null, null, location.href);
+    window.onpopstate = function () {
+      history.go(1);
+    };
+  </script>
 
-        // Playlist: 5 verified hit Punjabi songs
-        const playlist = [
-            { title: "WAVY - Karan Aujla & Badshah", videoId: "XTp5jaRU3Ws", duration: 183 },
-            { title: "Tauba Tauba - Karan Aujla", videoId: "vD3q7nZArAo", duration: 207 },
-            { title: "Naina - Diljit Dosanjh, Badshah", videoId: "ZcGWuQQtpY4", duration: 180 },
-            { title: "Brown Munde - AP Dhillon, Gurinder Gill", videoId: "vmuOWS-tZxI", duration: 245 },
-            { title: "G.O.A.T - Diljit Dosanjh", videoId: "mW2kTV9T3wY", duration: 215 }
-        ];
+  <!-- =============================== -->
+  <!--      LOGIN SECTION              -->
+  <!-- =============================== -->
+  <div id="login-container">
+    <div id="inside">
+      <h2>HINDUSTAN TOYS PORTAL</h2>
+      <input type="text" id="name" class="login-input" ng-model="dynamicField2Value" placeholder="Enter your shop name" autocomplete="off">
+      <input type="tel" id="mobile" class="login-input" placeholder="Enter your mobile number" autocomplete="off">
+      <button onclick="validateLogin()" class="login-button">Login</button>
+    </div>
+  </div>
 
-        // Total duration of the playlist in seconds
-        const totalDuration = playlist.reduce((sum, song) => sum + song.duration, 0);
+  <!-- =============================== -->
+  <!--      MAIN CONTENT               -->
+  <!-- =============================== -->
+  <div id="content" style="display: none;">
+    
+    <!-- Navbar -->
+    <div class="navbar-custom">
+      <div class="search-container">
+        <input type="text" ng-model="searchQuery" placeholder="Search by product..." id="topBtn" ng-click="resetFilters()" list="productNames">
+        <datalist id="productNames">
+          <option value="REMOTE CAR"></option>
+          <option value="JCB"></option>
+          <option value="CLAY"></option>
+          <option value="SLIME"></option>
+          <option value="GUN"></option>
+          <option value="BASKET BALL"></option>
+        </datalist>
+        <i id="micIcon" class="fas fa-microphone" onclick="startVoiceRecognition()"></i>
+      </div>
+      <div class="navbar-actions">
+        <select id="sort" ng-model="sortOrder" ng-change="applyFilter()" ng-init="sortOrder='default'" class="sort-dropdown">
+            <option value="default" selected>Default Sorting</option>
+            <option value="price">Price: Low to High</option>
+            <option value="-price">Price: High to Low</option>
+        </select>
+        <div class="logout-btn" ng-click="logout()">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </div>
+      </div>
+      <div class="welcome-text">Welcome {{dynamicField2Value}}</div>
+    </div>
+    
+    <div class="content-wrapper">
+      <!-- Tabs Sidebar -->
+      <div class="tab-scroll-wrapper">
+        <div class="tab-items" onclick="scrollToTop()">
+            <div class="tab-item" ng-click="setTab('', 0)" ng-class="{ 'active': activeTab === 0 }"><img src="https://www.hindustantoys.in/images/all.jpeg" alt="All Products"> ALL</div>
+            <div class="tab-item" ng-click="setTab('UMBRELLA', 38)" ng-class="{ 'active': activeTab === 38 }"><img src="https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2024-06-24T16%3A35%3A31.407Z_RAINBOW%20UMBRELLA_IMG-20240529-WA0047.jpg?alt=media&token=64ee5147-65c7-4de8-897d-55df6cb84857" alt="Umbrella"> UMBRELLA</div>
+            <div class="tab-item" ng-click="setTab('LUMO', 10)" ng-class="{ 'active': activeTab === 10 }"><img src="https://www.hindustantoys.in/images/lumo.jpeg" alt="Lumo Products"> LUMO</div>
+            <div class="tab-item" ng-click="setTab('BAT BALL', 36)" ng-class="{ 'active': activeTab === 36 }"><img src="https://www.hindustantoys.in/images/bat.jpeg" alt="Bat Ball"> BAT BALL</div>
+            <div class="tab-item" ng-click="setTab('CARROM', 35)" ng-class="{ 'active': activeTab === 35 }"><img src="https://www.hindustantoys.in/images/carrom.jpeg" alt="Carrom Board"> CARROM</div>
+            <div class="tab-item" ng-click="setTab('SWING', 37)" ng-class="{ 'active': activeTab === 37 }"><img src="https://www.hindustantoys.in/images/swing.jpeg" alt="Swings"> SWINGS</div>
+            <div class="tab-item" ng-click="setTab('INDIAN TOYS', 3)" ng-class="{ 'active': activeTab === 3 }"><img src="https://www.hindustantoys.in/images/JCB.jpeg" alt="Indian Toys"> INDIAN</div>
+            <div class="tab-item" ng-click="setTab('MIX', 9)" ng-class="{ 'active': activeTab === 9 }"><img src="https://www.hindustantoys.in/images/mix.jpeg" alt="Mix Toys"> MIX</div>
+            <div class="tab-item" ng-click="setTab('BATTERY', 13)" ng-class="{ 'active': activeTab === 13 }"><img src="https://www.hindustantoys.in/images/battery.jpeg" alt="Battery Operated"> BATTERY</div>
+            <div class="tab-item" ng-click="setTab('TEDDY', 34)" ng-class="{ 'active': activeTab === 34 }"><img src="https://www.hindustantoys.in/images/TEDDY.jpg" alt="Teddy"> TEDDY</div>
+            <div class="tab-item" ng-click="setTab('KITCHEN', 31)" ng-class="{ 'active': activeTab === 31 }"><img src="https://www.hindustantoys.in/images/KITCHEN.jpg" alt="Kitchen Sets"> KITCHEN</div>
+            <div class="tab-item" ng-click="setTab('RACKET', 6)" ng-class="{ 'active': activeTab === 6 }"><img src="https://www.hindustantoys.in/images/racket.jpeg" alt="Racket"> RACKET</div>
+            <div class="tab-item" ng-click="setTab('REMOTE', 7)" ng-class="{ 'active': activeTab === 7 }"><img src="https://www.hindustantoys.in/images/remote.jpeg" alt="Remote Car"> REMOTE</div>
+            <div class="tab-item" ng-click="setTab('RIDDER', 11)" ng-class="{ 'active': activeTab === 11 }"><img src="https://www.hindustantoys.in/images/ridder.jpeg" alt="Magic Ridder"> RIDDER</div>
+            <div class="tab-item" ng-click="setTab('HIGH QUALITY', 25)" ng-class="{ 'active': activeTab === 25 }"><img src="https://www.hindustantoys.in/images/high.jpeg" alt="High Quality Indian Toys"> HIGH QLTY</div>
+            <div class="tab-item" ng-click="setTab('OWN', 30)" ng-class="{ 'active': activeTab === 30 }"><img src="https://www.hindustantoys.in/images/htquality.jpg" alt="HT Products"> HT PROD</div>
+            <div class="tab-item" ng-click="setTab('PALNA', 29)" ng-class="{ 'active': activeTab === 29 }"><img src="https://www.hindustantoys.in/images/palna.png" alt="Palna"> PALNA</div>
+            <div class="tab-item" ng-click="setTab('WALKER', 5)" ng-class="{ 'active': activeTab === 5 }"><img src="https://www.hindustantoys.in/images/walker.jpeg" alt="Walker"> WALKER</div>
+        </div>
+      </div>
 
-        let player = null;
-        let currentVideoIndex = -1;
-        let playerReady = false;
-        let playerState = -1;
+      <!-- Product Grid -->
+      <div class="product-grid-container">
+        <div class="grid-row">
+            <!-- Skeleton Loader -->
+            <div class="card" ng-if="!vm.images.$resolved" ng-repeat="n in [].constructor(12) track by $index">
+                 <div class="card-img-top bg-light" style="height: 20rem;"></div>
+                 <div class="card-body">
+                    <div class="bg-light rounded" style="height: 2rem; width: 50%; margin: 0 auto 1rem;"></div>
+                    <div class="bg-light rounded" style="height: 1.5rem; width: 80%; margin: 0 auto 1rem;"></div>
+                 </div>
+            </div>
+            <!-- Angular ng-repeat for products -->
+            <div class="card" ng-repeat="image in vm.getRows() track by image.$id" ng-if="!image.outOfStock">
+              <img ng-src="{{image.url}}" class="card-img-top" alt="{{image.name}}" ng-click="showEnlargedImage(image.url)" loading="lazy">
+              <div class="card-body">
+                <div>
+                  <h5 class="card-title">{{image.price}} Rs.</h5>
+                  <p class="card-text">{{image.name}}</p>
+                  <a href="https://hunkaammy.github.io/mywebsite/videos/{{image.videourl}}.mp4" class="card-link" target="_blank" ng-if="image.videourl">Watch Video</a>
+                </div>
+                <div>
+                  <input type="number" class="qty-input" placeholder="Qty" ng-model="image.field3" ng-change="submitData(image)" ng-model-options="{ debounce: 500 }">
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
 
-        // Called when YouTube API is ready
-        window.onYouTubeIframeAPIReady = function () {
-            console.log("YouTube API loaded");
-            updateVideo();
-        };
+    <!-- Enlarged Image Overlay -->
+    <div id="enlarged-image-overlay" class="enlarged-image-overlay" ng-click="closeEnlargedImage()">
+      <img class="enlarged-image-content" id="enlarged-image" src="" alt="Enlarged Image">
+    </div>
 
-        function getCurrentVideo() {
-            const now = new Date();
-            const secondsSinceMidnight = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-            const playlistPosition = secondsSinceMidnight % totalDuration;
+    <!-- Order Modal Trigger -->
+    <button type="button" class="your-order-btn" data-bs-toggle="modal" data-bs-target="#myModal">
+        <i class="fas fa-shopping-cart"></i> Your Order
+    </button>
+    
+    <!-- Order Modal -->
+    <div class="modal fade" id="myModal">
+      <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">{{dynamicField2Value}}'s Order List</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <object data="https://hunkaammy.github.io/mywebsite/NEWWEBSITE/order1#myInput={{dynamicField2Value}}" width="100%" height="100%" type="text/html">
+              <embed src="https://hunkaammy.github.io/mywebsite/cart#myInput=samrat" width="100%" height="100%">
+            </object>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-            let elapsed = 0;
-            for (let i = 0; i < playlist.length; i++) {
-                const song = playlist[i];
-                if (elapsed + song.duration > playlistPosition) {
-                    return {
-                        index: i,
-                        offset: playlistPosition - elapsed
-                    };
-                }
-                elapsed += song.duration;
-            }
-            return { index: 0, offset: 0 };
+  <!-- =============================== -->
+  <!--      JAVASCRIPTS                -->
+  <!-- =============================== -->
+  
+  <!-- Firebase & Angular -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+  <script src="https://cdn.firebase.com/libs/angularfire/2.1.0/angularfire.min.js"></script>
+  
+  <!-- Bootstrap 5 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Your Custom Scripts -->
+  <script>
+    // --- START: ORIGINAL JAVASCRIPT & ANGULARJS LOGIC ---
+
+    try {
+      var firebaseConfig = {
+        apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
+        authDomain: "shop-reminder-3ce10.firebaseapp.com",
+        databaseURL: "https://shop-reminder-3ce10-default-rtdb.firebaseio.com",
+        projectId: "shop-reminder-3ce10",
+        storageBucket: "shop-reminder-3ce10.appspot.com",
+        messagingSenderId: "555627569260",
+        appId: "1:555627569260:web:3948ae391eab6eb5ea7849",
+        measurementId: "G-BP5EYR6ET1"
+      };
+      firebase.initializeApp(firebaseConfig);
+    } catch (error) {
+      console.error('Firebase initialization failed:', error.message, error.stack);
+    }
+
+    var blockedNumbers = ['7000913701', '9876543210', '9123456789', '8987854256', '9039199794', '9166220046'];
+
+    function validateLogin() {
+      try {
+        var name = document.getElementById('name').value.trim();
+        var mobile = document.getElementById('mobile').value.trim();
+        if (name.length < 4) {
+          alert('Please enter a valid shop name.');
+          return;
         }
-
-        function updateVideo() {
-            const { index, offset } = getCurrentVideo();
-
-            if (index !== currentVideoIndex) {
-                currentVideoIndex = index;
-                const song = playlist[index];
-                playerReady = false;
-                playerState = -1;
-
-                if (player) {
-                    console.log(`Destroying player for ${song.title}`);
-                    player.destroy();
-                    player = null;
-                }
-
-                document.getElementById("current-song").textContent = `Loading: ${song.title}`;
-                document.getElementById("error-log").textContent = "";
-
-                player = new YT.Player("player", {
-                    height: "360",
-                    width: "640",
-                    videoId: song.videoId,
-                    playerVars: {
-                        autoplay: 1,
-                        controls: 1,
-                        start: Math.floor(offset)
-                    },
-                    events: {
-                        onReady: (event) => {
-                            console.log(`Player ready for ${song.title}`);
-                            event.target.seekTo(offset, true);
-                            event.target.playVideo();
-                            playerReady = true;
-                            document.getElementById("current-song").textContent = `Now Playing: ${song.title}`;
-                        },
-                        onStateChange: (event) => {
-                            playerState = event.data;
-                            console.log(`Player state: ${event.data} for ${song.title}`);
-                            if (event.data === YT.PlayerState.ENDED) {
-                                console.log(`Video ${song.title} ended, moving to next`);
-                                currentVideoIndex = (currentVideoIndex + 1) % playlist.length;
-                                updateVideo();
-                            }
-                        },
-                        onError: (event) => {
-                            console.error(`Error for ${song.title}: Code ${event.data}`);
-                            let errorMessage = `Error loading: ${song.title} (Code: ${event.data})`;
-                            if (event.data === 100) {
-                                errorMessage = `Video Unavailable: ${song.title} (Not Found)`;
-                            } else if (event.data === 101 || event.data === 150) {
-                                errorMessage = `Video Unavailable: ${song.title} (Embedding Disabled)`;
-                            }
-                            document.getElementById("error-log").textContent = errorMessage;
-                            setTimeout(() => {
-                                currentVideoIndex = (currentVideoIndex + 1) % playlist.length;
-                                updateVideo();
-                            }, 1000); // Faster skip
-                        }
-                    }
-                });
-            } else if (player && playerReady && playerState === YT.PlayerState.PLAYING && typeof player.getCurrentTime === "function") {
-                try {
-                    const expectedOffset = offset;
-                    const currentOffset = player.getCurrentTime();
-                    if (Math.abs(currentOffset - expectedOffset) > 1) {
-                        console.log(`Correcting drift for ${playlist[index].title}: ${currentOffset} → ${expectedOffset}`);
-                        player.seekTo(expectedOffset, true);
-                    }
-                } catch (e) {
-                    console.warn(`Cannot get current time for ${playlist[index].title}: ${e.message}`);
-                }
-            }
+        if (!/^[6-9]\d{9}$/.test(mobile)) {
+          alert('Please enter a valid mobile number.');
+          return;
         }
+        if (blockedNumbers.includes(mobile)) {
+          window.location.href = '/mywebsite/NEWWEBSITE/blocked.html';
+          return;
+        }
+        var lowerName = name.toLowerCase();
+        if (lowerName === 'mohit chawla' || lowerName === 'honey digital' || lowerName === 'bab el mandeb' || lowerName === 'Manu & Co.' || lowerName === 'saha resources') {
+          window.location.href = '/mywebsite/NEWWEBSITE/blocked.html';
+          return;
+        }
+        var database = firebase.database();
+        database.ref('users').push({
+          name: name,
+          mobile: mobile,
+          timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+        localStorage.setItem('name', name);
+        localStorage.setItem('mobile', mobile);
+        localStorage.setItem('loggedIn', 'true');
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+        
+        // Manually trigger angular digest cycle to update welcome message
+        var scope = angular.element(document.body).scope();
+        scope.$apply(function() {
+            scope.dynamicField2Value = name;
+        });
 
-        // Update every second, but only if API is loaded
-        setInterval(() => {
-            if (typeof YT !== "undefined" && YT.loaded) {
-                updateVideo();
+      } catch (error) {
+        console.error('validateLogin failed:', error.message, error.stack);
+        alert('Login failed. Please try again.');
+      }
+    }
+
+    function autoLogin() {
+      try {
+        var storedName = localStorage.getItem('name');
+        var storedMobile = localStorage.getItem('mobile');
+        if (storedMobile === '7000913701' || (storedName && storedName.toLowerCase() === 'mohit chawla')) {
+          return;
+        }
+        if (storedName && storedMobile) {
+          document.getElementById('name').value = storedName;
+          document.getElementById('mobile').value = storedMobile;
+          validateLogin();
+        }
+      } catch (error) {
+        console.error('autoLogin failed:', error.message, error.stack);
+      }
+    }
+
+    function logout() {
+      try {
+        localStorage.removeItem('name');
+        localStorage.removeItem('mobile');
+        localStorage.removeItem('loggedIn');
+        window.location.href = 'https://hindustantoys.in/pagdi';
+      } catch (error) {
+        console.error('logout failed:', error.message, error.stack);
+      }
+    }
+
+    window.onload = function() {
+      try {
+        autoLogin();
+      } catch (error) {
+        console.error('window.onload failed:', error.message, error.stack);
+      }
+    };
+
+    function scrollToTop() {
+      try {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      } catch (error) {
+        console.error('scrollToTop failed:', error.message, error.stack);
+      }
+    }
+
+    function showEnlargedImage(src) {
+      try {
+        var overlay = document.getElementById('enlarged-image-overlay');
+        var enlargedImg = document.getElementById('enlarged-image');
+        if (overlay && enlargedImg) {
+          enlargedImg.src = src;
+          overlay.classList.add('show');
+        } else {
+          console.error('showEnlargedImage: overlay or enlargedImg not found');
+        }
+      } catch (error) {
+        console.error('showEnlargedImage failed:', error.message, error.stack);
+      }
+    }
+
+    function closeEnlargedImage() {
+      try {
+        var overlay = document.getElementById('enlarged-image-overlay');
+        if (overlay) {
+          overlay.classList.remove('show');
+        } else {
+          console.error('closeEnlargedImage: overlay not found');
+        }
+      } catch (error) {
+        console.error('closeEnlargedImage failed:', error.message, error.stack);
+      }
+    }
+
+    function startVoiceRecognition() {
+      try {
+        const micIcon = document.getElementById('micIcon');
+        if (!micIcon) {
+          console.error('startVoiceRecognition: micIcon not found');
+          return;
+        }
+        micIcon.classList.add('animating');
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        if (!recognition) {
+          console.error('startVoiceRecognition: SpeechRecognition not supported');
+          micIcon.classList.remove('animating');
+          return;
+        }
+        recognition.lang = 'en-US';
+        recognition.onresult = function(event) {
+          try {
+            const transcript = event.results[0][0].transcript;
+            const topBtn = document.getElementById('topBtn');
+            if (topBtn) {
+              // Use Angular's scope to update the model, which will update the view.
+              var scope = angular.element(topBtn).scope();
+              scope.$apply(function() {
+                  scope.searchQuery = transcript;
+              });
+              scrollToTop();
             } else {
-                console.log("Waiting for YouTube API...");
-                document.getElementById("error-log").textContent = "Loading YouTube API...";
+              console.error('startVoiceRecognition: topBtn not found');
             }
-        }, 1000);
-    </script>
+          } catch (error) {
+            console.error('Speech recognition result failed:', error.message, error.stack);
+          }
+        };
+        recognition.onerror = function(event) {
+          console.error('Speech recognition error:', event.error, event.message);
+          micIcon.classList.remove('animating');
+        };
+        recognition.onend = function() {
+            micIcon.classList.remove('animating');
+        };
+        recognition.start();
+      } catch (error) {
+        console.error('startVoiceRecognition failed:', error.message, error.stack);
+      }
+    }
+
+    var app = angular.module('myApp', ['firebase']);
+    app.controller('imagesController', ['$scope', '$firebaseArray', '$window', '$timeout', function($scope, $firebaseArray, $window, $timeout) {
+      $scope.vm = this;
+      $scope.vm.images = [];
+      $scope.sortOrder = 'default';
+      $scope.dynamicField2Value = localStorage.getItem('name') || '';
+      $scope.searchQuery = '';
+      $scope.productNameFilter = '';
+      $scope.activeTab = 0;
+
+      var firebaseConfigFetch = {
+        apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
+        authDomain: "htshop-e9c51.firebaseapp.com",
+        databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com",
+        projectId: "htshop-e9c51",
+        storageBucket: "htshop-e9c51.appspot.com",
+        messagingSenderId: "653137640907",
+        appId: "1:653137640907:web:672fd6a9e85ca448a70a4e",
+        measurementId: "G-FJ4Q0FHBEG"
+      };
+      var firebaseConfigSubmit = {
+        apiKey: "AIzaSyAMFjDnZaszneoR6nO8bmXUxwZJplLvNfU",
+        authDomain: "notes-12519.firebaseapp.com",
+        databaseURL: "https://notes-12519-default-rtdb.firebaseio.com",
+        projectId: "notes-12519",
+        storageBucket: "notes-12519.appspot.com",
+        messagingSenderId: "1073774450189",
+        appId: "1:1073774450189:web:0b6d4a9f95823abbf36744",
+        measurementId: "G-GZXYCJ33TR"
+      };
+
+      try {
+        var firebaseFetch = firebase.initializeApp(firebaseConfigFetch, 'fetchApp');
+        var firebaseSubmit = firebase.initializeApp(firebaseConfigSubmit, 'submitApp');
+        var databaseFetch = firebaseFetch.database().ref();
+        var listFetch = $firebaseArray(databaseFetch);
+        var databaseSubmit = firebaseSubmit.database().ref();
+
+        $scope.vm.images = listFetch;
+        listFetch.$loaded().catch(function(error) {
+          console.error('Error loading Firebase data:', error.message, error.stack);
+        });
+      } catch (error) {
+        console.error('Firebase initialization error:', error.message, error.stack);
+      }
+
+      $scope.vm.getRows = function() {
+        try {
+          var filteredImages = ($scope.vm.images || []).filter(function(image) {
+            if (!image || typeof image.name !== 'string') return false;
+            var matchesFilter = !$scope.productNameFilter || image.name.toLowerCase().includes($scope.productNameFilter.toLowerCase());
+            var matchesSearch = !$scope.searchQuery || image.name.toLowerCase().includes($scope.searchQuery.toLowerCase());
+            return !image.outOfStock && matchesFilter && matchesSearch;
+          });
+
+          if ($scope.sortOrder === 'price') {
+            filteredImages.sort((a, b) => (Number(a.price) || 0) - (Number(b.price) || 0));
+          } else if ($scope.sortOrder === '-price') {
+            filteredImages.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0));
+          }
+          
+          return filteredImages;
+
+        } catch (error) {
+          console.error('getRows failed:', error.message, error.stack);
+          return [];
+        }
+      };
+
+      $scope.setTab = function(filter, tab) {
+        try {
+          $scope.productNameFilter = filter;
+          $scope.activeTab = tab;
+          $scope.searchQuery = '';
+          $scope.sortOrder = 'default';
+          scrollToTop();
+        } catch (error) {
+          console.error('setTab failed:', error.message, error.stack);
+        }
+      };
+
+      $scope.resetFilters = function() {
+        try {
+          $scope.productNameFilter = '';
+          $scope.activeTab = 0;
+          $scope.searchQuery = '';
+          $scope.sortOrder = 'default';
+          scrollToTop();
+        } catch (error) {
+          console.error('resetFilters failed:', error.message, error.stack);
+        }
+      };
+
+      $scope.submitData = function(image) {
+        try {
+          if (!image) {
+            console.error('submitData: image is null or undefined');
+            return;
+          }
+          var inputa = image.url || '';
+          var inputb = $scope.dynamicField2Value || '';
+          var inputc = image.field3 || 0;
+          var currentDate = new Date();
+          var submitDate = currentDate.toLocaleDateString('en-GB'); // DD/MM/YYYY
+          var submitTime = currentDate.toLocaleTimeString('en-US'); // hh:mm:ss AM/PM
+
+          if (image.quantityId) {
+            databaseSubmit.child(image.quantityId).update({
+              field3: inputc
+            }).catch((error) => {
+              console.error('Error updating quantity:', error.message, error.stack);
+            });
+          } else {
+            var newDataKey = databaseSubmit.push().key;
+            image.quantityId = newDataKey;
+            databaseSubmit.child(newDataKey).set({
+              field1: inputa,
+              field2: inputb,
+              field3: inputc,
+              productName: image.name || '',
+              productPrice: image.price || 0,
+              submitDate: submitDate,
+              submitTime: submitTime,
+              submittedDate: firebase.database.ServerValue.TIMESTAMP
+            }).catch((error) => {
+              console.error('Error adding item:', error.message, error.stack);
+            });
+          }
+        } catch (error) {
+          console.error('submitData failed:', error.message, error.stack);
+        }
+      };
+
+      $scope.markOutOfStock = function(image) {
+        try {
+          if (!image || !image.$id) {
+            console.error('markOutOfStock: image or image.$id is null or undefined');
+            return;
+          }
+          var databaseRef = firebaseFetch.database().ref(image.$id);
+          databaseRef.update({
+            outOfStock: true,
+            lastModified: firebase.database.ServerValue.TIMESTAMP
+          }).catch(function(error) {
+            console.error('Error updating stock status:', error.message, error.stack);
+          });
+        } catch (error) {
+          console.error('markOutOfStock failed:', error.message, error.stack);
+        }
+      };
+
+      $scope.logout = function() {
+        try {
+          localStorage.removeItem('name');
+          localStorage.removeItem('mobile');
+          localStorage.removeItem('loggedIn');
+          $window.location.href = 'https://hindustantoys.in/pagdi';
+        } catch (error) {
+          console.error('logout failed:', error.message, error.stack);
+        }
+      };
+
+      $scope.applyFilter = function() {
+        // This function is called on ng-change, Angular will automatically digest.
+      };
+
+      $scope.showEnlargedImage = function(src) {
+        showEnlargedImage(src);
+      };
+
+      $scope.closeEnlargedImage = function() {
+        closeEnlargedImage();
+      };
+    }]);
+
+    // --- END: ORIGINAL JAVASCRIPT & ANGULARJS LOGIC ---
+  </script>
+
 </body>
 </html>
-
-
