@@ -1,35 +1,115 @@
+Of course. Here is the revised code, optimized to be more "finger-friendly" and readable on Android and other mobile devices.
+
+The main change is increased row height for each product in the list, making it easier to read and tap the correct action buttons without sacrificing usability on small screens.
+
+-----
+
+### **Mobile-Perfected Admin Panel Code**
+
+This updated code provides a better viewing and interaction experience on mobile devices.
+
+```html
 <!DOCTYPE html>
 <html lang="en" ng-app="adminApp">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Hindustan Toys - Admin Panel</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <style>
-    body { background-color: #f8f9fa; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-    .navbar { background-color: #343a40 !important; color: #fff; }
-    .container-fluid { margin-top: 20px; }
-    .order-card { margin-bottom: 15px; border: 1px solid #dee2e6; box-shadow: 0 2px 5px rgba(0,0,0,.05); }
-    .order-header { background-color: #f1f1f1; padding: 12px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-    .order-header h5 { margin: 0; font-weight: 600; font-size: 1.1rem; }
-    .order-body { padding: 0; }
-    .product-image { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; }
-    .table th, .table td { vertical-align: middle; font-size: 0.9rem; }
-    .table-sm td, .table-sm th { padding: 0.5rem; }
-    .action-buttons .btn { margin: 0 2px; padding: 0.25rem 0.5rem; font-size: 0.75rem; }
-    .loading-spinner, .no-orders { text-align: center; margin-top: 50px; color: #6c757d; }
-    .nav-tabs .nav-link { font-weight: 500; }
-    .nav-tabs .nav-link.active { background-color: #e9ecef; border-bottom: 2px solid #007bff; }
-    .badge { font-size: 0.8em; }
+    body { 
+        background-color: #f8f9fa; 
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
+    }
+    .navbar { 
+        background-color: #343a40 !important; 
+        color: #fff; 
+    }
+    .container-fluid { 
+        margin-top: 15px;
+        padding: 0 8px;
+    }
+    .order-card { 
+        margin-bottom: 15px; 
+        border: 1px solid #dee2e6; 
+        box-shadow: 0 2px 5px rgba(0,0,0,.05); 
+    }
+    .order-header { 
+        background-color: #f1f1f1; 
+        padding: 12px 15px; 
+        cursor: pointer; 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+    }
+    .order-header h5 { 
+        margin: 0; 
+        font-weight: 600; 
+        font-size: 1.0rem; 
+    }
+    /* Increased product image size */
+    .product-image { 
+        width: 55px; 
+        height: 55px; 
+        object-fit: cover; 
+        border-radius: 5px; 
+    }
+    /* Increased table row height and font size */
+    .table th, .table td { 
+        vertical-align: middle !important; 
+        font-size: 0.9rem; 
+        white-space: nowrap;
+        padding: 12px 10px; /* Increased padding for more height */
+    }
+    .table-responsive {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    /* Increased button size for easier tapping */
+    .action-buttons .btn { 
+        margin: 0 3px; 
+        padding: 0.35rem 0.6rem; 
+        font-size: 0.85rem; 
+    }
+    .loading-spinner, .no-orders { 
+        text-align: center; 
+        margin-top: 50px; 
+        color: #6c757d; 
+    }
+    .nav-tabs .nav-link { 
+        font-weight: 500;
+        padding: 0.6rem 0.8rem;
+        font-size: 0.9rem;
+    }
+    .badge { 
+        font-size: 0.8em; 
+        padding: 0.4em 0.6em;
+    }
+
+    @media (max-width: 576px) {
+        .order-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .order-header h5 {
+            margin-bottom: 8px;
+        }
+        .container-fluid {
+            margin-top: 10px;
+            padding: 0 5px;
+        }
+    }
   </style>
 </head>
 <body ng-controller="AdminController as admin">
 
   <nav class="navbar navbar-dark">
-    <a class="navbar-brand" href="#">
+    <a class="navbar-brand" href="#" style="font-size: 1.1rem;">
       <i class="fas fa-dolly-flatbed"></i>
-      Hindustan Toys - Order Management
+      Order Management
     </a>
   </nav>
 
@@ -62,14 +142,14 @@
             <div class="order-card">
                 <div class="order-header" data-toggle="collapse" href="#collapse-{{admin.activeTab}}-{{$index}}">
                     <h5><i class="fas fa-store"></i> {{ shopName }}</h5>
-                    <span class="d-flex align-items-center">
-                        <span class="badge badge-info mr-3">Items: {{ order.items.length }}</span>
-                        <span class="badge badge-secondary mr-3">Total Qty: {{ order.totalQuantity }}</span>
+                    <div class="d-flex align-items-center">
+                        <span class="badge badge-info mr-2">Items: {{ order.items.length }}</span>
+                        <span class="badge badge-secondary mr-2">Total Qty: {{ order.totalQuantity }}</span>
                         <i class="fas fa-chevron-down"></i>
-                    </span>
+                    </div>
                 </div>
                 <div id="collapse-{{admin.activeTab}}-{{$index}}" class="collapse">
-                    <div class="order-body">
+                    <div class="table-responsive">
                         <table class="table table-hover table-sm mb-0">
                             <thead class="thead-light">
                                 <tr>
@@ -87,7 +167,7 @@
                                     <td>{{ item.productName }}</td>
                                     <td>₹{{ item.productPrice | number:2 }}</td>
                                     <td><b>{{ item.field3 }}</b></td>
-                                    <td>{{ item.submitDate }} at {{ item.submitTime }}</td>
+                                    <td>{{ item.submitDate }} {{ item.submitTime }}</td>
                                     <td class="action-buttons" ng-if="admin.activeTab === 'pending'">
                                         <button class="btn btn-success btn-sm" ng-click="admin.updateItemStatus(item, 'processed')" title="Mark as Processed"><i class="fas fa-check"></i></button>
                                         <button class="btn btn-warning btn-sm" ng-click="admin.updateItemStatus(item, 'outOfStock')" title="Mark as Out of Stock"><i class="fas fa-times"></i></button>
@@ -124,7 +204,6 @@
         vm.loading = true;
         vm.activeTab = 'pending';
         
-        // --- IMPORTANT: Paste your SUBMIT Firebase Config here ---
         const firebaseConfigSubmit = {
             apiKey: "AIzaSyAMFjDnZaszneoR6nO8bmXUxwZJplLvNfU",
             authDomain: "notes-12519.firebaseapp.com",
@@ -217,3 +296,4 @@
   </script>
 </body>
 </html>
+```
