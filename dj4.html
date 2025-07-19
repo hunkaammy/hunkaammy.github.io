@@ -1,400 +1,413 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="myApp">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Contact Manager</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts - Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hindustan Toys - Order Portal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #388e3c;
+      --light-gray: #f8f9fa;
+      --dark-gray: #333;
+      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--dark-gray);
+      background-color: var(--light-gray);
+      margin: 0;
+      -webkit-tap-highlight-color: rgba(0,0,0,0);
+    }
+    
+    /* --- Main Page UI --- */
+    #content {
+      padding: 75px 15px 20px 15px; /* Top padding for fixed navbar */
+    }
+
+    .page-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: var(--dark-gray);
+    }
+    
+    /* Category Grid Layout */
+    .category-grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 12px;
+    }
+
+    .category-card {
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 110px;
+    }
+
+    .category-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .category-card img {
+      width: 48px;
+      height: 48px;
+      object-fit: cover;
+      margin-bottom: 8px;
+      border-radius: 8px;
+    }
+
+    .category-card span {
+      font-size: 11px;
+      font-weight: 500;
+      color: #555;
+    }
+
+    /* --- General Components --- */
+    #login-container {
+      background-size: cover;
+      background-position: center;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    #inside {
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+      text-align: center;
+      width: 100%;
+      max-width: 360px;
+    }
+
+    .navbar {
+      background-color: #fff;
+      padding: 8px 15px;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1030;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* --- Modal & Product Grid Styling --- */
+    .modal-body {
+        background-color: var(--light-gray);
+    }
+
+    .grid-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .card {
+      box-shadow: var(--card-shadow);
+      width: 100%;
+      border-radius: 8px;
+      text-align: center;
+      background: #fff;
+      overflow: hidden;
+      padding-bottom: 8px;
+    }
+
+    .card img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      cursor: pointer;
+    }
+    
+    .containers {
+      padding: 8px;
+    }
+    
+    .containers h4 {
+        margin: 0 0 4px;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .containers p {
+        margin: 0 0 4px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        font-size: 11px;
+    }
+
+    .qtyclass {
+      height: 32px;
+      width: 50px;
+      margin-right: 5px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: 1px solid #ced4da;
+      text-align: center;
+    }
+
+    .btn-primary {
+      position: fixed;
+      bottom: 15px;
+      right: 15px;
+      z-index: 1001;
+    }
+    
+    /* Enlarged Image Overlay */
+    .enlarged-image-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      display: none; justify-content: center; align-items: center;
+      z-index: 1060; /* Higher than modal */
+      cursor: pointer;
+    }
+    .enlarged-image-overlay.show { display: flex; }
+    .enlarged-image-content { max-width: 90%; max-height: 90%; border-radius: 8px; }
+
+    @keyframes pulse {
+      0% { transform: scale(1); color: #555; }
+      50% { transform: scale(1.2); color: #007bff; }
+      100% { transform: scale(1); color: #555; }
+    }
+    #micIcon.animating { animation: pulse 1s infinite; }
+
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 </head>
-<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 flex flex-col items-center">
+<body ng-controller="imagesController as vm">
+  <div id="login-container" style="background-image: url(https://hunkaammy.github.io/mywebsite/NEWWEBSITE/loginpg.jpeg);">
+    <div id="inside">
+      <h2 class="mb-4">HINDUSTAN TOYS</h2>
+      <input type="text" id="name" ng-model="dynamicField2Value" placeholder="Enter your shop name" class="form-control mb-2" autocomplete="off">
+      <input type="tel" id="mobile" placeholder="Enter your mobile number" class="form-control mb-3" autocomplete="off">
+      <button class="btn btn-success w-100" onclick="validateLogin()">Login</button>
+    </div>
+  </div>
 
-    <!-- Custom Modal Structure -->
-    <div id="modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
-            <p id="modal-message" class="text-gray-800 text-lg mb-4"></p>
-            <button id="modal-close-button"
-                class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out">
-                Close
+  <div id="content" style="display: none;">
+    <div class="navbar">
+      <div class="d-flex w-100 align-items-center">
+        <input type="text" ng-model="searchQuery" ng-change="searchProducts()" placeholder="Search products..." class="form-control form-control-sm me-2" list="productNames">
+        <datalist id="productNames"><option ng-repeat="p in vm.images" value="{{p.name}}"></option></datalist>
+        <i id="micIcon" class="fas fa-microphone me-2" ng-click="startVoiceRecognition()" style="font-size: 18px; cursor: pointer;"></i>
+        <div class="dropdown">
+            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-bars"></i>
             </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#myModal">Your Order</a></li>
+                <li><a class="dropdown-item" href="#" ng-click="logout()">Logout</a></li>
+            </ul>
         </div>
+      </div>
+      <div class="w-100 text-center mt-1"><small class="text-muted">Welcome, {{dynamicField2Value}}</small></div>
     </div>
 
-    <!-- Header -->
-    <h1 class="text-4xl font-extrabold text-gray-800 mb-8 mt-4 text-center">
-        Customer Contact Manager
-    </h1>
-
-    <!-- Add New Customer Form -->
-    <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md mb-8">
-        <h2 class="text-2xl font-semibold text-gray-700 mb-5">Add New Contact</h2>
-        <div class="space-y-4">
-            <div>
-                <label for="customer-name" class="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
-                <input
-                    type="text"
-                    id="customer-name"
-                    class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="e.g., John Doe"
-                />
-            </div>
-            <div>
-                <label for="customer-number" class="block text-sm font-medium text-gray-700 mb-1">Contact Number</label>
-                <input
-                    type="text"
-                    id="customer-number"
-                    class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="e.g., +1234567890"
-                />
-            </div>
-            <div>
-                <label for="customer-category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                <select
-                    id="customer-category"
-                    class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white"
-                >
-                    <option value="Retail">Retail</option>
-                    <option value="Wholesale">Wholesale</option>
-                </select>
-            </div>
-            <button
-                id="add-customer-button"
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md shadow-md transition duration-300 ease-in-out transform hover:scale-105"
-            >
-                Add Contact
-            </button>
+    <h2 class="page-title">Browse Categories</h2>
+    <div class="category-grid-container">
+        <div class="category-card" ng-repeat="category in categories" ng-click="setTab(category.filter, category.id)">
+            <img ng-src="{{category.imageUrl}}" alt="{{category.name}}">
+            <span>{{category.name}}</span>
         </div>
     </div>
+  </div>
 
-    <!-- Customer List Section -->
-    <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-2xl">
-        <!-- Tab Navigation -->
-        <div class="flex border-b border-gray-200 mb-4">
-            <button
-                id="retail-tab-button"
-                class="py-3 px-6 text-lg font-medium rounded-t-lg transition duration-300 ease-in-out border-b-4 border-blue-600 text-blue-600"
-            >
-                Retail Customers
-            </button>
-            <button
-                id="wholesale-tab-button"
-                class="py-3 px-6 text-lg font-medium rounded-t-lg transition duration-300 ease-in-out text-gray-500 hover:text-gray-700"
-            >
-                Wholesale Customers
-            </button>
-        </div>
+  <div id="enlarged-image-overlay" class="enlarged-image-overlay" ng-click="closeEnlargedImage()">
+    <img class="enlarged-image-content" id="enlarged-image" src="" alt="Enlarged Image">
+  </div>
 
-        <!-- Customer List Container -->
-        <div id="customer-list-container" class="space-y-3">
-            <p id="no-customers-message" class="text-gray-500 text-center py-8">No Retail customers added yet.</p>
+  <div class="modal fade" id="myModal" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{dynamicField2Value}}'s Order List</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
+        <div class="modal-body">
+          <iframe src="https://script.google.com/macros/s/AKfycbx_vRjB2_-1ssD5wL241a7dYyDt4O3gN0aYAEycs2F5qL5ST3aTuS31-1J2T2cTfySY/exec?myInput={{dynamicField2Value}}" width="100%" height="95%" frameborder="0"></iframe>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        // Import Realtime Database functions
-        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
-
-        // Global variables for Firebase instances and data
-        let app;
-        let db; // This will now be the Realtime Database instance
-        let isAppReady = false;
-        let customers = [];
-        let activeTab = 'Retail'; // Default active tab
-
-        // DOM Elements
-        const customerNameInput = document.getElementById('customer-name');
-        const customerNumberInput = document.getElementById('customer-number');
-        const customerCategorySelect = document.getElementById('customer-category');
-        const addCustomerButton = document.getElementById('add-customer-button');
-        const retailTabButton = document.getElementById('retail-tab-button');
-        const wholesaleTabButton = document.getElementById('wholesale-tab-button');
-        const customerListContainer = document.getElementById('customer-list-container');
-        const noCustomersMessage = document.getElementById('no-customers-message');
-
-        // Modal Elements
-        const modal = document.getElementById('modal');
-        const modalMessageElement = document.getElementById('modal-message');
-        const modalCloseButton = document.getElementById('modal-close-button');
-
-        /**
-         * Displays a custom modal with a given message.
-         * @param {string} message - The message to display in the modal.
-         */
-        function showCustomModal(message) {
-            modalMessageElement.textContent = message;
-            modal.classList.remove('hidden');
-        }
-
-        /**
-         * Hides the custom modal.
-         */
-        function hideCustomModal() {
-            modal.classList.add('hidden');
-        }
-
-        // Add event listener for modal close button
-        modalCloseButton.addEventListener('click', hideCustomModal);
-
-        /**
-         * Saves a contact using the Contact Picker API.
-         * @param {string} name - The name of the contact.
-         * @param {string} number - The phone number of the contact.
-         */
-        async function saveContactUsingContactPicker(name, number) {
-            if ('contacts' in navigator && 'ContactsManager' in window) { // Check for Contacts API support
-                try {
-                    const newContact = {
-                        name: [name],
-                        tel: [
-                            { value: number, type: 'mobile' }
-                        ]
-                    };
-                    // The select method with 'multiple: false' and 'options: { create: true }'
-                    // is typically used to prompt the user to create a new contact.
-                    // However, direct 'add' functionality isn't part of the public API for security.
-                    // The most common pattern is to let the user pick, and then they can save.
-                    // For direct saving/editing, the API is more about picking existing contacts.
-                    // To "save" a new contact, we can guide the user to manually add it.
-                    // The Contact Picker API is primarily for *selecting* contacts, not *creating* them directly.
-                    // A workaround for "saving" would be to open a new contact form,
-                    // but that's not a direct API call.
-
-                    // Since direct "add new contact" is not standard in Contact Picker API,
-                    // we'll inform the user and provide a VCF fallback as a reliable method.
-                    // For a true "add new contact" experience, it often requires platform-specific
-                    // intents (Android) or native app integration.
-
-                    // The Contact Picker API is for selecting contacts, not for creating them.
-                    // To "save" a contact, the user would typically select "new contact" in their
-                    // phone's contact app after being prompted by a VCF download.
-                    // Given the user's request for "single click save", the VCF remains the most
-                    // direct way to trigger the OS's "add new contact" workflow from a web app.
-
-                    // Reverting to VCF for reliable "save as new contact" experience.
-                    // The Contact Picker API is more for reading contacts or selecting existing ones.
-                    saveContactAsVcf(name, number); // Fallback to VCF for reliable saving
-                    showCustomModal(`Contact Picker API does not directly support adding new contacts. Downloading ${name}.vcf instead. Open this file on your Android device to save the contact.`);
-
-                } catch (error) {
-                    console.error('Error using Contact Picker API:', error);
-                    showCustomModal(`Failed to save contact using Contact Picker API: ${error.message}. Downloading ${name}.vcf instead.`);
-                    saveContactAsVcf(name, number); // Fallback to VCF on error
-                }
-            } else {
-                showCustomModal('Contact Picker API is not supported in this browser. Downloading .vcf file instead.');
-                saveContactAsVcf(name, number); // Fallback to VCF if API not supported
-            }
-        }
-
-        /**
-         * Generates and downloads a VCF file for a given contact.
-         * This file can then be opened on Android to save the contact.
-         * @param {string} name - The name of the contact.
-         * @param {string} number - The phone number of the contact.
-         */
-        function saveContactAsVcf(name, number) {
-            const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${number}\nEND:VCARD`;
-            const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${name}.vcf`;
-            document.body.appendChild(a); // Append to body to make it clickable in some browsers
-            a.click(); // Programmatically click the link to trigger download
-            document.body.removeChild(a); // Clean up the element
-            URL.revokeObjectURL(url); // Release the object URL
-        }
-
-        /**
-         * Renders the customer list based on the active tab.
-         */
-        function renderCustomers() {
-            // Clear existing list
-            customerListContainer.innerHTML = '';
-            const filteredCustomers = customers.filter(customer => customer.category === activeTab);
-
-            if (filteredCustomers.length === 0) {
-                noCustomersMessage.textContent = `No ${activeTab} customers added yet.`;
-                customerListContainer.appendChild(noCustomersMessage);
-                noCustomersMessage.classList.remove('hidden');
-            } else {
-                noCustomersMessage.classList.add('hidden');
-                filteredCustomers.forEach(customer => {
-                    const customerDiv = document.createElement('div');
-                    customerDiv.className = "flex items-center justify-between bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200";
-                    customerDiv.innerHTML = `
-                        <div class="flex-1">
-                            <p class="text-lg font-semibold text-gray-800">${customer.name}</p>
-                            <p class="text-gray-600 text-sm">${customer.number}</p>
+  <div class="modal fade" id="productModal" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-uppercase">{{ activeCategoryName }}</h5>
+                <div class="ms-auto">
+                    <select ng-model="sortOrder" class="form-select form-select-sm">
+                        <option value="default">Default Sort</option>
+                        <option value="price">Price: Low to High</option>
+                        <option value="-price">Price: High to Low</option>
+                    </select>
+                </div>
+                <button type="button" class="btn-close ms-2" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="grid-row">
+                    <div class="card" ng-repeat="image in vm.getRows()">
+                        <img ng-src="{{image.url}}" alt="{{image.name}}" ng-click="showEnlargedImage(image.url)" loading="lazy">
+                        <div class="containers">
+                            <h4><b>{{image.price | currency:"₹":0 }}</b></h4>
+                            <p>{{image.name}}</p>
+                            <p ng-if="image.videourl"><a href="https://hunkaammy.github.io/mywebsite/videos/{{image.videourl}}.mp4" target="_blank">Watch Video</a></p>
+                            <input type="number" class="qtyclass" placeholder="Qty" ng-model="image.field3" ng-change="submitData(image)" ng-model-options="{ debounce: 500 }">
                         </div>
-                        <div class="flex items-center space-x-2">
-                            <span class="text-xs font-medium bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full">
-                                ${customer.category}
-                            </span>
-                            <button
-                                class="save-contact-button bg-green-500 hover:bg-green-600 text-white text-xs font-bold py-1.5 px-3 rounded-md transition duration-300 ease-in-out"
-                                data-name="${customer.name}"
-                                data-number="${customer.number}"
-                            >
-                                Save as Contact
-                            </button>
-                        </div>
-                    `;
-                    customerListContainer.appendChild(customerDiv);
-                });
+                    </div>
+                </div>
+                 <div ng-if="vm.getRows().length === 0" class="text-center p-5">
+                    <p class="text-muted">No products found in this category.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
 
-                // Attach event listeners to the newly created buttons
-                document.querySelectorAll('.save-contact-button').forEach(button => {
-                    button.addEventListener('click', (event) => {
-                        const name = event.target.dataset.name;
-                        const number = event.target.dataset.number;
-                        // Call the Contact Picker API function
-                        saveContactUsingContactPicker(name, number);
-                    });
-                });
-            }
-        }
 
-        /**
-         * Updates the active tab styling and re-renders customers.
-         * @param {string} tabName - The name of the tab to activate ('Retail' or 'Wholesale').
-         */
-        function setActiveTab(tabName) {
-            activeTab = tabName;
-            retailTabButton.classList.remove('border-b-4', 'border-blue-600', 'text-blue-600');
-            retailTabButton.classList.add('text-gray-500', 'hover:text-gray-700');
-            wholesaleTabButton.classList.remove('border-b-4', 'border-blue-600', 'text-blue-600');
-            wholesaleTabButton.classList.add('text-gray-500', 'hover:text-gray-700');
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-animate.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
 
-            if (activeTab === 'Retail') {
-                retailTabButton.classList.add('border-b-4', 'border-blue-600', 'text-blue-600');
-                retailTabButton.classList.remove('text-gray-500', 'hover:text-gray-700');
-            } else {
-                wholesaleTabButton.classList.add('border-b-4', 'border-blue-600', 'text-blue-600');
-                wholesaleTabButton.classList.remove('text-gray-500', 'hover:text-gray-700');
-            }
-            renderCustomers(); // Re-render customers for the new active tab
-        }
+  <script>
+    // Non-Angular Login & Utility Functions
+    function validateLogin() { /* ... Same as your original ... */ }
+    function autoLogin() { /* ... Same as your original ... */ }
+    function logout() { angular.element(document.body).scope().$apply(() => angular.element(document.body).scope().logout()); }
+    function showEnlargedImage(src) {
+        const overlay = document.getElementById('enlarged-image-overlay');
+        const img = document.getElementById('enlarged-image');
+        img.src = src;
+        overlay.classList.add('show');
+    }
+    function closeEnlargedImage() { document.getElementById('enlarged-image-overlay').classList.remove('show');}
 
-        // Add event listeners for tab buttons
-        retailTabButton.addEventListener('click', () => setActiveTab('Retail'));
-        wholesaleTabButton.addEventListener('click', () => setActiveTab('Wholesale'));
-
-        /**
-         * Adds a new customer to Realtime Database.
-         */
-        async function addCustomer() {
-            const name = customerNameInput.value.trim();
-            const number = customerNumberInput.value.trim();
-            const category = customerCategorySelect.value;
-
-            if (!name || !number) {
-                showCustomModal('Please enter both name and contact number.');
+    (function() {
+      // Paste your original `validateLogin` and `autoLogin` functions here to keep them working
+      var blockedNumbers = ['7000913701', '9876543210', '9123456789', '8987854256', '9039199794', '9166220046', '8269731352'];
+      window.validateLogin = function() {
+        try {
+            var name = document.getElementById('name').value.trim();
+            var mobile = document.getElementById('mobile').value.trim();
+            if (name.length < 4 || !/^[6-9]\d{9}$/.test(mobile) || blockedNumbers.includes(mobile)) {
+                alert('Please enter valid details.');
                 return;
             }
-            if (!db) {
-                showCustomModal('Database not ready. Please try again.');
-                return;
-            }
-
-            try {
-                const appId = firebaseConfig.appId;
-                // Path for Realtime Database - Publicly accessible
-                const contactsRef = ref(db, `artifacts/${appId}/contacts`);
-
-                // Use push() to generate a unique key for each new contact
-                await push(contactsRef, {
-                    name: name,
-                    number: number,
-                    category: category,
-                    timestamp: Date.now() // Use client-side timestamp for Realtime DB
-                });
-
-                customerNameInput.value = '';
-                customerNumberInput.value = '';
-                customerCategorySelect.value = 'Retail'; // Reset to default
-            } catch (error) {
-                console.error("Error adding customer:", error);
-                showCustomModal(`Error adding contact: ${error.message}`);
-            }
+            localStorage.setItem('name', name);
+            localStorage.setItem('mobile', mobile);
+            document.getElementById('login-container').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+            angular.element(document.body).scope().$apply(() => {
+                angular.element(document.body).scope().dynamicField2Value = name;
+            });
+        } catch(e) { console.error("Login Error:", e); }
+      };
+      window.autoLogin = function() {
+        var name = localStorage.getItem('name');
+        var mobile = localStorage.getItem('mobile');
+        if (name && mobile) {
+            document.getElementById('name').value = name;
+            document.getElementById('mobile').value = mobile;
+            validateLogin();
         }
+      };
+      window.onload = autoLogin;
+    })();
 
-        // Add event listener for the add customer button
-        addCustomerButton.addEventListener('click', addCustomer);
+    // --- AngularJS Application ---
+    var app = angular.module('myApp', ['firebase', 'ngAnimate']);
+    app.controller('imagesController', ['$scope', '$firebaseArray', '$filter', function($scope, $firebaseArray, $filter) {
+        var vm = this;
+        vm.images = [];
+        $scope.sortOrder = 'default';
+        $scope.dynamicField2Value = localStorage.getItem('name') || '';
 
-        /**
-         * Sets up the real-time Realtime Database listener for customer data.
-         */
-        function setupRealtimeDatabaseListener() {
-            if (db && isAppReady) {
-                const appId = firebaseConfig.appId;
-                // Path for Realtime Database - Publicly accessible
-                const contactsRef = ref(db, `artifacts/${appId}/contacts`);
+        // --- Firebase Setup ---
+        var fetchConfig = { databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com" };
+        var submitConfig = { databaseURL: "https://notes-12519-default-rtdb.firebaseio.com" };
+        var fetchApp = firebase.initializeApp(fetchConfig, 'fetchApp');
+        var submitApp = firebase.initializeApp(submitConfig, 'submitApp');
+        var fetchDb = fetchApp.database().ref();
+        var submitDb = submitApp.database().ref();
+        
+        $firebaseArray(fetchDb).$loaded().then(data => {
+            vm.images = data.filter(item => !item.outOfStock);
+        });
 
-                onValue(contactsRef, (snapshot) => {
-                    const data = snapshot.val();
-                    const customerList = [];
-                    if (data) {
-                        // Iterate over the object keys to get individual contacts
-                        for (const key in data) {
-                            customerList.push({
-                                id: key, // The unique key generated by push()
-                                ...data[key]
-                            });
-                        }
-                    }
-                    // Sort customers by timestamp in descending order in JavaScript
-                    customers = customerList.sort((a, b) => b.timestamp - a.timestamp);
-                    renderCustomers(); // Re-render the list whenever data changes
-                }, (error) => {
-                    console.error("Error fetching customers:", error);
-                    showCustomModal(`Error loading contacts: ${error.message}`);
-                });
-            }
-        }
+        // --- Category Data (Cleaner Management) ---
+        $scope.categories = [
+            { id: 0, name: 'ALL PRODUCTS', filter: '', imageUrl: 'https://www.hindustantoys.in/images/all.jpeg' },
+            { id: 39, name: 'RAKHI SPECIAL', filter: 'RAKHI', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2025-07-15T09%3A53%3A46.047Z_DOLL%20(MIX)_eaa17f06-7fb6-473a-a75c-05a60fdf2b9f.jpg?alt=media&token=0a3e5de7-a66d-48eb-8223-30a99d3954a7' },
+            { id: 38, name: 'UMBRELLA', filter: 'UMBRELLA', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2024-06-24T16%3A35%3A31.407Z_RAINBOW%20UMBRELLA_IMG-20240529-WA0047.jpg?alt=media&token=64ee5147-65c7-4de8-897d-55df6cb84857' },
+            { id: 3, name: 'INDIAN TOYS', filter: 'INDIAN TOYS', imageUrl: 'https://www.hindustantoys.in/images/JCB.jpeg' },
+            { id: 7, name: 'REMOTE CAR', filter: 'REMOTE', imageUrl: 'https://www.hindustantoys.in/images/remote.jpeg' },
+            { id: 36, name: 'BAT & BALL', filter: 'BAT BALL', imageUrl: 'https://www.hindustantoys.in/images/bat.jpeg' },
+            { id: 34, name: 'TEDDY', filter: 'TEDDY', imageUrl: 'https://www.hindustantoys.in/images/TEDDY.jpg' },
+            { id: 31, name: 'KITCHEN SETS', filter: 'KITCHEN', imageUrl: 'https://www.hindustantoys.in/images/KITCHEN.jpg' },
+            { id: 30, name: 'HT PRODUCTS', filter: 'OWN', imageUrl: 'https://www.hindustantoys.in/images/htquality.jpg' },
+            // Add other categories here in the same format for easy management
+        ];
 
-        // Define firebaseConfig globally
-        const firebaseConfig = {
-            apiKey: "AIzaSyBPc51z-pGrtKwtB5dKTMPei-fVRg4ePME",
-            authDomain: "pagdi-6f8ce.firebaseapp.com",
-            databaseURL: "https://pagdi-6f8ce-default-rtdb.firebaseio.com", // Ensure this is your Realtime Database URL
-            projectId: "pagdi-6f8ce",
-            storageBucket: "pagdi-6f8ce.appspot.com",
-            messagingSenderId: "746289566527",
-            appId: "1:746289566527:web:4c32c4fec73bb7e898798a",
-            measurementId: "G-CXW0QZRHFG"
+        var productModal = new bootstrap.Modal(document.getElementById('productModal'));
+
+        $scope.setTab = function(filter, tabId) {
+            $scope.productNameFilter = filter;
+            $scope.activeCategoryName = $scope.categories.find(c => c.id === tabId)?.name || 'Products';
+            productModal.show();
         };
 
-        /**
-         * Initializes Firebase and sets up the application.
-         */
-        window.onload = async function() {
-            try {
-                console.log("Firebase Config:", firebaseConfig);
-
-                app = initializeApp(firebaseConfig);
-                db = getDatabase(app); // Get Realtime Database instance
-
-                isAppReady = true; // App is ready as soon as Firebase is initialized
-                setupRealtimeDatabaseListener(); // Start listening for data
-            } catch (error) {
-                console.error("Firebase initialization error:", error);
-                showCustomModal(`Error initializing app: ${error.message}`);
+        $scope.searchProducts = function() {
+            if ($scope.searchQuery && $scope.searchQuery.length > 2) {
+                $scope.productNameFilter = ''; // Clear category filter for a global search
+                $scope.activeCategoryName = `Search: "${$scope.searchQuery}"`;
+                productModal.show();
             }
         };
 
-        // Set initial active tab styling
-        setActiveTab('Retail');
-    </script>
+        vm.getRows = function() {
+            let filtered = $filter('filter')(vm.images, { name: $scope.productNameFilter });
+            if ($scope.searchQuery) {
+                filtered = $filter('filter')(filtered, { name: $scope.searchQuery });
+            }
+            return $filter('orderBy')(filtered, $scope.sortOrder === 'default' ? '-$id' : $scope.sortOrder, $scope.sortOrder === 'default');
+        };
+
+        $scope.logout = function() {
+            localStorage.clear();
+            window.location.reload();
+        };
+        
+        $scope.startVoiceRecognition = function() {
+            // ... Your voice recognition logic ...
+        };
+
+        $scope.showEnlargedImage = showEnlargedImage;
+        $scope.closeEnlargedImage = closeEnlargedImage;
+    }]);
+  </script>
 </body>
 </html>
+```
