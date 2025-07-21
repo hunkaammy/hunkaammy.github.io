@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hindustan Toys - Order Portal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #388e3c;
+      --secondary-color: #0d6efd;
+      --danger-color: #dc3545;
+      --light-gray: #f8f9fa;
+      --dark-gray: #333;
+      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--dark-gray);
+      background-color: var(--light-gray);
+      margin: 0;
+      -webkit-tap-highlight-color: rgba(0,0,0,0);
+    }
+    
+    #content {
+      padding: 75px 15px 20px 15px;
+    }
+
+    .page-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+    
+    .category-grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 12px;
+    }
+
+    .category-card {
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 110px;
+    }
+
+    .category-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .category-card img {
+      width: 48px;
+      height: 48px;
+      object-fit: cover;
+      margin-bottom: 8px;
+      border-radius: 8px;
+    }
+
+    .category-card span {
+      font-size: 11px;
+      font-weight: 500;
+      color: #555;
+    }
+    
+    #login-container {
+      background-size: cover; background-position: center; height: 100vh;
+      display: flex; justify-content: center; align-items: center; padding: 20px;
+    }
+
+    #inside {
+      background-color: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 12px;
+      box-shadow: var(--card-shadow); text-align: center; width: 100%; max-width: 360px;
+    }
+
+    .navbar {
+      background-color: #fff; padding: 8px 15px; position: fixed;
+      width: 100%; top: 0; z-index: 1030; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .modal-body { background-color: var(--light-gray); }
+
+    .grid-row {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 12px; margin-bottom: 12px;
+    }
+
+    .card {
+      box-shadow: var(--card-shadow); width: 100%; border-radius: 8px;
+      text-align: center; background: #fff; overflow: hidden; padding-bottom: 8px;
+    }
+
+    .card img {
+      width: 100%;
+      
+      object-fit: contain;
+      cursor: pointer;
+    }
+    
+    .containers { padding: 8px; position: relative; }
+    .containers h4 { margin: 0 0 4px; font-size: 13px; font-weight: bold; }
+    .containers p { margin: 0 0 4px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; font-size: 11px; }
+
+    .qtyclass {
+      height: 32px; width: 50px; margin-right: 5px; font-size: 12px;
+      border-radius: 6px; border: 1px solid #ced4da; text-align: center;
+    }
+
+    .saved-feedback {
+        color: var(--primary-color); font-size: 10px; font-weight: bold;
+        position: absolute; top: 8px; right: 8px;
+        animation: fadeOut 2s forwards;
+    }
+    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+    
+    .enlarged-image-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: none; justify-content: center; align-items: center;
+      z-index: 1060;
+      cursor: pointer;
+    }
+    .enlarged-image-content {
+      max-width: 95%;
+      max-height: 95%;
+      border-radius: 8px;
+      object-fit: contain;
+    }
+
+    /* Skeleton Loader Styles */
+    @keyframes skeleton-pulse {
+      0% { background-color: #e0e0e0; }
+      50% { background-color: #f0f0f0; }
+      100% { background-color: #e0e0e0; }
+    }
+    .skeleton-card { background-color: #fff; padding: 0; }
+    .skeleton-image { width: 100%; height: 140px; animation: skeleton-pulse 1.5s infinite ease-in-out; }
+    .skeleton-line { height: 12px; width: 90%; margin: 8px auto; border-radius: 4px; animation: skeleton-pulse 1.5s infinite ease-in-out; }
+    .skeleton-line.short { width: 60%; }
+    
+    /* Order List Styles */
+    .order-item-img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-right: 15px; }
+    .qty-control {
+        display: flex;
+        align-items: center;
+    }
+    .qty-display {
+        width: 40px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+</head>
+<body ng-controller="imagesController as vm">
+  <div id="login-container" style="background-image: url(https://hunkaammy.github.io/mywebsite/NEWWEBSITE/loginpg.jpeg);">
+    <div id="inside">
+      <h2 class="mb-4">HINDUSTAN TOYS</h2>
+      <input type="text" id="name" placeholder="Enter your shop name" class="form-control mb-2" autocomplete="off">
+      <input type="tel" id="mobile" placeholder="Enter your mobile number" class="form-control mb-3" autocomplete="off">
+      <button class="btn btn-success w-100" onclick="validateLogin()">Login</button>
+    </div>
+  </div>
+
+  <div id="content" style="display: none;">
+    <div class="navbar">
+      <div class="d-flex w-100 align-items-center">
+        <div class="input-group input-group-sm me-2">
+            <input type="text" ng-model="searchQuery" placeholder="Search all products..." class="form-control">
+            <button class="btn btn-primary" type="button" ng-click="openGlobalSearch()">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+        <div class="dropdown">
+            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#myModal">Your Order</a></li>
+                <li><a class="dropdown-item" href="#" ng-click="logout()">Logout</a></li>
+            </ul>
+        </div>
+      </div>
+      <div class="w-100 text-center mt-1"><small class="text-muted">Welcome, {{dynamicField2Value}}</small></div>
+    </div>
+
+    <h2 class="page-title">Browse Categories</h2>
+    <div class="category-grid-container">
+        <div class="category-card" ng-repeat="category in categories" ng-click="setTab(category.filter, category.id)">
+            <img ng-src="{{category.imageUrl}}" alt="{{category.name}}">
+            <span>{{category.name}}</span>
+        </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="productModal" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-uppercase">{{ activeCategoryName }}</h5>
+          <div class="ms-auto">
+            <select ng-model="sortOrder" ng-change="updateDisplayedProducts()" class="form-select form-select-sm">
+              <option value="default">Sort: Newest</option>
+              <option value="price">Sort: Price Low</option>
+              <option value="-price">Sort: Price High</option>
+            </select>
+          </div>
+          <button type="button" class="btn-close ms-2" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div ng-if="isLoading" class="grid-row"> </div>
+          <div ng-if="!isLoading">
+            <div class="grid-row" ng-repeat="row in displayedRows">
+              <div class="card" ng-repeat="image in row">
+                <img ng-src="{{image.url}}" alt="{{image.name}}" ng-click="showEnlargedImage(image.url)" loading="lazy">
+                <button ng-if="dynamicField2Value === 'sammyadmin'" class="btn btn-danger btn-sm mt-2 mx-2" ng-click="markOutOfStock(image)">
+                  Mark Out of Stock
+                </button>
+                <div class="containers">
+                  <span class="saved-feedback" ng-if="image.justSaved">Saved!</span>
+                  <h4><b>{{image.price | currency:"₹":0 }}</b></h4>
+                  <p>{{image.name}}</p>
+                  <p ng-if="image.videourl"><a href="https://hunkaammy.github.io/mywebsite/videos/{{image.videourl}}.mp4" target="_blank">Watch Video</a></p>
+                  <input type="number" class="qtyclass" placeholder="Qty" ng-model="image.field3" ng-change="submitData(image)" ng-model-options="{ debounce: 800 }">
+                </div>
+              </div>
+            </div>
+            <div ng-if="!isLoading && displayedRows.length === 0" class="text-center p-5">
+              <p class="text-muted">No products found.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div id="enlarged-image-overlay" class="enlarged-image-overlay" ng-click="closeEnlargedImage()"> <img class="enlarged-image-content" id="enlarged-image" src=""> </div>
+  
+  <div class="modal fade" id="myModal" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{dynamicField2Value}}'s Order List</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center" ng-repeat="item in allOrders | filter:{field2: dynamicField2Value}:true | orderBy:'-serverTimestamp'">
+              <div class="d-flex align-items-center">
+                <img ng-src="{{item.field1}}" class="order-item-img">
+                <div>
+                  <div class="fw-bold">{{item.productName}}</div>
+                  <small class="text-muted">{{item.productPrice | currency:"₹":0 }}</small>
+                </div>
+              </div>
+              <div class="d-flex align-items-center">
+                  <div class="qty-control">
+                      <button class="btn btn-secondary btn-sm" ng-click="decrementOrderItem(item)">-</button>
+                      <span class="qty-display">{{item.field3}}</span>
+                      <button class="btn btn-secondary btn-sm" ng-click="incrementOrderItem(item)">+</button>
+                  </div>
+                <button class="btn btn-outline-danger btn-sm ms-3" ng-click="deleteOrderItem(item)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </li>
+          </ul>
+          <div ng-if="(allOrders | filter:{field2: dynamicField2Value}:true).length === 0" class="text-center p-5">
+            <p class="text-muted">You have not ordered any items yet.</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+            <strong class="me-auto">Total: {{ calculateOrderTotal() | currency:"₹":0 }}</strong>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
+
+  <script>
+    // Back Button Control
+    history.pushState(null, null, location.href);
+    window.addEventListener('popstate', function (event) {
+        var productModalEl = document.getElementById('productModal');
+        var orderModalEl = document.getElementById('myModal');
+        
+        var productModal = bootstrap.Modal.getInstance(productModalEl);
+        var orderModal = bootstrap.Modal.getInstance(orderModalEl);
+
+        if (productModal && productModalEl.classList.contains('show')) {
+            productModal.hide();
+        } else if (orderModal && orderModalEl.classList.contains('show')) {
+            orderModal.hide();
+        } else {
+            history.pushState(null, null, location.href);
+        }
+    });
+
+    // Login Logic
+    (function() {
+        var loginConfig = {
+            apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
+            authDomain: "shop-reminder-3ce10.firebaseapp.com",
+            databaseURL: "https://shop-reminder-3ce10-default-rtdb.firebaseio.com",
+        };
+        var loginApp = firebase.initializeApp(loginConfig, 'loginApp');
+        var loginDb = loginApp.database();
+        var blockedNumbers = ['7000913701', '9876543210', '9123456789', '8987854256', '9039199794', '9166220046', '8269731352'];
+        
+        window.validateLogin = function() {
+            try {
+                var nameInput = document.getElementById('name');
+                var mobileInput = document.getElementById('mobile');
+                var name = nameInput.value.trim();
+                var mobile = mobileInput.value.trim();
+                if (name.length < 4 || !/^[6-9]\d{9}$/.test(mobile) || blockedNumbers.includes(mobile)) {
+                    alert('Please enter valid details.'); return;
+                }
+                loginDb.ref('users').push({ name: name, mobile: mobile, timestamp: firebase.database.ServerValue.TIMESTAMP });
+                localStorage.setItem('name', name);
+                localStorage.setItem('mobile', mobile);
+                var scope = angular.element(document.body).scope();
+                if (scope) {
+                    scope.$apply(function() { scope.dynamicField2Value = name; });
+                }
+                document.getElementById('login-container').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            } catch(e) { console.error("Login Error:", e); }
+        };
+        function autoLogin() {
+            var name = localStorage.getItem('name');
+            var mobile = localStorage.getItem('mobile');
+            if (name && mobile) {
+                document.getElementById('name').value = name;
+                document.getElementById('mobile').value = mobile;
+                window.validateLogin();
+            }
+        };
+        window.onload = autoLogin;
+    })();
+    
+    // AngularJS Application
+    var app = angular.module('myApp', ['firebase']);
+    app.controller('imagesController', ['$scope', '$firebaseArray', '$filter', '$window', '$timeout', '$sce', function($scope, $firebaseArray, $filter, $window, $timeout, $sce) {
+        var vm = this;
+        vm.images = [];
+        $scope.displayedRows = [];
+        $scope.sortOrder = 'default';
+        $scope.dynamicField2Value = localStorage.getItem('name') || '';
+        $scope.isLoading = true;
+
+        // Firebase Setup
+        var fetchConfig = { databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com" };
+        var submitConfig = { databaseURL: "https://notes-12519-default-rtdb.firebaseio.com" };
+        var fetchApp = firebase.initializeApp(fetchConfig, 'fetchApp');
+        var submitApp = firebase.initializeApp(submitConfig, 'submitApp');
+        var fetchDb = fetchApp.database().ref();
+        var submitDb = submitApp.database().ref();
+        
+        $firebaseArray(fetchDb).$loaded().then(data => {
+            vm.images = data.filter(item => !item.outOfStock);
+            $scope.isLoading = false;
+            $scope.updateDisplayedProducts();
+        });
+        
+        $scope.allOrders = $firebaseArray(submitDb);
+
+        // Category Data
+        $scope.categories = [
+            { id: 0, name: 'ALL PRODUCTS', filter: '', imageUrl: 'https://www.hindustantoys.in/images/all.jpeg' },
+            { id: 39, name: 'RAKHI SPECIAL', filter: 'RAKHI', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2025-07-15T09%3A53%3A46.047Z_DOLL%20(MIX)_eaa17f06-7fb6-473a-a75c-05a60fdf2b9f.jpg?alt=media&token=0a3e5de7-a66d-48eb-8223-30a99d3954a7?alt=media&token=64ee5147-65c7-4de8-897d-55df6cb84857' },
+            { id: 38, name: 'UMBRELLA', filter: 'UMBRELLA', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2024-06-24T16%3A35%3A31.407Z_RAINBOW%20UMBRELLA_IMG-20240529-WA0047.jpg?alt=media&token=64ee5147-65c7-4de8-897d-55df6cb84857' },
+            { id: 10, name: 'LUMO & OTHER', filter: 'LUMO', imageUrl: 'https://www.hindustantoys.in/images/lumo.jpeg' },
+            { id: 36, name: 'BAT BALL & SET', filter: 'BAT BALL', imageUrl: 'https://www.hindustantoys.in/images/bat.jpeg' },
+            { id: 35, name: 'CARROM BOARD', filter: 'CARROM', imageUrl: 'https://www.hindustantoys.in/images/carrom.jpeg' },
+            { id: 37, name: 'SWINGS', filter: 'SWING', imageUrl: 'https://www.hindustantoys.in/images/swing.jpeg' },
+            { id: 3, name: 'INDIAN TOYS', filter: 'INDIAN TOYS', imageUrl: 'https://www.hindustantoys.in/images/JCB.jpeg' },
+            { id: 9, name: 'MIX TOYS', filter: 'MIX', imageUrl: 'https://www.hindustantoys.in/images/mix.jpeg' },
+            { id: 13, name: 'BATTERY OPERATED', filter: 'BATTERY', imageUrl: 'https://www.hindustantoys.in/images/battery.jpeg' },
+            { id: 34, name: 'VALENTINES/TEDDY', filter: 'TEDDY', imageUrl: 'https://www.hindustantoys.in/images/TEDDY.jpg' },
+            { id: 31, name: 'KITCHEN SETS', filter: 'KITCHEN', imageUrl: 'https://www.hindustantoys.in/images/KITCHEN.jpg' },
+            { id: 6, name: 'RACKET', filter: 'RACKET', imageUrl: 'https://www.hindustantoys.in/images/racket.jpeg' },
+            { id: 7, name: 'REMOTE CAR', filter: 'REMOTE', imageUrl: 'https://www.hindustantoys.in/images/remote.jpeg' },
+            { id: 11, name: 'MAGIC RIDDER', filter: 'RIDDER', imageUrl: 'https://www.hindustantoys.in/images/ridder.jpeg' },
+            { id: 25, name: 'HIGH QUALITY', filter: 'HIGH QUALITY', imageUrl: 'https://www.hindustantoys.in/images/high.jpeg' },
+            { id: 30, name: 'HT PRODUCTS', filter: 'OWN', imageUrl: 'https://www.hindustantoys.in/images/htquality.jpg' },
+            { id: 29, name: 'PALNA', filter: 'PALNA', imageUrl: 'https://www.hindustantoys.in/images/palna.png' },
+            { id: 5, name: 'WALKER', filter: 'WALKER', imageUrl: 'https://www.hindustantoys.in/images/walker.jpeg' },
+            { id: 28, name: 'LUNCH BOX', filter: 'LUNCH BOX', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2025-07-01T08%3A45%3A26.021Z_LUNCH%20BOX_667798d8-2789-471f-985a-8605b19313b1.jpg?alt=media&token=bb3a00ab-a86c-43c5-9e10-d18f4a427451' },
+            { id: 27, name: 'PENCIL BOX', filter: 'PENCIL BOX', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+            { id: 23, name: 'WATER BOTTLE', filter: 'BOTTLE', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+            { id: 26, name: 'BOARD GAME', filter: 'BOARD GAME', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+            { id: 22, name: 'EDUCATIONAL', filter: 'EDUCATIONAL', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+            { id: 21, name: 'BIG ITEMS', filter: 'BIG', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+            { id: 20, name: 'STUDY TABLE', filter: 'STUDY TABLE', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+            { id: 19, name: 'TRICYCLES', filter: 'TRICYCLE', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+            { id: 18, name: 'SPORTS ITEM', filter: 'SPORTS', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+            { id: 17, name: 'PATTA ITEMS', filter: 'PATTA', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+            { id: 15, name: 'GUNS VARIETY', filter: 'GUN', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+            { id: 1, name: 'STATIONERY', filter: 'STATIONERY', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+            { id: 8, name: 'DOLL', filter: 'DOLL', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+            { id: 12, name: 'FANCY ITEMS', filter: 'FANCY', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+            { id: 14, name: 'DOZEN PACKING', filter: 'DOZEN', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+            { id: 32, name: 'GODOWN-1', filter: 'G1', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+            { id: 33, name: 'GODOWN-2', filter: 'G2', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+            { id: 16, name: 'EMPTY', filter: 'GUN', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' }
+        ];
+        
+        // Modal Management
+        var productModal = new bootstrap.Modal(document.getElementById('productModal'));
+        
+        $scope.openGlobalSearch = function() {
+            if (!$scope.searchQuery) return;
+            $scope.productNameFilter = '';
+            $scope.activeCategoryName = `Search: "${$scope.searchQuery}"`;
+            $scope.updateDisplayedProducts();
+            history.pushState({ modalId: 'productModal' }, '');
+            productModal.show();
+        };
+
+        $scope.setTab = function(filter, tabId) {
+            $scope.productNameFilter = filter;
+            $scope.searchQuery = '';
+            $scope.activeCategoryName = $scope.categories.find(c => c.id === tabId)?.name || 'Products';
+            $scope.updateDisplayedProducts();
+            history.pushState({ modalId: 'productModal' }, '');
+            productModal.show();
+        };
+
+        $scope.getTrustedOrderUrl = function() {
+            if (!$scope.dynamicField2Value) return '';
+            var baseUrl = 'https://hunkaammy.github.io/mywebsite/NEWWEBSITE/order1?myInput=';
+            return $sce.trustAsResourceUrl(baseUrl + $scope.dynamicField2Value);
+        };
+
+        // Order Management
+        $scope.incrementOrderItem = function(item) {
+            item.field3 = parseInt(item.field3) + 1;
+            $scope.allOrders.$save(item);
+        };
+
+        $scope.decrementOrderItem = function(item) {
+            var newQty = parseInt(item.field3) - 1;
+            if (newQty < 1) {
+                newQty = 1;
+            }
+            item.field3 = newQty;
+            $scope.allOrders.$save(item);
+        };
+
+        $scope.deleteOrderItem = function(item) {
+            $scope.allOrders.$remove(item);
+        };
+        
+        $scope.calculateOrderTotal = function() {
+            var total = 0;
+            if (!$scope.allOrders) return 0;
+            for (var i = 0; i < $scope.allOrders.length; i++) {
+                var item = $scope.allOrders[i];
+                if (item.field2 === $scope.dynamicField2Value) {
+                    total += (parseFloat(item.productPrice) || 0) * (parseInt(item.field3) || 0);
+                }
+            }
+            return total;
+        };
+
+        // Admin function
+        $scope.markOutOfStock = function(image) {
+            if (!image || !image.$id) return;
+            var itemRef = fetchDb.child(image.$id);
+            itemRef.update({ 
+                outOfStock: true,
+                lastModified: firebase.database.ServerValue.TIMESTAMP 
+            })
+            .then(function() {
+                const index = vm.images.findIndex(i => i.$id === image.$id);
+                if (index > -1) {
+                    vm.images.splice(index, 1);
+                    $scope.updateDisplayedProducts();
+                }
+            })
+            .catch(function(error) {
+                console.error("Error marking out of stock:", error);
+                alert("An error occurred: " + error.message);
+            });
+        };
+
+        // Data Submission
+        $scope.submitData = function(image) {
+            if (!image) return;
+            var uniqueId = image.quantityId || ($scope.dynamicField2Value.replace(/[^a-zA-Z0-9]/g, '') + '-' + image.$id);
+            image.quantityId = uniqueId;
+            var recordRef = submitDb.child(uniqueId);
+
+            if (!image.field3 || image.field3 <= 0) {
+                recordRef.remove();
+                return; 
+            }
+
+            const now = new Date();
+            const date = now.toLocaleDateString('en-IN', {day: '2-digit', month: '2-digit', year: 'numeric'});
+            const time = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase();
+
+            var dataToSubmit = {
+                field1: image.url,
+                field2: $scope.dynamicField2Value,
+                field3: image.field3,
+                productName: image.name,
+                productPrice: image.price,
+                serverTimestamp: firebase.database.ServerValue.TIMESTAMP,
+                submitDate: date,
+                submitTime: time
+            };
+            
+            recordRef.set(dataToSubmit).then(() => {
+                image.justSaved = true;
+                $timeout(() => { image.justSaved = false; }, 2000);
+            });
+        };
+        
+        // Enlarge Image functions
+        $scope.showEnlargedImage = function(src) {
+            const overlay = document.getElementById('enlarged-image-overlay');
+            if (overlay) {
+                overlay.style.display = 'flex';
+                overlay.querySelector('img').src = src;
+            }
+        };
+
+        $scope.closeEnlargedImage = function() {
+            const overlay = document.getElementById('enlarged-image-overlay');
+            if (overlay) {
+                overlay.style.display = 'none';
+            }
+        };
+        
+        // Efficiently updates the product list for display
+        $scope.updateDisplayedProducts = function() {
+            if ($scope.isLoading || !$scope.dynamicField2Value) {
+                return;
+            }
+
+            let filteredImages = vm.images;
+            if ($scope.productNameFilter) {
+                 filteredImages = $filter('filter')(vm.images, { name: $scope.productNameFilter });
+            }
+            if ($scope.searchQuery && !$scope.productNameFilter) {
+                filteredImages = $filter('filter')(filteredImages, { name: $scope.searchQuery });
+            }
+
+            if ($scope.sortOrder === 'price') {
+                filteredImages = $filter('orderBy')(filteredImages, 'price');
+            } else if ($scope.sortOrder === '-price') {
+                filteredImages = $filter('orderBy')(filteredImages, '-price');
+            } else {
+                filteredImages = filteredImages.slice().reverse();
+            }
+
+            var rows = [];
+            for (var i = 0; i < filteredImages.length; i += 2) {
+                rows.push(filteredImages.slice(i, i + 2));
+            }
+            $scope.displayedRows = rows;
+        };
+        
+        // Logout
+        $scope.logout = function() {
+            localStorage.clear();
+            window.location.reload();
+        }
+    }]);
+  </script>
+</body>
+</html>
