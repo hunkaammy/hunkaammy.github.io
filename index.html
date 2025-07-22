@@ -42,9 +42,18 @@
     .page-title {
         font-size: 18px;
         font-weight: 600;
-        margin-bottom: 20px;
+       
     }
     
+    /* New section container style */
+    .section-container {
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: var(--card-shadow);
+        padding: 15px; /* Added padding */
+        margin-bottom: 20px; /* Space below the section */
+    }
+
     .category-grid-container {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -52,9 +61,9 @@
     }
 
     .category-card {
-      background-color: #fff;
-      border-radius: 12px;
-      box-shadow: var(--card-shadow);
+      background-color: #fff; /* Added for card background */
+      border-radius: 12px; /* Card border radius */
+      box-shadow: var(--card-shadow); /* Card shadow */
       padding: 12px;
       text-align: center;
       cursor: pointer;
@@ -203,9 +212,7 @@
     /* Styles for the manual slideshow (now horizontal scroll) */
     .manual-slideshow-container {
       position: relative;
-      margin-bottom: 20px;
-      /* removed overflow: hidden here as we want the child to scroll */
-      padding: 0 10px; /* Example horizontal padding */
+      /* padding removed from here, moved to section-container */
     }
 
     /* This container now holds the horizontally scrolling items */
@@ -294,45 +301,49 @@
       <div class="w-100 text-center mt-1"><small class="text-muted">Welcome, {{dynamicField2Value}}</small></div>
     </div>
 
-    <h2 class="page-title">Newly Arrived</h2>
-    <div class="manual-slideshow-container">
-        <div class="manual-slideshow-scroll-wrapper" ng-if="isLoadingNewlyArrived">
-            <div class="card skeleton-card" ng-repeat="i in [1,2,3,4,5]">
-                <div class="skeleton-image"></div>
-                <div class="containers">
-                    <div class="skeleton-line short"></div>
-                    <div class="skeleton-line"></div>
-                    <div class="skeleton-line short"></div>
+    <div class="section-container">
+        <h2 class="page-title">Newly Arrived</h2>
+        <div class="manual-slideshow-container">
+            <div class="manual-slideshow-scroll-wrapper" ng-if="isLoadingNewlyArrived">
+                <div class="card skeleton-card" ng-repeat="i in [1,2,3,4,5]">
+                    <div class="skeleton-image"></div>
+                    <div class="containers">
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-line short"></div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="manual-slideshow-scroll-wrapper" ng-if="!isLoadingNewlyArrived && newlyArrivedProducts.length > 0">
-            <div class="card" ng-repeat="product in newlyArrivedProducts track by product.$id">
-                <img ng-src="{{product.url}}" alt="{{product.name}}" ng-click="showEnlargedImage(product.url)" loading="lazy">
-                <div class="containers">
-                    <span class="saved-feedback" ng-if="product.justSaved">Saved!</span>
-                    <h4><b>{{product.price | currency:"₹":0 }}</b></h4>
-                    <p>{{product.name}}</p>
-                    <input type="number" class="qtyclass" placeholder="Qty" ng-model="product.field3" ng-change="submitData(product)" ng-model-options="{ debounce: 800 }">
+            <div class="manual-slideshow-scroll-wrapper" ng-if="!isLoadingNewlyArrived && newlyArrivedProducts.length > 0">
+                <div class="card" ng-repeat="product in newlyArrivedProducts track by product.$id">
+                    <img ng-src="{{product.url}}" alt="{{product.name}}" ng-click="showEnlargedImage(product.url)" loading="lazy">
+                    <div class="containers">
+                        <span class="saved-feedback" ng-if="product.justSaved">Saved!</span>
+                        <h4><b>{{product.price | currency:"₹":0 }}</b></h4>
+                        <p>{{product.name}}</p>
+                        <input type="number" class="qtyclass" placeholder="Qty" ng-model="product.field3" ng-change="submitData(product)" ng-model-options="{ debounce: 800 }">
+                    </div>
                 </div>
             </div>
+            <div ng-if="!isLoadingNewlyArrived && newlyArrivedProducts.length === 0" class="text-center p-5 w-100">
+                <p class="text-muted">No newly arrived products.</p>
+            </div>
+            
+            <div class="manual-slideshow-controls"></div>
         </div>
-        <div ng-if="!isLoadingNewlyArrived && newlyArrivedProducts.length === 0" class="text-center p-5 w-100">
-            <p class="text-muted">No newly arrived products.</p>
-        </div>
-        
-        <div class="manual-slideshow-controls"></div>
     </div>
-    <hr> <h2 class="page-title">Browse Categories</h2>
-    <div class="category-grid-container">
-        <div class="skeleton-category-card" ng-if="isLoadingCategories" ng-repeat="i in [1,2,3,4,5,6]">
-            <div class="icon"></div>
-            <div class="text"></div>
-        </div>
-        <div class="category-card" ng-if="!isLoadingCategories" ng-repeat="category in categories" ng-click="setTab(category.filter, category.id)">
-            <img ng-src="{{category.imageUrl}}" alt="{{category.name}}">
-            <span>{{category.name}}</span>
+    <hr> <div class="section-container">
+        <h2 class="page-title">Browse Categories</h2>
+        <div class="category-grid-container">
+            <div class="skeleton-category-card" ng-if="isLoadingCategories" ng-repeat="i in [1,2,3,4,5,6]">
+                <div class="icon"></div>
+                <div class="text"></div>
+            </div>
+            <div class="category-card" ng-if="!isLoadingCategories" ng-repeat="category in categories" ng-click="setTab(category.filter, category.id)">
+                <img ng-src="{{category.imageUrl}}" alt="{{category.name}}">
+                <span>{{category.name}}</span>
+            </div>
         </div>
     </div>
 
@@ -559,7 +570,6 @@
             $scope.isLoading = false; // Main product list is loaded
             
             // Populate newly arrived products: sort by date (newest first) and take top 50
-            // ✨ MODIFIED: Changed slice(0, 5) to slice(0, 50)
             $scope.newlyArrivedProducts = $filter('orderBy')(vm.images, '-date').slice(0, 50);
             
             // No longer group into slides for the newly arrived section, directly use the list
@@ -695,7 +705,6 @@
                     vm.images.splice(index, 1);
                     $scope.updateDisplayedProducts();
                     // Re-calculate newly arrived products after removing an item
-                    // ✨ MODIFIED: Changed slice(0, 5) to slice(0, 50) here too, for consistency if admin action affects newly arrived
                     $scope.newlyArrivedProducts = $filter('orderBy')(vm.images, '-date').slice(0, 50);
                     // No more slides logic needed here
                 }
@@ -786,7 +795,6 @@
                 filteredImages = $filter('orderBy')(filteredImages, '-price');
             } else {
                 // Default sort: newest first (assuming 'date' exists and is a timestamp)
-                // ✨ MODIFIED: Changed from '-timestamp' to '-date' for sorting
                 filteredImages = $filter('orderBy')(filteredImages, '-date');
             }
 
