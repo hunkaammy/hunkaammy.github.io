@@ -240,7 +240,7 @@
 
     /* Adjust image size within the smaller cards */
     .manual-slideshow-scroll-wrapper .card img {
-        height: 120px; /* Adjust height as needed for smaller cards */
+
         object-fit: cover; /* Cover the area, cropping if necessary */
     }
     /* Ensure containers and text adjust to smaller card size */
@@ -296,7 +296,12 @@
             </ul>
         </div>
       </div>
-      <div class="w-100 text-center mt-1"><small class="text-muted">Welcome, {{dynamicField2Value}}</small></div>
+      <div class="d-flex w-100 justify-content-center align-items-center mt-1">
+        <small class="text-muted me-3">Welcome, {{dynamicField2Value}}</small>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="priceToggle" ng-model="priceVisible" ng-change="togglePriceVisibility()">
+        </div>
+      </div>
     </div>
 
     <div class="section-container">
@@ -318,7 +323,7 @@
                     <img ng-src="{{product.url}}" alt="{{product.name}}" ng-click="showEnlargedImage(product.url)" loading="lazy">
                     <div class="containers">
                         <span class="saved-feedback" ng-if="product.justSaved">Saved!</span>
-                        <h4><b>{{product.price | currency:"₹":0 }}</b></h4>
+                        <h4 ng-if="priceVisible"><b>{{product.price | currency:"₹":0 }}</b></h4>
                         <p>{{product.name}}</p>
                         <input type="number" class="qtyclass" placeholder="Qty" ng-model="product.field3" ng-change="submitData(product)" ng-model-options="{ debounce: 800 }">
                     </div>
@@ -372,7 +377,7 @@
                 </button>
                 <div class="containers">
                   <span class="saved-feedback" ng-if="image.justSaved">Saved!</span>
-                  <h4><b>{{image.price | currency:"₹":0 }}</b></h4>
+                  <h4 ng-if="priceVisible"><b>{{image.price | currency:"₹":0 }}</b></h4>
                   <p>{{image.name}}</p>
                   <p ng-if="image.videourl"><a href="https://hunkaammy.github.io/mywebsite/videos/{{image.videourl}}.mp4" target="_blank">Watch Video</a></p>
                   <input type="number" class="qtyclass" placeholder="Qty" ng-model="image.field3" ng-change="submitData(image)" ng-model-options="{ debounce: 800 }">
@@ -404,7 +409,7 @@
                 <img ng-src="{{item.field1}}" class="order-item-img">
                 <div>
                   <div class="fw-bold">{{item.productName}}</div>
-                  <small class="text-muted">{{item.productPrice | currency:"₹":0 }}</small>
+                  <small class="text-muted" ng-if="priceVisible">{{item.productPrice | currency:"₹":0 }}</small>
                 </div>
               </div>
               <div class="d-flex align-items-center">
@@ -424,7 +429,7 @@
           </div>
         </div>
         <div class="modal-footer">
-            <strong class="me-auto">Total: {{ calculateOrderTotal() | currency:"₹":0 }}</strong>
+            <strong class="me-auto" ng-if="priceVisible">Total: {{ calculateOrderTotal() | currency:"₹":0 }}</strong>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
@@ -524,6 +529,7 @@
         $scope.displayedRows = [];
         $scope.sortOrder = 'default';
         $scope.dynamicField2Value = localStorage.getItem('name') || '';
+        $scope.priceVisible = localStorage.getItem('priceVisible') !== 'false'; // Default to true unless it's 'false'
         
         // Separate loading states for different sections
         $scope.isLoading = true; // For product modal
@@ -531,16 +537,6 @@
         $scope.isLoadingNewlyArrived = true; // For newly arrived section
 
         $scope.newlyArrivedProducts = [];
-        // No longer need newlyArrivedSlides as we're using native horizontal scroll
-        // $scope.newlyArrivedSlides = []; 
-        // No longer need these for native scroll
-        // $scope.currentNewlyArrivedSlideIndex = 0; 
-        // $scope.slideOffset = 0; 
-
-        // No longer need these for native scroll
-        // $scope.touchStartX = 0;
-        // $scope.currentTranslateX = 0;
-        // $scope.isSwiping = false;
 
         // Firebase Setup - Check if app already exists before initializing
         var fetchConfig = { databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com" };
@@ -569,13 +565,7 @@
             
             // Populate newly arrived products: sort by date (newest first) and take top 50
             $scope.newlyArrivedProducts = $filter('orderBy')(vm.images, '-date').slice(0, 50);
-            
-            // No longer group into slides for the newly arrived section, directly use the list
-            // $scope.newlyArrivedSlides = [];
-            // const itemsPerSlide = 2; 
-            // for (let i = 0; i < $scope.newlyArrivedProducts.length; i += itemsPerSlide) {
-            //     $scope.newlyArrivedSlides.push($scope.newlyArrivedProducts.slice(i, i + itemsPerSlide));
-            // }
+
             $scope.isLoadingNewlyArrived = false; // Newly arrived products are loaded
             $scope.updateDisplayedProducts(); // Initial update for product modal
         }).catch(error => {
@@ -586,7 +576,6 @@
         
         // Fetch all orders for the order list modal
         $scope.allOrders = $firebaseArray(submitDb);
-        // Once categories are static, this can be removed or fetch from a db if dynamic
         $scope.isLoadingCategories = false; // Categories are static, so mark as loaded immediately
         
         // Category Data (unchanged, as it's static)
@@ -650,6 +639,10 @@
             history.pushState({ modalId: 'productModal' }, '');
             productModal.show();
         };
+        
+        $scope.togglePriceVisibility = function() {
+            localStorage.setItem('priceVisible', $scope.priceVisible);
+        };
 
         $scope.getTrustedOrderUrl = function() {
             if (!$scope.dynamicField2Value) return '';
@@ -704,7 +697,6 @@
                     $scope.updateDisplayedProducts();
                     // Re-calculate newly arrived products after removing an item
                     $scope.newlyArrivedProducts = $filter('orderBy')(vm.images, '-date').slice(0, 50);
-                    // No more slides logic needed here
                 }
             })
             .catch(function(error) {
@@ -716,10 +708,9 @@
         // Data Submission
         $scope.submitData = function(image) {
             if (!image) return;
-            // Use image.$id directly if available for uniqueness, otherwise create a fallback
             var baseId = image.$id || image.name.replace(/[^a-zA-Z0-9]/g, ''); 
             var uniqueId = $scope.dynamicField2Value.replace(/[^a-zA-Z0-9]/g, '') + '-' + baseId;
-            image.quantityId = uniqueId; // Store this for potential future updates on the same item
+            image.quantityId = uniqueId;
 
             var recordRef = submitDb.child(uniqueId);
 
@@ -733,19 +724,18 @@
             const time = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase();
 
             var dataToSubmit = {
-                field1: image.url, // product image URL
-                field2: $scope.dynamicField2Value, // customer's shop name
-                field3: image.field3, // quantity
+                field1: image.url,
+                field2: $scope.dynamicField2Value,
+                field3: image.field3,
                 productName: image.name,
                 productPrice: image.price,
-                serverTimestamp: firebase.database.ServerValue.TIMESTAMP, // Firebase server timestamp
+                serverTimestamp: firebase.database.ServerValue.TIMESTAMP,
                 submitDate: date,
                 submitTime: time
             };
             
             recordRef.set(dataToSubmit).then(() => {
                 image.justSaved = true;
-                // Use $timeout for smooth UI feedback and automatic digest cycle
                 $timeout(() => { image.justSaved = false; }, 2000);
             }).catch(error => {
                 console.error("Error submitting data:", error);
@@ -772,17 +762,14 @@
         // Efficiently updates the product list for display in the modal
         $scope.updateDisplayedProducts = function() {
             if ($scope.isLoading || !$scope.dynamicField2Value) {
-                // If main products are still loading or shop name not set, don't update
                 return;
             }
 
             let filteredImages = vm.images;
             if ($scope.productNameFilter) {
-                 // Filter by category if a category tab is active
                  filteredImages = $filter('filter')(vm.images, { name: $scope.productNameFilter });
             }
             if ($scope.searchQuery && !$scope.productNameFilter) {
-                // If a global search query is active and no category filter, apply search
                 filteredImages = $filter('filter')(filteredImages, { name: $scope.searchQuery });
             }
 
@@ -792,31 +779,20 @@
             } else if ($scope.sortOrder === '-price') {
                 filteredImages = $filter('orderBy')(filteredImages, '-price');
             } else {
-                // Default sort: newest first (assuming 'date' exists and is a timestamp)
                 filteredImages = $filter('orderBy')(filteredImages, '-date');
             }
 
-            // Group into rows for grid display (2 items per row)
             var rows = [];
             for (var i = 0; i < filteredImages.length; i += 2) {
                 rows.push(filteredImages.slice(i, i + 2));
             }
             $scope.displayedRows = rows;
         };
-        
-        // --- Removed: Manual Slideshow functions for Newly Arrived Section ---
-        // These are no longer needed as we're using native horizontal scroll
-        // $scope.nextNewlyArrived = function() { ... };
-        // $scope.prevNewlyArrived = function() { ... };
-        // $scope.getSlideTransform = function() { ... };
-        // $scope.startTouch = function(event) { ... };
-        // $scope.moveTouch = function(event) { ... };
-        // $scope.endTouch = function() { ... };
 
         // Logout
         $scope.logout = function() {
             localStorage.clear();
-            $window.location.reload(); // Reload the page to reset the app state
+            $window.location.reload();
         };
     }]);
   </script>
