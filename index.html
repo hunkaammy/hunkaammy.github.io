@@ -210,59 +210,51 @@
     /* Styles for the manual slideshow (now horizontal scroll) */
     .manual-slideshow-container {
       position: relative;
-      /* padding removed from here, moved to section-container */
     }
 
-    /* This container now holds the horizontally scrolling items */
     .manual-slideshow-scroll-wrapper {
         display: flex;
-        flex-wrap: nowrap; /* Keep items in a single line */
-        overflow-x: auto !important; /* Enable horizontal scrolling */
-        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-        scroll-snap-type: x mandatory; /* Snap to items */
-        padding-bottom: 10px; /* Space for scrollbar if present */
-        gap: 12px; /* Gap between cards */
-        /* Hide scrollbar for a cleaner look (optional) */
-        scrollbar-width: none; /* Firefox */
-        -ms-overflow-style: none;  /* IE and Edge */
+        flex-wrap: nowrap; 
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch; 
+        scroll-snap-type: x mandatory; 
+        padding-bottom: 10px;
+        gap: 12px; 
+        scrollbar-width: none;
+        -ms-overflow-style: none; 
     }
     .manual-slideshow-scroll-wrapper::-webkit-scrollbar {
-        display: none; /* Chrome, Safari, Opera */
+        display: none;
     }
 
 
-    /* Individual product card within the horizontally scrolling section */
     .manual-slideshow-scroll-wrapper .card {
-      flex-shrink: 0; /* Prevent cards from shrinking */
-      width: 150px; /* Set a fixed width for smaller cards */
-      scroll-snap-align: start; /* Snap each card to the start of the scroll area */
+      flex-shrink: 0;
+      width: 150px;
+      scroll-snap-align: start;
     }
 
-    /* Adjust image size within the smaller cards */
     .manual-slideshow-scroll-wrapper .card img {
-
-        object-fit: cover; /* Cover the area, cropping if necessary */
+        object-fit: cover;
     }
-    /* Ensure containers and text adjust to smaller card size */
     .manual-slideshow-scroll-wrapper .card .containers {
-        padding: 6px; /* Reduced padding */
+        padding: 6px;
     }
     .manual-slideshow-scroll-wrapper .card .containers h4 {
-        font-size: 12px; /* Smaller font for price */
+        font-size: 12px;
     }
     .manual-slideshow-scroll-wrapper .card .containers p {
-        font-size: 10px; /* Smaller font for name */
+        font-size: 10px; 
         line-height: 1.2;
     }
     .manual-slideshow-scroll-wrapper .card .qtyclass {
-        height: 28px; /* Smaller quantity input */
+        height: 28px;
         width: 45px;
         font-size: 11px;
     }
 
-    /* Controls are hidden as we're using native scroll */
     .manual-slideshow-controls {
-      display: none; /* Hide buttons */
+      display: none;
     }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
@@ -530,16 +522,13 @@
         $scope.displayedRows = [];
         $scope.sortOrder = 'default';
         $scope.dynamicField2Value = localStorage.getItem('name') || '';
-        $scope.priceVisible = localStorage.getItem('priceVisible') !== 'false'; // Default to true unless it's 'false'
+        $scope.priceVisible = localStorage.getItem('priceVisible') !== 'false';
         
-        // Separate loading states for different sections
-        $scope.isLoading = true; // For product modal
-        $scope.isLoadingCategories = true; // For category grid
-        $scope.isLoadingNewlyArrived = true; // For newly arrived section
-
+        $scope.isLoading = true;
+        $scope.isLoadingCategories = true;
+        $scope.isLoadingNewlyArrived = true;
         $scope.newlyArrivedProducts = [];
 
-        // Firebase Setup - Check if app already exists before initializing
         var fetchConfig = { databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com" };
         var submitConfig = { databaseURL: "https://notes-12519-default-rtdb.firebaseio.com" };
         
@@ -559,36 +548,50 @@
         }
         var submitDb = submitApp.database().ref();
         
-        // Fetch all products for main display and newly arrived section
-        $firebaseArray(fetchDb).$loaded().then(data => {
-            vm.images = data.filter(item => !item.outOfStock);
-            $scope.isLoading = false; // Main product list is loaded
-            
-            // Calculate product counts for each category
-            angular.forEach($scope.categories, function(category) {
-                if (category.filter === '') {
-                    category.productCount = vm.images.length; // For 'ALL PRODUCTS'
-                } else {
-                    category.productCount = $filter('filter')(vm.images, { name: category.filter }).length;
-                }
+        // **FIX**: Use a one-time read with the core SDK to prevent real-time conflicts.
+        fetchDb.once('value').then(function(snapshot) {
+            const allData = [];
+            snapshot.forEach(function(childSnapshot) {
+                var item = childSnapshot.val();
+                item.$id = childSnapshot.key; // Manually add the ID
+                allData.push(item);
             });
-            
-            // Populate newly arrived products: sort by date (newest first) and take top 50
-            $scope.newlyArrivedProducts = $filter('orderBy')(vm.images, '-date').slice(0, 50);
 
-            $scope.isLoadingNewlyArrived = false; // Newly arrived products are loaded
-            $scope.updateDisplayedProducts(); // Initial update for product modal
-        }).catch(error => {
+            vm.images = allData.filter(item => !item.outOfStock);
+
+            // Since this is outside Angular's cycle, wrap all scope updates in $scope.$apply
+            $scope.$apply(function() {
+                // Calculate product counts
+                angular.forEach($scope.categories, function(category) {
+                    if (category.filter === '') {
+                        category.productCount = vm.images.length;
+                    } else {
+                        category.productCount = $filter('filter')(vm.images, { name: category.filter }).length;
+                    }
+                });
+
+                // Populate newly arrived products
+                $scope.newlyArrivedProducts = $filter('orderBy')(vm.images, '-date').slice(0, 50);
+
+                // Update loading states
+                $scope.isLoading = false;
+                $scope.isLoadingCategories = false;
+                $scope.isLoadingNewlyArrived = false;
+
+                $scope.updateDisplayedProducts();
+            });
+        }).catch(function(error) {
             console.error("Error loading products:", error);
-            $scope.isLoading = false;
-            $scope.isLoadingNewlyArrived = false;
+            $scope.$apply(function() {
+                $scope.isLoading = false;
+                $scope.isLoadingNewlyArrived = false;
+                $scope.isLoadingCategories = false;
+            });
         });
         
-        // Fetch all orders for the order list modal
+        // The order list can still use AngularFire for its real-time updates.
         $scope.allOrders = $firebaseArray(submitDb);
-        $scope.isLoadingCategories = false; // Categories are static, so mark as loaded immediately
         
-        // Category Data (unchanged, as it's static)
         $scope.categories = [
             { id: 0, name: 'ALL PRODUCTS', filter: '', imageUrl: 'https://www.hindustantoys.in/images/all.jpeg' },
             { id: 39, name: 'RAKHI SPECIAL', filter: 'RAKHI', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2025-07-15T09%3A53%3A46.047Z_DOLL%20(MIX)_eaa17f06-7fb6-473a-a75c-05a60fdf2b9f.jpg?alt=media&token=0a3e5de7-a66d-48eb-8223-30a99d3954a7?alt=media&token=64ee5147-65c7-4de8-897d-55df6cb84857' },
@@ -629,7 +632,6 @@
             { id: 16, name: 'EMPTY', filter: 'GUN', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' }
         ];
         
-        // Modal Management
         var productModal = new bootstrap.Modal(document.getElementById('productModal'));
         
         $scope.openGlobalSearch = function() {
@@ -660,7 +662,6 @@
             return $sce.trustAsResourceUrl(baseUrl + $scope.dynamicField2Value);
         };
 
-        // Order Management
         $scope.incrementOrderItem = function(item) {
             item.field3 = parseInt(item.field3) + 1;
             $scope.allOrders.$save(item);
@@ -668,9 +669,7 @@
 
         $scope.decrementOrderItem = function(item) {
             var newQty = parseInt(item.field3) - 1;
-            if (newQty < 1) {
-                newQty = 1;
-            }
+            if (newQty < 1) { newQty = 1; }
             item.field3 = newQty;
             $scope.allOrders.$save(item);
         };
@@ -691,46 +690,40 @@
             return total;
         };
 
-        // Admin function
         $scope.markOutOfStock = function(image) {
-            if (!image || !image.$id) return;
-    
-            // Optimistically hide the card. This feels instant and preserves scroll.
-            image.markedForRemoval = true;
-    
+            if (!image || !image.$id || image.markedForRemoval) return;
+
+            // Add a flag to the object to hide it instantly. This is now safe.
+            image.markedForRemoval = true; 
+
             var itemRef = fetchDb.child(image.$id);
             itemRef.update({ 
                 outOfStock: true,
                 lastModified: firebase.database.ServerValue.TIMESTAMP 
             })
             .then(function() {
-                // Now that the DB is updated, permanently remove the item from the local arrays in the background.
+                // Success. Remove the item from our local arrays in the background.
                 $timeout(function() {
                     const index = vm.images.findIndex(i => i.$id === image.$id);
-                    if (index > -1) {
-                        vm.images.splice(index, 1);
-                    }
+                    if (index > -1) vm.images.splice(index, 1);
+                    
                     const newlyArrivedIndex = $scope.newlyArrivedProducts.findIndex(p => p.$id === image.$id);
-                    if (newlyArrivedIndex > -1) {
-                        $scope.newlyArrivedProducts.splice(newlyArrivedIndex, 1);
-                    }
-                }, 300); // Small delay to allow CSS hide animation to be smooth
+                    if (newlyArrivedIndex > -1) $scope.newlyArrivedProducts.splice(newlyArrivedIndex, 1);
+                }, 0);
             })
             .catch(function(error) {
                 console.error("Error marking out of stock:", error);
                 alert("An error occurred: " + error.message);
-                // If the update fails, un-hide the card.
+                // On failure, revert the flag to make the item visible again.
                 image.markedForRemoval = false;
             });
         };
 
-        // Data Submission
         $scope.submitData = function(image) {
             if (!image) return;
             var baseId = image.$id || image.name.replace(/[^a-zA-Z0-9]/g, ''); 
             var uniqueId = $scope.dynamicField2Value.replace(/[^a-zA-Z0-9]/g, '') + '-' + baseId;
-            image.quantityId = uniqueId;
-
+            
             var recordRef = submitDb.child(uniqueId);
 
             if (!image.field3 || image.field3 <= 0) {
@@ -762,7 +755,6 @@
             });
         };
         
-        // Enlarge Image functions
         $scope.showEnlargedImage = function(src) {
             const overlay = document.getElementById('enlarged-image-overlay');
             if (overlay) {
@@ -778,11 +770,8 @@
             }
         };
         
-        // Efficiently updates the product list for display in the modal
         $scope.updateDisplayedProducts = function() {
-            if ($scope.isLoading || !$scope.dynamicField2Value) {
-                return;
-            }
+            if ($scope.isLoading || !$scope.dynamicField2Value) { return; }
 
             let filteredImages = vm.images;
             if ($scope.productNameFilter) {
@@ -792,7 +781,6 @@
                 filteredImages = $filter('filter')(filteredImages, { name: $scope.searchQuery });
             }
 
-            // Apply sorting
             if ($scope.sortOrder === 'price') {
                 filteredImages = $filter('orderBy')(filteredImages, 'price');
             } else if ($scope.sortOrder === '-price') {
@@ -808,7 +796,6 @@
             $scope.displayedRows = rows;
         };
 
-        // Logout
         $scope.logout = function() {
             localStorage.clear();
             $window.location.reload();
