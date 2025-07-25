@@ -371,7 +371,7 @@
           <div ng-if="isLoading" class="grid-row"> </div>
           <div ng-if="!isLoading">
             <div class="grid-row" ng-repeat="row in displayedRows">
-              <div class="card" ng-repeat="image in row">
+              <div class="card" ng-repeat="image in row" ng-hide="image.markedForRemoval">
                 <img ng-src="{{image.url}}" alt="{{image.name}}" ng-click="showEnlargedImage(image.url)" loading="lazy">
                 <button ng-if="dynamicField2Value === 'sammyadmin'" class="btn btn-danger btn-sm mt-2 mx-2" ng-click="markOutOfStock(image)">
                   Mark Out of Stock
@@ -694,24 +694,33 @@
         // Admin function
         $scope.markOutOfStock = function(image) {
             if (!image || !image.$id) return;
+    
+            // Optimistically hide the card. This feels instant and preserves scroll.
+            image.markedForRemoval = true;
+    
             var itemRef = fetchDb.child(image.$id);
             itemRef.update({ 
                 outOfStock: true,
                 lastModified: firebase.database.ServerValue.TIMESTAMP 
             })
             .then(function() {
-                // Remove from vm.images and also from newlyArrivedProducts if present
-                const index = vm.images.findIndex(i => i.$id === image.$id);
-                if (index > -1) {
-                    vm.images.splice(index, 1);
-                    $scope.updateDisplayedProducts();
-                    // Re-calculate newly arrived products after removing an item
-                    $scope.newlyArrivedProducts = $filter('orderBy')(vm.images, '-date').slice(0, 50);
-                }
+                // Now that the DB is updated, permanently remove the item from the local arrays in the background.
+                $timeout(function() {
+                    const index = vm.images.findIndex(i => i.$id === image.$id);
+                    if (index > -1) {
+                        vm.images.splice(index, 1);
+                    }
+                    const newlyArrivedIndex = $scope.newlyArrivedProducts.findIndex(p => p.$id === image.$id);
+                    if (newlyArrivedIndex > -1) {
+                        $scope.newlyArrivedProducts.splice(newlyArrivedIndex, 1);
+                    }
+                }, 300); // Small delay to allow CSS hide animation to be smooth
             })
             .catch(function(error) {
                 console.error("Error marking out of stock:", error);
                 alert("An error occurred: " + error.message);
+                // If the update fails, un-hide the card.
+                image.markedForRemoval = false;
             });
         };
 
