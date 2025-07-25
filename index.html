@@ -109,9 +109,11 @@
 
     .modal-body { background-color: var(--light-gray); }
 
-    .grid-row {
-      display: grid; grid-template-columns: repeat(2, 1fr);
-      gap: 12px; margin-bottom: 12px;
+    /* --- REFACTORED --- Simplified product grid */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
     }
 
     .card {
@@ -360,10 +362,11 @@
           <button type="button" class="btn-close ms-2" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <div ng-if="isLoading" class="grid-row"> </div>
+          <div ng-if="isLoading" class="product-grid">
+            </div>
           <div ng-if="!isLoading">
-            <div class="grid-row" ng-repeat="row in displayedRows">
-              <div class="card" ng-repeat="image in row" ng-hide="image.markedForRemoval">
+            <div class="product-grid">
+              <div class="card" ng-repeat="image in displayedProducts" ng-hide="image.markedForRemoval">
                 <img ng-src="{{image.url}}" alt="{{image.name}}" ng-click="showEnlargedImage(image.url)" loading="lazy">
                 <button ng-if="dynamicField2Value === 'sammyadmin'" class="btn btn-danger btn-sm mt-2 mx-2" ng-click="markOutOfStock(image)">
                   Mark Out of Stock
@@ -377,7 +380,7 @@
                 </div>
               </div>
             </div>
-            <div ng-if="!isLoading && displayedRows.length === 0" class="text-center p-5">
+            <div ng-if="!isLoading && displayedProducts.length === 0" class="text-center p-5">
               <p class="text-muted">No products found.</p>
             </div>
           </div>
@@ -519,7 +522,7 @@
     app.controller('imagesController', ['$scope', '$firebaseArray', '$filter', '$window', '$timeout', '$sce', function($scope, $firebaseArray, $filter, $window, $timeout, $sce) {
         var vm = this;
         vm.images = [];
-        $scope.displayedRows = [];
+        $scope.displayedProducts = []; // REFACTORED: Use a flat array for the view
         $scope.sortOrder = 'default';
         $scope.dynamicField2Value = localStorage.getItem('name') || '';
         $scope.priceVisible = localStorage.getItem('priceVisible') !== 'false';
@@ -553,13 +556,12 @@
             const allData = [];
             snapshot.forEach(function(childSnapshot) {
                 var item = childSnapshot.val();
-                item.$id = childSnapshot.key; // Manually add the ID
+                item.$id = childSnapshot.key;
                 allData.push(item);
             });
 
             vm.images = allData.filter(item => !item.outOfStock);
 
-            // Since this is outside Angular's cycle, wrap all scope updates in $scope.$apply
             $scope.$apply(function() {
                 angular.forEach($scope.categories, function(category) {
                     if (category.filter === '') {
@@ -649,12 +651,6 @@
             localStorage.setItem('priceVisible', $scope.priceVisible);
         };
 
-        $scope.getTrustedOrderUrl = function() {
-            if (!$scope.dynamicField2Value) return '';
-            var baseUrl = 'https://hunkaammy.github.io/mywebsite/NEWWEBSITE/order1?myInput=';
-            return $sce.trustAsResourceUrl(baseUrl + $scope.dynamicField2Value);
-        };
-
         $scope.incrementOrderItem = function(item) {
             item.field3 = parseInt(item.field3) + 1;
             $scope.allOrders.$save(item);
@@ -686,11 +682,6 @@
         $scope.markOutOfStock = function(image) {
             if (!image || !image.$id || image.markedForRemoval) return;
 
-            // Save the current scroll position
-            const modalBody = document.querySelector('#productModal .modal-body');
-            const savedScrollTop = modalBody ? modalBody.scrollTop : 0;
-
-            // Instantly hide the item for immediate feedback
             image.markedForRemoval = true; 
 
             var itemRef = fetchDb.child(image.$id);
@@ -699,27 +690,20 @@
                 lastModified: firebase.database.ServerValue.TIMESTAMP 
             })
             .then(function() {
-                // Remove the item from the master data arrays
-                const index = vm.images.findIndex(i => i.$id === image.$id);
-                if (index > -1) vm.images.splice(index, 1);
-                
-                const newlyArrivedIndex = $scope.newlyArrivedProducts.findIndex(p => p.$id === image.$id);
-                if (newlyArrivedIndex > -1) $scope.newlyArrivedProducts.splice(newlyArrivedIndex, 1);
-
-                // Rebuild the grid structure
-                $scope.updateDisplayedProducts();
-
-                // After the DOM re-renders, restore the scroll position
                 $timeout(function() {
-                    if (modalBody) {
-                        modalBody.scrollTop = savedScrollTop;
-                    }
-                }, 0);
+                    const masterIndex = vm.images.findIndex(i => i.$id === image.$id);
+                    if (masterIndex > -1) vm.images.splice(masterIndex, 1);
+                    
+                    const newlyArrivedIndex = $scope.newlyArrivedProducts.findIndex(p => p.$id === image.$id);
+                    if (newlyArrivedIndex > -1) $scope.newlyArrivedProducts.splice(newlyArrivedIndex, 1);
+
+                    const displayIndex = $scope.displayedProducts.findIndex(p => p.$id === image.$id);
+                    if (displayIndex > -1) $scope.displayedProducts.splice(displayIndex, 1);
+                }, 200); // A small delay for CSS animation before DOM removal
             })
             .catch(function(error) {
                 console.error("Error marking out of stock:", error);
                 alert("An error occurred: " + error.message);
-                // On failure, revert the flag to make the item visible again.
                 image.markedForRemoval = false;
             });
         };
@@ -775,6 +759,7 @@
             }
         };
         
+        // REFACTORED: This now populates a flat array
         $scope.updateDisplayedProducts = function() {
             if ($scope.isLoading || !$scope.dynamicField2Value) { return; }
 
@@ -793,12 +778,8 @@
             } else {
                 filteredImages = $filter('orderBy')(filteredImages, '-date');
             }
-
-            var rows = [];
-            for (var i = 0; i < filteredImages.length; i += 2) {
-                rows.push(filteredImages.slice(i, i + 2));
-            }
-            $scope.displayedRows = rows;
+            
+            $scope.displayedProducts = filteredImages;
         };
 
         $scope.logout = function() {
