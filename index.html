@@ -548,7 +548,7 @@
         }
         var submitDb = submitApp.database().ref();
         
-        // **FIX**: Use a one-time read with the core SDK to prevent real-time conflicts.
+        // Use a one-time read with the core SDK to prevent real-time conflicts.
         fetchDb.once('value').then(function(snapshot) {
             const allData = [];
             snapshot.forEach(function(childSnapshot) {
@@ -561,7 +561,6 @@
 
             // Since this is outside Angular's cycle, wrap all scope updates in $scope.$apply
             $scope.$apply(function() {
-                // Calculate product counts
                 angular.forEach($scope.categories, function(category) {
                     if (category.filter === '') {
                         category.productCount = vm.images.length;
@@ -569,15 +568,10 @@
                         category.productCount = $filter('filter')(vm.images, { name: category.filter }).length;
                     }
                 });
-
-                // Populate newly arrived products
                 $scope.newlyArrivedProducts = $filter('orderBy')(vm.images, '-date').slice(0, 50);
-
-                // Update loading states
                 $scope.isLoading = false;
                 $scope.isLoadingCategories = false;
                 $scope.isLoadingNewlyArrived = false;
-
                 $scope.updateDisplayedProducts();
             });
         }).catch(function(error) {
@@ -589,7 +583,6 @@
             });
         });
         
-        // The order list can still use AngularFire for its real-time updates.
         $scope.allOrders = $firebaseArray(submitDb);
         
         $scope.categories = [
@@ -693,7 +686,11 @@
         $scope.markOutOfStock = function(image) {
             if (!image || !image.$id || image.markedForRemoval) return;
 
-            // Add a flag to the object to hide it instantly. This is now safe.
+            // Save the current scroll position
+            const modalBody = document.querySelector('#productModal .modal-body');
+            const savedScrollTop = modalBody ? modalBody.scrollTop : 0;
+
+            // Instantly hide the item for immediate feedback
             image.markedForRemoval = true; 
 
             var itemRef = fetchDb.child(image.$id);
@@ -702,13 +699,21 @@
                 lastModified: firebase.database.ServerValue.TIMESTAMP 
             })
             .then(function() {
-                // Success. Remove the item from our local arrays in the background.
+                // Remove the item from the master data arrays
+                const index = vm.images.findIndex(i => i.$id === image.$id);
+                if (index > -1) vm.images.splice(index, 1);
+                
+                const newlyArrivedIndex = $scope.newlyArrivedProducts.findIndex(p => p.$id === image.$id);
+                if (newlyArrivedIndex > -1) $scope.newlyArrivedProducts.splice(newlyArrivedIndex, 1);
+
+                // Rebuild the grid structure
+                $scope.updateDisplayedProducts();
+
+                // After the DOM re-renders, restore the scroll position
                 $timeout(function() {
-                    const index = vm.images.findIndex(i => i.$id === image.$id);
-                    if (index > -1) vm.images.splice(index, 1);
-                    
-                    const newlyArrivedIndex = $scope.newlyArrivedProducts.findIndex(p => p.$id === image.$id);
-                    if (newlyArrivedIndex > -1) $scope.newlyArrivedProducts.splice(newlyArrivedIndex, 1);
+                    if (modalBody) {
+                        modalBody.scrollTop = savedScrollTop;
+                    }
                 }, 0);
             })
             .catch(function(error) {
