@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Work Procedures</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            background-color: #f8f8f8;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 20px;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 35px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 850px;
+            border: 1px solid #ddd;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .staff-selection-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .staff-selection-section label {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        #staffSelect {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1.05em;
+            font-family: 'Times New Roman', serif;
+            max-width: 250px;
+        }
+
+        #addStaffBtn, #printBtn { /* Apply styles to both buttons */
+            padding: 10px 15px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s ease;
+            margin-left: 5px; /* Add some space between staff buttons */
+        }
+
+        #addStaffBtn:hover, #printBtn:hover {
+            background-color: #5a6268;
+        }
+
+        .input-section {
+            display: flex;
+            margin-bottom: 25px;
+            gap: 10px;
+        }
+
+        #newTaskInput {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1.1em;
+            font-family: 'Times New Roman', serif;
+        }
+
+        #addTaskBtn {
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.2s ease;
+        }
+
+        #addTaskBtn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Checklist Styling */
+        .checklist-container {
+            padding: 15px 0;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .task-item {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            padding: 5px 0;
+            margin-bottom: 5px;
+        }
+
+        .task-content {
+            display: flex;
+            align-items: flex-start;
+            flex-grow: 1;
+            margin-right: 15px;
+        }
+
+        .task-number {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+            min-width: 70px;
+            text-align: right;
+            padding-right: 15px;
+        }
+
+        .task-text {
+            font-size: 1.1em;
+            color: #333;
+            flex-grow: 1;
+            line-height: 1.4;
+            font-weight: normal;
+        }
+
+        /* Adjust font size and weight for deeper levels */
+        .checklist-level-1 > .task-item > .task-header > .task-content > .task-number { font-size: 1.05em; }
+        .checklist-level-1 > .task-item > .task-header > .task-content > .task-text { font-size: 1.05em; font-style: italic; color: #555; }
+
+        .checklist-level-2 > .task-item > .task-header > .task-content > .task-number { font-size: 1em; }
+        .checklist-level-2 > .task-item > .task-header > .task-content > .task-text { font-size: 1em; font-style: normal; color: #666; }
+
+        .checklist-level-3 > .task-item > .task-header > .task-content > .task-number { font-size: 0.95em; }
+        .checklist-level-3 > .task-item > .task-header > .task-content > .task-text { font-size: 0.95em; font-style: normal; color: #777; }
+
+        /* Deeper levels will have more padding */
+        .checklist-level-0 { padding-left: 0; }
+        .checklist-level-1 { padding-left: 40px; }
+        .checklist-level-2 { padding-left: 40px; }
+        .checklist-level-3 { padding-left: 40px; }
+
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .task-actions button {
+            padding: 7px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s ease;
+        }
+
+        .add-subtask-btn {
+            background-color: #17a2b8;
+            color: white;
+        }
+        .add-subtask-btn:hover {
+            background-color: #138496;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+
+        /* Message when no tasks */
+        .no-tasks-message {
+            text-align: center;
+            padding: 30px;
+            color: #777;
+            font-style: italic;
+            font-size: 1.1em;
+        }
+
+        /* --- Print Specific Styles --- */
+        @media print {
+            body {
+                background-color: #fff; /* White background for print */
+                margin: 0;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none; /* No shadow on print */
+                border: none; /* No border on print */
+                padding: 0; /* Remove padding */
+                margin: 0 auto; /* Center content */
+                max-width: 100%; /* Use full width */
+            }
+            /* Hide UI elements that shouldn't be printed */
+            .staff-selection-section,
+            .input-section,
+            .task-actions,
+            #addStaffBtn,
+            #printBtn {
+                display: none !important;
+            }
+            h1 {
+                margin-top: 20px; /* Add some top margin to title */
+                margin-bottom: 20px;
+                border-bottom: 2px solid #ccc; /* Slightly darker underline for print */
+            }
+            /* Adjust spacing and fonts for readability on paper */
+            .task-item {
+                margin-bottom: 10px;
+                padding-bottom: 5px;
+                border-bottom: 1px dotted #ccc; /* Dotted line for print */
+            }
+            .task-header {
+                padding: 0;
+                margin-bottom: 2px;
+            }
+            .task-number, .task-text {
+                color: #000; /* Ensure black text for print */
+            }
+            .checklist-level-1, .checklist-level-2, .checklist-level-3 {
+                padding-left: 30px; /* Reduce indentation slightly for print */
+            }
+             .checklist-level-1 > .task-item > .task-header > .task-content > .task-text { font-style: normal; } /* Remove italics on print */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Staff Work Procedures</h1>
+
+        <div class="staff-selection-section">
+            <label for="staffSelect">Select Staff:</label>
+            <select id="staffSelect">
+                </select>
+            <button id="addStaffBtn">Add New Staff</button>
+            <button id="printBtn">Print Procedures</button> </div>
+
+        <div class="input-section">
+            <input type="text" id="newTaskInput" placeholder="Add a new main procedure...">
+            <button id="addTaskBtn">Add Procedure</button>
+        </div>
+
+        <div class="checklist-container">
+            <ul id="taskList" class="checklist-level-0">
+                </ul>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get all necessary DOM elements and check if they exist
+            const staffSelect = document.getElementById('staffSelect');
+            const addStaffBtn = document.getElementById('addStaffBtn');
+            const printBtn = document.getElementById('printBtn'); // Get the new print button
+            const newTaskInput = document.getElementById('newTaskInput');
+            const addTaskBtn = document.getElementById('addTaskBtn');
+            const taskListContainer = document.getElementById('taskList');
+
+            // Robust check for all elements - crucial for debugging "not working" issues
+            if (!staffSelect || !addStaffBtn || !printBtn || !newTaskInput || !addTaskBtn || !taskListContainer) {
+                console.error("Critical Error: One or more required DOM elements were not found. Please check your HTML IDs.");
+                return;
+            } else {
+                console.log("All essential DOM elements found.");
+            }
+
+            // --- Persistence Keys (Declared First to Prevent ReferenceError) ---
+            const STAFF_DATA_KEY = 'staffWorkProcedures'; // Key for all staff data in localStorage
+            const LAST_STAFF_KEY = 'lastSelectedStaff';   // Key for the last selected staff member
+
+            // --- Local Storage Functions ---
+            function saveAllStaffProcedures() {
+                try {
+                    localStorage.setItem(STAFF_DATA_KEY, JSON.stringify(allStaffProcedures));
+                } catch (e) {
+                    console.error("Error saving to localStorage:", e);
+                    alert("Could not save data. Your browser's storage might be full or blocked.");
+                }
+            }
+
+            function loadAllStaffProcedures() {
+                try {
+                    const storedData = localStorage.getItem(STAFF_DATA_KEY);
+                    return storedData ? JSON.parse(storedData) : {};
+                } catch (e) {
+                    console.error("Error loading from localStorage:", e);
+                    localStorage.removeItem(STAFF_DATA_KEY);
+                    alert("Could not load saved data. Data might be corrupted and has been cleared.");
+                    return {};
+                }
+            }
+
+            // Data structure: An object where keys are staff names, values are their procedure arrays
+            // Initialize this *after* persistence keys and functions are defined
+            let allStaffProcedures = loadAllStaffProcedures();
+            let currentStaffName = ''; // Stores the currently selected staff member's name
+
+            // --- Staff Management Functions ---
+            function populateStaffDropdown() {
+                staffSelect.innerHTML = ''; // Clear existing options
+
+                const staffNames = Object.keys(allStaffProcedures).sort(); // Get and sort staff names
+
+                if (staffNames.length === 0) {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'No staff added yet';
+                    option.disabled = true;
+                    option.selected = true;
+                    staffSelect.appendChild(option);
+                    currentStaffName = '';
+                    // Disable task input/add button and print button if no staff is selected
+                    newTaskInput.disabled = true;
+                    addTaskBtn.disabled = true;
+                    printBtn.disabled = true; // Disable print button
+                } else {
+                    newTaskInput.disabled = false;
+                    addTaskBtn.disabled = false;
+                    printBtn.disabled = false; // Enable print button
+                    staffNames.forEach(name => {
+                        const option = document.createElement('option');
+                        option.value = name;
+                        option.textContent = name;
+                        staffSelect.appendChild(option);
+                    });
+
+                    const lastSelectedStaff = localStorage.getItem(LAST_STAFF_KEY);
+                    if (lastSelectedStaff && staffNames.includes(lastSelectedStaff)) {
+                        currentStaffName = lastSelectedStaff;
+                        staffSelect.value = currentStaffName;
+                    } else {
+                        currentStaffName = staffNames[0];
+                        staffSelect.value = currentStaffName;
+                        localStorage.setItem(LAST_STAFF_KEY, currentStaffName);
+                    }
+                }
+                renderProceduresForCurrentStaff();
+            }
+
+            function addStaff() {
+                const newStaffNameInput = prompt('Enter the name of the new staff member:');
+
+                if (newStaffNameInput === null || newStaffNameInput.trim() === '') {
+                    if (newStaffNameInput !== null) {
+                        alert('Staff name cannot be empty.');
+                    }
+                    return;
+                }
+
+                let newStaffName = newStaffNameInput.trim();
+                newStaffName = newStaffName.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+
+                if (allStaffProcedures[newStaffName]) {
+                    alert(`Staff member "${newStaffName}" already exists!`);
+                } else {
+                    allStaffProcedures[newStaffName] = [];
+                    saveAllStaffProcedures();
+                    currentStaffName = newStaffName;
+                    localStorage.setItem(LAST_STAFF_KEY, currentStaffName);
+                    populateStaffDropdown();
+                    alert(`Staff member "${newStaffName}" added successfully!`);
+                }
+            }
+
+            // --- Procedure Rendering ---
+            function renderProceduresForCurrentStaff() {
+                if (!currentStaffName) {
+                    taskListContainer.innerHTML = `<li class="no-tasks-message">Please add or select a staff member to view/manage procedures.</li>`;
+                    return;
+                }
+                const procedures = allStaffProcedures[currentStaffName] || [];
+                renderTasks(procedures, taskListContainer, 0, '');
+            }
+
+            function renderTasks(currentTasks, parentUl, level = 0, parentNumber = '') {
+                if (parentUl) {
+                   parentUl.innerHTML = '';
+                }
+
+                if (!currentTasks || currentTasks.length === 0) {
+                    if (level === 0) {
+                         const message = document.createElement('li');
+                         message.className = 'no-tasks-message';
+                         message.textContent = 'No procedures for this staff member yet. Add a main procedure below!';
+                         parentUl.appendChild(message);
+                    }
+                    return;
+                }
+
+                if (level === 0) {
+                    const existingMessage = taskListContainer.querySelector('.no-tasks-message');
+                    if (existingMessage) existingMessage.remove();
+                }
+
+                currentTasks.forEach((task, index) => {
+                    const listItem = document.createElement('li');
+                    listItem.classList.add('task-item');
+                    listItem.dataset.id = task.id;
+
+                    const currentNumber = parentNumber ? `${parentNumber}.${index + 1}` : `${index + 1}.0`;
+
+                    listItem.innerHTML = `
+                        <div class="task-header">
+                            <div class="task-content">
+                                <span class="task-number">${currentNumber}</span>
+                                <span class="task-text">${task.text}</span>
+                            </div>
+                            <div class="task-actions">
+                                <button class="add-subtask-btn" data-parent-id="${task.id}">Add Subprocedure</button>
+                                <button class="delete-btn" data-id="${task.id}">Delete</button>
+                            </div>
+                        </div>
+                        <ul class="checklist-level-${level + 1}">
+                            </ul>
+                    `;
+
+                    const childUl = listItem.querySelector(`ul.checklist-level-${level + 1}`);
+                    renderTasks(task.children, childUl, level + 1, currentNumber);
+
+                    parentUl.appendChild(listItem);
+                });
+            }
+
+            // --- Helper Functions for Procedure Data Manipulation ---
+            function findTaskById(id, tasksArray) {
+                for (const task of tasksArray) {
+                    if (task.id === id) {
+                        return task;
+                    }
+                    if (task.children && task.children.length > 0) {
+                        const foundChild = findTaskById(id, task.children);
+                        if (foundChild) {
+                            return foundChild;
+                        }
+                    }
+                }
+                return null;
+            }
+
+            function removeTaskById(id, tasksArray) {
+                for (let i = 0; i < tasksArray.length; i++) {
+                    if (tasksArray[i].id === id) {
+                        tasksArray.splice(i, 1);
+                        return true;
+                    }
+                    if (tasksArray[i].children && tasksArray[i].children.length > 0) {
+                        if (removeTaskById(id, tasksArray[i].children)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
+            // --- Event Listeners ---
+
+            staffSelect.addEventListener('change', (event) => {
+                currentStaffName = event.target.value;
+                localStorage.setItem(LAST_STAFF_KEY, currentStaffName);
+                renderProceduresForCurrentStaff();
+            });
+
+            addStaffBtn.addEventListener('click', addStaff);
+
+            // NEW: Print button event listener
+            printBtn.addEventListener('click', () => {
+                if (!currentStaffName) {
+                    alert('Please select a staff member to print their procedures.');
+                    return;
+                }
+                window.print(); // Triggers the browser's print dialog
+            });
+
+            addTaskBtn.addEventListener('click', () => {
+                if (!currentStaffName) {
+                    alert('Please select or add a staff member first!');
+                    return;
+                }
+                const taskText = newTaskInput.value.trim();
+                if (taskText) {
+                    allStaffProcedures[currentStaffName].push({
+                        id: 'task_' + Date.now(),
+                        text: taskText,
+                        children: []
+                    });
+                    saveAllStaffProcedures();
+                    newTaskInput.value = '';
+                    renderProceduresForCurrentStaff();
+                } else {
+                    alert('Please enter a main procedure description.');
+                }
+            });
+
+            newTaskInput.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    addTaskBtn.click();
+                }
+            });
+
+            taskListContainer.addEventListener('click', (event) => {
+                const target = event.target;
+
+                if (!currentStaffName) {
+                    alert('Please select a staff member first!');
+                    return;
+                }
+
+                if (target.classList.contains('add-subtask-btn')) {
+                    const parentId = target.dataset.parentId;
+                    const parentTask = findTaskById(parentId, allStaffProcedures[currentStaffName]);
+                    const subtaskText = prompt('Enter subprocedure description:');
+
+                    if (subtaskText && subtaskText.trim()) {
+                        if (parentTask) {
+                            parentTask.children.push({
+                                id: parentId + '_' + Date.now(),
+                                text: subtaskText.trim(),
+                                children: []
+                            });
+                            saveAllStaffProcedures();
+                            renderProceduresForCurrentStaff();
+                        }
+                    } else if (subtaskText !== null) {
+                        alert('Subprocedure description cannot be empty.');
+                    }
+                }
+                else if (target.classList.contains('delete-btn')) {
+                    const taskId = target.dataset.id;
+                    if (confirm('Are you sure you want to delete this procedure and all its sub-procedures?')) {
+                        removeTaskById(taskId, allStaffProcedures[currentStaffName]);
+                        saveAllStaffProcedures();
+                        renderProceduresForCurrentStaff();
+                    }
+                }
+            });
+
+            // --- Initial Setup ---
+            populateStaffDropdown();
+        });
+    </script>
+</body>
+</html>
