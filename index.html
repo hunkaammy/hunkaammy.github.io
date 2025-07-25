@@ -346,6 +346,7 @@
             <div class="category-card" ng-if="!isLoadingCategories" ng-repeat="category in categories" ng-click="setTab(category.filter, category.id)">
                 <img ng-src="{{category.imageUrl}}" alt="{{category.name}}">
                 <span>{{category.name}}</span>
+                <small class="text-muted mt-1" ng-if="category.productCount > 0">({{category.productCount}})</small>
             </div>
         </div>
     </div>
@@ -562,6 +563,15 @@
         $firebaseArray(fetchDb).$loaded().then(data => {
             vm.images = data.filter(item => !item.outOfStock);
             $scope.isLoading = false; // Main product list is loaded
+            
+            // Calculate product counts for each category
+            angular.forEach($scope.categories, function(category) {
+                if (category.filter === '') {
+                    category.productCount = vm.images.length; // For 'ALL PRODUCTS'
+                } else {
+                    category.productCount = $filter('filter')(vm.images, { name: category.filter }).length;
+                }
+            });
             
             // Populate newly arrived products: sort by date (newest first) and take top 50
             $scope.newlyArrivedProducts = $filter('orderBy')(vm.images, '-date').slice(0, 50);
