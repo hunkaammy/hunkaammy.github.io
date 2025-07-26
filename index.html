@@ -459,63 +459,78 @@
     });
 
     // Login Logic
-    (function() {
-        var loginConfig = {
-            apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
-            authDomain: "shop-reminder-3ce10.firebaseapp.com",
-            databaseURL: "https://shop-reminder-3ce10-default-rtdb.firebaseio.com",
-        };
+// Login Logic
+(function() {
+    var loginConfig = {
+        apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
+        authDomain: "shop-reminder-3ce10.firebaseapp.com",
+        databaseURL: "https://shop-reminder-3ce10-default-rtdb.firebaseio.com",
+    };
 
-        // Initialize login app only if it hasn't been initialized before
-        if (!firebase.apps.some(app => app.name === 'loginApp')) {
-            var loginApp = firebase.initializeApp(loginConfig, 'loginApp');
-            var loginDb = loginApp.database();
-            var blockedNumbers = ['7000913701', '9876543210', '9123456789', '8987854256', '9039199794', '9166220046', '8269731352', '6263821242'];
-            
-            window.validateLogin = function() {
-                try {
-                    var nameInput = document.getElementById('name');
-                    var mobileInput = document.getElementById('mobile');
-                    var name = nameInput.value.trim();
-                    var mobile = mobileInput.value.trim();
-                    if (name.length < 4 || !/^[6-9]\d{9}$/.test(mobile) || blockedNumbers.includes(mobile)) {
-                        alert('Please enter valid details.'); return;
-                    }
-                    loginDb.ref('users').push({ name: name, mobile: mobile, timestamp: firebase.database.ServerValue.TIMESTAMP });
-                    localStorage.setItem('name', name);
-                    localStorage.setItem('mobile', mobile);
-                    var scope = angular.element(document.body).scope();
-                    if (scope) {
-                        scope.$apply(function() { scope.dynamicField2Value = name; });
-                    }
-                    document.getElementById('login-container').style.display = 'none';
-                    document.getElementById('content').style.display = 'block';
-                } catch(e) { console.error("Login Error:", e); }
-            };
-
-            function autoLogin() {
-                var name = localStorage.getItem('name');
-                var mobile = localStorage.getItem('mobile');
-                if (name && mobile) {
-                    document.getElementById('name').value = name;
-                    document.getElementById('mobile').value = mobile;
-                    window.validateLogin();
+    // Initialize login app only if it hasn't been initialized before
+    if (!firebase.apps.some(app => app.name === 'loginApp')) {
+        var loginApp = firebase.initializeApp(loginConfig, 'loginApp');
+        var loginDb = loginApp.database();
+        var blockedNumbers = ['7000913701', '9876543210', '9123456789', '8987854256', '9039199794', '9166220046', '8269731352', '6263821242', '6266242180'];
+        
+        window.validateLogin = function() {
+            try {
+                var nameInput = document.getElementById('name');
+                var mobileInput = document.getElementById('mobile');
+                var name = nameInput.value.trim();
+                var mobile = mobileInput.value.trim();
+                if (blockedNumbers.includes(mobile)) {
+                    window.location.href = 'https://www.hindustantoys.in/mywebsite/NEWWEBSITE/blocked.html';
+                    return;
                 }
-            };
-            window.onload = autoLogin;
-        } else {
-             // If loginApp already exists, assume autoLogin has run or will run, or content is already visible
-             var name = localStorage.getItem('name');
-             if (name) {
-                document.getElementById('login-container').style.display = 'none';
-                document.getElementById('content').style.display = 'block';
+                if (name.length < 4 || !/^[6-9]\d{9}$/.test(mobile)) {
+                    alert('Please enter valid details.');
+                    return;
+                }
+                loginDb.ref('users').push({ name: name, mobile: mobile, timestamp: firebase.database.ServerValue.TIMESTAMP });
+                localStorage.setItem('name', name);
+                localStorage.setItem('mobile', mobile);
                 var scope = angular.element(document.body).scope();
                 if (scope) {
                     scope.$apply(function() { scope.dynamicField2Value = name; });
                 }
-             }
+                document.getElementById('login-container').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            } catch(e) { console.error("Login Error:", e); }
+        };
+
+        function autoLogin() {
+            var name = localStorage.getItem('name');
+            var mobile = localStorage.getItem('mobile');
+            if (name && mobile) {
+                if (blockedNumbers.includes(mobile)) {
+                    window.location.href = 'https://www.hindustantoys.in/mywebsite/NEWWEBSITE/blocked.html';
+                    return;
+                }
+                document.getElementById('name').value = name;
+                document.getElementById('mobile').value = mobile;
+                window.validateLogin();
+            }
+        };
+        window.onload = autoLogin;
+    } else {
+        // If loginApp already exists, assume autoLogin has run or will run, or content is already visible
+        var name = localStorage.getItem('name');
+        var mobile = localStorage.getItem('mobile');
+        if (name && mobile) {
+            if (blockedNumbers.includes(mobile)) {
+                window.location.href = 'https://www.hindustantoys.in/mywebsite/NEWWEBSITE/blocked.html';
+                return;
+            }
+            document.getElementById('login-container').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+            var scope = angular.element(document.body).scope();
+            if (scope) {
+                scope.$apply(function() { scope.dynamicField2Value = name; });
+            }
         }
-    })();
+    }
+})();
     
     // AngularJS Application
     var app = angular.module('myApp', ['firebase']);
