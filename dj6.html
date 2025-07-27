@@ -58,6 +58,7 @@ background-color: #ff7700;
 }
 .player-container {
 display: flex;
+flex-wrap: wrap;
 justify-content: space-between;
 width: 100%;
 margin: 20px 0;
@@ -65,6 +66,7 @@ max-width: 900px;
 }
 .video-player {
 flex: 1;
+min-width: 300px;
 margin: 0 10px;
 border: 2px solid #444444;
 border-radius: 10px;
@@ -72,6 +74,7 @@ overflow: hidden;
 width: 45%;
 background-color: #111111;
 box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+margin-bottom: 20px;
 }
 .tempo-controls {
 padding: 10px;
@@ -106,6 +109,9 @@ position: sticky;
 top: 0;
 z-index: 10;
 padding: 20px;
+background: rgba(40, 40, 40, 0.8);
+border-radius: 10px;
+backdrop-filter: blur(5px);
 }
 .balance-slider {
 -webkit-appearance: none;
@@ -253,6 +259,7 @@ margin-top: 20px;
 }
 @media (max-width: 768px) {
 .player-container {
+flex-direction: column;
 align-items: center;
 }
 .video-player {
@@ -286,7 +293,9 @@ display: none;
 }
 .custom-dropdown .dropdown-item {
 display: flex;
+align-items: center;
 cursor: pointer;
+padding: 5px;
 margin-bottom: 5px;
 color: white;
 background-color: transparent;
@@ -319,13 +328,6 @@ margin: 10px 0;
 display: flex;
 align-items: center;
 gap: 10px;
-}
-.beat-loop-select {
-padding: 5px;
-background: #34495e;
-color: white;
-border: none;
-border-radius: 5px;
 }
 .beat-buttons {
 display: flex;
@@ -392,14 +394,14 @@ color: white;
 </head>
 <body>
 <h1>SAMMY'S YT DJ PROJECT</h1>
-<select id="api-key-select">
-<option value="YOUR_YOUTUBE_API_KEY_1">API Key 1</option>
-<option value="YOUR_YOUTUBE_API_KEY_2">API Key 2</option>
+<select id="api-key-select" onchange="switchApiKey(this.value)">
+<option value="0">YT API Key 1</option>
+<option value="1">YT API Key 2</option>
 </select>
 <button id="notes-btn" onclick="openNotesModal()">Notes</button>
 <div id="notes-modal" class="modal">
 <div class="modal-content">
-<span class="close" onclick="closeNotesModal()">&times;</span>
+<span class="close" onclick="closeNotesModal()">×</span>
 <h3>DJ Notes</h3>
 <textarea id="notes-textarea" placeholder="Add your notes here..."></textarea>
 <button onclick="saveNotes()">Save Notes</button>
@@ -411,24 +413,22 @@ color: white;
 <input type="text" id="search-deck1" placeholder="Search YouTube">
 <button onclick="searchYouTubeForDeck('deck1')">Search</button>
 <div id="custom-dropdown1" class="custom-dropdown"></div>
-<select id="track-list1" style="display:none;"></select>
 </div>
 <div class="track-selector">
 <label for="search-deck2">Search DECK-2:</label>
 <input type="text" id="search-deck2" placeholder="Search YouTube">
 <button onclick="searchYouTubeForDeck('deck2')">Search</button>
 <div id="custom-dropdown2" class="custom-dropdown"></div>
-<select id="track-list2" style="display:none;"></select>
 </div>
 </div>
 <div class="suggestions-container">
-<h2>Bollywood Remix Suggestions</h2>
+<h2>AI Remix Suggestions</h2>
 <button onclick="getSongSuggestions()">Get AI Suggestions</button>
 <div id="ai-suggestions"></div>
 </div>
 <div class="player-container">
 <div class="video-player" id="player1">
-<iframe id="youtube-player1" width="100%" height="315" src="https://www.youtube.com/embed?enablejsapi=1&playsinline=1&disablekb=1" frameborder="0" allowfullscreen allow="autoplay"></iframe>
+<div id="youtube-player1"></div>
 <div class="tempo-controls">
 <label>BPM: <span id="tempo1-value">120</span></label>
 <input type="range" id="tempo1" min="60" max="180" step="1" value="120" class="tempo-slider">
@@ -443,7 +443,7 @@ color: white;
 </div>
 </div>
 <div class="video-player" id="player2">
-<iframe id="youtube-player2" width="100%" height="315" src="https://www.youtube.com/embed?enablejsapi=1&playsinline=1&disablekb=1" frameborder="0" allowfullscreen allow="autoplay"></iframe>
+<div id="youtube-player2"></div>
 <div class="tempo-controls">
 <label>BPM: <span id="tempo2-value">120</span></label>
 <input type="range" id="tempo2" min="60" max="180" step="1" value="120" class="tempo-slider">
@@ -460,8 +460,8 @@ color: white;
 </div>
 <div class="balance-control">
 <input type="range" id="balance-slider" class="balance-slider" min="0" max="100" value="50">
+<div class="volume-percentage" id="volume-percentage">L 50% / R 50%</div>
 </div>
-<div class="volume-percentage" id="volume-percentage">Center (0%)</div>
 <div class="current-track-info">
 <h2>Current Track</h2>
 <p id="current-track-deck1">Deck 1: <span id="current-track-title1">None</span></p>
@@ -470,8 +470,8 @@ color: white;
 <div class="history-container">
 <h2>Played History</h2>
 <input type="text" id="history-search" placeholder="Search in history" onkeyup="filterHistory()">
-<table id="history-list">
 <p>Total Tracks Played: <span id="track-count">0</span></p>
+<table id="history-list">
 <thead>
 <tr>
 <th>Title</th>
@@ -485,486 +485,427 @@ color: white;
 <button id="backup-btn" onclick="backupHistory()">Backup History</button>
 <input type="file" id="restore-input" style="display:none" onchange="restoreHistory(event)">
 <button id="restore-btn" onclick="document.getElementById('restore-input').click()">Restore History</button>
+
 <script>
+// --- API KEYS ---
+const geminiApiKey = 'AIzaSyB6l0uVMjR3ffy7Z-gh7pWwIW1jfjVb0Yk';
 const youtubeApiKeys = [
-      'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A',
-            'AIzaSyDX2n08WCf5Ol1nffaqJU_aJp_BODlw1H4',
+    'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A',
+    'AIzaSyDX2n08WCf5Ol1nffaqJU_aJp_BODlw1H4'
 ];
-const geminiApiKey = 'AIzaSyB6l0uVMjR3ffy7Z-gh7pWwIW1jfjVb0Yk'; // Replace with actual Gemini AI API key
 let currentApiKeyIndex = 0;
 let youtubeApiKey = youtubeApiKeys[currentApiKeyIndex];
-function switchApiKey() {
-    currentApiKeyIndex = (currentApiKeyIndex + 1) % youtubeApiKeys.length;
-    youtubeApiKey = youtubeApiKeys[currentApiKeyIndex];
-    alert(`YouTube API Key switched to: ${youtubeApiKey}`);
-}
-function loadYouTubeAPI() {
-    const script = document.createElement('script');
-    script.src = "https://www.youtube.com/iframe_api";
-    document.body.appendChild(script);
-}
+
+// --- YOUTUBE PLAYER SETUP ---
+const tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+const firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
 let player1, player2;
+
 function onYouTubeIframeAPIReady() {
     player1 = new YT.Player('youtube-player1', {
-        events: {
-            'onReady': onPlayer1Ready,
-            'onStateChange': onPlayer1StateChange
-        }
+        height: '315',
+        width: '100%',
+        playerVars: { 'playsinline': 1, 'controls': 1, 'rel': 0 },
+        events: { 'onReady': onPlayer1Ready, 'onStateChange': onPlayer1StateChange }
     });
     player2 = new YT.Player('youtube-player2', {
-        events: {
-            'onReady': onPlayer2Ready,
-            'onStateChange': onPlayer2StateChange
-        }
+        height: '315',
+        width: '100%',
+        playerVars: { 'playsinline': 1, 'controls': 1, 'rel': 0 },
+        events: { 'onReady': onPlayer2Ready, 'onStateChange': onPlayer2StateChange }
     });
 }
-function openNotesModal() {
-    document.getElementById('notes-modal').style.display = 'block';
-    loadNotes();
-}
-function closeNotesModal() {
-    document.getElementById('notes-modal').style.display = 'none';
-}
-function saveNotes() {
-    const notes = document.getElementById('notes-textarea').value;
-    localStorage.setItem('djNotes', notes);
-    closeNotesModal();
-}
-function loadNotes() {
-    const savedNotes = localStorage.getItem('djNotes') || '';
-    document.getElementById('notes-textarea').value = savedNotes;
-}
-function onPlayer1Ready(event) {
-    player1.setVolume(50);
-    initTempoControl(1);
-}
-function onPlayer2Ready(event) {
-    player2.setVolume(50);
-    initTempoControl(2);
-}
-function toggleBeatLoop(deckNumber, beats) {
-    const player = deckNumber === 1 ? player1 : player2;
-    const button = document.querySelector(`#player${deckNumber} .beat-btn[data-beats="${beats}"]`);
-    if (button.classList.contains('active')) {
-        button.classList.remove('active');
-        window[`loopActive${deckNumber}`] = false;
-        window[`loopBeats${deckNumber}`] = 0;
-        if (window[`loopInterval${deckNumber}`]) {
-            clearInterval(window[`loopInterval${deckNumber}`]);
-            window[`loopInterval${deckNumber}`] = null;
-        }
-        console.log(`Beat loop turned OFF for deck ${deckNumber}`);
-        return;
-    }
-    if (window[`loopInterval${deckNumber}`]) {
-        clearInterval(window[`loopInterval${deckNumber}`]);
-    }
-    document.querySelectorAll(`#player${deckNumber} .beat-btn`).forEach(btn => {
-        btn.classList.remove('active');
-    });
-    button.classList.add('active');
-    if (player && player.getPlayerState) {
-        if (player.getPlayerState() === YT.PlayerState.PLAYING) {
-            startLoop(deckNumber, beats);
-        } else {
-            window[`loopBeats${deckNumber}`] = beats;
-        }
-    }
-}
-function startLoop(deckNumber, beats) {
-    const player = deckNumber === 1 ? player1 : player2;
-    if (window[`loopInterval${deckNumber}`]) {
-        clearInterval(window[`loopInterval${deckNumber}`]);
-    }
-    window[`loopStartTime${deckNumber}`] = player.getCurrentTime();
-    window[`loopActive${deckNumber}`] = true;
-    const loopDuration = beats * 2;
-    console.log(`Starting simple loop for deck ${deckNumber}: ${beats} beats`);
-    window[`loopInterval${deckNumber}`] = setInterval(() => {
-        if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
-            const currentTime = player.getCurrentTime();
-            const endTime = window[`loopStartTime${deckNumber}`] + loopDuration;
-            if (currentTime >= endTime) {
-                player.seekTo(window[`loopStartTime${deckNumber}`], true);
-                console.log(`Loop reset to ${window[`loopStartTime${deckNumber}`]}`);
-            }
-        }
-    }, 20);
-}
-function onPlayer1StateChange(event) {
-    handlePlayerStateChange(1, event);
-}
-function onPlayer2StateChange(event) {
-    handlePlayerStateChange(2, event);
-}
-function handlePlayerStateChange(deckNumber, event) {
-    const player = deckNumber === 1 ? player1 : player2;
-    if (event.data === YT.PlayerState.PLAYING) {
-        const beats = window[`loopBeats${deckNumber}`];
-        if (beats > 0) {
-            startLoop(deckNumber, beats);
-            document.querySelectorAll(`.video-player:nth-child(${deckNumber}) .beat-btn`).forEach(btn => {
-                if (parseInt(btn.getAttribute('data-beats')) === beats) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
-        }
-    }
-    if (event.data === YT.PlayerState.ENDED || event.data === YT.PlayerState.PAUSED) {
-        if (window[`loopInterval${deckNumber}`]) {
-            clearInterval(window[`loopInterval${deckNumber}`]);
-            window[`loopInterval${deckNumber}`] = null;
-        }
-        window[`loopActive${deckNumber}`] = false;
-    }
-}
-function initTempoControl(deckNumber) {
-    const tempoSlider = document.getElementById(`tempo${deckNumber}`);
-    const tempoValue = document.getElementById(`tempo${deckNumber}-value`);
-    const player = deckNumber === 1 ? player1 : player2;
-    let currentBPM = 120;
-    let targetBPM = 120;
-    let tempoInterval = null;
-    window[`referenceBPM${deckNumber}`] = 120;
-    tempoSlider.addEventListener('input', () => {
-        targetBPM = parseInt(tempoSlider.value);
-        tempoValue.textContent = targetBPM;
-        const targetRate = targetBPM / window[`referenceBPM${deckNumber}`];
-        if (tempoInterval) {
-            clearInterval(tempoInterval);
-        }
-        tempoInterval = setInterval(() => {
-            if (Math.abs(currentBPM - targetBPM) < 1) {
-                currentBPM = targetBPM;
-                const exactRate = currentBPM / window[`referenceBPM${deckNumber}`];
-                if (player && typeof player.setPlaybackRate === 'function') {
-                    player.setPlaybackRate(exactRate);
-                }
-                clearInterval(tempoInterval);
-                tempoInterval = null;
-                return;
-            }
-            if (currentBPM < targetBPM) {
-                currentBPM += 1;
-            } else {
-                currentBPM -= 1;
-            }
-            const newRate = currentBPM / window[`referenceBPM${deckNumber}`];
-            if (player && typeof player.setPlaybackRate === 'function') {
-                player.setPlaybackRate(newRate);
-                console.log(`Deck ${deckNumber} BPM: ${currentBPM} (rate: ${newRate.toFixed(2)}x)`);
-            }
-        }, 50);
-    });
-    window[`setReferenceBPM${deckNumber}`] = function(bpm) {
-        window[`referenceBPM${deckNumber}`] = bpm;
-        if (player && typeof player.setPlaybackRate === 'function') {
-            const newRate = targetBPM / bpm;
-            player.setPlaybackRate(newRate);
-        }
-    };
-}
-function getSongSuggestions() {
-    const trackTitle1 = document.getElementById('current-track-title1').textContent.toLowerCase();
-    const trackTitle2 = document.getElementById('current-track-title2').textContent.toLowerCase();
-    const query = trackTitle1 !== 'none' ? trackTitle1 : (trackTitle2 !== 'none' ? trackTitle2 : 'bollywood remix');
-    const suggestionsContainer = document.getElementById('ai-suggestions');
-    suggestionsContainer.innerHTML = '<p>Loading suggestions...</p>';
 
-    // Mock Bollywood remix suggestions
-    const bollywoodRemixes = [
-        { title: "Gallan Goodiyan (DJ Chetas Remix)", videoId: "1qG4W3aTaeo", thumbnail: "https://i.ytimg.com/vi/1qG4W3aTaeo/default.jpg", artist: "DJ Chetas" },
-        { title: "Tamma Tamma Again (DJ Shilpi Sharma Remix)", videoId: "o4-4A3Y3Hc", thumbnail: "https://i.ytimg.com/vi/o4-4A3Y3Hc/default.jpg", artist: "DJ Shilpi Sharma" },
-        { title: "Kala Chashma (DJ Shadow Dubai Remix)", videoId: "k4yXQkG2s1E", thumbnail: "https://i.ytimg.com/vi/k4yXQkG2s1E/default.jpg", artist: "DJ Shadow Dubai" },
-        { title: "Lungi Dance (DJ Kiran Kamath Remix)", videoId: "qN6I9lL6eV8", thumbnail: "https://i.ytimg.com/vi/qN6I9lL6eV8/default.jpg", artist: "DJ Kiran Kamath" },
-        { title: "Aankh Marey (DJ Notorious Remix)", videoId: "r3rXmv1cR8A", thumbnail: "https://i.ytimg.com/vi/r3rXmv1cR8A/default.jpg", artist: "DJ Notorious" },
-        { title: "Tum Hi Ho (DJ Aqeel Remix)", videoId: "zH8lG3j1g5w", thumbnail: "https://i.ytimg.com/vi/zH8lG3j1g5w/default.jpg", artist: "DJ Aqeel" }
-    ];
+// --- CORE DJ FUNCTIONS ---
+
+function switchApiKey(index) {
+    currentApiKeyIndex = parseInt(index, 10);
+    youtubeApiKey = youtubeApiKeys[currentApiKeyIndex];
+    alert(`YouTube API Key switched to key #${currentApiKeyIndex + 1}`);
+}
+
+/**
+ * Mocks a call to a generative AI. It now checks history to provide unique, random ideas.
+ * @param {string} baseSong - The title of the current song.
+ * @param {Array<string>} playedHistoryTitles - An array of titles already played.
+ * @returns {Promise<Array<string>>} A promise that resolves to a random, unique array of song titles.
+ */
+function getAiGeneratedIdeas(baseSong, playedHistoryTitles) {
+    console.log(`🧠 Simulating unique AI call for: ${baseSong}`);
+    console.log(`📜 History includes: ${playedHistoryTitles.length} songs.`);
+    
+    return new Promise(resolve => {
+        const lowerCaseSong = baseSong.toLowerCase().trim();
+        const lowerCaseHistory = playedHistoryTitles.map(t => t.toLowerCase());
+
+        const remixPool = {
+            party: [
+                "Kar Gayi Chull Remix", "High Heels Te Nachche Remix", "Tamma Tamma Again Remix",
+                "Morni Banke Remix", "London Thumakda Remix", "Sadi Gali Remix",
+                "Dilbar Dilbar Remix", "O Saki Saki Remix", "Coca Cola Tu Remix",
+                "Bom Diggy Diggy Remix", "Ghungroo Remix", "Makhna Drive Remix",
+                "The Humma Song", "Chogada Tara Remix", "Kamariya - Mitron"
+            ],
+            classic: [
+                "Aap Jaisa Koi Remix", "Bachna Ae Haseeno Remix", "Laila Main Laila Remix",
+                "Hamma Hamma - Bombay Rockers", "Mere Sapno Ki Rani Remix", "Chura Liya Hai Tumne Jo Dil Ko Remix"
+            ]
+        };
+        remixPool.default = [...remixPool.party, ...remixPool.classic];
+
+        let selectedPool = remixPool.default;
+        if (lowerCaseSong.includes('kala chashma') || lowerCaseSong.includes('gallan goodiyan') || lowerCaseSong.includes('aankh marey')) {
+            selectedPool = remixPool.party;
+        } else if (lowerCaseSong.includes('laila') || lowerCaseSong.includes('haseeno') || lowerCaseSong.includes('sapno ki rani')) {
+            selectedPool = remixPool.classic;
+        }
+
+        // --- THE KEY FIX: Filter out songs that are already in the history ---
+        const uniquePool = selectedPool.filter(idea => {
+            const lowerCaseIdea = idea.toLowerCase();
+            // Keep the idea if no history title includes the core part of the idea
+            return !lowerCaseHistory.some(historyTitle => historyTitle.includes(lowerCaseIdea.split(' ')[0]));
+        });
+        
+        // Shuffle the remaining unique songs
+        for (let i = uniquePool.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [uniquePool[i], uniquePool[j]] = [uniquePool[j], uniquePool[i]];
+        }
+        
+        const ideas = uniquePool.slice(0, 4); // Get 4 random, unique ideas
+        
+        setTimeout(() => resolve(ideas), 500); // Simulate network delay
+    });
+}
+
+
+async function getSongSuggestions() {
+    const suggestionsContainer = document.getElementById('ai-suggestions');
+    suggestionsContainer.innerHTML = '<p>🤖 Asking AI for unique remix ideas...</p>';
+    
+    // Get the current song for context
+    const trackTitle1 = document.getElementById('current-track-title1').textContent.trim();
+    let baseQuery = (trackTitle1 !== 'None' && trackTitle1 !== '') ? trackTitle1 : document.getElementById('current-track-title2').textContent.trim();
+    if (baseQuery === 'None' || baseQuery === '') {
+        baseQuery = 'Latest Bollywood Hits';
+    }
+
+    // **NEW**: Get all titles from the play history to ensure suggestions are unique
+    const historyTitles = Array.from(document.querySelectorAll('#history-list .track-title')).map(td => td.textContent);
 
     try {
-        // Filter suggestions based on current track (basic matching by artist or keyword)
-        let filteredSuggestions = bollywoodRemixes;
-        if (query !== 'bollywood remix') {
-            filteredSuggestions = bollywoodRemixes.filter(song => 
-                song.title.toLowerCase().includes(query.split(' ')[0]) || 
-                song.artist.toLowerCase().includes(query.split(' ')[0])
-            );
-            if (filteredSuggestions.length === 0) {
-                filteredSuggestions = bollywoodRemixes; // Fallback to full list if no matches
-            }
+        // Pass the history to the AI so it can generate unique ideas
+        const ideas = await getAiGeneratedIdeas(baseQuery, historyTitles);
+        
+        if (!ideas || ideas.length === 0) {
+            suggestionsContainer.innerHTML = '<p>No new unique suggestions found. Your history is impressive!</p>';
+            return;
         }
+        
+        suggestionsContainer.innerHTML = '<p>🎧 Finding YouTube links for AI ideas...</p>';
 
+        const searchPromises = ideas.map(title => {
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(title)}&maxResults=1&key=${youtubeApiKey}`;
+            return fetch(url).then(res => res.json());
+        });
+
+        const searchResults = await Promise.all(searchPromises);
+        
         suggestionsContainer.innerHTML = '';
-        if (filteredSuggestions.length > 0) {
-            filteredSuggestions.forEach(song => {
+
+        searchResults.forEach(result => {
+            if (result.items && result.items.length > 0) {
+                const video = result.items[0];
+                const { videoId } = video.id;
+                const { title, thumbnails } = video.snippet;
+
                 const suggestionItem = document.createElement('div');
                 suggestionItem.className = 'ai-suggestion-item';
                 suggestionItem.onclick = () => {
                     const deck = prompt('Play on Deck 1 or Deck 2? (Enter 1 or 2)');
-                    if (deck === '1') {
-                        player1.loadVideoById(song.videoId);
-                        document.getElementById('current-track-title1').textContent = song.title;
-                    } else if (deck === '2') {
-                        player2.loadVideoById(song.videoId);
-                        document.getElementById('current-track-title2').textContent = song.title;
+                    if (deck === '1' || deck === '2') {
+                        const player = (deck === '1') ? player1 : player2;
+                        document.getElementById(`current-track-title${deck}`).textContent = title;
+                        player.loadVideoById(videoId);
+                        addToHistory(title, videoId);
+                        saveHistoryToLocalStorage();
+                        suggestionsContainer.innerHTML = '';
                     }
-                    addToHistory(song.title, song.videoId);
-                    saveHistoryToLocalStorage();
-                    suggestionsContainer.innerHTML = '';
                 };
                 suggestionItem.innerHTML = `
-                    <img src="${song.thumbnail || 'https://via.placeholder.com/50'}" alt="${song.title} thumbnail">
-                    <span class="title">${song.title}</span>
-                `;
+                    <img src="${thumbnails.default.url}" alt="${title} thumbnail">
+                    <span class="title">${title}</span>`;
                 suggestionsContainer.appendChild(suggestionItem);
-            });
-        } else {
-            suggestionsContainer.innerHTML = '<p>No Bollywood remix suggestions found.</p>';
+            }
+        });
+
+        if (suggestionsContainer.innerHTML === '') {
+            suggestionsContainer.innerHTML = '<p>Could not find YouTube videos for the AI suggestions.</p>';
         }
 
-        // Uncomment for real API call when available
-        /*
-        const url = `https://api.gemini.ai/v1/recommendations?query=${encodeURIComponent(query + ' hindi bollywood remix dj')}&key=${geminiApiKey}`;
-        fetch(url)
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
-                suggestionsContainer.innerHTML = '';
-                if (data.suggestions && data.suggestions.length > 0) {
-                    data.suggestions.forEach(song => {
-                        const suggestionItem = document.createElement('div');
-                        suggestionItem.className = 'ai-suggestion-item';
-                        suggestionItem.onclick = () => {
-                            const deck = prompt('Play on Deck 1 or Deck 2? (Enter 1 or 2)');
-                            if (deck === '1') {
-                                player1.loadVideoById(song.videoId);
-                                document.getElementById('current-track-title1').textContent = song.title;
-                            } else if (deck === '2') {
-                                player2.loadVideoById(song.videoId);
-                                document.getElementById('current-track-title2').textContent = song.title;
-                            }
-                            addToHistory(song.title, song.videoId);
-                            saveHistoryToLocalStorage();
-                            suggestionsContainer.innerHTML = '';
-                        };
-                        suggestionItem.innerHTML = `
-                            <img src="${song.thumbnail || 'https://via.placeholder.com/50'}" alt="${song.title} thumbnail">
-                            <span class="title">${song.title}</span>
-                        `;
-                        suggestionsContainer.appendChild(suggestionItem);
-                    });
-                } else {
-                    suggestionsContainer.innerHTML = '<p>No Bollywood remix suggestions found.</p>';
-                }
-            });
-        */
     } catch (error) {
-        console.error('Error fetching Bollywood remix suggestions:', error.message, error.stack);
-        suggestionsContainer.innerHTML = `<p>Error fetching suggestions: ${error.message}. Please try again.</p>`;
+        console.error('Error fetching AI suggestions:', error);
+        suggestionsContainer.innerHTML = `<p>Error: ${error.message}.</p>`;
     }
 }
+
 function searchYouTubeForDeck(deck) {
     const query = document.getElementById(`search-${deck}`).value;
-    if (query.trim() === '') {
-        alert('Please enter a search term.');
-        return;
-    }
-    if (!youtubeApiKey || youtubeApiKey.includes('YOUR_')) {
-        alert('Please configure a valid YouTube API key.');
-        return;
-    }
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=50&key=${youtubeApiKey}`;
+    if (query.trim() === '') return;
+    
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=20&key=${youtubeApiKey}`;
+    
     fetch(url)
         .then(response => response.json())
         .then(data => {
             if (data.error && data.error.code === 403) {
-                alert('Quota exceeded for the current YouTube API key. Switching to a new API key...');
-                switchApiKey();
+                alert('Quota exceeded. Switching to the next API Key...');
+                const newIndex = (currentApiKeyIndex + 1) % youtubeApiKeys.length;
+                document.getElementById('api-key-select').value = newIndex;
+                switchApiKey(newIndex);
                 searchYouTubeForDeck(deck);
+                return;
+            }
+
+            const dropdown = document.getElementById(`custom-dropdown${deck === 'deck1' ? 1 : 2}`);
+            dropdown.innerHTML = '';
+            dropdown.style.display = 'block';
+
+            if (data.items && data.items.length > 0) {
+                data.items.forEach(video => {
+                    const dropdownItem = document.createElement('div');
+                    dropdownItem.className = 'dropdown-item';
+                    dropdownItem.onclick = () => {
+                        const selectedVideoId = video.id.videoId;
+                        const trackTitle = video.snippet.title;
+                        const player = deck === 'deck1' ? player1 : player2;
+                        player.loadVideoById(selectedVideoId);
+                        document.getElementById(`current-track-title${deck === 'deck1' ? 1 : 2}`).textContent = trackTitle;
+                        dropdown.style.display = 'none';
+                        addToHistory(trackTitle, selectedVideoId);
+                        saveHistoryToLocalStorage();
+                    };
+                    dropdownItem.innerHTML = `<img src="${video.snippet.thumbnails.default.url}" alt="thumbnail"><span class="title">${video.snippet.title}</span>`;
+                    dropdown.appendChild(dropdownItem);
+                });
             } else {
-                const dropdown = document.getElementById(`custom-dropdown${deck === 'deck1' ? 1 : 2}`);
-                dropdown.innerHTML = '';
-                dropdown.style.display = 'block';
-                if (data.items && data.items.length > 0) {
-                    data.items.forEach(video => {
-                        const dropdownItem = document.createElement('div');
-                        dropdownItem.className = 'dropdown-item';
-                        dropdownItem.onclick = () => {
-                            const selectedVideoId = video.id.videoId;
-                            const trackTitle = video.snippet.title;
-                            if (deck === 'deck1') {
-                                player1.loadVideoById(selectedVideoId);
-                                document.getElementById('current-track-title1').textContent = trackTitle;
-                            } else {
-                                player2.loadVideoById(selectedVideoId);
-                                document.getElementById('current-track-title2').textContent = trackTitle;
-                            }
-                            dropdown.style.display = 'none';
-                            addToHistory(trackTitle, selectedVideoId);
-                            saveHistoryToLocalStorage();
-                        };
-                        dropdownItem.innerHTML = `
-                            <img src="${video.snippet.thumbnails.default.url}" alt="${video.snippet.title} thumbnail">
-                            <span class="title">${video.snippet.title}</span>
-                        `;
-                        dropdown.appendChild(dropdownItem);
-                    });
-                } else {
-                    dropdown.innerHTML = '<p>No results found.</p>';
-                }
+                dropdown.innerHTML = '<p>No results found.</p>';
             }
         })
         .catch(error => {
             console.error('Error fetching YouTube data:', error);
-            document.getElementById(`custom-dropdown${deck === 'deck1' ? 1 : 2}`).innerHTML = '<p>Error fetching results. Please try again.</p>';
+            document.getElementById(`custom-dropdown${deck === 'deck1' ? 1 : 2}`).innerHTML = '<p>Error fetching results.</p>';
         });
 }
-function addToHistory(title, videoId) {
-    const historyList = document.getElementById('history-list').getElementsByTagName('tbody')[0];
-    const historyItem = document.createElement('tr');
-    historyItem.innerHTML = `
-        <td contenteditable="true" class="track-title">${title}</td>
-        <td>
-            <div class="buttons-container">
-                <button onclick="replayTrack('player1', '${videoId}')">Play on Deck 1</button>
-                <button onclick="replayTrack('player2', '${videoId}')">Play on Deck 2</button>
-            </div>
-            <button class="edit-btn" onclick="editTrackTitle(this)">Edit Title</button>
-            <button class="delete-btn" onclick="deleteTrack(this)">Delete</button>
-        </td>
-    `;
-    historyItem.setAttribute('data-video-id', videoId);
-    historyList.insertBefore(historyItem, historyList.firstChild);
-    document.getElementById('track-count').textContent = historyList.children.length;
+
+
+// --- PLAYER AND UI CONTROLS ---
+
+function onPlayer1Ready(event) {
+    player1.setVolume(50);
+    initTempoControl(1);
 }
+
+function onPlayer2Ready(event) {
+    player2.setVolume(50);
+    initTempoControl(2);
+}
+
+function onPlayer1StateChange(event) { handlePlayerStateChange(1, event); }
+function onPlayer2StateChange(event) { handlePlayerStateChange(2, event); }
+
+function handlePlayerStateChange(deckNumber, event) {
+    if (event.data === YT.PlayerState.PLAYING) {
+        const beats = window[`loopBeats${deckNumber}`];
+        if (beats > 0) startLoop(deckNumber, beats);
+    } else {
+        if (window[`loopInterval${deckNumber}`]) {
+            clearInterval(window[`loopInterval${deckNumber}`]);
+            window[`loopInterval${deckNumber}`] = null;
+        }
+    }
+}
+
+function initTempoControl(deckNumber) {
+    const tempoSlider = document.getElementById(`tempo${deckNumber}`);
+    const tempoValue = document.getElementById(`tempo${deckNumber}-value`);
+    const player = deckNumber === 1 ? player1 : player2;
+    
+    tempoSlider.addEventListener('input', () => {
+        const playbackRate = tempoSlider.value / 120;
+        tempoValue.textContent = tempoSlider.value;
+        if (player && typeof player.setPlaybackRate === 'function') {
+            player.setPlaybackRate(playbackRate);
+        }
+    });
+}
+
+function toggleBeatLoop(deckNumber, beats) {
+    const button = document.querySelector(`#player${deckNumber} .beat-btn[data-beats="${beats}"]`);
+    if (button.classList.contains('active')) {
+        button.classList.remove('active');
+        if (window[`loopInterval${deckNumber}`]) {
+            clearInterval(window[`loopInterval${deckNumber}`]);
+            window[`loopInterval${deckNumber}`] = null;
+        }
+        window[`loopBeats${deckNumber}`] = 0;
+        return;
+    }
+    document.querySelectorAll(`#player${deckNumber} .beat-btn`).forEach(btn => btn.classList.remove('active'));
+    button.classList.add('active');
+    window[`loopBeats${deckNumber}`] = beats;
+    if ((deckNumber === 1 ? player1 : player2).getPlayerState() === YT.PlayerState.PLAYING) {
+        startLoop(deckNumber, beats);
+    }
+}
+
+function startLoop(deckNumber, beats) {
+    const player = deckNumber === 1 ? player1 : player2;
+    if (window[`loopInterval${deckNumber}`]) clearInterval(window[`loopInterval${deckNumber}`]);
+    const loopStartTime = player.getCurrentTime();
+    const loopDuration = beats * 0.5; // Assuming 120 BPM, where 1 beat = 0.5s
+    window[`loopInterval${deckNumber}`] = setInterval(() => {
+        if (player.getPlayerState() === YT.PlayerState.PLAYING && player.getCurrentTime() >= loopStartTime + loopDuration) {
+            player.seekTo(loopStartTime, true);
+        }
+    }, 50);
+}
+
+// --- HISTORY AND DATA MANAGEMENT ---
+
+function addToHistory(title, videoId) {
+    const historyListBody = document.getElementById('history-list').getElementsByTagName('tbody')[0];
+    const historyItem = document.createElement('tr');
+    historyItem.setAttribute('data-video-id', videoId);
+    historyItem.innerHTML = `<td contenteditable="false" class="track-title">${title}</td><td><div class="buttons-container"><button onclick="replayTrack('player1', '${videoId}')">Deck 1</button><button onclick="replayTrack('player2', '${videoId}')">Deck 2</button></div><button class="edit-btn" onclick="editTrackTitle(this)">Edit</button><button class="delete-btn" onclick="deleteTrack(this)">Del</button></td>`;
+    historyListBody.insertBefore(historyItem, historyListBody.firstChild);
+    updateTrackCount();
+}
+
 function replayTrack(playerId, videoId) {
     const player = playerId === 'player1' ? player1 : player2;
+    const deckNum = playerId === 'player1' ? 1 : 2;
     if (player) {
         player.loadVideoById(videoId);
-        const historyItems = document.querySelectorAll('#history-list tbody tr');
         let trackTitle = 'Unknown Track';
-        historyItems.forEach(item => {
+        document.querySelectorAll('#history-list tbody tr').forEach(item => {
             if (item.getAttribute('data-video-id') === videoId) {
                 trackTitle = item.querySelector('.track-title').textContent;
             }
         });
-        if (playerId === 'player1') {
-            document.getElementById('current-track-title1').textContent = trackTitle;
-        } else {
-            document.getElementById('current-track-title2').textContent = trackTitle;
-        }
+        document.getElementById(`current-track-title${deckNum}`).textContent = trackTitle;
     }
 }
+
 function editTrackTitle(button) {
-    const trackTitle = button.closest('tr').querySelector('.track-title');
-    trackTitle.contentEditable = true;
-    trackTitle.focus();
-    button.textContent = "Save Title";
-    button.setAttribute('onclick', 'saveTrackTitle(this)');
+    const trackTitleCell = button.closest('tr').querySelector('.track-title');
+    trackTitleCell.contentEditable = true;
+    trackTitleCell.focus();
+    button.textContent = "Save";
+    button.onclick = () => saveTrackTitle(button);
 }
+
 function saveTrackTitle(button) {
-    const trackTitle = button.closest('tr').querySelector('.track-title');
-    trackTitle.contentEditable = false;
-    button.textContent = "Edit Title";
-    button.setAttribute('onclick', 'editTrackTitle(this)');
+    const trackTitleCell = button.closest('tr').querySelector('.track-title');
+    trackTitleCell.contentEditable = false;
+    button.textContent = "Edit";
+    button.onclick = () => editTrackTitle(button);
     saveHistoryToLocalStorage();
 }
+
 function deleteTrack(button) {
-    const historyItem = button.closest('tr');
-    historyItem.remove();
+    button.closest('tr').remove();
     saveHistoryToLocalStorage();
-    document.getElementById('track-count').textContent = document.getElementById('history-list').getElementsByTagName('tbody')[0].children.length;
 }
+
+function updateTrackCount() {
+    const count = document.getElementById('history-list').getElementsByTagName('tbody')[0].children.length;
+    document.getElementById('track-count').textContent = count;
+}
+
 function saveHistoryToLocalStorage() {
     const historyItems = document.querySelectorAll('#history-list tbody tr');
-    const historyData = [];
-    historyItems.forEach(item => {
-        const title = item.querySelector('.track-title').textContent;
-        const videoId = item.getAttribute('data-video-id');
-        historyData.push({ title, videoId });
-    });
+    const historyData = Array.from(historyItems).map(item => ({
+        title: item.querySelector('.track-title').textContent,
+        videoId: item.getAttribute('data-video-id')
+    })).reverse();
     localStorage.setItem('playedHistory', JSON.stringify(historyData));
-    document.getElementById('track-count').textContent = historyData.length;
+    updateTrackCount();
 }
+
 function loadHistoryFromLocalStorage() {
     const savedHistory = JSON.parse(localStorage.getItem('playedHistory')) || [];
-    document.getElementById('track-count').textContent = savedHistory.length;
-    savedHistory.reverse().forEach(track => {
-        addToHistory(track.title, track.videoId);
-    });
+    savedHistory.reverse().forEach(track => addToHistory(track.title, track.videoId));
 }
+
 function backupHistory() {
-    const historyData = JSON.parse(localStorage.getItem('playedHistory')) || [];
-    const blob = new Blob([JSON.stringify(historyData, null, 2)], { type: 'application/json' });
+    const historyData = localStorage.getItem('playedHistory') || '[]';
+    const blob = new Blob([historyData], { type: 'application/json' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'played-history.json';
+    link.download = `played-history-${new Date().toISOString().slice(0,10)}.json`;
     link.click();
+    URL.revokeObjectURL(link.href);
 }
+
 function restoreHistory(event) {
     const file = event.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = function(e) {
-        const historyData = JSON.parse(e.target.result);
-        if (Array.isArray(historyData)) {
-            document.getElementById('history-list').getElementsByTagName('tbody')[0].innerHTML = '';
-            historyData.reverse().forEach(track => {
-                addToHistory(track.title, track.videoId);
-            });
-            localStorage.setItem('playedHistory', JSON.stringify(historyData));
-            document.getElementById('track-count').textContent = historyData.length;
-        }
+        try {
+            const historyData = JSON.parse(e.target.result);
+            if (Array.isArray(historyData)) {
+                localStorage.setItem('playedHistory', JSON.stringify(historyData));
+                document.getElementById('history-list').getElementsByTagName('tbody')[0].innerHTML = '';
+                loadHistoryFromLocalStorage();
+                alert('History restored successfully!');
+            }
+        } catch (error) { alert('Failed to restore history. Invalid file.'); }
     };
     reader.readAsText(file);
+    event.target.value = '';
 }
+
+// --- UTILITY AND SETUP ---
+
+function openNotesModal() { document.getElementById('notes-modal').style.display = 'block'; loadNotes(); }
+function closeNotesModal() { document.getElementById('notes-modal').style.display = 'none'; }
+function saveNotes() { localStorage.setItem('djNotes', document.getElementById('notes-textarea').value); closeNotesModal(); }
+function loadNotes() { document.getElementById('notes-textarea').value = localStorage.getItem('djNotes') || ''; }
+
 function initBalanceControl() {
     const balanceSlider = document.getElementById('balance-slider');
     const volumePercentage = document.getElementById('volume-percentage');
     balanceSlider.addEventListener('input', () => {
-        const balance = balanceSlider.value;
-        const percentage = balance < 50 ? (50 - balance) : (balance - 50);
-        volumePercentage.textContent = `${percentage}%`;
+        const balance = parseInt(balanceSlider.value);
         if (player1 && player2) {
             player1.setVolume(100 - balance);
             player2.setVolume(balance);
         }
+        volumePercentage.textContent = `L ${100 - balance}% / R ${balance}%`;
     });
 }
+
 function filterHistory() {
     const query = document.getElementById('history-search').value.toLowerCase();
-    const rows = document.querySelectorAll('#history-list tbody tr');
-    rows.forEach(row => {
-        const title = row.querySelector('.track-title').textContent.toLowerCase();
-        if (title.includes(query)) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
+    document.querySelectorAll('#history-list tbody tr').forEach(row => {
+        row.style.display = row.querySelector('.track-title').textContent.toLowerCase().includes(query) ? '' : 'none';
     });
 }
+
 document.addEventListener('click', (event) => {
-    const dropdown1 = document.getElementById('custom-dropdown1');
-    const dropdown2 = document.getElementById('custom-dropdown2');
-    const searchDeck1 = document.getElementById('search-deck1');
-    const searchDeck2 = document.getElementById('search-deck2');
-    const clickedInsideDropdown1 = dropdown1.contains(event.target);
-    const clickedInsideDropdown2 = dropdown2.contains(event.target);
-    const clickedOnSearchDeck1 = searchDeck1.contains(event.target);
-    const clickedOnSearchDeck2 = searchDeck2.contains(event.target);
-    if (!clickedInsideDropdown1 && !clickedOnSearchDeck1) {
-        dropdown1.style.display = 'none';
-    }
-    if (!clickedInsideDropdown2 && !clickedOnSearchDeck2) {
-        dropdown2.style.display = 'none';
+    if (!event.target.closest('.track-selector')) {
+        document.getElementById('custom-dropdown1').style.display = 'none';
+        document.getElementById('custom-dropdown2').style.display = 'none';
     }
 });
+
 window.onload = () => {
-    loadYouTubeAPI();
     initBalanceControl();
     loadHistoryFromLocalStorage();
     loadNotes();
