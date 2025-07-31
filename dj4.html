@@ -518,40 +518,53 @@
                         ctx.font = discountedFont;
                         const offerTextMetrics = ctx.measureText(discountedPriceText);
                         const offerTextWidth = offerTextMetrics.width;
-                        const offerTextHeightVisual = 60; // Approximate height for 60px font
+                        const offerTextHeightVisual = 60; 
 
                         // Measure "MRP" text width with its font size
                         ctx.font = originalFont;
                         const mrpTextMetrics = ctx.measureText(originalPriceText);
                         const mrpTextWidth = mrpTextMetrics.width;
-                        const mrpTextHeightVisual = 48; // Approximate height for 48px font
+                        const mrpTextHeightVisual = 48; 
 
                         // Positioning parameters
-                        const padding = 20; // Padding from right
-                        const verticalPadding = 15; // Vertical padding within background box
-                        const horizontalPadding = 15; // Horizontal padding within background box on each side
+                        const paddingRight = 20; // Padding from right edge
+                        const bottomPaddingReference = 40; // Original "move up" from bottom
+                        const additionalMoveUpPercentage = 0.20; // 20% further up from current position
+
                         const textLineSpacing = 15; // Space between MRP and Offer lines
+                        const horizontalPadding = 15; // Padding for background on each side of text
+                        const verticalPaddingPerLine = 8; // Vertical padding for background around each text line
 
-                        // Calculate starting Y position (from bottom, moved up by 40px)
-                        const startYPosition = canvas.height - padding - 40; 
+                        // Calculate total height of the text block with its paddings
+                        const totalTextBlockHeight = mrpTextHeightVisual + offerTextHeightVisual + textLineSpacing + (verticalPaddingPerLine * 4); // 2x padding per line = 4x
 
-                        // Calculate positions for Discounted Price (bottom-most)
-                        const discountedTextX = canvas.width - padding;
-                        const discountedTextY = startYPosition;
+                        // Calculate the new bottom reference point, 20% further up
+                        const currentBottomReference = canvas.height - bottomPaddingReference;
+                        const newBottomReference = currentBottomReference - (totalTextBlockHeight * additionalMoveUpPercentage);
+
+                        // Adjusting 'startYPosition' for the bottom-most text (discounted price)
+                        // It's now calculated based on the newBottomReference and the discounted text's height.
+                        const discountedTextY = newBottomReference - (offerTextHeightVisual / 2) + (verticalPaddingPerLine * 2); // Center text within its bottom padding
 
                         // Calculate positions for Original Price (above discounted price)
-                        const originalTextX = canvas.width - padding;
                         const originalTextY = discountedTextY - offerTextHeightVisual - textLineSpacing; 
+                        
+                        // Calculate X positions (remain right-aligned)
+                        const discountedTextX = canvas.width - paddingRight;
+                        const originalTextX = canvas.width - paddingRight;
 
                         // Determine the maximum required width for the background rectangles
-                        // This ensures both backgrounds are wide enough for the longest text.
-                        // We'll add consistent padding on both sides to this max width.
                         const maxTextWidth = Math.max(offerTextWidth, mrpTextWidth);
                         const backgroundWidth = maxTextWidth + (horizontalPadding * 2);
 
                         // Draw solid black background for Original Price
                         ctx.fillStyle = backgroundColor;
-                        ctx.fillRect(originalTextX - backgroundWidth + horizontalPadding, originalTextY - mrpTextHeightVisual + verticalPadding + (mrpTextHeightVisual * 0.2), backgroundWidth, mrpTextHeightVisual + (verticalPadding * 2) - (mrpTextHeightVisual * 0.1)); 
+                        ctx.fillRect(
+                            originalTextX - backgroundWidth + horizontalPadding, 
+                            originalTextY - mrpTextHeightVisual + verticalPaddingPerLine * 2, 
+                            backgroundWidth, 
+                            mrpTextHeightVisual + (verticalPaddingPerLine * 2)
+                        ); 
 
                         // Draw Original Price Text
                         ctx.font = originalFont;
@@ -569,7 +582,12 @@
 
                         // Draw solid black background for Discounted Price
                         ctx.fillStyle = backgroundColor;
-                        ctx.fillRect(discountedTextX - backgroundWidth + horizontalPadding, discountedTextY - offerTextHeightVisual + verticalPadding + (offerTextHeightVisual * 0.2), backgroundWidth, offerTextHeightVisual + (verticalPadding * 2) - (offerTextHeightVisual * 0.1));
+                        ctx.fillRect(
+                            discountedTextX - backgroundWidth + horizontalPadding, 
+                            discountedTextY - offerTextHeightVisual + verticalPaddingPerLine * 2, 
+                            backgroundWidth, 
+                            offerTextHeightVisual + (verticalPaddingPerLine * 2)
+                        );
 
                         // Draw Discounted Price Text
                         ctx.font = discountedFont;
