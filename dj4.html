@@ -1,465 +1,683 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="myApp">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hindustan Toys - Order Portal</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-  <style>
-    :root {
-      --primary-color: #388e3c;
-      --secondary-color: #0d6efd;
-      --danger-color: #dc3545;
-      --light-gray: #f8f9fa;
-      --dark-gray: #333;
-      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      font-size: 14px;
-      line-height: 1.5;
-      color: var(--dark-gray);
-      background-color: var(--light-gray);
-      margin: 0;
-      -webkit-tap-highlight-color: rgba(0,0,0,0);
-    }
-    
-    #content {
-      padding: 75px 15px 20px 15px;
-    }
-
-    .page-title {
-        font-size: 18px;
-        font-weight: 600;
-        margin-bottom: 20px;
-    }
-    
-    .category-grid-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-      gap: 12px;
-    }
-
-    .category-card {
-      background-color: #fff;
-      border-radius: 12px;
-      box-shadow: var(--card-shadow);
-      padding: 12px;
-      text-align: center;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 110px;
-    }
-
-    .category-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-    }
-
-    .category-card img {
-      width: 48px;
-      height: 48px;
-      object-fit: cover;
-      margin-bottom: 8px;
-      border-radius: 8px;
-    }
-
-    .category-card span {
-      font-size: 11px;
-      font-weight: 500;
-      color: #555;
-    }
-    
-    #login-container {
-      background-size: cover; background-position: center; height: 100vh;
-      display: flex; justify-content: center; align-items: center; padding: 20px;
-    }
-
-    #inside {
-      background-color: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 12px;
-      box-shadow: var(--card-shadow); text-align: center; width: 100%; max-width: 360px;
-    }
-
-    .navbar {
-      background-color: #fff; padding: 8px 15px; position: fixed;
-      width: 100%; top: 0; z-index: 1030; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .modal-body { background-color: var(--light-gray); }
-
-    .grid-row {
-      display: grid; grid-template-columns: repeat(2, 1fr);
-      gap: 12px; margin-bottom: 12px;
-    }
-
-    .card {
-      box-shadow: var(--card-shadow); width: 100%; border-radius: 8px;
-      text-align: center; background: #fff; overflow: hidden; padding-bottom: 8px;
-    }
-
-    .card img { width: 100%; height: 140px; object-fit: cover; cursor: pointer; }
-    
-    .containers { padding: 8px; position: relative; }
-    .containers h4 { margin: 0 0 4px; font-size: 13px; font-weight: bold; }
-    .containers p { margin: 0 0 4px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; font-size: 11px; }
-
-    .qtyclass {
-      height: 32px; width: 50px; margin-right: 5px; font-size: 12px;
-      border-radius: 6px; border: 1px solid #ced4da; text-align: center;
-    }
-
-    .saved-feedback {
-        color: var(--primary-color); font-size: 10px; font-weight: bold;
-        position: absolute; top: 8px; right: 8px;
-        animation: fadeOut 2s forwards;
-    }
-    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-
-  </style>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload Gallery</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .image-container {
+            transition: transform 0.3s ease;
+        }
+        .image-container:hover {
+            transform: scale(1.05);
+        }
+        .drop-zone {
+            border: 2px dashed #cbd5e0;
+            transition: all 0.3s ease;
+        }
+        .preview img {
+            max-width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+        }
+        .editable-field {
+            cursor: pointer;
+            padding: 2px;
+        }
+        .editable-field:hover {
+            background-color: #f3f4f6;
+        }
+        .editable-field input {
+            width: 100%;
+            padding: 2px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+        }
+        #loadingSpinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        .search-container {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: white;
+        }
+        /* Styles for the full-page drop overlay */
+        #globalDropOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+        }
+        #globalDropOverlay.active {
+            display: flex; /* Shown when dragging */
+        }
+        .overlay-content {
+            text-align: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            border: 4px dashed white;
+            padding: 40px 80px;
+            border-radius: 20px;
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+    </style>
 </head>
-<body ng-controller="imagesController as vm">
-  <div id="login-container" style="background-image: url(https://hunkaammy.github.io/mywebsite/NEWWEBSITE/loginpg.jpeg);">
-    <div id="inside">
-      <h2 class="mb-4">HINDUSTAN TOYS</h2>
-      <input type="text" id="name" placeholder="Enter your shop name" class="form-control mb-2" autocomplete="off">
-      <input type="tel" id="mobile" placeholder="Enter your mobile number" class="form-control mb-3" autocomplete="off">
-      <button class="btn btn-success w-100" onclick="validateLogin()">Login</button>
-    </div>
-  </div>
-
-  <div id="content" style="display: none;">
-    <div class="navbar">
-      <div class="d-flex w-100 align-items-center">
-        <div class="input-group input-group-sm me-2">
-            <input type="text" ng-model="searchQuery" placeholder="Search all products..." class="form-control">
-            <button class="btn btn-primary" type="button" ng-click="openGlobalSearch()">
-                <i class="fas fa-search"></i>
-            </button>
-        </div>
-        <div class="dropdown">
-            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-bars"></i>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#myModal">Your Order</a></li>
-                <li><a class="dropdown-item" href="#" ng-click="logout()">Logout</a></li>
-            </ul>
-        </div>
-      </div>
-      <div class="w-100 text-center mt-1"><small class="text-muted">Welcome, {{dynamicField2Value}}</small></div>
+<body class="bg-gray-100 min-h-screen">
+    <div id="globalDropOverlay">
+        <div class="overlay-content">Drop File Anywhere</div>
     </div>
 
-    <h2 class="page-title">Browse Categories</h2>
-    <div class="category-grid-container">
-        <div class="category-card" ng-repeat="category in categories" ng-click="setTab(category.filter, category.id)">
-            <img ng-src="{{category.imageUrl}}" alt="{{category.name}}">
-            <span>{{category.name}}</span>
-        </div>
-    </div>
-  </div>
-
-  <div class="modal fade" id="productModal" tabindex="-1">
-    <div class="modal-dialog modal-fullscreen">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title text-uppercase">{{ activeCategoryName }}</h5>
-          <div class="ms-auto">
-            <select ng-model="sortOrder" class="form-select form-select-sm">
-              <option value="default">Sort: Newest</option>
-              <option value="price">Sort: Price Low</option>
-              <option value="-price">Sort: Price High</option>
-            </select>
-          </div>
-          <button type="button" class="btn-close ms-2" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div class="grid-row" ng-repeat="row in vm.getRows()">
-            <div class="card" ng-repeat="image in row">
-              <img ng-src="{{image.url}}" alt="{{image.name}}" ng-click="showEnlargedImage(image.url)" loading="lazy">
-              <button ng-if="dynamicField2Value === 'sammyadmin'" class="btn btn-danger btn-sm mt-2 mx-2" ng-click="markOutOfStock(image)">
-                Mark Out of Stock
-              </button>
-              <div class="containers">
-                <span class="saved-feedback" ng-if="image.justSaved">Saved!</span>
-                <h4><b>{{image.price | currency:"₹":0 }}</b></h4>
-                <p>{{image.name}}</p>
-                <p ng-if="image.videourl"><a href="https://hunkaammy.github.io/mywebsite/videos/{{image.videourl}}.mp4" target="_blank">Watch Video</a></p>
-                <input type="number" class="qtyclass" placeholder="Qty" ng-model="image.field3" ng-change="submitData(image)" ng-model-options="{ debounce: 800 }">
-              </div>
-            </div>
-          </div>
-          <div ng-if="vm.getRows().length === 0" class="text-center p-5">
-            <p class="text-muted">No products found.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div id="enlarged-image-overlay" class="enlarged-image-overlay" ng-click="closeEnlargedImage()" style="display: none; z-index: 1060;"> <img class="enlarged-image-content" id="enlarged-image" src=""> </div>
-  
-  <div class="modal fade" id="myModal" tabindex="-1">
-    <div class="modal-dialog modal-fullscreen">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">{{dynamicField2Value}}'s Order List</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <iframe src="https://script.google.com/macros/s/AKfycbx_vRjB2_-1ssD5wL241a7dYyDt4O3gN0aYAEycs2F5qL5ST3aTuS31-1J2T2cTfySY/exec?myInput={{dynamicField2Value}}" width="100%" height="95%" frameborder="0"></iframe>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-  <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
-
-  <script>
-    // --- Global Utility Functions ---
-    function showEnlargedImage(src) {
-        const overlay = document.getElementById('enlarged-image-overlay');
-        overlay.querySelector('img').src = src;
-        overlay.style.display = 'flex';
-    }
-    function closeEnlargedImage() {
-        document.getElementById('enlarged-image-overlay').style.display = 'none';
-    }
-
-    // --- Login and Auto-Login Logic (IIFE) ---
-    (function() {
-        // ** ADDED ** Firebase config for login tracking
-        var loginConfig = {
-            apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
-            authDomain: "shop-reminder-3ce10.firebaseapp.com",
-            databaseURL: "https://shop-reminder-3ce10-default-rtdb.firebaseio.com",
-            projectId: "shop-reminder-3ce10",
-            storageBucket: "shop-reminder-3ce10.appspot.com",
-            messagingSenderId: "555627569260",
-            appId: "1:555627569260:web:3948ae391eab6eb5ea7849"
-        };
-        var loginApp = firebase.initializeApp(loginConfig, 'loginApp');
-        var loginDb = loginApp.database();
-
-        var blockedNumbers = ['7000913701', '9876543210', '9123456789', '8987854256', '9039199794', '9166220046', '8269731352'];
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-center text-gray-800 mb-8">Image Upload Gallery</h1>
         
-        window.validateLogin = function() {
-            try {
-                var nameInput = document.getElementById('name');
-                var mobileInput = document.getElementById('mobile');
-                var name = nameInput.value.trim();
-                var mobile = mobileInput.value.trim();
+        <div class="max-w-xl mx-auto mb-12 bg-white p-6 rounded-lg shadow-lg">
+            <div class="drop-zone rounded-lg p-8 text-center cursor-pointer mb-4" id="dropZone">
+                <div class="text-gray-500">Click to upload or Drag & Drop a file anywhere</div>
+                <div class="preview mt-4" id="preview"></div>
+                <input type="file" id="imageInput" class="hidden" accept="image/*">
+            </div>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <input type="text" id="nameInput" placeholder="Enter Image Name" class="w-full p-2 border rounded">
+                <input type="text" id="priceInput" placeholder="Price" class="w-full p-2 border rounded">
+                <input type="text" id="partyCodeInput" placeholder="Party Code" class="w-full p-2 border rounded">
+                <input type="text" id="videourlInput" placeholder="Video URL" class="w-full p-2 border rounded">
+            </div>
+            <button onclick="uploadImage()" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors">
+                Upload Image
+            </button>
+            <div id="uploadProgress" class="hidden mt-4">
+                <div class="bg-gray-200 rounded-full h-2.5">
+                    <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full w-0 transition-all duration-300"></div>
+                </div>
+            </div>
+        </div>
 
-                if (name.length < 4) {
-                    alert('Please enter a valid shop name.');
-                    return;
-                }
-                if (!/^[6-9]\d{9}$/.test(mobile)) {
-                    alert('Please enter a valid 10-digit mobile number.');
-                    return;
-                }
-                if (blockedNumbers.includes(mobile)) {
-                    alert('This account has been restricted.');
-                    return;
-                }
-                
-                // ** ADDED ** Pushing login details to Firebase
-                loginDb.ref('users').push({
-                    name: name,
-                    mobile: mobile,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                });
+        <div class="search-container sticky top-0 z-10 max-w-xl mx-auto mb-12 bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Search Products</h2>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <input type="text" id="searchName" placeholder="Search by Name" class="w-full p-2 border rounded">
+                <input type="text" id="searchPartyCode" placeholder="Search by Party Code" class="w-full p-2 border rounded">
+            </div>
+            <button onclick="resetSearch()" class="w-full bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition-colors">
+                Reset
+            </button>
+        </div>
 
-                localStorage.setItem('name', name);
-                localStorage.setItem('mobile', mobile);
-                
-                var scope = angular.element(document.body).scope();
-                if (scope) {
-                    scope.$apply(function() {
-                        scope.dynamicField2Value = name;
+        <div id="gallery" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        <div id="loadingSpinner">
+            <svg class="animate-spin h-8 w-8 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
+            authDomain: "htshop-e9c51.firebaseapp.com",
+            databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com",
+            projectId: "htshop-e9c51",
+            storageBucket: "htshop-e9c51.appspot.com",
+            messagingSenderId: "653137640907",
+            appId: "1:653137640907:web:672fd6a9e85ca448a70a4e",
+            measurementId: "G-FJ4Q0FHBEG"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const storage = firebase.storage();
+        const database = firebase.database();
+
+        // Element references
+        const dropZone = document.getElementById('dropZone');
+        const imageInput = document.getElementById('imageInput');
+        const preview = document.getElementById('preview');
+        const globalDropOverlay = document.getElementById('globalDropOverlay');
+        const gallery = document.getElementById('gallery');
+
+        // Click to upload functionality
+        dropZone.addEventListener('click', () => imageInput.click());
+
+        // Global Drag and Drop Functionality
+        window.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            globalDropOverlay.classList.add('active');
+        });
+
+        window.addEventListener('dragover', (e) => {
+            e.preventDefault(); 
+        });
+
+        window.addEventListener('dragleave', (e) => {
+            if (e.relatedTarget === null) {
+                globalDropOverlay.classList.remove('active');
+            }
+        });
+
+        window.addEventListener('drop', (e) => {
+            e.preventDefault();
+            globalDropOverlay.classList.remove('active');
+
+            if (e.dataTransfer.files.length) {
+                imageInput.files = e.dataTransfer.files;
+                previewImage(e.dataTransfer.files[0]);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+
+        imageInput.addEventListener('change', () => {
+            if (imageInput.files.length) {
+                previewImage(imageInput.files[0]);
+            }
+        });
+
+        function previewImage(file) {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const maxWidth = 400;
+                    const maxHeight = 300;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxWidth || height > maxHeight) {
+                        const ratio = Math.min(maxWidth / width, maxHeight / height);
+                        width *= ratio;
+                        height *= ratio;
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    preview.innerHTML = `<img src="${canvas.toDataURL('image/jpeg', 0.9)}" alt="Preview" class="mx-auto w-full object-cover rounded-lg">`;
+                };
+                img.src = e.target.result;
+            };
+        }
+
+        // Upload functionality with queue mechanism
+        let uploadQueue = [];
+        let isUploading = false;
+
+        function processUploadQueue() {
+            if (isUploading || uploadQueue.length === 0) return;
+            isUploading = true;
+
+            const upload = uploadQueue[0];
+            const { file, name, price, partyCode, videourl, progressContainer } = upload;
+
+            const currentDate = new Date().toISOString();
+            const storageRef = storage.ref(`${currentDate}_${name}_${file.name}`);
+            const task = storageRef.put(file);
+
+            task.on('state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    progressContainer.querySelector('.progress-bar').style.width = progress + '%';
+                },
+                (error) => {
+                    console.error('Upload failed:', error);
+                    progressContainer.querySelector('.status').textContent = 'Failed';
+                    uploadQueue.shift();
+                    isUploading = false;
+                    processUploadQueue();
+                },
+                () => {
+                    storageRef.getDownloadURL().then(downloadURL => {
+                        database.ref().push({
+                            url: downloadURL,
+                            name: name,
+                            price: price / 2, // Price is stored as half in the database
+                            date: currentDate,
+                            outOfStock: false,
+                            videourl: videourl,
+                            partyCode: partyCode
+                        });
+
+                        progressContainer.querySelector('.status').textContent = 'Completed';
+                        setTimeout(() => progressContainer.remove(), 2000); // Remove after 2 seconds
+                        uploadQueue.shift();
+                        isUploading = false;
+                        processUploadQueue();
                     });
                 }
-                
-                document.getElementById('login-container').style.display = 'none';
-                document.getElementById('content').style.display = 'block';
-
-            } catch(e) { 
-                console.error("Login Error:", e); 
-                alert("An error occurred during login. Please try again.");
-            }
-        };
-
-        function autoLogin() {
-            var name = localStorage.getItem('name');
-            var mobile = localStorage.getItem('mobile');
-            if (name && mobile) {
-                document.getElementById('name').value = name;
-                document.getElementById('mobile').value = mobile;
-                window.validateLogin();
-            }
-        };
-        
-        window.onload = autoLogin;
-    })();
-    
-    // --- AngularJS Application ---
-    var app = angular.module('myApp', ['firebase']);
-    app.controller('imagesController', ['$scope', '$firebaseArray', '$filter', '$window', '$timeout', function($scope, $firebaseArray, $filter, $window, $timeout) {
-        var vm = this;
-        vm.images = [];
-        $scope.sortOrder = 'default';
-        $scope.dynamicField2Value = localStorage.getItem('name') || '';
-
-        // Firebase Setup
-        var fetchConfig = { databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com" };
-        var submitConfig = { databaseURL: "https://notes-12519-default-rtdb.firebaseio.com" };
-        var fetchApp = firebase.initializeApp(fetchConfig, 'fetchApp');
-        var submitApp = firebase.initializeApp(submitConfig, 'submitApp');
-        var fetchDb = fetchApp.database().ref();
-        var submitDb = submitApp.database().ref();
-        
-        $firebaseArray(fetchDb).$loaded().then(data => {
-            vm.images = data.filter(item => !item.outOfStock);
-        });
-
-        // Category Data
-        $scope.categories = [
-            { id: 0, name: 'ALL PRODUCTS', filter: '', imageUrl: 'https://www.hindustantoys.in/images/all.jpeg' },
-            { id: 39, name: 'RAKHI SPECIAL', filter: 'RAKHI', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2025-07-15T09%3A53%3A46.047Z_DOLL%20(MIX)_eaa17f06-7fb6-473a-a75c-05a60fdf2b9f.jpg?alt=media&token=0a3e5de7-a66d-48eb-8223-30a99d3954a7' },
-            { id: 38, name: 'UMBRELLA', filter: 'UMBRELLA', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2024-06-24T16%3A35%3A31.407Z_RAINBOW%20UMBRELLA_IMG-20240529-WA0047.jpg?alt=media&token=64ee5147-65c7-4de8-897d-55df6cb84857' },
-            { id: 3, name: 'INDIAN TOYS', filter: 'INDIAN TOYS', imageUrl: 'https://www.hindustantoys.in/images/JCB.jpeg' },
-            { id: 7, name: 'REMOTE CAR', filter: 'REMOTE', imageUrl: 'https://www.hindustantoys.in/images/remote.jpeg' },
-            { id: 36, name: 'BAT & BALL', filter: 'BAT BALL', imageUrl: 'https://www.hindustantoys.in/images/bat.jpeg' },
-            { id: 34, name: 'TEDDY', filter: 'TEDDY', imageUrl: 'https://www.hindustantoys.in/images/TEDDY.jpg' },
-            { id: 31, name: 'KITCHEN SETS', filter: 'KITCHEN', imageUrl: 'https://www.hindustantoys.in/images/KITCHEN.jpg' },
-            { id: 30, name: 'HT PRODUCTS', filter: 'OWN', imageUrl: 'https://www.hindustantoys.in/images/htquality.jpg' },
-        ];
-        
-        // Modal and History Management
-        var productModal = new bootstrap.Modal(document.getElementById('productModal'));
-        
-        $scope.openGlobalSearch = function() {
-            if (!$scope.searchQuery) return;
-            $scope.productNameFilter = '';
-            $scope.activeCategoryName = `Search: "${$scope.searchQuery}"`;
-            history.pushState({ modalId: 'productModal' }, '');
-            productModal.show();
-        };
-
-        $scope.setTab = function(filter, tabId) {
-            $scope.productNameFilter = filter;
-            $scope.searchQuery = '';
-            $scope.activeCategoryName = $scope.categories.find(c => c.id === tabId)?.name || 'Products';
-            history.pushState({ modalId: 'productModal' }, '');
-            productModal.show();
-        };
-
-        angular.element($window).on('popstate', () => { productModal.hide(); });
-        document.getElementById('productModal').addEventListener('hidden.bs.modal', () => {
-            if (history.state?.modalId === 'productModal') history.back();
-        });
-
-        // Admin function to mark items out of stock
-        $scope.markOutOfStock = function(image) {
-            if (!image || !image.$id) return;
-            var itemRef = fetchDb.child(image.$id);
-            itemRef.update({ 
-                outOfStock: true,
-                lastModified: firebase.database.ServerValue.TIMESTAMP 
-            })
-            .then(function() {
-                const index = vm.images.findIndex(i => i.$id === image.$id);
-                if (index > -1) {
-                    vm.images.splice(index, 1);
-                }
-            })
-            .catch(function(error) {
-                console.error("Error marking out of stock:", error);
-                alert("An error occurred: " + error.message);
-            });
-        };
-
-        // Data Submission to Firebase
-        $scope.submitData = function(image) {
-            if (!image) return;
-            var uniqueId = image.quantityId || ($scope.dynamicField2Value.replace(/[^a-zA-Z0-9]/g, '') + '-' + image.$id);
-            image.quantityId = uniqueId;
-            var recordRef = submitDb.child(uniqueId);
-
-            if (!image.field3 || image.field3 <= 0) {
-                recordRef.remove();
-                return; 
-            }
-
-            const now = new Date();
-            const date = now.toLocaleDateString('en-IN', {day: '2-digit', month: '2-digit', year: 'numeric'});
-            const time = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase();
-
-            var dataToSubmit = {
-                field1: image.url,
-                field2: $scope.dynamicField2Value,
-                field3: image.field3,
-                productName: image.name,
-                productPrice: image.price,
-                serverTimestamp: firebase.database.ServerValue.TIMESTAMP,
-                submitDate: date,
-                submitTime: time
-            };
-            
-            recordRef.set(dataToSubmit).then(() => {
-                image.justSaved = true;
-                $timeout(() => { image.justSaved = false; }, 2000);
-            });
-        };
-
-        // Get Rows for Display
-        vm.getRows = function() {
-            if (!$scope.dynamicField2Value) {
-                return [];
-            }
-
-            let filteredImages = vm.images;
-            if ($scope.productNameFilter) {
-                 filteredImages = $filter('filter')(vm.images, { name: $scope.productNameFilter });
-            }
-            if ($scope.searchQuery && !$scope.productNameFilter) {
-                filteredImages = $filter('filter')(filteredImages, { name: $scope.searchQuery });
-            }
-
-            // Sorting logic
-            if ($scope.sortOrder === 'price') {
-                filteredImages = $filter('orderBy')(filteredImages, 'price');
-            } else if ($scope.sortOrder === '-price') {
-                filteredImages = $filter('orderBy')(filteredImages, '-price');
-            } else {
-                // Default sort: Reverse the natural Firebase order to get newest on top
-                filteredImages = filteredImages.slice().reverse();
-            }
-
-            // Create rows for a two-column grid layout
-            var rows = [];
-            for (var i = 0; i < filteredImages.length; i += 2) {
-                rows.push(filteredImages.slice(i, i + 2));
-            }
-            return rows;
-        };
-        
-        // Logout
-        $scope.logout = function() {
-            localStorage.clear();
-            window.location.reload();
+            );
         }
-    }]);
-  </script>
+        
+        async function uploadImage() {
+            const file = imageInput.files[0];
+            const name = document.getElementById('nameInput').value.trim();
+            const price = parseFloat(document.getElementById('priceInput').value.trim());
+            const partyCode = document.getElementById('partyCodeInput').value.trim();
+            const videourl = document.getElementById('videourlInput').value.trim();
+
+            if (!file || !name || !partyCode || isNaN(price) || price <= 0) {
+                alert('Please fill all required fields with valid values.');
+                return;
+            }
+
+            const getFileDataURL = (fileToRead) => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.onerror = err => reject(err);
+                    reader.readAsDataURL(fileToRead);
+                });
+            };
+
+            const thumbnailSrc = await getFileDataURL(file);
+
+            const progressContainer = document.createElement('div');
+            progressContainer.className = 'mb-4 p-4 bg-gray-100 rounded';
+            progressContainer.innerHTML = `
+                <div class="flex items-center">
+                    <img src="${thumbnailSrc}" alt="thumbnail" class="w-12 h-12 object-cover rounded mr-4">
+                    <div class="flex-grow">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-sm font-medium text-gray-800 truncate w-48" title="${file.name}">${file.name}</span>
+                            <span class="status text-sm text-blue-600 font-semibold">Uploading...</span>
+                        </div>
+                        <div class="bg-gray-300 rounded-full h-2.5">
+                            <div class="progress-bar bg-blue-600 h-2.5 rounded-full w-0 transition-all duration-300"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const uploadSection = document.querySelector('.max-w-xl');
+            uploadSection.insertBefore(progressContainer, uploadSection.children[2]);
+
+            uploadQueue.push({ file, name, price, partyCode, videourl, progressContainer });
+
+            imageInput.value = '';
+            document.getElementById('nameInput').value = '';
+            document.getElementById('priceInput').value = '';
+            
+            document.getElementById('videourlInput').value = '';
+            document.getElementById('partyCodeInput').value = ''; // Clear party code input as well
+            preview.innerHTML = '';
+
+            processUploadQueue();
+        }
+
+        // Real-time gallery update with latest images first and lazy loading
+        let lastKey = null;
+        const batchSize = 6;
+        let isLoading = false;
+        let allImagesLoaded = false;
+        let loadedImageKeys = new Set();
+        const loadingSpinner = document.getElementById('loadingSpinner');
+
+        function loadImages(callback) {
+            if (isLoading || allImagesLoaded) return;
+            isLoading = true;
+            loadingSpinner.style.display = 'block';
+
+            let query = database.ref().orderByChild('date');
+            if (lastKey) {
+                query = query.endBefore(lastKey).limitToLast(batchSize);
+            } else {
+                query = query.limitToLast(batchSize);
+            }
+
+            query.once('value', snapshot => {
+                const images = [];
+                snapshot.forEach(childSnapshot => {
+                    const key = childSnapshot.key;
+                    if (!loadedImageKeys.has(key)) {
+                        images.push({ ...childSnapshot.val(), key });
+                        loadedImageKeys.add(key);
+                    }
+                });
+
+                if (images.length === 0 || (lastKey && images.length < batchSize)) {
+                    allImagesLoaded = true;
+                }
+
+                if (images.length > 0) {
+                    images.reverse();
+                    lastKey = images[images.length - 1].date;
+                    callback(images);
+                } else {
+                    allImagesLoaded = true;
+                }
+
+                isLoading = false;
+                loadingSpinner.style.display = 'none';
+            }).catch(error => {
+                console.error('Error loading images:', error);
+                isLoading = false;
+                loadingSpinner.style.display = 'none';
+            });
+        }
+
+        function appendImages(images) {
+            images.forEach(image => {
+                const container = document.createElement('div');
+                container.className = 'image-container bg-white rounded-lg shadow-lg overflow-hidden';
+                container.setAttribute('data-key', image.key);
+                container.innerHTML = `
+                    <img src="${image.url}" alt="${image.name}" class="w-full object-cover" loading="lazy">
+                    <div class="p-4">
+                        <h3 class="font-semibold text-lg mb-2 editable-field" onclick="makeEditable(this, '${image.key}', 'name')">${image.name}</h3>
+                        <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${image.key}', 'price')">Price: ${image.price * 2}</p>
+                        <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${image.key}', 'partyCode')">Party Code: ${image.partyCode}</p>
+                        <p class="text-gray-600">Status: ${image.outOfStock ? 'Out of Stock' : 'Available'}</p>
+                        <p class="text-sm text-gray-500 mt-2">Uploaded: ${new Date(image.date).toLocaleString()}</p>
+                        <div class="mt-4">
+                            <input type="number" min="0" max="100" placeholder="Discount %" class="w-full p-2 border rounded mb-2 discount-input" data-key="${image.key}">
+                            <button class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors" onclick="applyDiscountAndDownload('${image.key}', '${image.url}')">Download with Discount</button>
+                        </div>
+                    </div>
+                `;
+                gallery.appendChild(container);
+            });
+        }
+
+        function makeEditable(element, key, field) {
+            const currentText = element.textContent;
+            let currentValue = currentText;
+            if (field === 'price') currentValue = currentText.replace('Price: ', '');
+            if (field === 'partyCode') currentValue = currentText.replace('Party Code: ', '');
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentValue;
+            input.className = 'editable-input';
+
+            element.innerHTML = '';
+            element.appendChild(input);
+            input.focus();
+
+            input.addEventListener('blur', () => saveEdit(element, key, field, input.value));
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    saveEdit(element, key, field, input.value);
+                }
+            });
+        }
+
+        function saveEdit(element, key, field, newValue) {
+            let updateData = {};
+            let displayValue = newValue;
+
+            if (field === 'price') {
+                const price = parseFloat(newValue);
+                if (isNaN(price) || price <= 0) {
+                    alert('Please enter a valid price');
+                    return;
+                }
+                updateData[field] = price / 2; // Store price as half in database
+                displayValue = `Price: ${price}`; // Display full price
+            } else if (field === 'partyCode') {
+                if (!newValue.trim()) {
+                    alert('Party Code cannot be empty');
+                    return;
+                }
+                updateData[field] = newValue;
+                displayValue = `Party Code: ${newValue}`;
+            } else {
+                if (!newValue.trim()) {
+                    alert('Name cannot be empty');
+                    return;
+                }
+                updateData[field] = newValue;
+            }
+
+            database.ref(key).update(updateData)
+                .then(() => {
+                    element.textContent = displayValue;
+                })
+                .catch(error => {
+                    console.error('Error updating:', error);
+                    alert('Failed to update');
+                });
+        }
+
+        // --- New Functionality: Apply Discount and Download Image ---
+        async function applyDiscountAndDownload(key, imageUrl) {
+            const imageCard = document.querySelector(`[data-key="${key}"]`);
+            const discountInput = imageCard.querySelector('.discount-input');
+            const discountPercentage = parseFloat(discountInput.value);
+
+            if (isNaN(discountPercentage) || discountPercentage < 0 || discountPercentage > 100) {
+                alert('Please enter a valid discount percentage between 0 and 100.');
+                return;
+            }
+
+            try {
+                const snapshot = await database.ref(key).once('value');
+                const imageData = snapshot.val();
+                if (!imageData || isNaN(imageData.price)) {
+                    alert('Could not retrieve original price for discount calculation.');
+                    return;
+                }
+
+                const originalPrice = imageData.price * 2; // Retrieve full price from database
+                const discountedPrice = originalPrice * (1 - discountPercentage / 100);
+
+                const img = new Image();
+                img.crossOrigin = "Anonymous"; // Crucial for loading images from different origins
+                img.src = imageUrl;
+
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+
+                    ctx.drawImage(img, 0, 0);
+
+                    // Add text for original price with strikethrough and new discounted price
+                    ctx.font = 'bold 48px Arial'; // Adjust font size and style as needed
+                    ctx.fillStyle = 'red';
+                    ctx.textAlign = 'right';
+
+                    // Original Price with Strikethrough
+                    const originalPriceText = `MRP: ₹${originalPrice.toFixed(2)}`;
+                    const textWidth = ctx.measureText(originalPriceText).width;
+                    const textX = canvas.width - 20; // 20px padding from right
+                    const textY = canvas.height - 100; // Position above discounted price
+
+                    ctx.fillText(originalPriceText, textX, textY);
+                    ctx.beginPath();
+                    ctx.strokeStyle = 'red';
+                    ctx.lineWidth = 4;
+                    ctx.moveTo(textX - textWidth, textY - 15);
+                    ctx.lineTo(textX, textY - 15);
+                    ctx.stroke();
+
+                    // Discounted Price
+                    ctx.font = 'bold 60px Arial';
+                    ctx.fillStyle = 'green';
+                    const discountedPriceText = `Offer: ₹${discountedPrice.toFixed(2)}`;
+                    ctx.fillText(discountedPriceText, textX, canvas.height - 40); // 40px padding from bottom
+
+                    // Download the image
+                    const link = document.createElement('a');
+                    link.download = `discounted_${imageData.name || 'image'}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                };
+
+                img.onerror = (error) => {
+                    console.error("Error loading image for canvas:", error);
+                    alert("Failed to load image for discount display. Please check the image URL or network.");
+                };
+
+            } catch (error) {
+                console.error("Error applying discount:", error);
+                alert("An error occurred while applying the discount. Please try again.");
+            }
+        }
+        // --- End New Functionality ---
+
+        // Load initial images
+        loadImages(appendImages);
+
+        // Enhanced scroll handler with debounce
+        let scrollTimeout;
+        function handleScroll() {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                const scrollPosition = window.innerHeight + window.scrollY;
+                const threshold = document.documentElement.scrollHeight - 300;
+
+                if (scrollPosition >= threshold && !isLoading && !allImagesLoaded) {
+                    loadImages(appendImages);
+                }
+            }, 100);
+        }
+
+        window.addEventListener('scroll', handleScroll);
+
+        // Real-time updates
+        database.ref().on('child_changed', snapshot => {
+            const updatedData = snapshot.val();
+            const key = snapshot.key;
+            const imageCard = document.querySelector(`[data-key="${key}"]`);
+            
+            if (imageCard) {
+                imageCard.querySelector('h3').textContent = updatedData.name;
+                // Ensure the displayed price is the full price, not the stored half price
+                imageCard.querySelectorAll('p')[0].textContent = `Price: ${updatedData.price * 2}`; 
+                imageCard.querySelectorAll('p')[1].textContent = `Party Code: ${updatedData.partyCode}`;
+            }
+        });
+
+        // Update gallery when new image is added
+        database.ref().orderByChild('date').limitToLast(1).on('child_added', snapshot => {
+            const key = snapshot.key;
+            if (!loadedImageKeys.has(key)) {
+                const image = { ...snapshot.val(), key };
+                const container = document.createElement('div');
+                container.className = 'image-container bg-white rounded-lg shadow-lg overflow-hidden';
+                container.setAttribute('data-key', key);
+                container.innerHTML = `
+                    <img src="${image.url}" alt="${image.name}" class="w-full object-cover" loading="lazy">
+                    <div class="p-4">
+                        <h3 class="font-semibold text-lg mb-2 editable-field" onclick="makeEditable(this, '${key}', 'name')">${image.name}</h3>
+                        <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${key}', 'price')">Price: ${image.price * 2}</p>
+                        <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${key}', 'partyCode')">Party Code: ${image.partyCode}</p>
+                        <p class="text-gray-600">Status: ${image.outOfStock ? 'Out of Stock' : 'Available'}</p>
+                        <p class="text-sm text-gray-500 mt-2">Uploaded: ${new Date(image.date).toLocaleString()}</p>
+                        <div class="mt-4">
+                            <input type="number" min="0" max="100" placeholder="Discount %" class="w-full p-2 border rounded mb-2 discount-input" data-key="${key}">
+                            <button class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors" onclick="applyDiscountAndDownload('${key}', '${image.url}')">Download with Discount</button>
+                        </div>
+                    </div>
+                `;
+                gallery.insertBefore(container, gallery.firstChild);
+                loadedImageKeys.add(key);
+            }
+        });
+
+        // Search functionality with debounce
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // --- MODIFIED: Added scroll to search function ---
+        function searchProducts() {
+            // Scroll to the top of the gallery
+            gallery.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            const searchName = document.getElementById('searchName').value.trim().toLowerCase();
+            const searchPartyCode = document.getElementById('searchPartyCode').value.trim().toLowerCase();
+            
+            gallery.innerHTML = '';
+            loadedImageKeys.clear();
+            allImagesLoaded = true; // Prevent infinite scroll during search
+            lastKey = null;
+            loadingSpinner.style.display = 'block';
+
+            let query = database.ref().orderByChild('date');
+            
+            query.once('value', snapshot => {
+                const images = [];
+                snapshot.forEach(childSnapshot => {
+                    const imageData = childSnapshot.val();
+                    const key = childSnapshot.key;
+                    
+                    const partyCode = imageData.partyCode ? String(imageData.partyCode).toLowerCase() : '';
+                    const name = imageData.name ? imageData.name.toLowerCase() : '';
+                    
+                    const nameMatch = !searchName || name.includes(searchName);
+                    const partyCodeMatch = !searchPartyCode || partyCode === searchPartyCode;
+                    
+                    if (nameMatch && partyCodeMatch) {
+                        images.push({ ...imageData, key });
+                        loadedImageKeys.add(key);
+                    }
+                });
+
+                if (images.length === 0) {
+                    gallery.innerHTML = '<p class="text-center text-gray-500 col-span-full">No products found.</p>';
+                    loadingSpinner.style.display = 'none';
+                    return;
+                }
+
+                images.sort((a, b) => new Date(b.date) - new Date(a.date));
+                appendImages(images);
+                lastKey = images[images.length - 1].date;
+                loadingSpinner.style.display = 'none';
+            }).catch(error => {
+                console.error('Search error:', error);
+                gallery.innerHTML = '<p class="text-center text-red-500 col-span-full">Error during search.</p>';
+                loadingSpinner.style.display = 'none';
+            });
+        }
+        
+        // --- MODIFIED: Added scroll to reset function ---
+        function resetSearch() {
+            // Scroll to the top of the gallery
+            gallery.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            document.getElementById('searchName').value = '';
+            document.getElementById('searchPartyCode').value = '';
+            
+            gallery.innerHTML = '';
+            loadedImageKeys.clear();
+            allImagesLoaded = false;
+            lastKey = null;
+            
+            loadImages(appendImages);
+        }
+
+        // Debounced search (300ms delay)
+        const debouncedSearch = debounce(searchProducts, 300);
+
+        // Add real-time search listeners
+        document.getElementById('searchName').addEventListener('input', debouncedSearch);
+        document.getElementById('searchPartyCode').addEventListener('input', debouncedSearch);
+    </script>
 </body>
 </html>
