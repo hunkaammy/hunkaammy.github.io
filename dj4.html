@@ -601,10 +601,13 @@
                         ctx.lineTo(originalTextX + (horizontalPadding / 2) - shiftBlockLeftAmount, originalTextY - (mrpTextHeightVisual / 2) + 10);
                         ctx.stroke();
 
+                        // Define the amount to shift the Offer block to the right
+                        const shiftOfferRightAmount = canvas.width * 0.15; // Shift by 15% of canvas width
+
                         // Draw solid black background for Discounted Price
                         ctx.fillStyle = backgroundColor;
                         ctx.fillRect(
-                            backgroundStartX - shiftBlockLeftAmount, // Shift the entire block to the left
+                            (backgroundStartX - shiftBlockLeftAmount) + shiftOfferRightAmount, // Shift the entire block left, then shift this part right
                             discountedTextY - offerTextHeightVisual + finalVerticalPaddingForBg * 2 - fontMarginTop, // Adjusted Y for background to account for font margin
                             backgroundWidth,
                             (offerTextHeightVisual + (finalVerticalPaddingForBg * 2)) // Apply 10% height increase
@@ -613,7 +616,7 @@
                         // Draw Discounted Price Text
                         ctx.font = discountedFont;
                         ctx.fillStyle = textColor;
-                        ctx.fillText(discountedPriceText, discountedTextX - shiftBlockLeftAmount, discountedTextY); // Shift text with the block
+                        ctx.fillText(discountedPriceText, (discountedTextX - shiftBlockLeftAmount) + shiftOfferRightAmount, discountedTextY); // Shift text with the block, then shift this part right
                     }
 
                     // Download the image
