@@ -105,7 +105,7 @@
             </button>
             <div id="uploadProgress" class="hidden mt-4">
                 <div class="bg-gray-200 rounded-full h-2.5">
-                    <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full w-0 transition-all duration-300"></div>
+                    <div class="bg-blue-600 h-2.5 rounded-full w-0 transition-all duration-300"></div>
                 </div>
             </div>
         </div>
@@ -511,35 +511,42 @@
                         const discountedFont = 'bold 60px Arial';
                         const textColorOriginal = 'white'; 
                         const textColorDiscounted = 'white'; 
-                        const backgroundOpacity = 0.6; 
-
+                        const backgroundColor = 'black'; // Full dark background
+                        
                         // Calculate text dimensions for background rectangles
                         ctx.font = originalFont;
                         const originalPriceText = `MRP: ₹${originalPrice.toFixed(2)}`;
                         const originalTextMetrics = ctx.measureText(originalPriceText);
                         const originalTextWidth = originalTextMetrics.width;
-                        const originalTextHeight = 48; 
+                        // For accurate text height, you might need to use a temporary canvas and measure,
+                        // but fixed values are often sufficient for common fonts.
+                        const originalTextHeightVisual = 48; // Approximate height for 48px font, adjusted for better background fit
 
                         ctx.font = discountedFont;
                         const discountedPriceText = `Offer: ₹${discountedPrice.toFixed(2)}`;
                         const discountedTextMetrics = ctx.measureText(discountedPriceText);
                         const discountedTextWidth = discountedTextMetrics.width;
-                        const discountedTextHeight = 60; 
+                        const discountedTextHeightVisual = 60; // Approximate height for 60px font, adjusted
 
-                        // Positioning (from bottom right)
-                        const padding = 20; 
-                        const textYOffset = 15; 
+                        // Positioning (from bottom right, adjusted upwards)
+                        const padding = 20; // Padding from right and bottom
+                        const textYOffset = 15; // Vertical spacing between original and discounted text
+
+                        // Starting Y position for the bottom-most text (discounted price)
+                        // Adjusting this value moves the whole block up or down.
+                        const startYPosition = canvas.height - padding - 20; // Move up by 20px
 
                         const discountedTextX = canvas.width - padding;
-                        const discountedTextY = canvas.height - padding;
+                        const discountedTextY = startYPosition;
 
                         const originalTextX = canvas.width - padding;
-                        const originalTextY = discountedTextY - discountedTextHeight - textYOffset; 
+                        // Position original text above discounted text
+                        const originalTextY = discountedTextY - discountedTextHeightVisual - textYOffset; 
 
-                        // Draw black background for Original Price
-                        ctx.fillStyle = `rgba(0, 0, 0, ${backgroundOpacity})`;
-                        // Adjust fillRect for better padding: x, y, width, height
-                        ctx.fillRect(originalTextX - originalTextWidth - 10, originalTextY - originalTextHeight + 15 - 5, originalTextWidth + 20, originalTextHeight + 10); 
+                        // Draw solid black background for Original Price
+                        ctx.fillStyle = backgroundColor;
+                        // x, y, width, height. Adjust y and height for better fit.
+                        ctx.fillRect(originalTextX - originalTextWidth - 15, originalTextY - originalTextHeightVisual + 15 - 8, originalTextWidth + 30, originalTextHeightVisual + 16); 
 
                         // Draw Original Price Text
                         ctx.font = originalFont;
@@ -550,14 +557,15 @@
                         // Strikethrough for Original Price
                         ctx.beginPath();
                         ctx.strokeStyle = 'red'; // Changed strikethrough color to red for visibility
-                        ctx.lineWidth = 4;
-                        ctx.moveTo(originalTextX - originalTextWidth -5, originalTextY - originalTextHeight / 2 + 10); 
-                        ctx.lineTo(originalTextX + 5, originalTextY - originalTextHeight / 2 + 10);
+                        ctx.lineWidth = 4; // Make strikethrough thicker
+                        // Adjust start/end points to cover more of the text and be centered
+                        ctx.moveTo(originalTextX - originalTextWidth - 5, originalTextY - (originalTextHeightVisual / 2) + 10); 
+                        ctx.lineTo(originalTextX + 5, originalTextY - (originalTextHeightVisual / 2) + 10);
                         ctx.stroke();
 
-                        // Draw black background for Discounted Price
-                        ctx.fillStyle = `rgba(0, 0, 0, ${backgroundOpacity})`;
-                        ctx.fillRect(discountedTextX - discountedTextWidth - 10, discountedTextY - discountedTextHeight + 15 - 5, discountedTextWidth + 20, discountedTextHeight + 10);
+                        // Draw solid black background for Discounted Price
+                        ctx.fillStyle = backgroundColor;
+                        ctx.fillRect(discountedTextX - discountedTextWidth - 15, discountedTextY - discountedTextHeightVisual + 15 - 8, discountedTextWidth + 30, discountedTextHeightVisual + 16);
 
                         // Draw Discounted Price Text
                         ctx.font = discountedFont;
