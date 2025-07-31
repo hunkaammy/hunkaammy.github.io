@@ -575,9 +575,8 @@
                         // Calculate X start for background (shifted left to increase width from left)
                         const initialBackgroundStartX = originalTextX - backgroundWidth + horizontalPadding;
 
-                        // NEW: Calculate the amount to shift the entire block to the right (30% of canvas width)
-                        // This will OVERRIDE the previous 10% left shift for clarity and directness.
-                        const shiftBlockRightAmount = canvas.width * 0.30; 
+                        // NEW: Calculate the amount to shift the entire block to the right (18% of canvas width)
+                        const shiftBlockRightAmount = canvas.width * 0.18; // Changed from 0.30 to 0.18
 
                         // Draw solid black background for Original Price
                         ctx.fillStyle = backgroundColor;
