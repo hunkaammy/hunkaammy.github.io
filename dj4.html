@@ -533,28 +533,9 @@
                         // Adjustment Factors
                         const bgHeightIncreaseFactor = 1.10; // 10% increase from previous request
                         // Cumulative width increase: 5% (from before) + 5% (new from left)
-                        // To achieve 5% from left, we need to increase the background width and then shift it.
-                        // The original totalBgWidthScaleFactor was 1.05 * 1.05 = 1.1025.
-                        // If we want 5% more width from the left, we'll effectively add 5% to the current backgroundWidth.
-                        // This means the effective scale factor becomes `current_scale * 1.05`.
-                        const totalBgWidthScaleFactor = 1.05 * 1.05 * 1.05; // Original 1.05 (from prev) * new 1.05 (for left side)
+                        const totalBgWidthScaleFactor = 1.05 * 1.05; // Cumulative 5% + 5% width increase from original calculation point
 
                         // Cumulative 30% + 30% total move up.
-                        // If it's "30% more up from current position", and current position already has a 30% upward shift,
-                        // then it's `(previous_shift_factor + new_shift_percentage)`.
-                        // So if previous was 0.30, and now it's 30% *more*, it means an additional 0.30 * current_height_block.
-                        // So the overall factor becomes `1 + 0.30 + 0.30 = 1.60` of the initial calculation,
-                        // or if it's 30% of the calculated block height added to the existing shift:
-                        // Let's assume the request implies the *total* upward movement factor is now 30% more than the *previous* total upward movement.
-                        // If `previous_total_move_up_factor` was `X`, new one is `X * 1.30`.
-                        // The previous value was `0.30` (meaning 30% of `totalTextBlockHeight`).
-                        // So if the current is `totalTextBlockHeight * 0.30`, and we want 30% *more* movement:
-                        // New shift amount = `(totalTextBlockHeight * 0.30) * 1.30`
-                        // A simpler way for incremental percentage increases:
-                        // New `totalPositionMoveUpFactor` = `(1 + previous_total_position_move_up_factor) * (1 + new_additional_percentage) - 1`
-                        // Previous was 0.20, then 0.30. So let's make it a simple addition for clarity if that's the intent.
-                        // Let's interpret "30% more up from current position" as an *absolute* increase in the upward movement amount.
-                        // If the previous move was `0.30 * totalTextBlockHeight`, then the new total move is `(0.30 + 0.30) * totalTextBlockHeight = 0.60 * totalTextBlockHeight`.
                         const totalPositionMoveUpFactor = 0.60; // Now 60% of totalTextBlockHeight (30% from last + 30% new)
 
                         const textLineSpacing = 15; // Space between MRP and Offer lines
@@ -594,10 +575,13 @@
                         // Calculate X start for background (shifted left to increase width from left)
                         const backgroundStartX = originalTextX - backgroundWidth + horizontalPadding;
 
+                        // NEW: Calculate the amount to shift the entire block to the left (10% of canvas width)
+                        const shiftBlockLeftAmount = canvas.width * 0.10;
+
                         // Draw solid black background for Original Price
                         ctx.fillStyle = backgroundColor;
                         ctx.fillRect(
-                            backgroundStartX, // Use the calculated start X
+                            backgroundStartX - shiftBlockLeftAmount, // Shift the entire block to the left
                             originalTextY - mrpTextHeightVisual + finalVerticalPaddingForBg * 2 - fontMarginTop, // Adjusted Y for background to account for font margin
                             backgroundWidth,
                             (mrpTextHeightVisual + (finalVerticalPaddingForBg * 2)) // Apply 10% height increase
@@ -607,20 +591,20 @@
                         ctx.font = originalFont;
                         ctx.fillStyle = textColor;
                         ctx.textAlign = 'right';
-                        ctx.fillText(originalPriceText, originalTextX, originalTextY);
+                        ctx.fillText(originalPriceText, originalTextX - shiftBlockLeftAmount, originalTextY); // Shift text with the block
 
                         // Strikethrough for Original Price
                         ctx.beginPath();
                         ctx.strokeStyle = 'red';
                         ctx.lineWidth = 4;
-                        ctx.moveTo(originalTextX - mrpTextWidth - (horizontalPadding / 2), originalTextY - (mrpTextHeightVisual / 2) + 10);
-                        ctx.lineTo(originalTextX + (horizontalPadding / 2), originalTextY - (mrpTextHeightVisual / 2) + 10);
+                        ctx.moveTo(originalTextX - mrpTextWidth - (horizontalPadding / 2) - shiftBlockLeftAmount, originalTextY - (mrpTextHeightVisual / 2) + 10);
+                        ctx.lineTo(originalTextX + (horizontalPadding / 2) - shiftBlockLeftAmount, originalTextY - (mrpTextHeightVisual / 2) + 10);
                         ctx.stroke();
 
                         // Draw solid black background for Discounted Price
                         ctx.fillStyle = backgroundColor;
                         ctx.fillRect(
-                            backgroundStartX, // Use the calculated start X
+                            backgroundStartX - shiftBlockLeftAmount, // Shift the entire block to the left
                             discountedTextY - offerTextHeightVisual + finalVerticalPaddingForBg * 2 - fontMarginTop, // Adjusted Y for background to account for font margin
                             backgroundWidth,
                             (offerTextHeightVisual + (finalVerticalPaddingForBg * 2)) // Apply 10% height increase
@@ -629,7 +613,7 @@
                         // Draw Discounted Price Text
                         ctx.font = discountedFont;
                         ctx.fillStyle = textColor;
-                        ctx.fillText(discountedPriceText, discountedTextX, discountedTextY);
+                        ctx.fillText(discountedPriceText, discountedTextX - shiftBlockLeftAmount, discountedTextY); // Shift text with the block
                     }
 
                     // Download the image
