@@ -529,15 +529,11 @@
                         // Positioning parameters
                         const paddingRight = 20; // Padding from right edge
                         const bottomPaddingReference = 40; // Original "move up" from bottom
-                        // Additional percentage increases for background size and position
-                        const bgHeightIncreaseFactor = 1.10; // 10% height increase
-                        const bgWidthIncreaseFactor = 1.05;  // 5% width increase
-                        // This factor is CUMULATIVE to previous moves.
-                        // If it was already moved by 20% (0.20) and now you want 30% *more*,
-                        // the new factor should be based on the original total block height.
-                        // Or, if it's 30% *of the remaining distance* from current, it's different.
-                        // Assuming "30% from its current position" means 30% of the calculated block height.
-                        const totalPositionMoveUpFactor = 0.30; // 30% more move up from its *current* calculated block height
+
+                        // Adjustment Factors
+                        const bgHeightIncreaseFactor = 1.10; // 10% increase from previous request
+                        const totalBgWidthScaleFactor = 1.05 * 1.05; // Cumulative 5% + 5% width increase
+                        const totalPositionMoveUpFactor = 0.30 + 0.30; // Cumulative 30% + 30% total move up
 
                         const textLineSpacing = 15; // Space between MRP and Offer lines
                         const horizontalPadding = 15; // Padding for background on each side of text
@@ -549,8 +545,7 @@
                         // Calculate the current bottom reference point
                         const currentBottomReference = canvas.height - bottomPaddingReference;
 
-                        // Calculate the new bottom reference point, shifted an additional 30% further up
-                        // This uses the totalTextBlockHeight for the shift amount, relative to its current position.
+                        // Calculate the new bottom reference point, shifted by the total cumulative factor
                         const newBottomReference = currentBottomReference - (totalTextBlockHeight * totalPositionMoveUpFactor);
 
                         // Adjusting 'discountedTextY' for the bottom-most text (discounted price)
@@ -559,13 +554,14 @@
                         // Calculate positions for Original Price (above discounted price)
                         const originalTextY = discountedTextY - offerTextHeightVisual - textLineSpacing;
 
-                        // Calculate X positions (remain right-aligned)
+                        // Calculate X positions (remain right-aligned for text)
                         const discountedTextX = canvas.width - paddingRight;
                         const originalTextX = canvas.width - paddingRight;
 
                         // Determine the maximum required width for the background rectangles
                         let maxTextWidth = Math.max(offerTextWidth, mrpTextWidth);
-                        let backgroundWidth = (maxTextWidth + (horizontalPadding * 2)) * bgWidthIncreaseFactor; // Apply 5% width increase
+                        // Apply the cumulative width increase factor
+                        let backgroundWidth = (maxTextWidth + (horizontalPadding * 2)) * totalBgWidthScaleFactor;
 
                         // Apply 10% height increase to vertical padding for backgrounds
                         let finalVerticalPaddingForBg = verticalPaddingPerLine * bgHeightIncreaseFactor;
@@ -573,7 +569,7 @@
                         // Draw solid black background for Original Price
                         ctx.fillStyle = backgroundColor;
                         ctx.fillRect(
-                            originalTextX - backgroundWidth + horizontalPadding,
+                            originalTextX - backgroundWidth + horizontalPadding, // X-coordinate for right-aligned and expanding left
                             originalTextY - mrpTextHeightVisual + finalVerticalPaddingForBg * 2, // Adjusted Y for background
                             backgroundWidth,
                             (mrpTextHeightVisual + (finalVerticalPaddingForBg * 2)) // Apply 10% height increase
@@ -596,7 +592,7 @@
                         // Draw solid black background for Discounted Price
                         ctx.fillStyle = backgroundColor;
                         ctx.fillRect(
-                            discountedTextX - backgroundWidth + horizontalPadding,
+                            discountedTextX - backgroundWidth + horizontalPadding, // X-coordinate for right-aligned and expanding left
                             discountedTextY - offerTextHeightVisual + finalVerticalPaddingForBg * 2, // Adjusted Y for background
                             backgroundWidth,
                             (offerTextHeightVisual + (finalVerticalPaddingForBg * 2)) // Apply 10% height increase
@@ -675,7 +671,7 @@
                     <div class="p-4">
                         <h3 class="font-semibold text-lg mb-2 editable-field" onclick="makeEditable(this, '${key}', 'name')">${image.name}</h3>
                         <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${key}', 'price')">Price: ${image.price}</p>
-                        <p class="text-600 editable-field" onclick="makeEditable(this, '${key}', 'partyCode')">Party Code: ${image.partyCode}</p>
+                        <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${key}', 'partyCode')">Party Code: ${image.partyCode}</p>
                         <p class="text-gray-600">Status: ${image.outOfStock ? 'Out of Stock' : 'Available'}</p>
                         <p class="text-sm text-gray-500 mt-2">Uploaded: ${new Date(image.date).toLocaleString()}</p>
                         <div class="mt-4">
