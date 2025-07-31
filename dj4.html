@@ -42,12 +42,12 @@
             text-align: center;
             padding: 20px;
         }
-        .sticky-section { /* Renamed for clarity - apply to search and new discount section */
+        .sticky-section { 
             position: sticky;
             top: 0;
             z-index: 10;
             background-color: white;
-            padding: 6px; /* Reduced padding slightly for combined section */
+            padding: 6px; 
             border-radius: 0.5rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             margin-bottom: 2rem;
@@ -61,12 +61,12 @@
             height: 100%;
             background-color: rgba(0, 0, 0, 0.7);
             z-index: 9999;
-            display: none; /* Hidden by default */
+            display: none; 
             justify-content: center;
             align-items: center;
         }
         #globalDropOverlay.active {
-            display: flex; /* Shown when dragging */
+            display: flex; 
         }
         .overlay-content {
             text-align: center;
@@ -261,7 +261,7 @@
                         database.ref().push({
                             url: downloadURL,
                             name: name,
-                            price: price / 2, // Price is stored as half in the database
+                            price: price, // Store actual price, no division here
                             date: currentDate,
                             outOfStock: false,
                             videourl: videourl,
@@ -269,7 +269,7 @@
                         });
 
                         progressContainer.querySelector('.status').textContent = 'Completed';
-                        setTimeout(() => progressContainer.remove(), 2000); // Remove after 2 seconds
+                        setTimeout(() => progressContainer.remove(), 2000); 
                         uploadQueue.shift();
                         isUploading = false;
                         processUploadQueue();
@@ -394,7 +394,7 @@
                     <img src="${image.url}" alt="${image.name}" class="w-full object-cover" loading="lazy">
                     <div class="p-4">
                         <h3 class="font-semibold text-lg mb-2 editable-field" onclick="makeEditable(this, '${image.key}', 'name')">${image.name}</h3>
-                        <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${image.key}', 'price')">Price: ${image.price * 2}</p>
+                        <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${image.key}', 'price')">Price: ${image.price}</p>
                         <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${image.key}', 'partyCode')">Party Code: ${image.partyCode}</p>
                         <p class="text-gray-600">Status: ${image.outOfStock ? 'Out of Stock' : 'Available'}</p>
                         <p class="text-sm text-gray-500 mt-2">Uploaded: ${new Date(image.date).toLocaleString()}</p>
@@ -440,8 +440,8 @@
                     alert('Please enter a valid price');
                     return;
                 }
-                updateData[field] = price / 2; // Store price as half in database
-                displayValue = `Price: ${price}`; // Display full price
+                updateData[field] = price; // Store actual price, no division here
+                displayValue = `Price: ${price}`; // Display actual price
             } else if (field === 'partyCode') {
                 if (!newValue.trim()) {
                     alert('Party Code cannot be empty');
@@ -490,7 +490,8 @@
                     return;
                 }
 
-                const originalPrice = imageData.price * 2; // Retrieve full price from database
+                // Use the price directly from the database; it's no longer divided by 2
+                const originalPrice = imageData.price; 
                 const discountedPrice = originalPrice * (1 - discountPercentage / 100);
 
                 const img = new Image();
@@ -511,41 +512,36 @@
                         const discountedFont = 'bold 60px Arial';
                         const textColorOriginal = 'white'; 
                         const textColorDiscounted = 'white'; 
-                        const backgroundColor = 'black'; // Full dark background
+                        const backgroundColor = 'black'; 
                         
                         // Calculate text dimensions for background rectangles
                         ctx.font = originalFont;
                         const originalPriceText = `MRP: ₹${originalPrice.toFixed(2)}`;
                         const originalTextMetrics = ctx.measureText(originalPriceText);
                         const originalTextWidth = originalTextMetrics.width;
-                        // For accurate text height, you might need to use a temporary canvas and measure,
-                        // but fixed values are often sufficient for common fonts.
-                        const originalTextHeightVisual = 48; // Approximate height for 48px font, adjusted for better background fit
+                        const originalTextHeightVisual = 48; 
 
                         ctx.font = discountedFont;
                         const discountedPriceText = `Offer: ₹${discountedPrice.toFixed(2)}`;
                         const discountedTextMetrics = ctx.measureText(discountedPriceText);
                         const discountedTextWidth = discountedTextMetrics.width;
-                        const discountedTextHeightVisual = 60; // Approximate height for 60px font, adjusted
+                        const discountedTextHeightVisual = 60; 
 
                         // Positioning (from bottom right, adjusted upwards)
-                        const padding = 20; // Padding from right and bottom
-                        const textYOffset = 15; // Vertical spacing between original and discounted text
+                        const padding = 20; 
+                        const textYOffset = 15; 
 
-                        // Starting Y position for the bottom-most text (discounted price)
-                        // Adjusting this value moves the whole block up or down.
-                        const startYPosition = canvas.height - padding - 20; // Move up by 20px
+                        // Adjusted upwards more
+                        const startYPosition = canvas.height - padding - 40; // Moved up by an additional 20px (total 40px)
 
                         const discountedTextX = canvas.width - padding;
                         const discountedTextY = startYPosition;
 
                         const originalTextX = canvas.width - padding;
-                        // Position original text above discounted text
                         const originalTextY = discountedTextY - discountedTextHeightVisual - textYOffset; 
 
                         // Draw solid black background for Original Price
                         ctx.fillStyle = backgroundColor;
-                        // x, y, width, height. Adjust y and height for better fit.
                         ctx.fillRect(originalTextX - originalTextWidth - 15, originalTextY - originalTextHeightVisual + 15 - 8, originalTextWidth + 30, originalTextHeightVisual + 16); 
 
                         // Draw Original Price Text
@@ -556,9 +552,8 @@
                         
                         // Strikethrough for Original Price
                         ctx.beginPath();
-                        ctx.strokeStyle = 'red'; // Changed strikethrough color to red for visibility
-                        ctx.lineWidth = 4; // Make strikethrough thicker
-                        // Adjust start/end points to cover more of the text and be centered
+                        ctx.strokeStyle = 'red'; 
+                        ctx.lineWidth = 4;
                         ctx.moveTo(originalTextX - originalTextWidth - 5, originalTextY - (originalTextHeightVisual / 2) + 10); 
                         ctx.lineTo(originalTextX + 5, originalTextY - (originalTextHeightVisual / 2) + 10);
                         ctx.stroke();
@@ -623,8 +618,8 @@
             
             if (imageCard) {
                 imageCard.querySelector('h3').textContent = updatedData.name;
-                // Ensure the displayed price is the full price, not the stored half price
-                imageCard.querySelectorAll('p')[0].textContent = `Price: ${updatedData.price * 2}`; 
+                // Display actual price, no multiplication
+                imageCard.querySelectorAll('p')[0].textContent = `Price: ${updatedData.price}`; 
                 imageCard.querySelectorAll('p')[1].textContent = `Party Code: ${updatedData.partyCode}`;
             }
         });
@@ -641,7 +636,7 @@
                     <img src="${image.url}" alt="${image.name}" class="w-full object-cover" loading="lazy">
                     <div class="p-4">
                         <h3 class="font-semibold text-lg mb-2 editable-field" onclick="makeEditable(this, '${key}', 'name')">${image.name}</h3>
-                        <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${key}', 'price')">Price: ${image.price * 2}</p>
+                        <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${key}', 'price')">Price: ${image.price}</p>
                         <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${key}', 'partyCode')">Party Code: ${image.partyCode}</p>
                         <p class="text-gray-600">Status: ${image.outOfStock ? 'Out of Stock' : 'Available'}</p>
                         <p class="text-sm text-gray-500 mt-2">Uploaded: ${new Date(image.date).toLocaleString()}</p>
@@ -722,7 +717,7 @@
 
             document.getElementById('searchName').value = '';
             document.getElementById('searchPartyCode').value = '';
-            globalDiscountInput.value = ''; // Clear global discount input on reset
+            globalDiscountInput.value = ''; 
             
             gallery.innerHTML = '';
             loadedImageKeys.clear();
@@ -741,3 +736,6 @@
     </script>
 </body>
 </html>
+
+
+
