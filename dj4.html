@@ -575,48 +575,42 @@
                         // Calculate X start for background (shifted left to increase width from left)
                         const backgroundStartX = originalTextX - backgroundWidth + horizontalPadding;
 
-                        // NEW: Calculate the amount to shift the entire block to the left (10% of canvas width)
-                        const shiftBlockLeftAmount = canvas.width * 0.10;
-
                         // Draw solid black background for Original Price
                         ctx.fillStyle = backgroundColor;
                         ctx.fillRect(
-                            backgroundStartX - shiftBlockLeftAmount, // Shift the entire block to the left
-                            originalTextY - mrpTextHeightVisual + finalVerticalPaddingForBg * 2 - fontMarginTop, // Adjusted Y for background to account for font margin
+                            backgroundStartX, // Return to original X position
+                            originalTextY - mrpTextHeightVisual + finalVerticalPaddingForBg * 2 - fontMarginTop,
                             backgroundWidth,
-                            (mrpTextHeightVisual + (finalVerticalPaddingForBg * 2)) // Apply 10% height increase
+                            (mrpTextHeightVisual + (finalVerticalPaddingForBg * 2))
                         );
 
                         // Draw Original Price Text
                         ctx.font = originalFont;
                         ctx.fillStyle = textColor;
                         ctx.textAlign = 'right';
-                        ctx.fillText(originalPriceText, originalTextX - shiftBlockLeftAmount, originalTextY); // Shift text with the block
+                        ctx.fillText(originalPriceText, originalTextX, originalTextY); // Return to original X position
 
                         // Strikethrough for Original Price
                         ctx.beginPath();
                         ctx.strokeStyle = 'red';
                         ctx.lineWidth = 4;
-                        ctx.moveTo(originalTextX - mrpTextWidth - (horizontalPadding / 2) - shiftBlockLeftAmount, originalTextY - (mrpTextHeightVisual / 2) + 10);
-                        ctx.lineTo(originalTextX + (horizontalPadding / 2) - shiftBlockLeftAmount, originalTextY - (mrpTextHeightVisual / 2) + 10);
+                        ctx.moveTo(originalTextX - mrpTextWidth - (horizontalPadding / 2), originalTextY - (mrpTextHeightVisual / 2) + 10);
+                        ctx.lineTo(originalTextX + (horizontalPadding / 2), originalTextY - (mrpTextHeightVisual / 2) + 10);
                         ctx.stroke();
-
-                        // Define the amount to shift the Offer block to the right
-                        const shiftOfferRightAmount = canvas.width * 0.15; // Shift by 15% of canvas width
-
+                        
                         // Draw solid black background for Discounted Price
                         ctx.fillStyle = backgroundColor;
                         ctx.fillRect(
-                            (backgroundStartX - shiftBlockLeftAmount) + shiftOfferRightAmount, // Shift the entire block left, then shift this part right
-                            discountedTextY - offerTextHeightVisual + finalVerticalPaddingForBg * 2 - fontMarginTop, // Adjusted Y for background to account for font margin
+                            backgroundStartX, // Return to original X position
+                            discountedTextY - offerTextHeightVisual + finalVerticalPaddingForBg * 2 - fontMarginTop,
                             backgroundWidth,
-                            (offerTextHeightVisual + (finalVerticalPaddingForBg * 2)) // Apply 10% height increase
+                            (offerTextHeightVisual + (finalVerticalPaddingForBg * 2))
                         );
 
                         // Draw Discounted Price Text
                         ctx.font = discountedFont;
                         ctx.fillStyle = textColor;
-                        ctx.fillText(discountedPriceText, (discountedTextX - shiftBlockLeftAmount) + shiftOfferRightAmount, discountedTextY); // Shift text with the block, then shift this part right
+                        ctx.fillText(discountedPriceText, discountedTextX, discountedTextY); // Return to original X position
                     }
 
                     // Download the image
