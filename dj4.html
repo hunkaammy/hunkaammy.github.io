@@ -532,12 +532,35 @@
 
                         // Adjustment Factors
                         const bgHeightIncreaseFactor = 1.10; // 10% increase from previous request
-                        const totalBgWidthScaleFactor = 1.05 * 1.05; // Cumulative 5% + 5% width increase
-                        const totalPositionMoveUpFactor = 0.30 + 0.30; // Cumulative 30% + 30% total move up
+                        // Cumulative width increase: 5% (from before) + 5% (new from left)
+                        // To achieve 5% from left, we need to increase the background width and then shift it.
+                        // The original totalBgWidthScaleFactor was 1.05 * 1.05 = 1.1025.
+                        // If we want 5% more width from the left, we'll effectively add 5% to the current backgroundWidth.
+                        // This means the effective scale factor becomes `current_scale * 1.05`.
+                        const totalBgWidthScaleFactor = 1.05 * 1.05 * 1.05; // Original 1.05 (from prev) * new 1.05 (for left side)
+
+                        // Cumulative 30% + 30% total move up.
+                        // If it's "30% more up from current position", and current position already has a 30% upward shift,
+                        // then it's `(previous_shift_factor + new_shift_percentage)`.
+                        // So if previous was 0.30, and now it's 30% *more*, it means an additional 0.30 * current_height_block.
+                        // So the overall factor becomes `1 + 0.30 + 0.30 = 1.60` of the initial calculation,
+                        // or if it's 30% of the calculated block height added to the existing shift:
+                        // Let's assume the request implies the *total* upward movement factor is now 30% more than the *previous* total upward movement.
+                        // If `previous_total_move_up_factor` was `X`, new one is `X * 1.30`.
+                        // The previous value was `0.30` (meaning 30% of `totalTextBlockHeight`).
+                        // So if the current is `totalTextBlockHeight * 0.30`, and we want 30% *more* movement:
+                        // New shift amount = `(totalTextBlockHeight * 0.30) * 1.30`
+                        // A simpler way for incremental percentage increases:
+                        // New `totalPositionMoveUpFactor` = `(1 + previous_total_position_move_up_factor) * (1 + new_additional_percentage) - 1`
+                        // Previous was 0.20, then 0.30. So let's make it a simple addition for clarity if that's the intent.
+                        // Let's interpret "30% more up from current position" as an *absolute* increase in the upward movement amount.
+                        // If the previous move was `0.30 * totalTextBlockHeight`, then the new total move is `(0.30 + 0.30) * totalTextBlockHeight = 0.60 * totalTextBlockHeight`.
+                        const totalPositionMoveUpFactor = 0.60; // Now 60% of totalTextBlockHeight (30% from last + 30% new)
 
                         const textLineSpacing = 15; // Space between MRP and Offer lines
                         const horizontalPadding = 15; // Padding for background on each side of text
                         const verticalPaddingPerLine = 8; // Vertical padding for background around each text line
+                        const fontMarginTop = 5; // New: Margin from the top of the background to the font
 
                         // Calculate total height of the text block with its paddings (before scaling)
                         const totalTextBlockHeight = mrpTextHeightVisual + offerTextHeightVisual + textLineSpacing + (verticalPaddingPerLine * 4);
@@ -549,10 +572,12 @@
                         const newBottomReference = currentBottomReference - (totalTextBlockHeight * totalPositionMoveUpFactor);
 
                         // Adjusting 'discountedTextY' for the bottom-most text (discounted price)
-                        const discountedTextY = newBottomReference - (offerTextHeightVisual / 2) + (verticalPaddingPerLine * 2);
+                        // Add fontMarginTop to push the text down relative to its background top
+                        const discountedTextY = newBottomReference - (offerTextHeightVisual / 2) + (verticalPaddingPerLine * 2) + fontMarginTop;
 
                         // Calculate positions for Original Price (above discounted price)
-                        const originalTextY = discountedTextY - offerTextHeightVisual - textLineSpacing;
+                        // Add fontMarginTop to push the text down relative to its background top
+                        const originalTextY = discountedTextY - offerTextHeightVisual - textLineSpacing + fontMarginTop;
 
                         // Calculate X positions (remain right-aligned for text)
                         const discountedTextX = canvas.width - paddingRight;
@@ -566,11 +591,14 @@
                         // Apply 10% height increase to vertical padding for backgrounds
                         let finalVerticalPaddingForBg = verticalPaddingPerLine * bgHeightIncreaseFactor;
 
+                        // Calculate X start for background (shifted left to increase width from left)
+                        const backgroundStartX = originalTextX - backgroundWidth + horizontalPadding;
+
                         // Draw solid black background for Original Price
                         ctx.fillStyle = backgroundColor;
                         ctx.fillRect(
-                            originalTextX - backgroundWidth + horizontalPadding, // X-coordinate for right-aligned and expanding left
-                            originalTextY - mrpTextHeightVisual + finalVerticalPaddingForBg * 2, // Adjusted Y for background
+                            backgroundStartX, // Use the calculated start X
+                            originalTextY - mrpTextHeightVisual + finalVerticalPaddingForBg * 2 - fontMarginTop, // Adjusted Y for background to account for font margin
                             backgroundWidth,
                             (mrpTextHeightVisual + (finalVerticalPaddingForBg * 2)) // Apply 10% height increase
                         );
@@ -592,8 +620,8 @@
                         // Draw solid black background for Discounted Price
                         ctx.fillStyle = backgroundColor;
                         ctx.fillRect(
-                            discountedTextX - backgroundWidth + horizontalPadding, // X-coordinate for right-aligned and expanding left
-                            discountedTextY - offerTextHeightVisual + finalVerticalPaddingForBg * 2, // Adjusted Y for background
+                            backgroundStartX, // Use the calculated start X
+                            discountedTextY - offerTextHeightVisual + finalVerticalPaddingForBg * 2 - fontMarginTop, // Adjusted Y for background to account for font margin
                             backgroundWidth,
                             (offerTextHeightVisual + (finalVerticalPaddingForBg * 2)) // Apply 10% height increase
                         );
