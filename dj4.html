@@ -529,22 +529,26 @@
                         // Positioning parameters
                         const paddingRight = 20; // Padding from right edge
                         const bottomPaddingReference = 40; // Original "move up" from bottom
-                        const additionalMoveUpPercentage = 0.20; // 20% further up from current position
+                        // Now moving 25% *further* up from the previously adjusted position
+                        const additionalMoveUpPercentage = 0.25; // 25% further up
 
                         const textLineSpacing = 15; // Space between MRP and Offer lines
                         const horizontalPadding = 15; // Padding for background on each side of text
                         const verticalPaddingPerLine = 8; // Vertical padding for background around each text line
 
                         // Calculate total height of the text block with its paddings
-                        const totalTextBlockHeight = mrpTextHeightVisual + offerTextHeightVisual + textLineSpacing + (verticalPaddingPerLine * 4); // 2x padding per line = 4x
+                        const totalTextBlockHeight = mrpTextHeightVisual + offerTextHeightVisual + textLineSpacing + (verticalPaddingPerLine * 4); 
 
-                        // Calculate the new bottom reference point, 20% further up
-                        const currentBottomReference = canvas.height - bottomPaddingReference;
+                        // Calculate the current bottom reference point
+                        // This accounts for the previous move-up of 40px
+                        const currentBottomReference = canvas.height - bottomPaddingReference; 
+                        
+                        // Calculate the new bottom reference point, shifted an additional 25% further up
                         const newBottomReference = currentBottomReference - (totalTextBlockHeight * additionalMoveUpPercentage);
 
-                        // Adjusting 'startYPosition' for the bottom-most text (discounted price)
+                        // Adjusting 'discountedTextY' for the bottom-most text (discounted price)
                         // It's now calculated based on the newBottomReference and the discounted text's height.
-                        const discountedTextY = newBottomReference - (offerTextHeightVisual / 2) + (verticalPaddingPerLine * 2); // Center text within its bottom padding
+                        const discountedTextY = newBottomReference - (offerTextHeightVisual / 2) + (verticalPaddingPerLine * 2); 
 
                         // Calculate positions for Original Price (above discounted price)
                         const originalTextY = discountedTextY - offerTextHeightVisual - textLineSpacing; 
