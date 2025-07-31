@@ -42,11 +42,15 @@
             text-align: center;
             padding: 20px;
         }
-        .search-container {
+        .sticky-section { /* Renamed for clarity - apply to search and new discount section */
             position: sticky;
             top: 0;
             z-index: 10;
             background-color: white;
+            padding: 6px; /* Reduced padding slightly for combined section */
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin-bottom: 2rem;
         }
         /* Styles for the full-page drop overlay */
         #globalDropOverlay {
@@ -106,17 +110,26 @@
             </div>
         </div>
 
-        <div class="search-container sticky top-0 z-10 max-w-xl mx-auto mb-12 bg-white p-6 rounded-lg shadow-lg">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Search Products</h2>
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <input type="text" id="searchName" placeholder="Search by Name" class="w-full p-2 border rounded">
-                <input type="text" id="searchPartyCode" placeholder="Search by Party Code" class="w-full p-2 border rounded">
+        <div class="sticky-section max-w-xl mx-auto">
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Search Products</h2>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <input type="text" id="searchName" placeholder="Search by Name" class="w-full p-2 border rounded">
+                    <input type="text" id="searchPartyCode" placeholder="Search by Party Code" class="w-full p-2 border rounded">
+                </div>
+                <button onclick="resetSearch()" class="w-full bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition-colors mb-4">
+                    Reset Search / Load All
+                </button>
             </div>
-            <button onclick="resetSearch()" class="w-full bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition-colors">
-                Reset
-            </button>
-        </div>
 
+            <div class="bg-white p-6 rounded-lg shadow-lg mt-4">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Global Discount</h2>
+                <div class="mb-4">
+                    <input type="number" id="globalDiscountInput" min="0" max="100" placeholder="Enter Global Discount % (Optional)" class="w-full p-2 border rounded">
+                </div>
+                <p class="text-sm text-gray-600">Enter a percentage here. When downloading an image, the discounted price will be added if a value is present.</p>
+            </div>
+        </div>
         <div id="gallery" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         <div id="loadingSpinner">
             <svg class="animate-spin h-8 w-8 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -149,6 +162,7 @@
         const preview = document.getElementById('preview');
         const globalDropOverlay = document.getElementById('globalDropOverlay');
         const gallery = document.getElementById('gallery');
+        const globalDiscountInput = document.getElementById('globalDiscountInput');
 
         // Click to upload functionality
         dropZone.addEventListener('click', () => imageInput.click());
@@ -314,7 +328,7 @@
             document.getElementById('priceInput').value = '';
             
             document.getElementById('videourlInput').value = '';
-            document.getElementById('partyCodeInput').value = ''; // Clear party code input as well
+            document.getElementById('partyCodeInput').value = ''; 
             preview.innerHTML = '';
 
             processUploadQueue();
@@ -385,8 +399,7 @@
                         <p class="text-gray-600">Status: ${image.outOfStock ? 'Out of Stock' : 'Available'}</p>
                         <p class="text-sm text-gray-500 mt-2">Uploaded: ${new Date(image.date).toLocaleString()}</p>
                         <div class="mt-4">
-                            <input type="number" min="0" max="100" placeholder="Discount %" class="w-full p-2 border rounded mb-2 discount-input" data-key="${image.key}">
-                            <button class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors" onclick="applyDiscountAndDownload('${image.key}', '${image.url}')">Download with Discount</button>
+                            <button class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors" onclick="applyDiscountAndDownload('${image.key}', '${image.url}')">Download Image</button>
                         </div>
                     </div>
                 `;
@@ -454,15 +467,19 @@
                 });
         }
 
-        // --- New Functionality: Apply Discount and Download Image ---
+        // --- MODIFIED: Apply Discount and Download Image ---
         async function applyDiscountAndDownload(key, imageUrl) {
-            const imageCard = document.querySelector(`[data-key="${key}"]`);
-            const discountInput = imageCard.querySelector('.discount-input');
-            const discountPercentage = parseFloat(discountInput.value);
+            const globalDiscountValue = globalDiscountInput.value.trim();
+            let discountPercentage = 0;
+            let applyDiscount = false;
 
-            if (isNaN(discountPercentage) || discountPercentage < 0 || discountPercentage > 100) {
-                alert('Please enter a valid discount percentage between 0 and 100.');
-                return;
+            if (globalDiscountValue !== "") {
+                discountPercentage = parseFloat(globalDiscountValue);
+                if (isNaN(discountPercentage) || discountPercentage < 0 || discountPercentage > 100) {
+                    alert('Please enter a valid global discount percentage (0-100) or leave it empty.');
+                    return;
+                }
+                applyDiscount = true;
             }
 
             try {
@@ -477,7 +494,7 @@
                 const discountedPrice = originalPrice * (1 - discountPercentage / 100);
 
                 const img = new Image();
-                img.crossOrigin = "Anonymous"; // Crucial for loading images from different origins
+                img.crossOrigin = "Anonymous"; 
                 img.src = imageUrl;
 
                 img.onload = () => {
@@ -488,49 +505,88 @@
 
                     ctx.drawImage(img, 0, 0);
 
-                    // Add text for original price with strikethrough and new discounted price
-                    ctx.font = 'bold 48px Arial'; // Adjust font size and style as needed
-                    ctx.fillStyle = 'red';
-                    ctx.textAlign = 'right';
+                    if (applyDiscount) {
+                        // Text properties
+                        const originalFont = 'bold 48px Arial'; 
+                        const discountedFont = 'bold 60px Arial';
+                        const textColorOriginal = 'white'; 
+                        const textColorDiscounted = 'white'; 
+                        const backgroundOpacity = 0.6; 
 
-                    // Original Price with Strikethrough
-                    const originalPriceText = `MRP: ₹${originalPrice.toFixed(2)}`;
-                    const textWidth = ctx.measureText(originalPriceText).width;
-                    const textX = canvas.width - 20; // 20px padding from right
-                    const textY = canvas.height - 100; // Position above discounted price
+                        // Calculate text dimensions for background rectangles
+                        ctx.font = originalFont;
+                        const originalPriceText = `MRP: ₹${originalPrice.toFixed(2)}`;
+                        const originalTextMetrics = ctx.measureText(originalPriceText);
+                        const originalTextWidth = originalTextMetrics.width;
+                        const originalTextHeight = 48; 
 
-                    ctx.fillText(originalPriceText, textX, textY);
-                    ctx.beginPath();
-                    ctx.strokeStyle = 'red';
-                    ctx.lineWidth = 4;
-                    ctx.moveTo(textX - textWidth, textY - 15);
-                    ctx.lineTo(textX, textY - 15);
-                    ctx.stroke();
+                        ctx.font = discountedFont;
+                        const discountedPriceText = `Offer: ₹${discountedPrice.toFixed(2)}`;
+                        const discountedTextMetrics = ctx.measureText(discountedPriceText);
+                        const discountedTextWidth = discountedTextMetrics.width;
+                        const discountedTextHeight = 60; 
 
-                    // Discounted Price
-                    ctx.font = 'bold 60px Arial';
-                    ctx.fillStyle = 'green';
-                    const discountedPriceText = `Offer: ₹${discountedPrice.toFixed(2)}`;
-                    ctx.fillText(discountedPriceText, textX, canvas.height - 40); // 40px padding from bottom
+                        // Positioning (from bottom right)
+                        const padding = 20; 
+                        const textYOffset = 15; 
+
+                        const discountedTextX = canvas.width - padding;
+                        const discountedTextY = canvas.height - padding;
+
+                        const originalTextX = canvas.width - padding;
+                        const originalTextY = discountedTextY - discountedTextHeight - textYOffset; 
+
+                        // Draw black background for Original Price
+                        ctx.fillStyle = `rgba(0, 0, 0, ${backgroundOpacity})`;
+                        // Adjust fillRect for better padding: x, y, width, height
+                        ctx.fillRect(originalTextX - originalTextWidth - 10, originalTextY - originalTextHeight + 15 - 5, originalTextWidth + 20, originalTextHeight + 10); 
+
+                        // Draw Original Price Text
+                        ctx.font = originalFont;
+                        ctx.fillStyle = textColorOriginal;
+                        ctx.textAlign = 'right';
+                        ctx.fillText(originalPriceText, originalTextX, originalTextY);
+                        
+                        // Strikethrough for Original Price
+                        ctx.beginPath();
+                        ctx.strokeStyle = 'red'; // Changed strikethrough color to red for visibility
+                        ctx.lineWidth = 4;
+                        ctx.moveTo(originalTextX - originalTextWidth -5, originalTextY - originalTextHeight / 2 + 10); 
+                        ctx.lineTo(originalTextX + 5, originalTextY - originalTextHeight / 2 + 10);
+                        ctx.stroke();
+
+                        // Draw black background for Discounted Price
+                        ctx.fillStyle = `rgba(0, 0, 0, ${backgroundOpacity})`;
+                        ctx.fillRect(discountedTextX - discountedTextWidth - 10, discountedTextY - discountedTextHeight + 15 - 5, discountedTextWidth + 20, discountedTextHeight + 10);
+
+                        // Draw Discounted Price Text
+                        ctx.font = discountedFont;
+                        ctx.fillStyle = textColorDiscounted;
+                        ctx.fillText(discountedPriceText, discountedTextX, discountedTextY);
+                    }
 
                     // Download the image
                     const link = document.createElement('a');
-                    link.download = `discounted_${imageData.name || 'image'}.png`;
+                    let filename = `image_${imageData.name || key}`;
+                    if (applyDiscount) {
+                        filename += `_discounted_${discountPercentage}pct`;
+                    }
+                    link.download = `${filename}.png`;
                     link.href = canvas.toDataURL('image/png');
                     link.click();
                 };
 
                 img.onerror = (error) => {
                     console.error("Error loading image for canvas:", error);
-                    alert("Failed to load image for discount display. Please check the image URL or network.");
+                    alert("Failed to load image for download. Please check the image URL or network. (CORS configuration on Firebase Storage might be needed)");
                 };
 
             } catch (error) {
-                console.error("Error applying discount:", error);
-                alert("An error occurred while applying the discount. Please try again.");
+                console.error("Error during image processing or download:", error);
+                alert("An unexpected error occurred. Please try again.");
             }
         }
-        // --- End New Functionality ---
+        // --- End MODIFIED Functionality ---
 
         // Load initial images
         loadImages(appendImages);
@@ -582,8 +638,7 @@
                         <p class="text-gray-600">Status: ${image.outOfStock ? 'Out of Stock' : 'Available'}</p>
                         <p class="text-sm text-gray-500 mt-2">Uploaded: ${new Date(image.date).toLocaleString()}</p>
                         <div class="mt-4">
-                            <input type="number" min="0" max="100" placeholder="Discount %" class="w-full p-2 border rounded mb-2 discount-input" data-key="${key}">
-                            <button class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors" onclick="applyDiscountAndDownload('${key}', '${image.url}')">Download with Discount</button>
+                            <button class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors" onclick="applyDiscountAndDownload('${key}', '${image.url}')">Download Image</button>
                         </div>
                     </div>
                 `;
@@ -605,9 +660,7 @@
             };
         }
 
-        // --- MODIFIED: Added scroll to search function ---
         function searchProducts() {
-            // Scroll to the top of the gallery
             gallery.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
             const searchName = document.getElementById('searchName').value.trim().toLowerCase();
@@ -615,7 +668,7 @@
             
             gallery.innerHTML = '';
             loadedImageKeys.clear();
-            allImagesLoaded = true; // Prevent infinite scroll during search
+            allImagesLoaded = true; 
             lastKey = null;
             loadingSpinner.style.display = 'block';
 
@@ -656,13 +709,12 @@
             });
         }
         
-        // --- MODIFIED: Added scroll to reset function ---
         function resetSearch() {
-            // Scroll to the top of the gallery
             gallery.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
             document.getElementById('searchName').value = '';
             document.getElementById('searchPartyCode').value = '';
+            globalDiscountInput.value = ''; // Clear global discount input on reset
             
             gallery.innerHTML = '';
             loadedImageKeys.clear();
