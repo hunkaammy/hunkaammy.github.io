@@ -488,6 +488,7 @@ color: white;
 
 <script>
 // --- API KEYS ---
+// IMPORTANT: Replace with your own valid Gemini API key.
 const geminiApiKey = 'AIzaSyB6l0uVMjR3ffy7Z-gh7pWwIW1jfjVb0Yk';
 const youtubeApiKeys = [
     'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A',
@@ -528,58 +529,77 @@ function switchApiKey(index) {
 }
 
 /**
- * Mocks a call to a generative AI. It now checks history to provide unique, random ideas.
- * @param {string} baseSong - The title of the current song.
- * @param {Array<string>} playedHistoryTitles - An array of titles already played.
- * @returns {Promise<Array<string>>} A promise that resolves to a random, unique array of song titles.
+ * Calls the Gemini AI to get song suggestions based on the current track and play history.
+ * @param {string} baseSong - The title of the current song for context.
+ * @param {Array<string>} playedHistoryTitles - An array of titles already played to avoid duplicates.
+ * @returns {Promise<Array<string>>} A promise that resolves to an array of song titles.
  */
-function getAiGeneratedIdeas(baseSong, playedHistoryTitles) {
-    console.log(`🧠 Simulating unique AI call for: ${baseSong}`);
-    console.log(`📜 History includes: ${playedHistoryTitles.length} songs.`);
-    
-    return new Promise(resolve => {
-        const lowerCaseSong = baseSong.toLowerCase().trim();
-        const lowerCaseHistory = playedHistoryTitles.map(t => t.toLowerCase());
+async function getAiGeneratedIdeas(baseSong, playedHistoryTitles) {
+    console.log(`🧠 Calling Gemini for suggestions based on: ${baseSong}`);
+    const suggestionsContainer = document.getElementById('ai-suggestions');
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`;
 
-        const remixPool = {
-            party: [
-                "Kar Gayi Chull Remix", "High Heels Te Nachche Remix", "Tamma Tamma Again Remix",
-                "Morni Banke Remix", "London Thumakda Remix", "Sadi Gali Remix",
-                "Dilbar Dilbar Remix", "O Saki Saki Remix", "Coca Cola Tu Remix",
-                "Bom Diggy Diggy Remix", "Ghungroo Remix", "Makhna Drive Remix",
-                "The Humma Song", "Chogada Tara Remix", "Kamariya - Mitron"
-            ],
-            classic: [
-                "Aap Jaisa Koi Remix", "Bachna Ae Haseeno Remix", "Laila Main Laila Remix",
-                "Hamma Hamma - Bombay Rockers", "Mere Sapno Ki Rani Remix", "Chura Liya Hai Tumne Jo Dil Ko Remix"
-            ]
-        };
-        remixPool.default = [...remixPool.party, ...remixPool.classic];
+    // Create a detailed prompt for the AI
+    const historyString = playedHistoryTitles.length > 0 
+        ? `The following songs have already been played, do NOT suggest them: ${playedHistoryTitles.join(', ')}.`
+        : 'The playlist is empty.';
 
-        let selectedPool = remixPool.default;
-        if (lowerCaseSong.includes('kala chashma') || lowerCaseSong.includes('gallan goodiyan') || lowerCaseSong.includes('aankh marey')) {
-            selectedPool = remixPool.party;
-        } else if (lowerCaseSong.includes('laila') || lowerCaseSong.includes('haseeno') || lowerCaseSong.includes('sapno ki rani')) {
-            selectedPool = remixPool.classic;
-        }
+    const prompt = `
+        You are a helpful DJ assistant for an Indian DJ playing Bollywood and Punjabi party music.
+        The current song is "${baseSong}".
+        ${historyString}
 
-        // --- THE KEY FIX: Filter out songs that are already in the history ---
-        const uniquePool = selectedPool.filter(idea => {
-            const lowerCaseIdea = idea.toLowerCase();
-            // Keep the idea if no history title includes the core part of the idea
-            return !lowerCaseHistory.some(historyTitle => historyTitle.includes(lowerCaseIdea.split(' ')[0]));
+        Suggest 7 new tracks that would mix well with the current song. Prioritize high-energy remixes, mashups, and popular tracks with a similar vibe.
+
+        Your response MUST be a valid JSON array of strings and nothing else. Do not include any explanation or markdown.
+        Example: ["Dilbar Remix", "Morni Banke - Guru Randhawa", "Kar Gayi Chull (Remix)"]
+    `;
+
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                // Safety settings can be adjusted if needed
+                "safetySettings": [
+                    { "category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE" },
+                    { "category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE" },
+                    { "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE" },
+                    { "category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE" }
+                ]
+            })
         });
-        
-        // Shuffle the remaining unique songs
-        for (let i = uniquePool.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [uniquePool[i], uniquePool[j]] = [uniquePool[j], uniquePool[i]];
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Gemini API Error:", errorData.error);
+            throw new Error(`AI API request failed: ${errorData.error.message}`);
+        }
+
+        const data = await response.json();
+        if (!data.candidates || data.candidates.length === 0) {
+            throw new Error("AI returned no suggestions.");
         }
         
-        const ideas = uniquePool.slice(0, 4); // Get 4 random, unique ideas
-        
-        setTimeout(() => resolve(ideas), 500); // Simulate network delay
-    });
+        const rawText = data.candidates[0].content.parts[0].text;
+        console.log("Raw AI Response:", rawText);
+
+        // Clean the response to ensure it's valid JSON
+        const cleanedText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+        const ideas = JSON.parse(cleanedText);
+
+        if (!Array.isArray(ideas)) {
+            throw new Error("AI response was not a valid array.");
+        }
+
+        return ideas;
+
+    } catch (error) {
+        console.error('Error fetching or parsing AI suggestions:', error);
+        suggestionsContainer.innerHTML = `<p>Error from AI Assistant: ${error.message}. Please check your API Key and try again.</p>`;
+        return []; // Return an empty array on failure
+    }
 }
 
 
@@ -587,22 +607,21 @@ async function getSongSuggestions() {
     const suggestionsContainer = document.getElementById('ai-suggestions');
     suggestionsContainer.innerHTML = '<p>🤖 Asking AI for unique remix ideas...</p>';
     
-    // Get the current song for context
     const trackTitle1 = document.getElementById('current-track-title1').textContent.trim();
     let baseQuery = (trackTitle1 !== 'None' && trackTitle1 !== '') ? trackTitle1 : document.getElementById('current-track-title2').textContent.trim();
     if (baseQuery === 'None' || baseQuery === '') {
         baseQuery = 'Latest Bollywood Hits';
     }
 
-    // **NEW**: Get all titles from the play history to ensure suggestions are unique
     const historyTitles = Array.from(document.querySelectorAll('#history-list .track-title')).map(td => td.textContent);
 
     try {
-        // Pass the history to the AI so it can generate unique ideas
         const ideas = await getAiGeneratedIdeas(baseQuery, historyTitles);
         
         if (!ideas || ideas.length === 0) {
-            suggestionsContainer.innerHTML = '<p>No new unique suggestions found. Your history is impressive!</p>';
+            if (!suggestionsContainer.innerHTML.includes('Error')) {
+               suggestionsContainer.innerHTML = '<p>The AI could not find any new suggestions. Try a different track!</p>';
+            }
             return;
         }
         
@@ -648,7 +667,7 @@ async function getSongSuggestions() {
         }
 
     } catch (error) {
-        console.error('Error fetching AI suggestions:', error);
+        console.error('Error in getSongSuggestions:', error);
         suggestionsContainer.innerHTML = `<p>Error: ${error.message}.</p>`;
     }
 }
