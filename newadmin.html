@@ -388,7 +388,12 @@
                                ${image.outOfStock ? 'Mark Available' : 'Mark Out of Stock'}
                            </button>
                        </div>
-                        <p class="text-sm text-gray-500 mt-2">Uploaded: ${new Date(image.date).toLocaleString()}</p>
+                       <div class="flex justify-between items-center mt-2">
+                            <p class="text-sm text-gray-500 uploaded-date-${image.key}">Uploaded: ${new Date(image.date).toLocaleString()}</p>
+                            <button onclick="updateUploadDate('${image.key}')" class="text-white py-1 px-3 rounded-full text-xs font-semibold bg-blue-500 hover:bg-blue-600">
+                                Update Date
+                            </button>
+                        </div>
                     </div>
                 `;
                 gallery.appendChild(container);
@@ -399,21 +404,25 @@
             const newStatus = !currentStatus;
             database.ref(key).update({ outOfStock: newStatus })
                 .then(() => {
-                    // Update the UI immediately
-                    const statusDisplay = document.querySelector(`.status-display-${key}`);
-                    if (statusDisplay) {
-                        statusDisplay.textContent = `Status: ${newStatus ? 'Out of Stock' : 'Available'}`;
-                    }
-                    const button = document.querySelector(`[onclick="toggleStockStatus('${key}', ${currentStatus})"]`);
-                    if (button) {
-                        button.textContent = newStatus ? 'Mark Available' : 'Mark Out of Stock';
-                        button.className = `text-white py-1 px-3 rounded-full text-sm font-semibold ${newStatus ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`;
-                        button.setAttribute('onclick', `toggleStockStatus('${key}', ${newStatus})`);
-                    }
+                    // The 'child_changed' event listener will handle the UI update
+                    console.log('Stock status updated successfully.');
                 })
                 .catch(error => {
                     console.error('Error updating stock status:', error);
                     alert('Failed to update stock status.');
+                });
+        }
+
+        function updateUploadDate(key) {
+            const newDate = new Date().toISOString();
+            database.ref(key).update({ date: newDate })
+                .then(() => {
+                    // The 'child_changed' event listener will handle the UI update
+                    console.log('Upload date updated successfully.');
+                })
+                .catch(error => {
+                    console.error('Error updating upload date:', error);
+                    alert('Failed to update upload date.');
                 });
         }
 
@@ -503,20 +512,28 @@
             const imageCard = document.querySelector(`[data-key="${key}"]`);
             
             if (imageCard) {
+                // Update Name, Price, Party Code
                 imageCard.querySelector('h3').textContent = updatedData.name;
                 imageCard.querySelectorAll('p')[0].textContent = `Price: ${updatedData.price}`;
                 imageCard.querySelectorAll('p')[1].textContent = `Party Code: ${updatedData.partyCode}`;
-                
+
+                // Update Stock Status display and button
                 const statusDisplay = imageCard.querySelector(`.status-display-${key}`);
-                const button = imageCard.querySelector(`[onclick^="toggleStockStatus('${key}',"]`);
+                const statusButton = imageCard.querySelector(`[onclick^="toggleStockStatus('${key}',"]`);
                 
                 if (statusDisplay) {
                     statusDisplay.textContent = `Status: ${updatedData.outOfStock ? 'Out of Stock' : 'Available'}`;
                 }
-                if (button) {
-                    button.textContent = updatedData.outOfStock ? 'Mark Available' : 'Mark Out of Stock';
-                    button.className = `text-white py-1 px-3 rounded-full text-sm font-semibold ${updatedData.outOfStock ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`;
-                    button.setAttribute('onclick', `toggleStockStatus('${key}', ${updatedData.outOfStock})`);
+                if (statusButton) {
+                    statusButton.textContent = updatedData.outOfStock ? 'Mark Available' : 'Mark Out of Stock';
+                    statusButton.className = `text-white py-1 px-3 rounded-full text-sm font-semibold ${updatedData.outOfStock ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`;
+                    statusButton.setAttribute('onclick', `toggleStockStatus('${key}', ${updatedData.outOfStock})`);
+                }
+
+                // Update Uploaded Date display
+                const dateDisplay = imageCard.querySelector(`.uploaded-date-${key}`);
+                if (dateDisplay) {
+                    dateDisplay.textContent = `Uploaded: ${new Date(updatedData.date).toLocaleString()}`;
                 }
             }
         });
@@ -542,7 +559,12 @@
                                 ${image.outOfStock ? 'Mark Available' : 'Mark Out of Stock'}
                             </button>
                         </div>
-                        <p class="text-sm text-gray-500 mt-2">Uploaded: ${new Date(image.date).toLocaleString()}</p>
+                        <div class="flex justify-between items-center mt-2">
+                            <p class="text-sm text-gray-500 uploaded-date-${key}">Uploaded: ${new Date(image.date).toLocaleString()}</p>
+                            <button onclick="updateUploadDate('${key}')" class="text-white py-1 px-3 rounded-full text-xs font-semibold bg-blue-500 hover:bg-blue-600">
+                                Update Date
+                            </button>
+                        </div>
                     </div>
                 `;
                 gallery.insertBefore(container, gallery.firstChild);
