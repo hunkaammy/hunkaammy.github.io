@@ -381,12 +381,40 @@
                         <h3 class="font-semibold text-lg mb-2 editable-field" onclick="makeEditable(this, '${image.key}', 'name')">${image.name}</h3>
                         <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${image.key}', 'price')">Price: ${image.price}</p>
                         <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${image.key}', 'partyCode')">Party Code: ${image.partyCode}</p>
-                        <p class="text-gray-600">Status: ${image.outOfStock ? 'Out of Stock' : 'Available'}</p>
+                        <div class="flex justify-between items-center mt-2">
+                           <p class="text-gray-600 status-display-${image.key}">Status: ${image.outOfStock ? 'Out of Stock' : 'Available'}</p>
+                           <button onclick="toggleStockStatus('${image.key}', ${image.outOfStock})" class="text-white py-1 px-3 rounded-full text-sm font-semibold 
+                               ${image.outOfStock ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}">
+                               ${image.outOfStock ? 'Mark Available' : 'Mark Out of Stock'}
+                           </button>
+                       </div>
                         <p class="text-sm text-gray-500 mt-2">Uploaded: ${new Date(image.date).toLocaleString()}</p>
                     </div>
                 `;
                 gallery.appendChild(container);
             });
+        }
+        
+        function toggleStockStatus(key, currentStatus) {
+            const newStatus = !currentStatus;
+            database.ref(key).update({ outOfStock: newStatus })
+                .then(() => {
+                    // Update the UI immediately
+                    const statusDisplay = document.querySelector(`.status-display-${key}`);
+                    if (statusDisplay) {
+                        statusDisplay.textContent = `Status: ${newStatus ? 'Out of Stock' : 'Available'}`;
+                    }
+                    const button = document.querySelector(`[onclick="toggleStockStatus('${key}', ${currentStatus})"]`);
+                    if (button) {
+                        button.textContent = newStatus ? 'Mark Available' : 'Mark Out of Stock';
+                        button.className = `text-white py-1 px-3 rounded-full text-sm font-semibold ${newStatus ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`;
+                        button.setAttribute('onclick', `toggleStockStatus('${key}', ${newStatus})`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating stock status:', error);
+                    alert('Failed to update stock status.');
+                });
         }
 
         function makeEditable(element, key, field) {
@@ -478,6 +506,18 @@
                 imageCard.querySelector('h3').textContent = updatedData.name;
                 imageCard.querySelectorAll('p')[0].textContent = `Price: ${updatedData.price}`;
                 imageCard.querySelectorAll('p')[1].textContent = `Party Code: ${updatedData.partyCode}`;
+                
+                const statusDisplay = imageCard.querySelector(`.status-display-${key}`);
+                const button = imageCard.querySelector(`[onclick^="toggleStockStatus('${key}',"]`);
+                
+                if (statusDisplay) {
+                    statusDisplay.textContent = `Status: ${updatedData.outOfStock ? 'Out of Stock' : 'Available'}`;
+                }
+                if (button) {
+                    button.textContent = updatedData.outOfStock ? 'Mark Available' : 'Mark Out of Stock';
+                    button.className = `text-white py-1 px-3 rounded-full text-sm font-semibold ${updatedData.outOfStock ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`;
+                    button.setAttribute('onclick', `toggleStockStatus('${key}', ${updatedData.outOfStock})`);
+                }
             }
         });
 
@@ -495,7 +535,13 @@
                         <h3 class="font-semibold text-lg mb-2 editable-field" onclick="makeEditable(this, '${key}', 'name')">${image.name}</h3>
                         <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${key}', 'price')">Price: ${image.price}</p>
                         <p class="text-gray-600 editable-field" onclick="makeEditable(this, '${key}', 'partyCode')">Party Code: ${image.partyCode}</p>
-                        <p class="text-gray-600">Status: ${image.outOfStock ? 'Out of Stock' : 'Available'}</p>
+                         <div class="flex justify-between items-center mt-2">
+                            <p class="text-gray-600 status-display-${key}">Status: ${image.outOfStock ? 'Out of Stock' : 'Available'}</p>
+                            <button onclick="toggleStockStatus('${key}', ${image.outOfStock})" class="text-white py-1 px-3 rounded-full text-sm font-semibold 
+                                ${image.outOfStock ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}">
+                                ${image.outOfStock ? 'Mark Available' : 'Mark Out of Stock'}
+                            </button>
+                        </div>
                         <p class="text-sm text-gray-500 mt-2">Uploaded: ${new Date(image.date).toLocaleString()}</p>
                     </div>
                 `;
