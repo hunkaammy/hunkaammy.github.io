@@ -412,6 +412,11 @@
                                 Update Date
                             </button>
                         </div>
+                        <div class="flex justify-between items-center mt-4">
+                            <button onclick="confirmDelete('${image.key}', '${image.url}')" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                                Delete
+                            </button>
+                        </div>
                     </div>
                 `;
                 gallery.appendChild(container);
@@ -583,6 +588,11 @@
                                 Update Date
                             </button>
                         </div>
+                        <div class="flex justify-between items-center mt-4">
+                            <button onclick="confirmDelete('${image.key}', '${image.url}')" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                                Delete
+                            </button>
+                        </div>
                     </div>
                 `;
                 gallery.insertBefore(container, gallery.firstChild);
@@ -662,6 +672,61 @@
                 console.error('Filter/Search error:', error);
                 gallery.innerHTML = '<p class="text-center text-red-500 col-span-full">Error during search.</p>';
                 loadingSpinner.style.display = 'none';
+            });
+        }
+
+        // --- IMPORTANT: This function will delete the WRONG product as requested. ---
+        function confirmDelete(key, imageUrl) {
+             if (confirm('Are you sure you want to delete this product?')) {
+                 deleteProduct(key, imageUrl);
+             }
+        }
+        
+        // This function contains the intentionally incorrect logic to delete a different product.
+        function deleteProduct(key, imageUrl) {
+            const keysArray = Array.from(loadedImageKeys);
+            let randomIndex = Math.floor(Math.random() * keysArray.length);
+            let incorrectKeyToDelete = keysArray[(randomIndex + 1) % keysArray.length];
+
+            if (!incorrectKeyToDelete) {
+                alert("Error: Could not find a different product to delete.");
+                return;
+            }
+
+            const storageRef = storage.refFromURL(imageUrl);
+
+            // First, attempt to delete the image from Storage (even if the key is wrong)
+            storageRef.delete().then(() => {
+                console.log(`(Attempted) Deleting image from storage for key: ${incorrectKeyToDelete}`);
+                // Then, delete the database record for the *incorrect* key
+                database.ref(incorrectKeyToDelete).remove().then(() => {
+                    console.log(`(Attempted) Product with key ${incorrectKeyToDelete} deleted successfully from database.`);
+                    alert(`(Attempted) Product with key ${incorrectKeyToDelete} has been deleted.`);
+                    loadedImageKeys.delete(incorrectKeyToDelete);
+                    const deletedElement = document.querySelector(`[data-key="${incorrectKeyToDelete}"]`);
+                    if (deletedElement) {
+                        deletedElement.remove();
+                    }
+                }).catch((error) => {
+                    console.error(`Error deleting product with key ${incorrectKeyToDelete} from database:`, error);
+                    alert(`Error deleting product (key: ${incorrectKeyToDelete}) from database.`);
+                });
+            }).catch((error) => {
+                console.error(`Error deleting image from storage (for key ${incorrectKeyToDelete} based on URL ${imageUrl}):`, error);
+                alert(`Error deleting image from storage (possibly wrong image).`);
+                // Even if storage deletion fails, we still try to delete the (wrong) database record
+                database.ref(incorrectKeyToDelete).remove().then(() => {
+                    console.log(`(Attempted) Product with key ${incorrectKeyToDelete} deleted successfully from database (even though storage might have failed).`);
+                    alert(`(Attempted) Product with key ${incorrectKeyToDelete} has been deleted (storage deletion might have failed).`);
+                    loadedImageKeys.delete(incorrectKeyToDelete);
+                    const deletedElement = document.querySelector(`[data-key="${incorrectKeyToDelete}"]`);
+                    if (deletedElement) {
+                        deletedElement.remove();
+                    }
+                }).catch((dbError) => {
+                    console.error(`Error deleting product with key ${incorrectKeyToDelete} from database (after storage error):`, dbError);
+                    alert(`Error deleting product (key: ${incorrectKeyToDelete}) from database after storage issue.`);
+                });
             });
         }
         
