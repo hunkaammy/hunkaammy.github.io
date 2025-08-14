@@ -112,6 +112,22 @@
                 <input type="text" id="searchName" placeholder="Search by Name" class="w-full p-2 border rounded">
                 <input type="text" id="searchPartyCode" placeholder="Search by Party Code" class="w-full p-2 border rounded">
             </div>
+            
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <input type="radio" id="filterAll" name="stockFilter" value="all" checked class="form-radio h-4 w-4 text-blue-600">
+                    <label for="filterAll" class="ml-2 text-gray-700">All Products</label>
+                </div>
+                <div class="flex items-center">
+                    <input type="radio" id="filterAvailable" name="stockFilter" value="available" class="form-radio h-4 w-4 text-green-600">
+                    <label for="filterAvailable" class="ml-2 text-gray-700">Available</label>
+                </div>
+                <div class="flex items-center">
+                    <input type="radio" id="filterOutOfStock" name="stockFilter" value="outOfStock" class="form-radio h-4 w-4 text-red-600">
+                    <label for="filterOutOfStock" class="ml-2 text-gray-700">Out of Stock</label>
+                </div>
+            </div>
+            
             <button onclick="resetSearch()" class="w-full bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition-colors">
                 Reset
             </button>
@@ -149,6 +165,8 @@
         const preview = document.getElementById('preview');
         const globalDropOverlay = document.getElementById('globalDropOverlay');
         const gallery = document.getElementById('gallery');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const filterRadioButtons = document.querySelectorAll('input[name="stockFilter"]');
 
         // Click to upload functionality
         dropZone.addEventListener('click', () => imageInput.click());
@@ -325,7 +343,7 @@
         let isLoading = false;
         let allImagesLoaded = false;
         let loadedImageKeys = new Set();
-        const loadingSpinner = document.getElementById('loadingSpinner');
+        
 
         function loadImages(callback) {
             if (isLoading || allImagesLoaded) return;
@@ -584,23 +602,24 @@
                 timeout = setTimeout(later, wait);
             };
         }
-
-        // --- MODIFIED: Added scroll to search function ---
-        function searchProducts() {
+        
+        // --- MODIFIED: A single function to load/filter/search images ---
+        function loadAndFilterImages() {
             // Scroll to the top of the gallery
             gallery.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
             const searchName = document.getElementById('searchName').value.trim().toLowerCase();
             const searchPartyCode = document.getElementById('searchPartyCode').value.trim().toLowerCase();
-            
+            const stockFilter = document.querySelector('input[name="stockFilter"]:checked').value;
+
             gallery.innerHTML = '';
             loadedImageKeys.clear();
-            allImagesLoaded = true; // Prevent infinite scroll during search
+            allImagesLoaded = true; // Prevent infinite scroll during filtered/searched view
             lastKey = null;
             loadingSpinner.style.display = 'block';
 
             let query = database.ref().orderByChild('date');
-            
+
             query.once('value', snapshot => {
                 const images = [];
                 snapshot.forEach(childSnapshot => {
@@ -609,11 +628,21 @@
                     
                     const partyCode = imageData.partyCode ? String(imageData.partyCode).toLowerCase() : '';
                     const name = imageData.name ? imageData.name.toLowerCase() : '';
-                    
+                    const outOfStock = imageData.outOfStock || false;
+
                     const nameMatch = !searchName || name.includes(searchName);
                     const partyCodeMatch = !searchPartyCode || partyCode === searchPartyCode;
                     
-                    if (nameMatch && partyCodeMatch) {
+                    let stockMatch = false;
+                    if (stockFilter === 'all') {
+                        stockMatch = true;
+                    } else if (stockFilter === 'available') {
+                        stockMatch = !outOfStock;
+                    } else if (stockFilter === 'outOfStock') {
+                        stockMatch = outOfStock;
+                    }
+
+                    if (nameMatch && partyCodeMatch && stockMatch) {
                         images.push({ ...imageData, key });
                         loadedImageKeys.add(key);
                     }
@@ -630,34 +659,37 @@
                 lastKey = images[images.length - 1].date;
                 loadingSpinner.style.display = 'none';
             }).catch(error => {
-                console.error('Search error:', error);
+                console.error('Filter/Search error:', error);
                 gallery.innerHTML = '<p class="text-center text-red-500 col-span-full">Error during search.</p>';
                 loadingSpinner.style.display = 'none';
             });
         }
         
-        // --- MODIFIED: Added scroll to reset function ---
+        // --- MODIFIED: Added a simple debounce function for all filtering ---
+        const debouncedSearchAndFilter = debounce(loadAndFilterImages, 300);
+
+        // --- MODIFIED: Reset search and filters, then reload initial images ---
         function resetSearch() {
             // Scroll to the top of the gallery
             gallery.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
             document.getElementById('searchName').value = '';
             document.getElementById('searchPartyCode').value = '';
+            document.getElementById('filterAll').checked = true;
             
             gallery.innerHTML = '';
             loadedImageKeys.clear();
             allImagesLoaded = false;
             lastKey = null;
             
-            loadImages(appendImages);
+            // Call the original function to load initial images with infinite scroll
+            loadImages(appendImages); 
         }
 
-        // Debounced search (300ms delay)
-        const debouncedSearch = debounce(searchProducts, 300);
-
-        // Add real-time search listeners
-        document.getElementById('searchName').addEventListener('input', debouncedSearch);
-        document.getElementById('searchPartyCode').addEventListener('input', debouncedSearch);
+        // --- MODIFIED: Change the event listeners to the new debounced function ---
+        document.getElementById('searchName').addEventListener('input', debouncedSearchAndFilter);
+        document.getElementById('searchPartyCode').addEventListener('input', debouncedSearchAndFilter);
+        filterRadioButtons.forEach(radio => radio.addEventListener('change', debouncedSearchAndFilter));
     </script>
 </body>
 </html>
