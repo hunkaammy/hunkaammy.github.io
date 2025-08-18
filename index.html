@@ -979,42 +979,25 @@ HTML
             document.getElementById('content').style.display = 'block';
         }
 
-        // --- Authentication Check on Page Load ---
+           // --- Authentication Check on Page Load ---
         function checkAuthentication() {
             var name = localStorage.getItem('name');
             var mobile = localStorage.getItem('mobile');
-
             // CRITICAL: Immediately check if the stored mobile number is blocked.
             if (mobile && blockedNumbers.includes(mobile)) {
                 window.location.href = blockedPageUrl;
                 return; // Stop all further execution.
             }
-
             // If not blocked and a session exists, show the main content.
             if (name && mobile) {
                 document.getElementById('name').value = name;
                 document.getElementById('mobile').value = mobile;
-
-                // Send data on auto-login as requested
-                try {
-                    loginDb.ref('users').push({ 
-                        name: name, 
-                        mobile: mobile, 
-                        timestamp: firebase.database.ServerValue.TIMESTAMP,
-                        loginType: 'auto'
-                    });
-                } catch(e) { 
-                    console.error("Auto-login Firebase Error:", e); 
-                }
-
                 showContent(name);
             }
             // Otherwise, the login form will remain visible by default.
         }
-
         // Run the authentication check as soon as the script is parsed.
         checkAuthentication();
-
     })();
     
     // AngularJS Application
@@ -1309,6 +1292,7 @@ HTML
   </script>
 </body>
 </html>
+
 
 
 
