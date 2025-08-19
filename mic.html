@@ -211,6 +211,18 @@
         }
     };
 
+    // Keywords to help identify rate and quantity
+    const keywords = {
+        'en-US': {
+            'rate': 'rate', 'price': 'rate', 'number': 'rate',
+            'quantity': 'qty', 'piece': 'qty', 'pieces': 'qty', 'qty': 'qty'
+        },
+        'hi-IN': {
+            'dar': 'rate', 'dam': 'rate', 'number': 'rate',
+            'matra': 'qty', 'piece': 'qty', 'pieces': 'qty', 'qty': 'qty'
+        }
+    };
+
     if (!SpeechRecognition) {
         statusMessage.textContent = "Your browser does not support the Web Speech API.";
         statusMessage.classList.add('error');
@@ -224,25 +236,33 @@
 
         // A new helper function to parse numbers from a transcript
         function parseNumbers(transcript) {
-            const numbers = [];
-            let currentNumber = 0;
-            let lastValue = 0;
-            const words = transcript.replace(/(\bno\b|\bpiece\b|\bnumber\b)/g, '').trim().split(' ');
+            const numbersFound = [];
+            const words = transcript.toLowerCase().replace(/[.,]/g, '').split(' ');
             
-            words.forEach(word => {
-                const cleanedWord = word.replace(/[.,]/g, '');
-                const numericValue = parseInt(cleanedWord);
-                const wordValue = numberWords[currentLang][cleanedWord];
+            // Look for numeric digits first
+            const numericDigits = words.filter(word => !isNaN(parseFloat(word)));
+            if (numericDigits.length > 0) {
+                return numericDigits.map(Number);
+            }
 
-                if (!isNaN(numericValue)) {
-                    numbers.push(numericValue);
-                } else if (wordValue) {
-                    // This is a very simple way to handle word numbers, for more complex phrases a full parser would be needed.
-                    numbers.push(wordValue);
+            // If no digits, parse number words
+            let tempValue = 0;
+            let lastMagnitude = 1;
+            words.forEach(word => {
+                const wordValue = numberWords[currentLang][word];
+                if (wordValue) {
+                    if (wordValue >= 100) {
+                        tempValue = (tempValue || 1) * wordValue;
+                        lastMagnitude = wordValue;
+                    } else {
+                        tempValue += wordValue;
+                    }
                 }
             });
-            
-            return numbers;
+            if (tempValue > 0) {
+                numbersFound.push(tempValue);
+            }
+            return numbersFound;
         }
 
         // Event listener for when speech is recognized
@@ -250,29 +270,58 @@
             const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase();
             console.log("Recognized:", transcript);
             
-            const values = parseNumbers(transcript);
-            
-            if (values.length > 0) {
-                if (values.length >= 2) {
-                    rateInput.value = values[0];
-                    qtyInput.value = values[1];
-                    speakFeedback(`${values[0]} और ${values[1]} set ho gaye hain. Ab calculation ho rahi hai.`, `Rate set to ${values[0]} and quantity set to ${values[1]}. Calculating now.`);
-                    calculate();
-                } else if (values.length === 1) {
-                    const value = values[0];
-                    if (nextInput === 'rate') {
-                        rateInput.value = value;
-                        speakFeedback(`${value} set ho gaya hai. Ab quantity boliye.`, `Rate set to ${value}. Now, please say the quantity.`);
-                        nextInput = 'qty';
-                        recognition.start();
-                    } else if (nextInput === 'qty') {
-                        qtyInput.value = value;
-                        speakFeedback(`${value} set ho gaya hai. Ab aap "Calculate Total" daba sakte hain.`, `Quantity set to ${value}. You can now click "Calculate Total".`);
-                        nextInput = null;
-                    }
-                } else {
-                    speakFeedback('Kuch samajh nahi aaya. Phir se koshish kijiye.', 'Sorry, I did not understand. Please try again.');
+            const words = transcript.toLowerCase().split(' ');
+            let rate = null;
+            let qty = null;
+            let lastValueType = null;
+
+            // Simple parser to handle a single phrase like "140 number and 4 piece"
+            words.forEach(word => {
+                const cleanedWord = word.replace(/[.,]/g, '');
+                const numericValue = parseInt(cleanedWord);
+                const wordValue = numberWords[currentLang][cleanedWord];
+
+                // If the word is a keyword, set the next number's type
+                if (keywords[currentLang][cleanedWord]) {
+                    lastValueType = keywords[currentLang][cleanedWord];
                 }
+
+                // If the word is a number, assign it based on the last keyword or default logic
+                if (!isNaN(numericValue) || wordValue) {
+                    const value = !isNaN(numericValue) ? numericValue : wordValue;
+                    if (lastValueType === 'rate' || (rate === null && qty !== null)) {
+                        rate = value;
+                        lastValueType = null;
+                    } else if (lastValueType === 'qty' || (qty === null && rate !== null)) {
+                        qty = value;
+                        lastValueType = null;
+                    } else if (rate === null) {
+                        rate = value;
+                    } else if (qty === null) {
+                        qty = value;
+                    }
+                }
+            });
+            
+            if (rate !== null && qty !== null) {
+                rateInput.value = rate;
+                qtyInput.value = qty;
+                speakFeedback(`${rate} और ${qty} set ho gaye hain. Ab calculation ho rahi hai.`, `Rate set to ${rate} and quantity set to ${qty}. Calculating now.`);
+                calculate();
+                recognition.stop();
+            } else if (rate !== null && nextInput === 'rate') {
+                rateInput.value = rate;
+                speakFeedback(`${rate} set ho gaya hai. Ab quantity boliye.`, `Rate set to ${rate}. Now, please say the quantity.`);
+                nextInput = 'qty';
+                recognition.start();
+            } else if (qty !== null && nextInput === 'qty') {
+                qtyInput.value = qty;
+                speakFeedback(`${qty} set ho gaya hai. Ab aap "Calculate Total" daba sakte hain.`, `Quantity set to ${qty}. You can now click "Calculate Total".`);
+                nextInput = null;
+                recognition.stop();
+            } else {
+                speakFeedback('Kuch samajh nahi aaya. Phir se koshish kijiye.', 'Sorry, I did not understand. Please try again.');
+                recognition.start();
             }
         };
 
