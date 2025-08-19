@@ -166,31 +166,49 @@
         statusMessage.classList.add('error');
     } else {
         recognition = new SpeechRecognition();
-        recognition.continuous = true; // Listen continuously
+        recognition.continuous = true; // Listen continuously to capture the full phrase
         recognition.lang = 'en-US';
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
         statusMessage.textContent = "Ready. Click 'Start Voice Input' to begin.";
 
+        // A new helper function to parse numbers from a transcript
+        function parseNumbers(transcript) {
+            // This regex finds integers, decimals, and number words like 'one', 'two'
+            // For simplicity, we'll focus on digit-based numbers for now.
+            const numbers = transcript.match(/\b(\d+(\.\d+)?)\b/g);
+            return numbers ? numbers.map(Number) : [];
+        }
+
         // Event listener for when speech is recognized
         recognition.onresult = (event) => {
-            const transcript = event.results[event.results.length - 1][0].transcript;
+            const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase();
             console.log("Recognized:", transcript);
-            const value = parseFloat(transcript.replace(/[^0-9.]/g, ''));
-
-            if (nextInput === 'rate') {
-                if (!isNaN(value)) {
-                    rateInput.value = value;
-                    speak('Rate set to ' + value + '. Now, please say the quantity.');
-                    nextInput = 'qty';
-                    // No need to restart, recognition is continuous
-                }
-            } else if (nextInput === 'qty') {
-                if (!isNaN(value)) {
-                    qtyInput.value = value;
-                    speak('Quantity set to ' + value + '. You can now click "Calculate Total".');
+            
+            const values = parseNumbers(transcript);
+            
+            if (values.length > 0) {
+                // Check if the user is speaking both numbers in one go
+                if (values.length >= 2) {
+                    rateInput.value = values[0];
+                    qtyInput.value = values[1];
+                    speak(`Rate set to ${values[0]} and quantity set to ${values[1]}. Calculating now.`);
+                    calculate(); // Automatically calculate the result
                     nextInput = null;
-                    recognition.stop(); // Stop listening after both values are collected
+                    recognition.stop();
+                } else if (values.length === 1) {
+                    // Handle single-number input based on the current state
+                    const value = values[0];
+                    if (nextInput === 'rate') {
+                        rateInput.value = value;
+                        speak(`Rate set to ${value}. Now, please say the quantity.`);
+                        nextInput = 'qty';
+                    } else if (nextInput === 'qty') {
+                        qtyInput.value = value;
+                        speak(`Quantity set to ${value}. You can now click "Calculate Total".`);
+                        nextInput = null;
+                        recognition.stop();
+                    }
                 }
             }
         };
@@ -198,7 +216,10 @@
         // Event listener for when recognition ends
         recognition.onend = () => {
             console.log("Recognition ended.");
-            if (!nextInput) { // Only update status if the flow is complete
+            if (nextInput) {
+                // If the flow was interrupted, let the user know
+                statusMessage.textContent = "Recognition stopped. Please try again.";
+            } else {
                  statusMessage.textContent = "Recognition stopped.";
             }
         };
@@ -244,15 +265,18 @@
         if (!recognition || isSpeaking) return;
 
         recognition.stop(); // Stop any previous recognition
+        rateInput.value = '';
+        qtyInput.value = '';
+        resultText.textContent = '$0.00';
         nextInput = 'rate'; // Start the flow by awaiting the rate
 
-        speak('Please say the rate.');
+        speak('Please say the rate and quantity, separated or in one phrase.');
         
         // Start recognition after a short delay to allow the speech to finish
         setTimeout(() => {
             try {
                 recognition.start();
-                statusMessage.textContent = "Listening for rate...";
+                statusMessage.textContent = "Listening...";
                 statusMessage.classList.remove('error');
             } catch (e) {
                 console.error("Recognition start failed:", e);
