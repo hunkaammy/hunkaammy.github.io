@@ -112,12 +112,43 @@
             color: #ef4444;
             font-weight: bold;
         }
+        .language-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .language-btn {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 0.5rem;
+            border: 2px solid #cbd5e1;
+            background-color: #f7fafc;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .language-btn.active {
+            background-color: #6366f1;
+            color: #ffffff;
+            border-color: #6366f1;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .language-btn:hover:not(.active) {
+            background-color: #e2e8f0;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Voice Calculator</h1>
+    
+    <div class="language-buttons">
+        <button class="language-btn active" id="english-btn" onclick="updateLanguage('en-US')">English</button>
+        <button class="language-btn" id="hindi-btn" onclick="updateLanguage('hi-IN')">हिन्दी</button>
+    </div>
 
     <div class="input-group">
         <label for="rate-input">Rate</label>
@@ -155,29 +186,63 @@
     const resultText = document.getElementById('result-text');
     const rateInput = document.getElementById('rate-input');
     const qtyInput = document.getElementById('qty-input');
+    const englishBtn = document.getElementById('english-btn');
+    const hindiBtn = document.getElementById('hindi-btn');
 
     let recognition = null;
     let synth = null;
     let isSpeaking = false;
     let nextInput = null; // State: 'rate' or 'qty'
+    let currentLang = 'en-US'; // Default language
+
+    // Map of number words to digits for both English and Hindi
+    const numberWords = {
+        'en-US': {
+            'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
+            'eleven': 11, 'twelve': 12, 'thirteen': 13, 'fourteen': 14, 'fifteen': 15, 'sixteen': 16, 'seventeen': 17, 'eighteen': 18, 'nineteen': 19, 'twenty': 20,
+            'thirty': 30, 'forty': 40, 'fifty': 50, 'sixty': 60, 'seventy': 70, 'eighty': 80, 'ninety': 90,
+            'hundred': 100, 'thousand': 1000, 'million': 1000000
+        },
+        'hi-IN': {
+            'ek': 1, 'do': 2, 'teen': 3, 'char': 4, 'panch': 5, 'chhah': 6, 'saat': 7, 'aath': 8, 'nau': 9, 'das': 10,
+            'gyarah': 11, 'barah': 12, 'terah': 13, 'chaudah': 14, 'pandrah': 15, 'solah': 16, 'satrah': 17, 'atharah': 18, 'unnis': 19, 'bees': 20,
+            'tis': 30, 'chalis': 40, 'pachas': 50, 'sath': 60, 'sattar': 70, 'assi': 80, 'nabbe': 90,
+            'sau': 100, 'hazaar': 1000, 'lakh': 100000, 'crore': 10000000
+        }
+    };
 
     if (!SpeechRecognition) {
         statusMessage.textContent = "Your browser does not support the Web Speech API.";
         statusMessage.classList.add('error');
     } else {
         recognition = new SpeechRecognition();
-        recognition.continuous = true; // Listen continuously to capture the full phrase
-        recognition.lang = 'en-US';
+        recognition.continuous = false; // Set to false for single, short commands
+        recognition.lang = currentLang;
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
         statusMessage.textContent = "Ready. Click 'Start Voice Input' to begin.";
 
         // A new helper function to parse numbers from a transcript
         function parseNumbers(transcript) {
-            // This regex finds integers, decimals, and number words like 'one', 'two'
-            // For simplicity, we'll focus on digit-based numbers for now.
-            const numbers = transcript.match(/\b(\d+(\.\d+)?)\b/g);
-            return numbers ? numbers.map(Number) : [];
+            const numbers = [];
+            let currentNumber = 0;
+            let lastValue = 0;
+            const words = transcript.replace(/(\bno\b|\bpiece\b|\bnumber\b)/g, '').trim().split(' ');
+            
+            words.forEach(word => {
+                const cleanedWord = word.replace(/[.,]/g, '');
+                const numericValue = parseInt(cleanedWord);
+                const wordValue = numberWords[currentLang][cleanedWord];
+
+                if (!isNaN(numericValue)) {
+                    numbers.push(numericValue);
+                } else if (wordValue) {
+                    // This is a very simple way to handle word numbers, for more complex phrases a full parser would be needed.
+                    numbers.push(wordValue);
+                }
+            });
+            
+            return numbers;
         }
 
         // Event listener for when speech is recognized
@@ -188,27 +253,25 @@
             const values = parseNumbers(transcript);
             
             if (values.length > 0) {
-                // Check if the user is speaking both numbers in one go
                 if (values.length >= 2) {
                     rateInput.value = values[0];
                     qtyInput.value = values[1];
-                    speak(`Rate set to ${values[0]} and quantity set to ${values[1]}. Calculating now.`);
-                    calculate(); // Automatically calculate the result
-                    nextInput = null;
-                    recognition.stop();
+                    speakFeedback(`${values[0]} और ${values[1]} set ho gaye hain. Ab calculation ho rahi hai.`, `Rate set to ${values[0]} and quantity set to ${values[1]}. Calculating now.`);
+                    calculate();
                 } else if (values.length === 1) {
-                    // Handle single-number input based on the current state
                     const value = values[0];
                     if (nextInput === 'rate') {
                         rateInput.value = value;
-                        speak(`Rate set to ${value}. Now, please say the quantity.`);
+                        speakFeedback(`${value} set ho gaya hai. Ab quantity boliye.`, `Rate set to ${value}. Now, please say the quantity.`);
                         nextInput = 'qty';
+                        recognition.start();
                     } else if (nextInput === 'qty') {
                         qtyInput.value = value;
-                        speak(`Quantity set to ${value}. You can now click "Calculate Total".`);
+                        speakFeedback(`${value} set ho gaya hai. Ab aap "Calculate Total" daba sakte hain.`, `Quantity set to ${value}. You can now click "Calculate Total".`);
                         nextInput = null;
-                        recognition.stop();
                     }
+                } else {
+                    speakFeedback('Kuch samajh nahi aaya. Phir se koshish kijiye.', 'Sorry, I did not understand. Please try again.');
                 }
             }
         };
@@ -217,7 +280,6 @@
         recognition.onend = () => {
             console.log("Recognition ended.");
             if (nextInput) {
-                // If the flow was interrupted, let the user know
                 statusMessage.textContent = "Recognition stopped. Please try again.";
             } else {
                  statusMessage.textContent = "Recognition stopped.";
@@ -229,7 +291,6 @@
             console.error('Speech recognition error:', event.error);
             statusMessage.textContent = `Error: ${event.error}`;
             statusMessage.classList.add('error');
-            // If an error occurs, the flow is broken, so reset
             nextInput = null;
         };
     }
@@ -241,42 +302,60 @@
         synth = window.speechSynthesis;
     }
 
-    // A helper function to speak text
+    // A helper function to speak text in the current language
     function speak(text) {
         if (!synth || isSpeaking) return;
-
         isSpeaking = true;
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'en-US';
-
-        utterance.onend = () => {
-            isSpeaking = false;
-            console.log("Speech finished.");
-        };
-        utterance.onerror = (event) => {
-            isSpeaking = false;
-            console.error('Speech synthesis error:', event.error);
-        };
+        utterance.lang = currentLang;
+        utterance.onend = () => { isSpeaking = false; };
+        utterance.onerror = () => { isSpeaking = false; };
         synth.speak(utterance);
     }
+    
+    // A function to speak based on the language
+    function speakFeedback(hindiText, englishText) {
+        if (currentLang === 'hi-IN') {
+            speak(hindiText);
+        } else {
+            speak(englishText);
+        }
+    }
 
-    // Function to start the single-flow voice recognition
+    // Function to update the language
+    window.updateLanguage = (lang) => {
+        currentLang = lang;
+        if (recognition) {
+            recognition.lang = currentLang;
+        }
+        englishBtn.classList.remove('active');
+        hindiBtn.classList.remove('active');
+        if (lang === 'en-US') {
+            englishBtn.classList.add('active');
+            statusMessage.textContent = "Language set to English. Click 'Start Voice Input' to begin.";
+            speak("English language selected.");
+        } else {
+            hindiBtn.classList.add('active');
+            statusMessage.textContent = "भाषा हिंदी पर सेट है। 'वॉयस इनपुट शुरू करें' पर क्लिक करें।";
+            speak("Hindi bhasha chuni gayi hai.");
+        }
+    };
+
+    // Function to start the voice recognition
     function startRecognition() {
         if (!recognition || isSpeaking) return;
-
-        recognition.stop(); // Stop any previous recognition
+        recognition.stop();
         rateInput.value = '';
         qtyInput.value = '';
         resultText.textContent = '$0.00';
-        nextInput = 'rate'; // Start the flow by awaiting the rate
+        nextInput = 'rate';
 
-        speak('Please say the rate and quantity, separated or in one phrase.');
+        speakFeedback('कृपया दर और मात्रा, अलग से या एक ही वाक्यांश में कहें।', 'Please say the rate and quantity, separated or in one phrase.');
         
-        // Start recognition after a short delay to allow the speech to finish
         setTimeout(() => {
             try {
                 recognition.start();
-                statusMessage.textContent = "Listening...";
+                statusMessage.textContent = currentLang === 'hi-IN' ? "सुन रहा हूँ..." : "Listening...";
                 statusMessage.classList.remove('error');
             } catch (e) {
                 console.error("Recognition start failed:", e);
@@ -297,7 +376,7 @@
             resultText.textContent = "$0.00";
             statusMessage.textContent = errorMessage;
             statusMessage.classList.add('error');
-            speak(errorMessage);
+            speakFeedback('कृपया दर और मात्रा दोनों के लिए मान्य संख्याएँ दर्ज करें।', errorMessage);
             return;
         }
 
@@ -308,7 +387,7 @@
         resultText.textContent = `$${formattedTotal}`;
         statusMessage.textContent = resultMessage;
         statusMessage.classList.remove('error');
-        speak(resultMessage);
+        speakFeedback(`कुल ${formattedTotal} रुपये है।`, resultMessage);
     }
 </script>
 
