@@ -1187,7 +1187,10 @@
 
         function renderOrders() {
             const ordersGrid = document.getElementById('ordersGrid');
-            const filteredOrders = getFilteredOrders();
+            let filteredOrders = getFilteredOrders();
+            
+            // Sort orders by createdAt in descending order (newest first)
+            filteredOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             
             if (filteredOrders.length === 0) {
                 const searchTerm = document.getElementById('searchInput').value.trim();
