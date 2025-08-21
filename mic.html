@@ -3,442 +3,1091 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice Calculator</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Order Management System</title>
+    <!-- Firebase SDK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-database-compat.min.js"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        * {
             margin: 0;
-            padding: 1rem;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .container {
-            background-color: #ffffff;
-            padding: 2.5rem;
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-            max-width: 28rem;
-            width: 100%;
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .order-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
             text-align: center;
-            border: 1px solid #e2e8f0;
+            margin-bottom: 30px;
         }
-        .input-group {
-            margin-bottom: 1.5rem;
-            text-align: left;
-        }
-        label {
-            display: block;
-            color: #4a5568;
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
             font-weight: 700;
-            margin-bottom: 0.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        input[type="text"] {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 2px solid #cbd5e1;
-            border-radius: 0.75rem;
-            background-color: #f7fafc;
-            font-size: 1.25rem;
-            color: #2d3748;
-            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
-            cursor: not-allowed;
-            text-align: right;
-            transition: all 0.2s ease-in-out;
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
         }
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+
+        .form-container {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 1px solid #e9ecef;
         }
-        button {
-            width: 100%;
-            padding: 1rem;
-            font-size: 1.125rem;
-            font-weight: 700;
-            border-radius: 0.75rem;
-            border: none;
-            color: #ffffff;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
         }
-        .voice-btn {
-            background-color: #6366f1;
-            margin-top: 0.5rem;
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
         }
-        .voice-btn:hover {
-            background-color: #4f46e5;
-            transform: translateY(-1px);
-        }
-        .voice-btn:active {
-            transform: translateY(1px);
-        }
-        .calculate-btn {
-            background-color: #10b981;
-            margin-top: 1.5rem;
-        }
-        .calculate-btn:hover {
-            background-color: #059669;
-            transform: translateY(-1px);
-        }
-        .calculate-btn:active {
-            transform: translateY(1px);
-        }
-        .result-box {
-            margin-top: 2rem;
-            padding: 1.5rem;
-            background-color: #ecfdf5;
-            border-radius: 1rem;
-            text-align: center;
-            border: 2px dashed #a7f3d0;
-        }
-        #result-text {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #047857;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
-        }
-        .status-message {
-            margin-top: 1rem;
-            color: #4b5563;
-            font-style: italic;
-        }
-        .status-message.error {
-            color: #ef4444;
-            font-weight: bold;
-        }
-        .language-buttons {
+
+        .form-group {
             display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            flex-direction: column;
         }
-        .language-btn {
-            padding: 0.5rem 1rem;
-            font-size: 1rem;
-            font-weight: 700;
-            border-radius: 0.5rem;
-            border: 2px solid #cbd5e1;
-            background-color: #f7fafc;
-            color: #4a5568;
+
+        .form-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-input {
+            padding: 12px 16px;
+            border: 2px solid #e0e6ed;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .image-upload {
+            position: relative;
+            padding: 20px;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            text-align: center;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
+            background: white;
         }
-        .language-btn.active {
-            background-color: #6366f1;
-            color: #ffffff;
-            border-color: #6366f1;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+        .image-upload:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
         }
-        .language-btn:hover:not(.active) {
-            background-color: #e2e8f0;
+
+        .image-upload.dragover {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            transform: scale(1.02);
+        }
+
+        .image-upload input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .upload-text {
+            color: #6c757d;
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .drag-text {
+            display: block;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .image-preview {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 2px solid #e9ecef;
+        }
+
+        .add-btn {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            width: 100%;
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .add-btn:active {
+            transform: translateY(0);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+
+        .filter-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #e9ecef;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .order-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+            animation: slideIn 0.3s ease-out;
+            position: relative;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .order-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .order-card.completed {
+            opacity: 0.8;
+            background: #f8f9fa;
+        }
+
+        .order-card.completed::before {
+            content: '✅';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 20px;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .order-info h3 {
+            color: #2c3e50;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .party-name {
+            color: #667eea;
+            font-size: 14px;
+            font-weight: 600;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 4px 8px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .order-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-complete {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-complete:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+
+        .btn-pending {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-pending:hover {
+            background: #e0a800;
+            transform: scale(1.05);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+            grid-column: 1 / -1;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .clear-completed {
+            width: 100%;
+            padding: 12px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .clear-completed:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
+        .sync-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .sync-online {
+            background: #28a745;
+            color: white;
+        }
+
+        .sync-offline {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .sync-syncing {
+            background: #17a2b8;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .firebase-setup {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .firebase-setup h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .firebase-setup p {
+            color: #856404;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .config-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .setup-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <h1 class="text-3xl font-bold mb-6 text-gray-800">Voice Calculator</h1>
+    <div class="sync-status" id="syncStatus">🔄 Initializing...</div>
     
-    <div class="language-buttons">
-        <button class="language-btn active" id="english-btn" onclick="updateLanguage('en-US')">English</button>
-        <button class="language-btn" id="hindi-btn" onclick="updateLanguage('hi-IN')">हिन्दी</button>
+    <div class="order-container">
+        <div class="header">
+            <h1>📦 Order Management</h1>
+            <p>Track your orders with items, parties, and images</p>
+        </div>
+
+        <div class="firebase-setup" id="firebaseSetup">
+            <h4>🔧 Firebase Configuration (One-time setup)</h4>
+            <p>Enter your Firebase project credentials to enable real-time sync:</p>
+            <input type="text" class="config-input" id="apiKey" placeholder="API Key">
+            <input type="text" class="config-input" id="authDomain" placeholder="Auth Domain (your-project.firebaseapp.com)">
+            <input type="text" class="config-input" id="databaseURL" placeholder="Database URL (https://your-project-default-rtdb.firebaseio.com/)">
+            <input type="text" class="config-input" id="projectId" placeholder="Project ID">
+            <button class="setup-btn" onclick="setupFirebase()">Connect to Firebase</button>
+            <button class="setup-btn" onclick="useOfflineMode()" style="background: #6c757d; margin-left: 10px;">Use Offline Mode</button>
+        </div>
+
+        <div class="form-container">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="itemName">Item Name</label>
+                    <input type="text" id="itemName" class="form-input" placeholder="Enter item name">
+                </div>
+                <div class="form-group">
+                    <label for="partyName">Party/Customer Name</label>
+                    <input type="text" id="partyName" class="form-input" placeholder="Enter party name">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="itemImage">Item Image (Optional)</label>
+                <div class="image-upload" id="imageUploadArea">
+                    <input type="file" id="itemImage" accept="image/*" onchange="previewImage(this)">
+                    <div class="upload-text">
+                        📷 Click to upload image
+                        <span class="drag-text">or drag and drop an image here</span>
+                    </div>
+                    <img id="imagePreview" class="image-preview" style="display: none;">
+                </div>
+            </div>
+            <button class="add-btn" onclick="addOrder()">Add Order</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number" id="totalOrders">0</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number" id="pendingOrders">0</div>
+                <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number" id="completedOrders">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+        </div>
+
+        <div class="filter-container">
+            <button class="filter-btn active" onclick="filterOrders('all')">All Orders</button>
+            <button class="filter-btn" onclick="filterOrders('pending')">Pending</button>
+            <button class="filter-btn" onclick="filterOrders('completed')">Completed</button>
+        </div>
+
+        <div class="orders-grid" id="ordersGrid">
+            <div class="empty-state">
+                <div class="empty-icon">📋</div>
+                <h3>No orders yet</h3>
+                <p>Add your first order using the form above</p>
+            </div>
+        </div>
+
+        <button class="clear-completed" onclick="clearCompleted()" style="display: none;" id="clearBtn">Clear Completed Orders</button>
     </div>
 
-    <div class="input-group">
-        <label for="rate-input">Rate</label>
-        <input type="text" id="rate-input" placeholder="Say the rate">
-    </div>
+    <script>
+        let orders = [];
+        let orderId = 0;
+        let currentFilter = 'all';
+        let firebase = null;
+        let database = null;
+        let isOnline = navigator.onLine;
+        let syncPending = [];
 
-    <div class="input-group">
-        <label for="qty-input">Quantity</label>
-        <input type="text" id="qty-input" placeholder="Say the quantity">
-    </div>
-
-    <button class="voice-btn" onclick="startRecognition()">
-        <svg class="w-6 h-6 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-        Start Voice Input
-    </button>
-    
-    <button class="calculate-btn" onclick="calculate()">
-        Calculate Total
-    </button>
-
-    <div class="result-box">
-        <div class="text-gray-600 font-bold mb-2">Total:</div>
-        <div id="result-text" class="text-green-600">$0.00</div>
-    </div>
-
-    <div id="status-message" class="status-message"></div>
-</div>
-
-<script>
-    // Check for Web Speech API browser support
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const SpeechSynthesis = window.speechSynthesis;
-
-    const statusMessage = document.getElementById('status-message');
-    const resultText = document.getElementById('result-text');
-    const rateInput = document.getElementById('rate-input');
-    const qtyInput = document.getElementById('qty-input');
-    const englishBtn = document.getElementById('english-btn');
-    const hindiBtn = document.getElementById('hindi-btn');
-
-    let recognition = null;
-    let synth = null;
-    let isSpeaking = false;
-    let nextInput = null; // State: 'rate' or 'qty'
-    let currentLang = 'en-US'; // Default language
-
-    // Map of number words to digits for both English and Hindi
-    const numberWords = {
-        'en-US': {
-            'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
-            'eleven': 11, 'twelve': 12, 'thirteen': 13, 'fourteen': 14, 'fifteen': 15, 'sixteen': 16, 'seventeen': 17, 'eighteen': 18, 'nineteen': 19, 'twenty': 20,
-            'thirty': 30, 'forty': 40, 'fifty': 50, 'sixty': 60, 'seventy': 70, 'eighty': 80, 'ninety': 90,
-            'hundred': 100, 'thousand': 1000, 'million': 1000000
-        },
-        'hi-IN': {
-            'ek': 1, 'do': 2, 'teen': 3, 'char': 4, 'panch': 5, 'chhah': 6, 'saat': 7, 'aath': 8, 'nau': 9, 'das': 10,
-            'gyarah': 11, 'barah': 12, 'terah': 13, 'chaudah': 14, 'pandrah': 15, 'solah': 16, 'satrah': 17, 'atharah': 18, 'unnis': 19, 'bees': 20,
-            'tis': 30, 'chalis': 40, 'pachas': 50, 'sath': 60, 'sattar': 70, 'assi': 80, 'nabbe': 90,
-            'sau': 100, 'hazaar': 1000, 'lakh': 100000, 'crore': 10000000
+        // Firebase and sync management
+        function updateSyncStatus(status, message) {
+            const statusEl = document.getElementById('syncStatus');
+            statusEl.className = `sync-status sync-${status}`;
+            statusEl.textContent = message;
         }
-    };
 
-    // Keywords to help identify rate and quantity
-    const keywords = {
-        'en-US': {
-            'rate': 'rate', 'price': 'rate', 'number': 'rate',
-            'quantity': 'qty', 'piece': 'qty', 'pieces': 'qty', 'qty': 'qty'
-        },
-        'hi-IN': {
-            'dar': 'rate', 'dam': 'rate', 'number': 'rate',
-            'matra': 'qty', 'piece': 'qty', 'pieces': 'qty', 'qty': 'qty'
-        }
-    };
+        function setupFirebase() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const authDomain = document.getElementById('authDomain').value.trim();
+            const databaseURL = document.getElementById('databaseURL').value.trim();
+            const projectId = document.getElementById('projectId').value.trim();
 
-    if (!SpeechRecognition) {
-        statusMessage.textContent = "Your browser does not support the Web Speech API.";
-        statusMessage.classList.add('error');
-    } else {
-        recognition = new SpeechRecognition();
-        recognition.continuous = false; // Set to false for single, short commands
-        recognition.lang = currentLang;
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-        statusMessage.textContent = "Ready. Click 'Start Voice Input' to begin.";
-
-        // A new helper function to parse numbers from a transcript
-        function parseNumbers(transcript) {
-            const numbersFound = [];
-            const words = transcript.toLowerCase().replace(/[.,]/g, '').split(' ');
-            
-            // Look for numeric digits first
-            const numericDigits = words.filter(word => !isNaN(parseFloat(word)));
-            if (numericDigits.length > 0) {
-                return numericDigits.map(Number);
+            if (!apiKey || !authDomain || !databaseURL || !projectId) {
+                alert('Please fill in all Firebase configuration fields!');
+                return;
             }
 
-            // If no digits, parse number words
-            let tempValue = 0;
-            let lastMagnitude = 1;
-            words.forEach(word => {
-                const wordValue = numberWords[currentLang][word];
-                if (wordValue) {
-                    if (wordValue >= 100) {
-                        tempValue = (tempValue || 1) * wordValue;
-                        lastMagnitude = wordValue;
-                    } else {
-                        tempValue += wordValue;
-                    }
-                }
-            });
-            if (tempValue > 0) {
-                numbersFound.push(tempValue);
-            }
-            return numbersFound;
-        }
+            const firebaseConfig = {
+                apiKey,
+                authDomain,
+                databaseURL,
+                projectId
+            };
 
-        // Event listener for when speech is recognized
-        recognition.onresult = (event) => {
-            const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase();
-            console.log("Recognized:", transcript);
-            
-            const words = transcript.toLowerCase().split(' ');
-            let rate = null;
-            let qty = null;
-            let lastValueType = null;
-
-            // Simple parser to handle a single phrase like "140 number and 4 piece"
-            words.forEach(word => {
-                const cleanedWord = word.replace(/[.,]/g, '');
-                const numericValue = parseInt(cleanedWord);
-                const wordValue = numberWords[currentLang][cleanedWord];
-
-                // If the word is a keyword, set the next number's type
-                if (keywords[currentLang][cleanedWord]) {
-                    lastValueType = keywords[currentLang][cleanedWord];
-                }
-
-                // If the word is a number, assign it based on the last keyword or default logic
-                if (!isNaN(numericValue) || wordValue) {
-                    const value = !isNaN(numericValue) ? numericValue : wordValue;
-                    if (lastValueType === 'rate' || (rate === null && qty !== null)) {
-                        rate = value;
-                        lastValueType = null;
-                    } else if (lastValueType === 'qty' || (qty === null && rate !== null)) {
-                        qty = value;
-                        lastValueType = null;
-                    } else if (rate === null) {
-                        rate = value;
-                    } else if (qty === null) {
-                        qty = value;
-                    }
-                }
-            });
-            
-            if (rate !== null && qty !== null) {
-                rateInput.value = rate;
-                qtyInput.value = qty;
-                speakFeedback(`${rate} और ${qty} set ho gaye hain. Ab calculation ho rahi hai.`, `Rate set to ${rate} and quantity set to ${qty}. Calculating now.`);
-                calculate();
-                recognition.stop();
-            } else if (rate !== null && nextInput === 'rate') {
-                rateInput.value = rate;
-                speakFeedback(`${rate} set ho gaya hai. Ab quantity boliye.`, `Rate set to ${rate}. Now, please say the quantity.`);
-                nextInput = 'qty';
-                recognition.start();
-            } else if (qty !== null && nextInput === 'qty') {
-                qtyInput.value = qty;
-                speakFeedback(`${qty} set ho gaya hai. Ab aap "Calculate Total" daba sakte hain.`, `Quantity set to ${qty}. You can now click "Calculate Total".`);
-                nextInput = null;
-                recognition.stop();
-            } else {
-                speakFeedback('Kuch samajh nahi aaya. Phir se koshish kijiye.', 'Sorry, I did not understand. Please try again.');
-                recognition.start();
-            }
-        };
-
-        // Event listener for when recognition ends
-        recognition.onend = () => {
-            console.log("Recognition ended.");
-            if (nextInput) {
-                statusMessage.textContent = "Recognition stopped. Please try again.";
-            } else {
-                 statusMessage.textContent = "Recognition stopped.";
-            }
-        };
-
-        // Event listener for errors
-        recognition.onerror = (event) => {
-            console.error('Speech recognition error:', event.error);
-            statusMessage.textContent = `Error: ${event.error}`;
-            statusMessage.classList.add('error');
-            nextInput = null;
-        };
-    }
-
-    if (!SpeechSynthesis) {
-        statusMessage.textContent = "Your browser does not support Speech Synthesis.";
-        statusMessage.classList.add('error');
-    } else {
-        synth = window.speechSynthesis;
-    }
-
-    // A helper function to speak text in the current language
-    function speak(text) {
-        if (!synth || isSpeaking) return;
-        isSpeaking = true;
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = currentLang;
-        utterance.onend = () => { isSpeaking = false; };
-        utterance.onerror = () => { isSpeaking = false; };
-        synth.speak(utterance);
-    }
-    
-    // A function to speak based on the language
-    function speakFeedback(hindiText, englishText) {
-        if (currentLang === 'hi-IN') {
-            speak(hindiText);
-        } else {
-            speak(englishText);
-        }
-    }
-
-    // Function to update the language
-    window.updateLanguage = (lang) => {
-        currentLang = lang;
-        if (recognition) {
-            recognition.lang = currentLang;
-        }
-        englishBtn.classList.remove('active');
-        hindiBtn.classList.remove('active');
-        if (lang === 'en-US') {
-            englishBtn.classList.add('active');
-            statusMessage.textContent = "Language set to English. Click 'Start Voice Input' to begin.";
-            speak("English language selected.");
-        } else {
-            hindiBtn.classList.add('active');
-            statusMessage.textContent = "भाषा हिंदी पर सेट है। 'वॉयस इनपुट शुरू करें' पर क्लिक करें।";
-            speak("Hindi bhasha chuni gayi hai.");
-        }
-    };
-
-    // Function to start the voice recognition
-    function startRecognition() {
-        if (!recognition || isSpeaking) return;
-        recognition.stop();
-        rateInput.value = '';
-        qtyInput.value = '';
-        resultText.textContent = '$0.00';
-        nextInput = 'rate';
-
-        speakFeedback('कृपया दर और मात्रा, अलग से या एक ही वाक्यांश में कहें।', 'Please say the rate and quantity, separated or in one phrase.');
-        
-        setTimeout(() => {
             try {
-                recognition.start();
-                statusMessage.textContent = currentLang === 'hi-IN' ? "सुन रहा हूँ..." : "Listening...";
-                statusMessage.classList.remove('error');
-            } catch (e) {
-                console.error("Recognition start failed:", e);
-                statusMessage.textContent = "Recognition is already in progress or failed to start.";
-                statusMessage.classList.add('error');
-                nextInput = null;
+                firebase.initializeApp(firebaseConfig);
+                database = firebase.database();
+                
+                // Save config to localStorage for future use
+                localStorage.setItem('firebaseConfig', JSON.stringify(firebaseConfig));
+                
+                document.getElementById('firebaseSetup').style.display = 'none';
+                updateSyncStatus('online', '🟢 Connected to Firebase');
+                
+                // Load data from Firebase
+                loadFromFirebase();
+                
+                // Listen for real-time updates
+                database.ref('orders').on('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        const firebaseOrders = snapshot.val();
+                        orders = Object.values(firebaseOrders);
+                        renderOrders();
+                        updateStats();
+                    }
+                });
+
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+                alert('Failed to connect to Firebase. Please check your configuration.');
+                updateSyncStatus('offline', '🔴 Firebase connection failed');
             }
-        }, 1000);
-    }
-
-    // Function to calculate and display the result
-    function calculate() {
-        const rate = parseFloat(rateInput.value);
-        const qty = parseFloat(qtyInput.value);
-
-        if (isNaN(rate) || isNaN(qty)) {
-            const errorMessage = "Please enter valid numbers for both rate and quantity.";
-            resultText.textContent = "$0.00";
-            statusMessage.textContent = errorMessage;
-            statusMessage.classList.add('error');
-            speakFeedback('कृपया दर और मात्रा दोनों के लिए मान्य संख्याएँ दर्ज करें।', errorMessage);
-            return;
         }
 
-        const total = rate * qty;
-        const formattedTotal = total.toFixed(2);
-        const resultMessage = `The total is ${formattedTotal} dollars.`;
+        function useOfflineMode() {
+            document.getElementById('firebaseSetup').style.display = 'none';
+            updateSyncStatus('offline', '🟡 Offline Mode - Data saved locally');
+            loadFromLocalStorage();
+        }
 
-        resultText.textContent = `$${formattedTotal}`;
-        statusMessage.textContent = resultMessage;
-        statusMessage.classList.remove('error');
-        speakFeedback(`कुल ${formattedTotal} रुपये है।`, resultMessage);
-    }
-</script>
+        function loadFromFirebase() {
+            if (database) {
+                database.ref('orders').once('value')
+                    .then((snapshot) => {
+                        if (snapshot.exists()) {
+                            const firebaseOrders = snapshot.val();
+                            orders = Object.values(firebaseOrders);
+                            // Sync with localStorage
+                            saveToLocalStorage();
+                            renderOrders();
+                            updateStats();
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error loading from Firebase:', error);
+                        loadFromLocalStorage();
+                    });
+            }
+        }
 
+        function saveToFirebase(order = null) {
+            if (database && isOnline) {
+                if (order) {
+                    // Save single order
+                    database.ref(`orders/${order.id}`).set(order)
+                        .catch((error) => {
+                            console.error('Error saving to Firebase:', error);
+                            // Add to pending sync if failed
+                            syncPending.push({action: 'save', data: order});
+                            saveToLocalStorage();
+                        });
+                } else {
+                    // Save all orders
+                    const ordersObj = {};
+                    orders.forEach(o => ordersObj[o.id] = o);
+                    database.ref('orders').set(ordersObj)
+                        .catch((error) => {
+                            console.error('Error saving to Firebase:', error);
+                            saveToLocalStorage();
+                        });
+                }
+            } else {
+                // Queue for sync when online
+                if (order) {
+                    syncPending.push({action: 'save', data: order});
+                }
+                saveToLocalStorage();
+            }
+        }
+
+        function deleteFromFirebase(orderId) {
+            if (database && isOnline) {
+                database.ref(`orders/${orderId}`).remove()
+                    .catch((error) => {
+                        console.error('Error deleting from Firebase:', error);
+                        syncPending.push({action: 'delete', id: orderId});
+                    });
+            } else {
+                syncPending.push({action: 'delete', id: orderId});
+            }
+        }
+
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('orders', JSON.stringify(orders));
+                localStorage.setItem('orderId', orderId.toString());
+                localStorage.setItem('syncPending', JSON.stringify(syncPending));
+            } catch (error) {
+                console.error('Error saving to localStorage:', error);
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const savedOrders = localStorage.getItem('orders');
+                const savedOrderId = localStorage.getItem('orderId');
+                const savedSyncPending = localStorage.getItem('syncPending');
+                
+                if (savedOrders) {
+                    orders = JSON.parse(savedOrders);
+                }
+                if (savedOrderId) {
+                    orderId = parseInt(savedOrderId);
+                }
+                if (savedSyncPending) {
+                    syncPending = JSON.parse(savedSyncPending);
+                }
+                
+                renderOrders();
+                updateStats();
+            } catch (error) {
+                console.error('Error loading from localStorage:', error);
+            }
+        }
+
+        function syncPendingChanges() {
+            if (!database || !isOnline || syncPending.length === 0) return;
+
+            updateSyncStatus('syncing', '🔄 Syncing changes...');
+            
+            const promises = syncPending.map(item => {
+                if (item.action === 'save') {
+                    return database.ref(`orders/${item.data.id}`).set(item.data);
+                } else if (item.action === 'delete') {
+                    return database.ref(`orders/${item.id}`).remove();
+                }
+            });
+
+            Promise.all(promises)
+                .then(() => {
+                    syncPending = [];
+                    localStorage.removeItem('syncPending');
+                    updateSyncStatus('online', '🟢 All changes synced');
+                })
+                .catch((error) => {
+                    console.error('Error syncing pending changes:', error);
+                    updateSyncStatus('online', '🟢 Online (sync errors)');
+                });
+        }
+
+        // Network status monitoring
+        window.addEventListener('online', () => {
+            isOnline = true;
+            if (database) {
+                updateSyncStatus('online', '🟢 Back online - Syncing...');
+                syncPendingChanges();
+            } else {
+                updateSyncStatus('offline', '🟡 Online but not connected to Firebase');
+            }
+        });
+
+        window.addEventListener('offline', () => {
+            isOnline = false;
+            updateSyncStatus('offline', '🔴 Offline - Changes saved locally');
+        });
+
+        // Check for saved Firebase config on load
+        function initializeApp() {
+            const savedConfig = localStorage.getItem('firebaseConfig');
+            if (savedConfig) {
+                try {
+                    const config = JSON.parse(savedConfig);
+                    firebase.initializeApp(config);
+                    database = firebase.database();
+                    document.getElementById('firebaseSetup').style.display = 'none';
+                    
+                    if (isOnline) {
+                        updateSyncStatus('online', '🟢 Connected to Firebase');
+                        loadFromFirebase();
+                        
+                        // Listen for real-time updates
+                        database.ref('orders').on('value', (snapshot) => {
+                            if (snapshot.exists()) {
+                                const firebaseOrders = snapshot.val();
+                                orders = Object.values(firebaseOrders);
+                                renderOrders();
+                                updateStats();
+                            }
+                        });
+                    } else {
+                        updateSyncStatus('offline', '🔴 Offline - Using local data');
+                        loadFromLocalStorage();
+                    }
+                } catch (error) {
+                    console.error('Error initializing Firebase:', error);
+                    useOfflineMode();
+                }
+            } else {
+                // No saved config, load from localStorage
+                loadFromLocalStorage();
+                if (orders.length === 0) {
+                    updateSyncStatus('offline', '🔧 Setup Firebase for sync');
+                } else {
+                    updateSyncStatus('offline', '🟡 Using local data');
+                }
+            }
+        }
+
+        // Initialize drag and drop functionality
+        function initializeDragAndDrop() {
+            const uploadArea = document.getElementById('imageUploadArea');
+            const fileInput = document.getElementById('itemImage');
+
+            // Click to upload
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            // Prevent default drag behaviors
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+
+            // Highlight drop area when item is dragged over it
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            // Handle dropped files
+            uploadArea.addEventListener('drop', handleDrop, false);
+        }
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function highlight(e) {
+            document.getElementById('imageUploadArea').classList.add('dragover');
+        }
+
+        function unhighlight(e) {
+            document.getElementById('imageUploadArea').classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            if (files.length > 0) {
+                const file = files[0];
+                
+                // Check if it's an image file
+                if (file.type.startsWith('image/')) {
+                    document.getElementById('itemImage').files = files;
+                    previewImage(document.getElementById('itemImage'));
+                } else {
+                    alert('Please drop only image files!');
+                }
+            }
+        }
+
+        function previewImage(input) {
+            const preview = document.getElementById('imagePreview');
+            const uploadText = document.querySelector('.upload-text');
+            
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                
+                // Check file size (limit to 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Image size should be less than 5MB!');
+                    clearImagePreview();
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    uploadText.innerHTML = `
+                        ✅ Image selected: ${file.name}
+                        <span class="drag-text">Click or drag to change</span>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function clearImagePreview() {
+            const preview = document.getElementById('imagePreview');
+            const uploadText = document.querySelector('.upload-text');
+            const fileInput = document.getElementById('itemImage');
+            
+            preview.style.display = 'none';
+            preview.src = '';
+            fileInput.value = '';
+            uploadText.innerHTML = `
+                📷 Click to upload image
+                <span class="drag-text">or drag and drop an image here</span>
+            `;
+        }
+
+        function addOrder() {
+            const itemName = document.getElementById('itemName').value.trim();
+            const partyName = document.getElementById('partyName').value.trim();
+            const imageFile = document.getElementById('itemImage').files[0];
+            
+            if (!itemName) {
+                alert('Please enter an item name!');
+                return;
+            }
+            
+            if (!partyName) {
+                alert('Please enter a party/customer name!');
+                return;
+            }
+
+            const order = {
+                id: orderId++,
+                itemName: itemName,
+                partyName: partyName,
+                completed: false,
+                createdAt: new Date().toISOString(),
+                image: null
+            };
+
+            if (imageFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    order.image = e.target.result;
+                    orders.push(order);
+                    saveToFirebase(order);
+                    clearForm();
+                    renderOrders();
+                    updateStats();
+                };
+                reader.readAsDataURL(imageFile);
+            } else {
+                orders.push(order);
+                saveToFirebase(order);
+                clearForm();
+                renderOrders();
+                updateStats();
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('itemName').value = '';
+            document.getElementById('partyName').value = '';
+            clearImagePreview();
+        }
+
+        function toggleOrder(id) {
+            const order = orders.find(o => o.id === id);
+            if (order) {
+                order.completed = !order.completed;
+                saveToFirebase(order);
+                renderOrders();
+                updateStats();
+            }
+        }
+
+        function deleteOrder(id) {
+            if (confirm('Are you sure you want to delete this order?')) {
+                orders = orders.filter(o => o.id !== id);
+                deleteFromFirebase(id);
+                renderOrders();
+                updateStats();
+            }
+        }
+
+        function filterOrders(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderOrders();
+        }
+
+        function getFilteredOrders() {
+            switch(currentFilter) {
+                case 'pending':
+                    return orders.filter(o => !o.completed);
+                case 'completed':
+                    return orders.filter(o => o.completed);
+                default:
+                    return orders;
+            }
+        }
+
+        function renderOrders() {
+            const ordersGrid = document.getElementById('ordersGrid');
+            const filteredOrders = getFilteredOrders();
+            
+            if (filteredOrders.length === 0) {
+                const emptyMessage = currentFilter === 'all' ? 
+                    'No orders yet' : 
+                    `No ${currentFilter} orders`;
+                    
+                ordersGrid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📋</div>
+                        <h3>${emptyMessage}</h3>
+                        <p>${currentFilter === 'all' ? 'Add your first order using the form above' : `Switch to "All Orders" to see other orders`}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            ordersGrid.innerHTML = filteredOrders.map(order => `
+                <div class="order-card ${order.completed ? 'completed' : ''}">
+                    <div class="order-header">
+                        <div class="order-info">
+                            <h3>${escapeHtml(order.itemName)}</h3>
+                            <span class="party-name">${escapeHtml(order.partyName)}</span>
+                        </div>
+                    </div>
+                    
+                    ${order.image ? `<img src="${order.image}" alt="Order image" class="order-image">` : ''}
+                    
+                    <div class="order-actions">
+                        <button class="btn ${order.completed ? 'btn-pending' : 'btn-complete'}" 
+                                onclick="toggleOrder(${order.id})">
+                            ${order.completed ? 'Mark Pending' : 'Complete'}
+                        </button>
+                        <button class="btn btn-delete" onclick="deleteOrder(${order.id})">Delete</button>
+                    </div>
+                    
+                    <div class="order-date">
+                        Created: ${new Date(order.createdAt).toLocaleDateString()} ${new Date(order.createdAt).toLocaleTimeString()}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            const total = orders.length;
+            const completed = orders.filter(o => o.completed).length;
+            const pending = total - completed;
+
+            document.getElementById('totalOrders').textContent = total;
+            document.getElementById('pendingOrders').textContent = pending;
+            document.getElementById('completedOrders').textContent = completed;
+
+            const clearBtn = document.getElementById('clearBtn');
+            clearBtn.style.display = completed > 0 ? 'block' : 'none';
+        }
+
+        function clearCompleted() {
+            if (confirm('Are you sure you want to delete all completed orders?')) {
+                const completedIds = orders.filter(o => o.completed).map(o => o.id);
+                orders = orders.filter(o => !o.completed);
+                
+                // Delete from Firebase
+                completedIds.forEach(id => deleteFromFirebase(id));
+                
+                renderOrders();
+                updateStats();
+            }
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Add order on Enter key press
+        document.getElementById('itemName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('partyName').focus();
+            }
+        });
+
+        document.getElementById('partyName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addOrder();
+            }
+        });
+
+        // Initialize drag and drop when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDragAndDrop();
+            initializeApp();
+        });
+
+        // Save to localStorage periodically and on page unload
+        setInterval(saveToLocalStorage, 30000); // Save every 30 seconds
+        window.addEventListener('beforeunload', saveToLocalStorage);
+
+        // Initialize
+        updateStats();
+    </script>
 </body>
 </html>
