@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Management System</title>
     <!-- Firebase SDK -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-database-compat.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -429,44 +430,6 @@
             50% { opacity: 0.7; }
             100% { opacity: 1; }
         }
-
-        .firebase-setup {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .firebase-setup h4 {
-            color: #856404;
-            margin-bottom: 10px;
-        }
-
-        .firebase-setup p {
-            color: #856404;
-            font-size: 14px;
-            margin-bottom: 8px;
-        }
-
-        .config-input {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            font-size: 12px;
-        }
-
-        .setup-btn {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 12px;
-        }
     </style>
 </head>
 <body>
@@ -476,17 +439,6 @@
         <div class="header">
             <h1>📦 Order Management</h1>
             <p>Track your orders with items, parties, and images</p>
-        </div>
-
-        <div class="firebase-setup" id="firebaseSetup">
-            <h4>🔧 Firebase Configuration (One-time setup)</h4>
-            <p>Enter your Firebase project credentials to enable real-time sync:</p>
-            <input type="text" class="config-input" id="apiKey" placeholder="API Key">
-            <input type="text" class="config-input" id="authDomain" placeholder="Auth Domain (your-project.firebaseapp.com)">
-            <input type="text" class="config-input" id="databaseURL" placeholder="Database URL (https://your-project-default-rtdb.firebaseio.com/)">
-            <input type="text" class="config-input" id="projectId" placeholder="Project ID">
-            <button class="setup-btn" onclick="setupFirebase()">Connect to Firebase</button>
-            <button class="setup-btn" onclick="useOfflineMode()" style="background: #6c757d; margin-left: 10px;">Use Offline Mode</button>
         </div>
 
         <div class="form-container">
@@ -550,10 +502,23 @@
         let orders = [];
         let orderId = 0;
         let currentFilter = 'all';
-        let firebase = null;
+        let firebaseApp = null;
         let database = null;
+        let storage = null;
         let isOnline = navigator.onLine;
         let syncPending = [];
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBPc51z-pGrtKwtB5dKTMPei-fVRg4ePME",
+            authDomain: "pagdi-6f8ce.firebaseapp.com",
+            databaseURL: "https://pagdi-6f8ce-default-rtdb.firebaseio.com",
+            projectId: "pagdi-6f8ce",
+            storageBucket: "pagdi-6f8ce.appspot.com",
+            messagingSenderId: "746289566527",
+            appId: "1:746289566527:web:4c32c4fec73bb7e898798a",
+            measurementId: "G-CXW0QZRHFG"
+        };
 
         // Firebase and sync management
         function updateSyncStatus(status, message) {
@@ -562,58 +527,47 @@
             statusEl.textContent = message;
         }
 
-        function setupFirebase() {
-            const apiKey = document.getElementById('apiKey').value.trim();
-            const authDomain = document.getElementById('authDomain').value.trim();
-            const databaseURL = document.getElementById('databaseURL').value.trim();
-            const projectId = document.getElementById('projectId').value.trim();
-
-            if (!apiKey || !authDomain || !databaseURL || !projectId) {
-                alert('Please fill in all Firebase configuration fields!');
-                return;
-            }
-
-            const firebaseConfig = {
-                apiKey,
-                authDomain,
-                databaseURL,
-                projectId
-            };
-
+        function initializeFirebase() {
             try {
-                firebase.initializeApp(firebaseConfig);
-                database = firebase.database();
+                // Check if Firebase is already initialized
+                if (!firebaseApp) {
+                    firebaseApp = firebase.initializeApp(firebaseConfig);
+                    database = firebase.database();
+                    storage = firebase.storage();
+                }
                 
                 // Save config to localStorage for future use
                 localStorage.setItem('firebaseConfig', JSON.stringify(firebaseConfig));
                 
-                document.getElementById('firebaseSetup').style.display = 'none';
-                updateSyncStatus('online', '🟢 Connected to Firebase');
-                
-                // Load data from Firebase
-                loadFromFirebase();
-                
-                // Listen for real-time updates
-                database.ref('orders').on('value', (snapshot) => {
-                    if (snapshot.exists()) {
-                        const firebaseOrders = snapshot.val();
-                        orders = Object.values(firebaseOrders);
-                        renderOrders();
-                        updateStats();
-                    }
-                });
-
+                if (isOnline) {
+                    updateSyncStatus('online', '🟢 Connected to Firebase');
+                    loadFromFirebase();
+                    
+                    // Listen for real-time updates
+                    database.ref('orders').on('value', (snapshot) => {
+                        try {
+                            if (snapshot.exists()) {
+                                const firebaseOrders = snapshot.val();
+                                orders = Object.values(firebaseOrders || {});
+                                saveToLocalStorage();
+                                renderOrders();
+                                updateStats();
+                            }
+                        } catch (error) {
+                            console.error('Error processing Firebase snapshot:', error);
+                            updateSyncStatus('offline', '🔴 Error processing data');
+                            loadFromLocalStorage();
+                        }
+                    });
+                } else {
+                    updateSyncStatus('offline', '🔴 Offline - Using local data');
+                    loadFromLocalStorage();
+                }
             } catch (error) {
                 console.error('Firebase initialization error:', error);
-                alert('Failed to connect to Firebase. Please check your configuration.');
-                updateSyncStatus('offline', '🔴 Firebase connection failed');
+                updateSyncStatus('offline', '🟡 Offline Mode - Data saved locally');
+                loadFromLocalStorage();
             }
-        }
-
-        function useOfflineMode() {
-            document.getElementById('firebaseSetup').style.display = 'none';
-            updateSyncStatus('offline', '🟡 Offline Mode - Data saved locally');
-            loadFromLocalStorage();
         }
 
         function loadFromFirebase() {
@@ -622,7 +576,7 @@
                     .then((snapshot) => {
                         if (snapshot.exists()) {
                             const firebaseOrders = snapshot.val();
-                            orders = Object.values(firebaseOrders);
+                            orders = Object.values(firebaseOrders || {});
                             // Sync with localStorage
                             saveToLocalStorage();
                             renderOrders();
@@ -631,6 +585,7 @@
                     })
                     .catch((error) => {
                         console.error('Error loading from Firebase:', error);
+                        updateSyncStatus('offline', '🔴 Error loading Firebase data');
                         loadFromLocalStorage();
                     });
             }
@@ -638,24 +593,31 @@
 
         function saveToFirebase(order = null) {
             if (database && isOnline) {
-                if (order) {
-                    // Save single order
-                    database.ref(`orders/${order.id}`).set(order)
-                        .catch((error) => {
-                            console.error('Error saving to Firebase:', error);
-                            // Add to pending sync if failed
-                            syncPending.push({action: 'save', data: order});
-                            saveToLocalStorage();
-                        });
-                } else {
-                    // Save all orders
-                    const ordersObj = {};
-                    orders.forEach(o => ordersObj[o.id] = o);
-                    database.ref('orders').set(ordersObj)
-                        .catch((error) => {
-                            console.error('Error saving to Firebase:', error);
-                            saveToLocalStorage();
-                        });
+                try {
+                    if (order) {
+                        // Save single order
+                        return database.ref(`orders/${order.id}`).set(order)
+                            .catch((error) => {
+                                console.error('Error saving to Firebase:', error);
+                                syncPending.push({action: 'save', data: order});
+                                saveToLocalStorage();
+                            });
+                    } else {
+                        // Save all orders
+                        const ordersObj = {};
+                        orders.forEach(o => ordersObj[o.id] = o);
+                        return database.ref('orders').set(ordersObj)
+                            .catch((error) => {
+                                console.error('Error saving to Firebase:', error);
+                                saveToLocalStorage();
+                            });
+                    }
+                } catch (error) {
+                    console.error('Error in saveToFirebase:', error);
+                    if (order) {
+                        syncPending.push({action: 'save', data: order});
+                    }
+                    saveToLocalStorage();
                 }
             } else {
                 // Queue for sync when online
@@ -751,48 +713,6 @@
             isOnline = false;
             updateSyncStatus('offline', '🔴 Offline - Changes saved locally');
         });
-
-        // Check for saved Firebase config on load
-        function initializeApp() {
-            const savedConfig = localStorage.getItem('firebaseConfig');
-            if (savedConfig) {
-                try {
-                    const config = JSON.parse(savedConfig);
-                    firebase.initializeApp(config);
-                    database = firebase.database();
-                    document.getElementById('firebaseSetup').style.display = 'none';
-                    
-                    if (isOnline) {
-                        updateSyncStatus('online', '🟢 Connected to Firebase');
-                        loadFromFirebase();
-                        
-                        // Listen for real-time updates
-                        database.ref('orders').on('value', (snapshot) => {
-                            if (snapshot.exists()) {
-                                const firebaseOrders = snapshot.val();
-                                orders = Object.values(firebaseOrders);
-                                renderOrders();
-                                updateStats();
-                            }
-                        });
-                    } else {
-                        updateSyncStatus('offline', '🔴 Offline - Using local data');
-                        loadFromLocalStorage();
-                    }
-                } catch (error) {
-                    console.error('Error initializing Firebase:', error);
-                    useOfflineMode();
-                }
-            } else {
-                // No saved config, load from localStorage
-                loadFromLocalStorage();
-                if (orders.length === 0) {
-                    updateSyncStatus('offline', '🔧 Setup Firebase for sync');
-                } else {
-                    updateSyncStatus('offline', '🟡 Using local data');
-                }
-            }
-        }
 
         // Initialize drag and drop functionality
         function initializeDragAndDrop() {
@@ -894,7 +814,7 @@
             `;
         }
 
-        function addOrder() {
+        async function addOrder() {
             const itemName = document.getElementById('itemName').value.trim();
             const partyName = document.getElementById('partyName').value.trim();
             const imageFile = document.getElementById('itemImage').files[0];
@@ -918,20 +838,23 @@
                 image: null
             };
 
-            if (imageFile) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    order.image = e.target.result;
-                    orders.push(order);
-                    saveToFirebase(order);
-                    clearForm();
-                    renderOrders();
-                    updateStats();
-                };
-                reader.readAsDataURL(imageFile);
-            } else {
+            try {
+                if (imageFile && storage) {
+                    const storageRef = storage.ref(`orders/${order.id}/${imageFile.name}`);
+                    await storageRef.put(imageFile);
+                    order.image = await storageRef.getDownloadURL();
+                }
+                
                 orders.push(order);
-                saveToFirebase(order);
+                await saveToFirebase(order);
+                clearForm();
+                renderOrders();
+                updateStats();
+            } catch (error) {
+                console.error('Error adding order:', error);
+                orders.push(order);
+                syncPending.push({action: 'save', data: order});
+                saveToLocalStorage();
                 clearForm();
                 renderOrders();
                 updateStats();
@@ -944,13 +867,21 @@
             clearImagePreview();
         }
 
-        function toggleOrder(id) {
+        async function toggleOrder(id) {
             const order = orders.find(o => o.id === id);
             if (order) {
                 order.completed = !order.completed;
-                saveToFirebase(order);
-                renderOrders();
-                updateStats();
+                try {
+                    await saveToFirebase(order);
+                    renderOrders();
+                    updateStats();
+                } catch (error) {
+                    console.error('Error toggling order:', error);
+                    syncPending.push({action: 'save', data: order});
+                    saveToLocalStorage();
+                    renderOrders();
+                    updateStats();
+                }
             }
         }
 
@@ -1076,10 +1007,10 @@
             }
         });
 
-        // Initialize drag and drop when page loads
+        // Initialize drag and drop and Firebase when page loads
         document.addEventListener('DOMContentLoaded', function() {
             initializeDragAndDrop();
-            initializeApp();
+            initializeFirebase();
         });
 
         // Save to localStorage periodically and on page unload
