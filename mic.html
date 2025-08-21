@@ -8,9 +8,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-    <!-- jsPDF and jsPDF-AutoTable -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -225,7 +222,7 @@
             align-items: center;
         }
 
-        .filter-btn, .download-btn {
+        .filter-btn {
             padding: 8px 16px;
             border: 2px solid #e9ecef;
             background: white;
@@ -240,17 +237,6 @@
             background: linear-gradient(45deg, #667eea, #764ba2);
             color: white;
             border-color: #667eea;
-        }
-
-        .download-btn {
-            background: #28a745;
-            color: white;
-            border-color: #28a745;
-        }
-
-        .download-btn:hover {
-            background: #218838;
-            transform: scale(1.05);
         }
 
         .search-container {
@@ -511,7 +497,7 @@
                 </div>
                 <div class="form-group">
                     <label for="itemQty">Quantity (Optional)</label>
-                    <input type="number" id="itemQty" class="form-input" placeholder="Enter quantity (default: 1)" min="1">
+                    <input type="number" id="itemQty" class="form-input" placeholder="Enter quantity (default: 0)" min="0">
                 </div>
             </div>
             <div class="form-group">
@@ -550,7 +536,6 @@
             <div class="search-container">
                 <input type="text" id="searchInput" class="search-input" placeholder="Search by party name...">
             </div>
-            <button class="download-btn" onclick="downloadPDF()">Download as PDF</button>
         </div>
 
         <div class="orders-grid" id="ordersGrid">
@@ -575,71 +560,6 @@
         let isEditing = false;
         let editingOrderId = null;
         let searchTimeout = null;
-
-        // IndexedDB setup for storing images
-        const dbName = 'OrderManagementDB';
-        const storeName = 'images';
-        let dbPromise = null;
-
-        function openDB() {
-            if (dbPromise) return dbPromise;
-            dbPromise = new Promise((resolve, reject) => {
-                const request = indexedDB.open(dbName, 1);
-                request.onerror = () => reject(request.error);
-                request.onsuccess = () => resolve(request.result);
-                request.onupgradeneeded = (event) => {
-                    const db = event.target.result;
-                    db.createObjectStore(storeName, { keyPath: 'id' });
-                };
-            });
-            return dbPromise;
-        }
-
-        async function saveImageToDB(id, base64) {
-            try {
-                const db = await openDB();
-                const tx = db.transaction(storeName, 'readwrite');
-                const store = tx.objectStore(storeName);
-                await new Promise((resolve, reject) => {
-                    const request = store.put({ id, base64 });
-                    request.onsuccess = () => resolve();
-                    request.onerror = () => reject(request.error);
-                });
-            } catch (error) {
-                console.error('Error saving image to IndexedDB:', error.message);
-            }
-        }
-
-        async function getImageFromDB(id) {
-            try {
-                const db = await openDB();
-                const tx = db.transaction(storeName, 'readonly');
-                const store = tx.objectStore(storeName);
-                return await new Promise((resolve, reject) => {
-                    const request = store.get(id);
-                    request.onsuccess = () => resolve(request.result ? request.result.base64 : null);
-                    request.onerror = () => reject(request.error);
-                });
-            } catch (error) {
-                console.error('Error retrieving image from IndexedDB:', error.message);
-                return null;
-            }
-        }
-
-        async function deleteImageFromDB(id) {
-            try {
-                const db = await openDB();
-                const tx = db.transaction(storeName, 'readwrite');
-                const store = tx.objectStore(storeName);
-                await new Promise((resolve, reject) => {
-                    const request = store.delete(id);
-                    request.onsuccess = () => resolve();
-                    request.onerror = () => reject(request.error);
-                });
-            } catch (error) {
-                console.error('Error deleting image from IndexedDB:', error.message);
-            }
-        }
 
         // Generate unique ID for orders
         function generateUniqueId() {
@@ -693,21 +613,10 @@
                                 const newOrders = Object.entries(firebaseOrders || {}).map(([id, order]) => ({
                                     ...order,
                                     id,
-                                    qty: order.qty || 1,
-                                    partyName: order.partyName || "",
-                                    imageBase64: null // Will be loaded from IndexedDB or fetched
+                                    qty: order.qty || 0,
+                                    partyName: order.partyName || ""
                                 }));
                                 orders = deduplicateOrders([...orders, ...newOrders]);
-                                // Load images from IndexedDB
-                                orders.forEach(async order => {
-                                    if (order.image) {
-                                        order.imageBase64 = await getImageFromDB(order.id);
-                                        if (!order.imageBase64 && isOnline) {
-                                            order.imageBase64 = await getImageBase64(order.image);
-                                            if (order.imageBase64) await saveImageToDB(order.id, order.imageBase64);
-                                        }
-                                    }
-                                });
                                 saveToLocalStorage();
                                 renderOrders();
                                 updateStats();
@@ -743,21 +652,10 @@
                             const newOrders = Object.entries(firebaseOrders || {}).map(([id, order]) => ({
                                 ...order,
                                 id,
-                                qty: order.qty || 1,
-                                partyName: order.partyName || "",
-                                imageBase64: null
+                                qty: order.qty || 0,
+                                partyName: order.partyName || ""
                             }));
                             orders = deduplicateOrders([...orders, ...newOrders]);
-                            // Load images from IndexedDB
-                            orders.forEach(async order => {
-                                if (order.image) {
-                                    order.imageBase64 = await getImageFromDB(order.id);
-                                    if (!order.imageBase64 && isOnline) {
-                                        order.imageBase64 = await getImageBase64(order.image);
-                                        if (order.imageBase64) await saveImageToDB(order.id, order.imageBase64);
-                                    }
-                                }
-                            });
                             saveToLocalStorage();
                             renderOrders();
                             updateStats();
@@ -811,11 +709,10 @@
             const validatedOrder = {
                 itemName: order.itemName,
                 partyName: order.partyName || "",
-                qty: order.qty || 1,
+                qty: order.qty || 0,
                 completed: order.completed,
                 createdAt: order.createdAt,
                 image: order.image || null
-                // Do not store imageBase64 in Firebase
             };
 
             try {
@@ -858,8 +755,6 @@
                             console.error('Error deleting image from storage:', error.message, error.code);
                         }
                     }
-                    // Remove from IndexedDB
-                    await deleteImageFromDB(orderId);
                     // Remove from local orders array
                     orders = orders.filter(o => o.id !== orderId);
                     saveToLocalStorage();
@@ -872,7 +767,6 @@
                     }
                     // Update local state even if Firebase deletion fails
                     orders = orders.filter(o => o.id !== orderId);
-                    await deleteImageFromDB(orderId);
                     saveToLocalStorage();
                     renderOrders();
                     updateStats();
@@ -884,26 +778,22 @@
                 }
                 // Update local state immediately
                 orders = orders.filter(o => o.id !== orderId);
-                await deleteImageFromDB(orderId);
                 saveToLocalStorage();
                 renderOrders();
                 updateStats();
             }
         }
 
-        async function saveToLocalStorage() {
+        function saveToLocalStorage() {
             try {
-                localStorage.setItem('orders', JSON.stringify(orders.map(order => ({
-                    ...order,
-                    imageBase64: null // Store in IndexedDB instead
-                }))));
+                localStorage.setItem('orders', JSON.stringify(orders));
                 localStorage.setItem('syncPending', JSON.stringify(syncPending));
             } catch (error) {
                 console.error('Error saving to localStorage:', error.message, error.code);
             }
         }
 
-        async function loadFromLocalStorage() {
+        function loadFromLocalStorage() {
             try {
                 const savedOrders = localStorage.getItem('orders');
                 const savedSyncPending = localStorage.getItem('syncPending');
@@ -911,20 +801,9 @@
                 if (savedOrders) {
                     orders = deduplicateOrders(JSON.parse(savedOrders).map(order => ({
                         ...order,
-                        qty: order.qty || 1,
-                        partyName: order.partyName || "",
-                        imageBase64: null
+                        qty: order.qty || 0,
+                        partyName: order.partyName || ""
                     })));
-                    // Load images from IndexedDB
-                    for (let order of orders) {
-                        if (order.image) {
-                            order.imageBase64 = await getImageFromDB(order.id);
-                            if (!order.imageBase64 && isOnline) {
-                                order.imageBase64 = await getImageBase64(order.image);
-                                if (order.imageBase64) await saveImageToDB(order.id, order.imageBase64);
-                            }
-                        }
-                    }
                 }
                 if (savedSyncPending) {
                     syncPending = JSON.parse(savedSyncPending);
@@ -963,7 +842,7 @@
                     const validatedOrder = {
                         itemName: item.data.itemName,
                         partyName: item.data.partyName || "",
-                        qty: item.data.qty || 1,
+                        qty: item.data.qty || 0,
                         completed: item.data.completed,
                         createdAt: item.data.createdAt,
                         image: item.data.image || null
@@ -980,7 +859,6 @@
                             console.error('Error deleting image from storage during sync:', error.message, error.code);
                         }
                     }
-                    await deleteImageFromDB(item.id);
                 }
             });
 
@@ -1001,13 +879,6 @@
             if (database) {
                 updateSyncStatus('online', '🟢 Back online - Syncing...');
                 syncPendingChanges();
-                // Re-fetch images for base64 data
-                orders.forEach(async order => {
-                    if (order.image && !order.imageBase64) {
-                        order.imageBase64 = await getImageBase64(order.image);
-                        if (order.imageBase64) await saveImageToDB(order.id, order.imageBase64);
-                    }
-                });
             } else {
                 updateSyncStatus('offline', '🟡 Online but not connected to Firebase');
                 initializeFirebase();
@@ -1129,32 +1000,6 @@
             `;
         }
 
-        async function getImageBase64(url) {
-            if (!url || typeof url !== 'string' || !url.match(/^https?:\/\/.+/)) {
-                console.warn('Invalid or empty image URL:', url);
-                return null;
-            }
-            try {
-                const response = await fetch(url, { mode: 'cors' });
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}, statusText: ${response.statusText}`);
-                }
-                const blob = await response.blob();
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result);
-                    reader.onerror = () => reject(new Error('Failed to convert image to base64'));
-                    reader.readAsDataURL(blob);
-                });
-            } catch (error) {
-                console.error('Error fetching image for base64:', {
-                    message: error.message,
-                    url
-                });
-                return null;
-            }
-        }
-
         async function saveOrder() {
             const itemName = document.getElementById('itemName').value.trim();
             const partyName = document.getElementById('partyName').value.trim();
@@ -1166,10 +1011,10 @@
                 return;
             }
 
-            let qty = qtyInput ? parseInt(qtyInput, 10) : 1;
-            if (isNaN(qty) || qty < 1) {
-                console.warn('Invalid quantity provided, defaulting to 1');
-                qty = 1;
+            let qty = qtyInput ? parseInt(qtyInput, 10) : 0;
+            if (isNaN(qty) || qty < 0) {
+                console.warn('Invalid quantity provided, defaulting to 0');
+                qty = 0;
             }
 
             let order;
@@ -1188,8 +1033,7 @@
                     qty: qty,
                     completed: false,
                     createdAt: new Date().toISOString(),
-                    image: null,
-                    imageBase64: null
+                    image: null
                 };
             }
 
@@ -1204,7 +1048,6 @@
                             });
                             await oldImageRef.delete();
                             console.log('Successfully deleted old image:', order.image);
-                            await deleteImageFromDB(order.id);
                         } catch (error) {
                             console.error('Error deleting old image:', error.message, error.code, { imageUrl: order.image });
                         }
@@ -1212,18 +1055,8 @@
                     const storageRef = storage.ref(`orders/${order.id}/${imageFile.name}`);
                     await storageRef.put(imageFile);
                     order.image = await storageRef.getDownloadURL();
-                    // Convert image to base64 for PDF rendering
-                    order.imageBase64 = await new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onloadend = () => resolve(reader.result);
-                        reader.onerror = () => reject(new Error('Failed to convert image to base64'));
-                        reader.readAsDataURL(imageFile);
-                    });
-                    await saveImageToDB(order.id, order.imageBase64);
                 } else if (!imageFile && isEditing && !order.image) {
                     order.image = null;
-                    order.imageBase64 = null;
-                    await deleteImageFromDB(order.id);
                 }
                 
                 if (!isEditing && !orders.some(o => o.id === order.id)) {
@@ -1241,7 +1074,6 @@
                 if (!syncPending.some(item => item.action === 'save' && item.data.id === order.id)) {
                     syncPending.push({action: 'save', data: order});
                 }
-                if (order.imageBase64) await saveImageToDB(order.id, order.imageBase64);
                 saveToLocalStorage();
                 alert('Order saved locally due to a server issue. It will sync when online.');
                 resetForm();
@@ -1265,8 +1097,8 @@
             if (order) {
                 isEditing = true;
                 editingOrderId = id;
-                document.getElementById('itemName').value = order.itemName;
-                document.getElementById('partyName').value = order.partyName || "";
+                document.getElementById('itemName').value = order.itemName.toUpperCase();
+                document.getElementById('partyName').value = order.partyName ? order.partyName.toUpperCase() : "";
                 document.getElementById('itemQty').value = order.qty || "";
                 document.getElementById('formButton').textContent = 'Update Order';
                 
@@ -1315,7 +1147,6 @@
                         syncPending.push({action: 'delete', id: id});
                     }
                     orders = orders.filter(o => o.id !== id);
-                    await deleteImageFromDB(id);
                     saveToLocalStorage();
                     renderOrders();
                     updateStats();
@@ -1380,9 +1211,9 @@
                 <div class="order-card ${order.completed ? 'completed' : ''}">
                     <div class="order-header">
                         <div class="order-info">
-                            <h3>${escapeHtml(order.itemName)}</h3>
-                            ${order.partyName ? `<span class="party-name">${escapeHtml(order.partyName)}</span>` : ''}
-                            <div class="order-qty">Quantity: ${order.qty}</div>
+                            <h3>${escapeHtml(order.itemName.toUpperCase())}</h3>
+                            ${order.partyName ? `<span class="party-name">${escapeHtml(order.partyName.toUpperCase())}</span>` : ''}
+                            <div class="order-qty">QUANTITY: ${order.qty}</div>
                         </div>
                     </div>
                     
@@ -1395,10 +1226,6 @@
                             ${order.completed ? 'Mark Pending' : 'Complete'}
                         </button>
                         <button class="btn btn-delete" onclick="deleteOrder('${order.id}')">Delete</button>
-                    </div>
-                    
-                    <div class="order-date">
-                        Created: ${new Date(order.createdAt).toLocaleDateString()} ${new Date(order.createdAt).toLocaleTimeString()}
                     </div>
                 </div>
             `).join('');
@@ -1432,9 +1259,6 @@
                         }
                     });
                     orders = orders.filter(o => !o.completed);
-                    for (let id of completedIds) {
-                        await deleteImageFromDB(id);
-                    }
                     saveToLocalStorage();
                     renderOrders();
                     updateStats();
@@ -1450,93 +1274,10 @@
                 '"': '&quot;',
                 "'": '&#039;'
             };
-            return text.replace(/[&<>"']/g, m => map[m]);
+            return String(text).replace(/[&<>"']/g, m => map[m]);
         }
 
-        async function downloadPDF() {
-            try {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-                const filteredOrders = getFilteredOrders();
-                const filterName = currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1);
-                const timestamp = new Date().toLocaleString('en-US', { 
-                    year: 'numeric', 
-                    month: '2-digit', 
-                    day: '2-digit', 
-                    hour: '2-digit', 
-                    minute: '2-digit', 
-                    hour12: false 
-                }).replace(/[,\/:]/g, '-').replace(/\s+/g, '_');
-                const filename = `${currentFilter}_orders_${timestamp}.pdf`;
-
-                doc.setFontSize(16);
-                doc.text(`${filterName} Orders`, 14, 20);
-                doc.setFontSize(12);
-                doc.text(`Generated on ${new Date().toLocaleString()}`, 14, 30);
-
-                if (filteredOrders.length === 0) {
-                    doc.setFontSize(12);
-                    doc.text(`No orders available for the "${filterName}" filter.`, 14, 50);
-                    doc.save(filename);
-                    return;
-                }
-
-                const tableData = filteredOrders.map(order => [
-                    order.itemName,
-                    order.qty || 1,
-                    order.partyName || 'N/A',
-                    ''
-                ]);
-
-                doc.autoTable({
-                    head: [['Item Name', 'Quantity', 'Party Name', 'Image']],
-                    body: tableData,
-                    startY: 40,
-                    theme: 'grid',
-                    styles: { fontSize: 10, cellPadding: 2, overflow: 'linebreak' },
-                    columnStyles: {
-                        0: { cellWidth: 50 },
-                        1: { cellWidth: 20 },
-                        2: { cellWidth: 50 },
-                        3: { cellWidth: 30 }
-                    },
-                    didDrawCell: async (data) => {
-                        if (data.column.index === 3 && data.cell.section === 'body') {
-                            const order = filteredOrders[data.row.index];
-                            if (order.image && (order.imageBase64 || isOnline)) {
-                                try {
-                                    let base64 = order.imageBase64;
-                                    if (!base64 && isOnline) {
-                                        base64 = await getImageBase64(order.image);
-                                        if (base64) {
-                                            order.imageBase64 = base64;
-                                            await saveImageToDB(order.id, base64);
-                                            saveToLocalStorage();
-                                        }
-                                    }
-                                    if (base64) {
-                                        doc.addImage(base64, 'JPEG', data.cell.x + 1, data.cell.y + 1, 28, 15);
-                                    } else {
-                                        doc.text('No Image', data.cell.x + 1, data.cell.y + 10);
-                                    }
-                                } catch (error) {
-                                    console.error('Error rendering image in PDF:', error.message);
-                                    doc.text('No Image', data.cell.x + 1, data.cell.y + 10);
-                                }
-                            } else {
-                                doc.text('No Image', data.cell.x + 1, data.cell.y + 10);
-                            }
-                        }
-                    }
-                });
-
-                doc.save(filename);
-            } catch (error) {
-                console.error('Error generating PDF:', error.message);
-                alert('Failed to generate PDF. Please check the console for details and try again.');
-            }
-        }
-
+        // Debounce search input
         function debounceSearch(func, wait) {
             return function executedFunction(...args) {
                 clearTimeout(searchTimeout);
@@ -1544,6 +1285,7 @@
             };
         }
 
+        // Add order on Enter key press
         document.getElementById('itemName').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 document.getElementById('partyName').focus();
@@ -1562,18 +1304,22 @@
             }
         });
 
+        // Add search functionality
         document.getElementById('searchInput').addEventListener('input', debounceSearch(function() {
             renderOrders();
         }, 300));
 
+        // Initialize drag and drop and Firebase when page loads
         document.addEventListener('DOMContentLoaded', function() {
             initializeDragAndDrop();
             initializeFirebase();
         });
 
+        // Save to localStorage periodically and on page unload
         setInterval(saveToLocalStorage, 30000);
         window.addEventListener('beforeunload', saveToLocalStorage);
 
+        // Initialize
         updateStats();
     </script>
 </body>
