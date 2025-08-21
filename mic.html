@@ -8,6 +8,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    <!-- jsPDF and jsPDF-AutoTable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -1297,94 +1300,63 @@
             return text.replace(/[&<>"']/g, m => map[m]);
         }
 
-        // Escape LaTeX special characters
-        function escapeLatex(text) {
-            const latexMap = {
-                '&': '\\&',
-                '%': '\\%',
-                '$': '\\$',
-                '#': '\\#',
-                '_': '\\_',
-                '{': '\\{',
-                '}': '\\}',
-                '~': '\\textasciitilde{}',
-                '^': '\\textasciicircum{}',
-                '\\': '\\textbackslash{}'
-            };
-            return text.replace(/[&%$#{}\~^\\]/g, m => latexMap[m]);
-        }
-
-        // Download PDF
+        // Download PDF using jsPDF
         function downloadPDF() {
-            const filteredOrders = getFilteredOrders();
-            const filterName = currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1);
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-            const filename = `${currentFilter}_orders_${timestamp}.tex`;
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const filteredOrders = getFilteredOrders();
+                const filterName = currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1);
+                const timestamp = new Date().toLocaleString('en-US', { 
+                    year: 'numeric', 
+                    month: '2-digit', 
+                    day: '2-digit', 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    hour12: false 
+                }).replace(/[,\/:]/g, '-').replace(/\s+/g, '_');
+                const filename = `${currentFilter}_orders_${timestamp}.pdf`;
 
-            // Generating LaTeX content
-            let latexContent = `
-\\documentclass[a4paper,12pt]{article}
-\\usepackage[utf8]{inputenc}
-\\usepackage[T1]{fontenc}
-\\usepackage{lmodern}
-\\usepackage{geometry}
-\\usepackage{booktabs}
-\\usepackage{datetime2}
-\\geometry{margin=1in}
-\\begin{document}
+                // Add title
+                doc.setFontSize(16);
+                doc.text(`${filterName} Orders`, 14, 20);
+                doc.setFontSize(12);
+                doc.text(`Generated on ${new Date().toLocaleString()}`, 14, 30);
 
-\\title{${filterName} Orders}
-\\author{}
-\\date{\\today\\ at \\currenttime}
-\\maketitle
+                if (filteredOrders.length === 0) {
+                    doc.setFontSize(12);
+                    doc.text(`No orders available for the "${filterName}" filter.`, 14, 50);
+                } else {
+                    // Prepare table data
+                    const tableData = filteredOrders.map(order => [
+                        order.itemName,
+                        order.qty || 1,
+                        order.partyName || 'N/A',
+                        order.image ? 'Image Available' : 'No Image'
+                    ]);
 
-\\section*{${filterName} Orders Report}
-Generated on \\today\\ at \\currenttime
+                    // Generate table
+                    doc.autoTable({
+                        head: [['Item Name', 'Quantity', 'Party Name', 'Image']],
+                        body: tableData,
+                        startY: 40,
+                        theme: 'grid',
+                        styles: { fontSize: 10, cellPadding: 2 },
+                        columnStyles: {
+                            0: { cellWidth: 60 }, // Item Name
+                            1: { cellWidth: 30 }, // Quantity
+                            2: { cellWidth: 60 }, // Party Name
+                            3: { cellWidth: 40 }  // Image
+                        }
+                    });
+                }
 
-\\vspace{10pt}
-
-`;
-
-            if (filteredOrders.length === 0) {
-                latexContent += `
-\\noindent No orders available for the "${filterName}" filter.
-`;
-            } else {
-                latexContent += `
-\\begin{tabular}{p{4cm} p{2cm} p{4cm} p{3cm}}
-\\toprule
-\\textbf{Item Name} & \\textbf{Quantity} & \\textbf{Party Name} & \\textbf{Image} \\\\
-\\midrule
-`;
-
-                filteredOrders.forEach(order => {
-                    const itemName = escapeLatex(order.itemName);
-                    const qty = order.qty || 1;
-                    const partyName = order.partyName ? escapeLatex(order.partyName) : 'N/A';
-                    const imageStatus = order.image ? 'Image Available' : 'No Image';
-                    latexContent += `${itemName} & ${qty} & ${partyName} & ${imageStatus} \\\\ \n`;
-                });
-
-                latexContent += `
-\\bottomrule
-\\end{tabular}
-`;
+                // Save the PDF
+                doc.save(filename);
+            } catch (error) {
+                console.error('Error generating PDF:', error.message);
+                alert('Failed to generate PDF. Please try again.');
             }
-
-            latexContent += `
-\\end{document}
-`;
-
-            // Creating and triggering download
-            const blob = new Blob([latexContent], { type: 'text/plain' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
         }
 
         // Debounce search input
