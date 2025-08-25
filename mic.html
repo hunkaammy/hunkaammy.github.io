@@ -16,33 +16,33 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(145deg, #5a67d8 0%, #6b46c1 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 0;
+            padding: 16px;
             margin: 0;
             overflow-x: hidden;
         }
 
         .order-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-            padding: 20px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            padding: 24px;
             width: 100%;
-            max-width: 600px;
-            margin: 20px;
-            animation: slideUp 0.4s ease-out;
+            max-width: 640px;
+            margin: 24px auto;
+            animation: fadeIn 0.5s ease-out;
         }
 
-        @keyframes slideUp {
+        @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(24px);
             }
             to {
                 opacity: 1;
@@ -52,38 +52,43 @@
 
         .header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .header h1 {
-            color: #2c3e50;
-            font-size: 2rem;
+            font-size: 2.25rem;
             font-weight: 700;
-            margin-bottom: 8px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: #1a202c;
+            background: linear-gradient(45deg, #5a67d8, #6b46c1);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
+            margin-bottom: 8px;
         }
 
         .header p {
-            color: #7f8c8d;
-            font-size: 0.9rem;
+            color: #718096;
+            font-size: 0.95rem;
+            line-height: 1.5;
         }
 
         .form-container {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #e9ecef;
+            background: #f7fafc;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border: 1px solid #e2e8f0;
+            transition: transform 0.3s ease;
+        }
+
+        .form-container:hover {
+            transform: translateY(-2px);
         }
 
         .form-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
+            gap: 16px;
+            margin-bottom: 16px;
         }
 
         .form-group {
@@ -93,47 +98,47 @@
 
         .form-group label {
             font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 6px;
-            font-size: 13px;
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
         }
 
         .form-input {
-            padding: 10px 14px;
-            border: 2px solid #e0e6ed;
-            border-radius: 8px;
-            font-size: 14px;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.95rem;
             outline: none;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             background: white;
             width: 100%;
         }
 
         .form-input:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+            border-color: #5a67d8;
+            box-shadow: 0 0 0 3px rgba(90, 103, 216, 0.1);
         }
 
         .image-upload {
             position: relative;
-            padding: 15px;
-            border: 2px dashed #dee2e6;
-            border-radius: 8px;
+            padding: 16px;
+            border: 2px dashed #cbd5e0;
+            border-radius: 10px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             background: white;
         }
 
         .image-upload:hover {
-            border-color: #667eea;
+            border-color: #5a67d8;
             background: #f8f9ff;
         }
 
         .image-upload.dragover {
-            border-color: #667eea;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-            transform: scale(1.01);
+            border-color: #5a67d8;
+            background: linear-gradient(145deg, rgba(90, 103, 216, 0.1), rgba(107, 70, 193, 0.1));
+            transform: scale(1.02);
         }
 
         .image-upload input {
@@ -145,102 +150,114 @@
         }
 
         .upload-text {
-            color: #6c757d;
-            font-size: 13px;
+            color: #4a5568;
+            font-size: 0.9rem;
+            font-weight: 500;
             pointer-events: none;
         }
 
         .drag-text {
             display: block;
-            margin-top: 4px;
-            font-size: 11px;
-            color: #9ca3af;
+            margin-top: 6px;
+            font-size: 0.8rem;
+            color: #a0aec0;
         }
 
         .image-preview {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             object-fit: cover;
-            border-radius: 6px;
-            margin-top: 8px;
-            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            margin-top: 12px;
+            border: 2px solid #e2e8f0;
+            transition: transform 0.3s ease;
+        }
+
+        .image-preview:hover {
+            transform: scale(1.05);
         }
 
         .add-btn {
-            padding: 12px 20px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            padding: 14px 24px;
+            background: linear-gradient(45deg, #5a67d8, #6b46c1);
             color: white;
             border: none;
-            border-radius: 10px;
-            font-size: 14px;
+            border-radius: 12px;
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(90, 103, 216, 0.3);
             width: 100%;
-            min-height: 44px;
+            min-height: 48px;
         }
 
         .add-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(90, 103, 216, 0.4);
         }
 
         .add-btn:active {
             transform: translateY(0);
+            box-shadow: 0 3px 8px rgba(90, 103, 216, 0.2);
         }
 
         .stats {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border: 1px solid #e9ecef;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: #f7fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
         }
 
         .stat {
             text-align: center;
-            flex: 1;
         }
 
         .stat-number {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            color: #2c3e50;
+            color: #1a202c;
         }
 
         .stat-label {
-            font-size: 0.8rem;
-            color: #6c757d;
-            margin-top: 2px;
+            font-size: 0.85rem;
+            color: #718096;
+            margin-top: 4px;
         }
 
         .filter-container {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 15px;
-            align-items: stretch;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+            align-items: center;
         }
 
         .filter-btn {
-            padding: 8px 12px;
-            border: 2px solid #e9ecef;
+            padding: 10px 16px;
+            border: 2px solid #e2e8f0;
             background: white;
-            border-radius: 15px;
+            border-radius: 12px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 13px;
-            font-weight: 500;
-            min-height: 40px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 600;
+            min-height: 44px;
         }
 
         .filter-btn.active {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: linear-gradient(45deg, #5a67d8, #6b46c1);
             color: white;
-            border-color: #667eea;
+            border-color: #5a67d8;
+        }
+
+        .filter-btn:hover {
+            border-color: #5a67d8;
+            transform: translateY(-1px);
         }
 
         .search-container {
@@ -249,43 +266,44 @@
 
         .search-input {
             width: 100%;
-            padding: 8px 12px;
-            border: 2px solid #e0e6ed;
-            border-radius: 15px;
-            font-size: 13px;
+            padding: 10px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.9rem;
             outline: none;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             background: white;
         }
 
         .search-input:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+            border-color: #5a67d8;
+            box-shadow: 0 0 0 3px rgba(90, 103, 216, 0.1);
         }
 
         .orders-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 15px;
+            gap: 16px;
             max-height: 500px;
             overflow-y: auto;
             touch-action: pan-y;
+            padding-right: 8px;
         }
 
         .order-card {
             background: white;
-            border-radius: 10px;
-            padding: 15px;
-            border: 1px solid #e9ecef;
-            transition: all 0.2s ease;
-            animation: slideIn 0.2s ease-out;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            animation: slideIn 0.3s ease-out;
             position: relative;
         }
 
         @keyframes slideIn {
             from {
                 opacity: 0;
-                transform: translateY(15px);
+                transform: translateY(16px);
             }
             to {
                 opacity: 1;
@@ -294,180 +312,209 @@
         }
 
         .order-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
 
         .order-card.completed {
-            opacity: 0.8;
-            background: #f8f9fa;
+            opacity: 0.85;
+            background: #f7fafc;
         }
 
         .order-card.completed::before {
             content: '✅';
             position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 18px;
+            top: 12px;
+            right: 12px;
+            font-size: 20px;
+        }
+
+        .order-card.ordered {
+            opacity: 0.9;
+            background: #fefcbf;
+        }
+
+        .order-card.ordered::before {
+            content: '📦';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 20px;
         }
 
         .order-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .order-info h3 {
-            color: #2c3e50;
-            font-size: 16px;
+            color: #1a202c;
+            font-size: 1.1rem;
             font-weight: 700;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         .party-name {
-            color: #667eea;
-            font-size: 12px;
+            color: #5a67d8;
+            font-size: 0.85rem;
             font-weight: 600;
-            background: rgba(102, 126, 234, 0.1);
-            padding: 3px 6px;
-            border-radius: 10px;
+            background: rgba(90, 103, 216, 0.1);
+            padding: 4px 8px;
+            border-radius: 12px;
             display: inline-block;
         }
 
         .order-qty {
-            color: #17a2b8;
-            font-size: 12px;
+            color: #319795;
+            font-size: 0.85rem;
             font-weight: 600;
-            margin-top: 4px;
+            margin-top: 6px;
         }
 
         .order-image {
-            /* width: 100%;*/
-            max-height: 100px;
+            max-height: 120px;
             object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            border: 2px solid #e2e8f0;
+            width: 100%;
+            transition: transform 0.3s ease;
+        }
+
+        .order-image:hover {
+            transform: scale(1.02);
         }
 
         .order-actions {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             justify-content: flex-end;
             flex-wrap: wrap;
         }
 
         .btn {
-            padding: 6px 12px;
+            padding: 8px 16px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 11px;
+            font-size: 0.85rem;
             font-weight: 600;
-            transition: all 0.2s ease;
-            min-height: 40px;
-            min-width: 60px;
+            transition: all 0.3s ease;
+            min-height: 36px;
+            min-width: 70px;
         }
 
         .btn-edit {
-            background: #17a2b8;
+            background: #319795;
             color: white;
         }
 
         .btn-edit:hover {
-            background: #138496;
-            transform: scale(1.03);
+            background: #2c7a7b;
+            transform: scale(1.05);
         }
 
         .btn-complete {
-            background: #28a745;
+            background: #38a169;
             color: white;
         }
 
         .btn-complete:hover {
-            background: #218838;
-            transform: scale(1.03);
+            background: #2f855a;
+            transform: scale(1.05);
+        }
+
+        .btn-ordered {
+            background: #d69e2e;
+            color: white;
+        }
+
+        .btn-ordered:hover {
+            background: #b7791f;
+            transform: scale(1.05);
+        }
+
+        .btn-pending {
+            background: #718096;
+            color: white;
+        }
+
+        .btn-pending:hover {
+            background: #5a6268;
+            transform: scale(1.05);
         }
 
         .btn-delete {
-            background: #dc3545;
+            background: #e53e3e;
             color: white;
         }
 
         .btn-delete:hover {
-            background: #c82333;
-            transform: scale(1.03);
-        }
-
-        .btn-pending {
-            background: #ffc107;
-            color: #212529;
-        }
-
-        .btn-pending:hover {
-            background: #e0a800;
-            transform: scale(1.03);
+            background: #c53030;
+            transform: scale(1.05);
         }
 
         .empty-state {
             text-align: center;
-            padding: 40px 15px;
-            color: #6c757d;
+            padding: 48px 16px;
+            color: #718096;
             grid-column: 1 / -1;
         }
 
         .empty-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            opacity: 0.5;
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+            opacity: 0.4;
         }
 
         .clear-completed {
             width: 100%;
-            padding: 10px;
-            background: #dc3545;
+            padding: 12px;
+            background: #e53e3e;
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 13px;
+            border-radius: 10px;
+            font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 15px;
-            transition: all 0.2s ease;
-            min-height: 44px;
+            margin-top: 16px;
+            transition: all 0.3s ease;
+            min-height: 48px;
         }
 
         .clear-completed:hover {
-            background: #c82333;
-            transform: translateY(-1px);
+            background: #c53030;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(229, 62, 62, 0.3);
         }
 
         .sync-status {
             position: fixed;
-            top: 15px;
-            right: 15px;
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 11px;
+            top: 16px;
+            right: 16px;
+            padding: 8px 16px;
+            border-radius: 24px;
+            font-size: 0.85rem;
             font-weight: 600;
             z-index: 1000;
-            transition: all 0.2s ease;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .sync-online {
-            background: #28a745;
+            background: #38a169;
             color: white;
         }
 
         .sync-offline {
-            background: #ffc107;
-            color: #212529;
+            background: #d69e2e;
+            color: white;
         }
 
         .sync-syncing {
-            background: #17a2b8;
+            background: #319795;
             color: white;
             animation: pulse 1.5s infinite;
         }
@@ -481,20 +528,21 @@
         /* Tablet (≤768px) */
         @media (max-width: 768px) {
             .order-container {
-                padding: 15px;
-                margin: 15px;
+                padding: 20px;
+                margin: 16px;
+                max-width: 100%;
             }
 
             .header h1 {
-                font-size: 1.8rem;
+                font-size: 1.75rem;
             }
 
             .header p {
-                font-size: 0.85rem;
+                font-size: 0.9rem;
             }
 
             .form-container {
-                padding: 15px;
+                padding: 20px;
             }
 
             .form-grid {
@@ -502,12 +550,141 @@
             }
 
             .form-group label {
-                font-size: 12px;
+                font-size: 0.85rem;
+            }
+
+            .form-input {
+                padding: 10px 14px;
+                font-size: 0.9rem;
+            }
+
+            .image-upload {
+                padding: 14px;
+            }
+
+            .upload-text {
+                font-size: 0.85rem;
+            }
+
+            .drag-text {
+                font-size: 0.75rem;
+            }
+
+            .image-preview {
+                width: 50px;
+                height: 50px;
+            }
+
+            .add-btn {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+
+            .stats {
+                padding: 12px;
+                gap: 10px;
+            }
+
+            .stat-number {
+                font-size: 1.3rem;
+            }
+
+            .stat-label {
+                font-size: 0.8rem;
+            }
+
+            .filter-btn {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+
+            .search-input {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+
+            .orders-grid {
+                gap: 12px;
+                max-height: 450px;
+            }
+
+            .order-card {
+                padding: 14px;
+            }
+
+            .order-info h3 {
+                font-size: 1rem;
+            }
+
+            .party-name {
+                font-size: 0.8rem;
+                padding: 3px 6px;
+            }
+
+            .order-qty {
+                font-size: 0.8rem;
+            }
+
+            .order-image {
+                max-height: 100px;
+            }
+
+            .order-actions {
+                gap: 8px;
+            }
+
+            .btn {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+                min-height: 32px;
+                min-width: 60px;
+            }
+
+            .clear-completed {
+                padding: 10px;
+                font-size: 0.85rem;
+            }
+
+            .sync-status {
+                font-size: 0.8rem;
+                padding: 6px 12px;
+            }
+        }
+
+        /* Mobile (≤480px) */
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+
+            .order-container {
+                padding: 16px;
+                margin: 12px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .header p {
+                font-size: 0.85rem;
+            }
+
+            .form-container {
+                padding: 16px;
+            }
+
+            .form-grid {
+                gap: 10px;
+            }
+
+            .form-group label {
+                font-size: 0.8rem;
             }
 
             .form-input {
                 padding: 8px 12px;
-                font-size: 13px;
+                font-size: 0.85rem;
             }
 
             .image-upload {
@@ -515,27 +692,27 @@
             }
 
             .upload-text {
-                font-size: 12px;
+                font-size: 0.8rem;
             }
 
             .drag-text {
-                font-size: 10px;
+                font-size: 0.7rem;
             }
 
             .image-preview {
-                width: 45px;
-                height: 45px;
+                width: 48px;
+                height: 48px;
             }
 
             .add-btn {
-                padding: 10px 18px;
-                font-size: 13px;
+                padding: 10px 16px;
+                font-size: 0.85rem;
+                min-height: 44px;
             }
 
             .stats {
-                padding: 12px;
-                flex-direction: column;
-                gap: 10px;
+                padding: 10px;
+                gap: 8px;
             }
 
             .stat-number {
@@ -548,17 +725,18 @@
 
             .filter-btn {
                 padding: 6px 10px;
-                font-size: 12px;
+                font-size: 0.8rem;
+                min-height: 40px;
             }
 
             .search-input {
                 padding: 6px 10px;
-                font-size: 12px;
+                font-size: 0.8rem;
             }
 
             .orders-grid {
-                gap: 12px;
-                max-height: 450px;
+                gap: 10px;
+                max-height: 400px;
             }
 
             .order-card {
@@ -566,16 +744,20 @@
             }
 
             .order-info h3 {
-                font-size: 14px;
+                font-size: 0.95rem;
             }
 
             .party-name {
-                font-size: 11px;
+                font-size: 0.75rem;
                 padding: 2px 5px;
             }
 
             .order-qty {
-                font-size: 11px;
+                font-size: 0.75rem;
+            }
+
+            .order-image {
+                max-height: 80px;
             }
 
             .order-actions {
@@ -584,153 +766,20 @@
 
             .btn {
                 padding: 5px 10px;
-                font-size: 10px;
-                min-height: 36px;
+                font-size: 0.75rem;
+                min-height: 30px;
                 min-width: 55px;
             }
 
             .clear-completed {
                 padding: 8px;
-                font-size: 12px;
-            }
-
-            .sync-status {
-                font-size: 10px;
-                padding: 6px 10px;
-            }
-        }
-
-        /* Mobile (≤480px) */
-        @media (max-width: 480px) {
-            body {
-                padding: 0;
-            }
-
-            .order-container {
-                padding: 10px;
-                margin: 10px;
-                max-width: 100%;
-            }
-
-            .header h1 {
-                font-size: 1.5rem;
-            }
-
-            .header p {
                 font-size: 0.8rem;
-            }
-
-            .form-container {
-                padding: 10px;
-            }
-
-            .form-grid {
-                gap: 10px;
-            }
-
-            .form-group label {
-                font-size: 11px;
-            }
-
-            .form-input {
-                padding: 7px 10px;
-                font-size: 12px;
-            }
-
-            .image-upload {
-                padding: 10px;
-            }
-
-            .upload-text {
-                font-size: 11px;
-            }
-
-            .drag-text {
-                font-size: 9px;
-            }
-
-            .image-preview {
-                width: 40px;
-                height: 40px;
-            }
-
-            .add-btn {
-                padding: 8px 15px;
-                font-size: 12px;
-                min-height: 40px;
-            }
-
-            .stats {
-                padding: 10px;
-                gap: 8px;
-            }
-
-            .stat-number {
-                font-size: 1.1rem;
-            }
-
-            .stat-label {
-                font-size: 0.7rem;
-            }
-
-            .filter-btn {
-                padding: 5px 8px;
-                font-size: 11px;
-                min-height: 36px;
-            }
-
-            .search-input {
-                padding: 5px 8px;
-                font-size: 11px;
-            }
-
-            .orders-grid {
-                grid-template-columns: 1fr;
-                gap: 10px;
-                max-height: 400px;
-            }
-
-            .order-card {
-                padding: 10px;
-            }
-
-            .order-info h3 {
-                font-size: 13px;
-            }
-
-            .party-name {
-                font-size: 10px;
-                padding: 2px 4px;
-            }
-
-            .order-qty {
-                font-size: 10px;
-            }
-
-            .order-image {
-                max-height: 80px;
-            }
-
-            .order-actions {
-                gap: 5px;
-            }
-
-            .btn {
-                padding: 4px 8px;
-                font-size: 9px;
-                min-height: 32px;
-                min-width: 50px;
-            }
-
-            .clear-completed {
-                padding: 7px;
-                font-size: 11px;
-                min-height: 40px;
+                min-height: 44px;
             }
 
             .sync-status {
-                font-size: 9px;
-                padding: 5px 8px;
+                font-size: 0.75rem;
+                padding: 5px 10px;
             }
         }
     </style>
@@ -741,7 +790,7 @@
     <div class="order-container">
         <div class="header">
             <h1>📦 Order Management</h1>
-            <p>Track your orders with items, quantities, parties, and images</p>
+            <p>Effortlessly track your orders with items, quantities, parties, and images</p>
         </div>
 
         <div class="form-container">
@@ -764,8 +813,8 @@
                 <div class="image-upload" id="imageUploadArea">
                     <input type="file" id="itemImage" accept="image/*" onchange="previewImage(this)">
                     <div class="upload-text">
-                        📷 Click to upload image (optional)
-                        <span class="drag-text">or drag and drop an image here</span>
+                        📷 Upload image or drag and drop
+                        <span class="drag-text">Supports JPG, PNG (max 5MB)</span>
                     </div>
                     <img id="imagePreview" class="image-preview" style="display: none;">
                 </div>
@@ -783,6 +832,10 @@
                 <div class="stat-label">Pending</div>
             </div>
             <div class="stat">
+                <div class="stat-number" id="orderedOrders">0</div>
+                <div class="stat-label">Ordered</div>
+            </div>
+            <div class="stat">
                 <div class="stat-number" id="completedOrders">0</div>
                 <div class="stat-label">Completed</div>
             </div>
@@ -791,6 +844,7 @@
         <div class="filter-container">
             <button class="filter-btn active" onclick="filterOrders('all')">All Orders</button>
             <button class="filter-btn" onclick="filterOrders('pending')">Pending</button>
+            <button class="filter-btn" onclick="filterOrders('ordered')">Ordered</button>
             <button class="filter-btn" onclick="filterOrders('completed')">Completed</button>
             <div class="search-container">
                 <input type="text" id="searchInput" class="search-input" placeholder="Search by party name...">
@@ -873,7 +927,8 @@
                                     ...order,
                                     id,
                                     qty: order.qty || 0,
-                                    partyName: order.partyName || ""
+                                    partyName: order.partyName || "",
+                                    status: order.status || 'pending'
                                 }));
                                 orders = deduplicateOrders([...orders, ...newOrders]);
                                 saveToLocalStorage();
@@ -912,7 +967,8 @@
                                 ...order,
                                 id,
                                 qty: order.qty || 0,
-                                partyName: order.partyName || ""
+                                partyName: order.partyName || "",
+                                status: order.status || 'pending'
                             }));
                             orders = deduplicateOrders([...orders, ...newOrders]);
                             saveToLocalStorage();
@@ -949,11 +1005,11 @@
             }
 
             // Validate order data
-            if (!order.id || !order.itemName || typeof order.completed !== 'boolean' || !order.createdAt) {
+            if (!order.id || !order.itemName || !['pending', 'ordered', 'completed'].includes(order.status) || !order.createdAt) {
                 console.error('Invalid order data:', {
                     id: order.id,
                     itemName: order.itemName,
-                    completed: order.completed,
+                    status: order.status,
                     createdAt: order.createdAt
                 });
                 alert('Error: Invalid order data. Order saved locally.');
@@ -969,7 +1025,7 @@
                 itemName: order.itemName,
                 partyName: order.partyName || "",
                 qty: order.qty || 0,
-                completed: order.completed,
+                status: order.status,
                 createdAt: order.createdAt,
                 image: order.image || null
             };
@@ -1061,7 +1117,8 @@
                     orders = deduplicateOrders(JSON.parse(savedOrders).map(order => ({
                         ...order,
                         qty: order.qty || 0,
-                        partyName: order.partyName || ""
+                        partyName: order.partyName || "",
+                        status: order.status || 'pending'
                     })));
                 }
                 if (savedSyncPending) {
@@ -1094,7 +1151,7 @@
             const promises = syncPending.map(async item => {
                 if (item.action === 'save') {
                     // Validate order data before syncing
-                    if (!item.data.id || !item.data.itemName || typeof item.data.completed !== 'boolean' || !item.data.createdAt) {
+                    if (!item.data.id || !item.data.itemName || !['pending', 'ordered', 'completed'].includes(item.data.status) || !item.data.createdAt) {
                         console.error('Invalid sync order data:', item.data);
                         return;
                     }
@@ -1102,7 +1159,7 @@
                         itemName: item.data.itemName,
                         partyName: item.data.partyName || "",
                         qty: item.data.qty || 0,
-                        completed: item.data.completed,
+                        status: item.data.status,
                         createdAt: item.data.createdAt,
                         image: item.data.image || null
                     };
@@ -1255,8 +1312,8 @@
             preview.src = '';
             fileInput.value = '';
             uploadText.innerHTML = `
-                📷 Click to upload image (optional)
-                <span class="drag-text">or drag and drop an image here</span>
+                📷 Upload image or drag and drop
+                <span class="drag-text">Supports JPG, PNG (max 5MB)</span>
             `;
         }
 
@@ -1291,7 +1348,7 @@
                     itemName: itemName,
                     partyName: partyName || "",
                     qty: qty,
-                    completed: false,
+                    status: 'pending',
                     createdAt: new Date().toISOString(),
                     image: null
                 };
@@ -1377,16 +1434,16 @@
             }
         }
 
-        async function toggleOrder(id) {
+        async function changeOrderStatus(id, newStatus) {
             const order = orders.find(o => o.id === id);
             if (order) {
-                order.completed = !order.completed;
+                order.status = newStatus;
                 try {
                     await saveToFirebase(order);
                     renderOrders();
                     updateStats();
                 } catch (error) {
-                    console.error('Error toggling order:', error.message, error.code);
+                    console.error(`Error changing order status to ${newStatus}:`, error.message, error.code);
                     if (!syncPending.some(item => item.action === 'save' && item.data.id === id)) {
                         syncPending.push({action: 'save', data: order});
                     }
@@ -1426,10 +1483,13 @@
             let filteredOrders;
             switch(currentFilter) {
                 case 'pending':
-                    filteredOrders = orders.filter(o => !o.completed);
+                    filteredOrders = orders.filter(o => o.status === 'pending');
+                    break;
+                case 'ordered':
+                    filteredOrders = orders.filter(o => o.status === 'ordered');
                     break;
                 case 'completed':
-                    filteredOrders = orders.filter(o => o.completed);
+                    filteredOrders = orders.filter(o => o.status === 'completed');
                     break;
                 default:
                     filteredOrders = orders;
@@ -1471,7 +1531,7 @@
             }
 
             ordersGrid.innerHTML = filteredOrders.map(order => `
-                <div class="order-card ${order.completed ? 'completed' : ''}">
+                <div class="order-card ${order.status}">
                     <div class="order-header">
                         <div class="order-info">
                             <h3>${escapeHtml(order.itemName.toUpperCase())}</h3>
@@ -1484,10 +1544,15 @@
                     
                     <div class="order-actions">
                         <button class="btn btn-edit" onclick="editOrder('${order.id}')">Edit</button>
-                        <button class="btn ${order.completed ? 'btn-pending' : 'btn-complete'}" 
-                                onclick="toggleOrder('${order.id}')">
-                            ${order.completed ? 'Mark Pending' : 'Complete'}
-                        </button>
+                        ${order.status !== 'pending' ? 
+                            `<button class="btn btn-pending" onclick="changeOrderStatus('${order.id}', 'pending')">Mark Pending</button>` : 
+                            ''}
+                        ${order.status !== 'ordered' ? 
+                            `<button class="btn btn-ordered" onclick="changeOrderStatus('${order.id}', 'ordered')">Mark Ordered</button>` : 
+                            ''}
+                        ${order.status !== 'completed' ? 
+                            `<button class="btn btn-complete" onclick="changeOrderStatus('${order.id}', 'completed')">Complete</button>` : 
+                            ''}
                         <button class="btn btn-delete" onclick="deleteOrder('${order.id}')">Delete</button>
                     </div>
                 </div>
@@ -1496,11 +1561,13 @@
 
         function updateStats() {
             const total = orders.length;
-            const completed = orders.filter(o => o.completed).length;
-            const pending = total - completed;
+            const pending = orders.filter(o => o.status === 'pending').length;
+            const ordered = orders.filter(o => o.status === 'ordered').length;
+            const completed = orders.filter(o => o.status === 'completed').length;
 
             document.getElementById('totalOrders').textContent = total;
             document.getElementById('pendingOrders').textContent = pending;
+            document.getElementById('orderedOrders').textContent = ordered;
             document.getElementById('completedOrders').textContent = completed;
 
             const clearBtn = document.getElementById('clearBtn');
@@ -1509,7 +1576,7 @@
 
         async function clearCompleted() {
             if (confirm('Are you sure you want to delete all completed orders?')) {
-                const completedIds = orders.filter(o => o.completed).map(o => o.id);
+                const completedIds = orders.filter(o => o.status === 'completed').map(o => o.id);
                 
                 try {
                     const deletePromises = completedIds.map(id => deleteFromFirebase(id));
@@ -1521,7 +1588,7 @@
                             syncPending.push({action: 'delete', id});
                         }
                     });
-                    orders = orders.filter(o => !o.completed);
+                    orders = orders.filter(o => o.status !== 'completed');
                     saveToLocalStorage();
                     renderOrders();
                     updateStats();
