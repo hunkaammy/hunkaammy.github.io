@@ -164,9 +164,11 @@
         }
 
         .image-preview {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
+            max-width: 80px;
+            max-height: 80px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
             border-radius: 8px;
             margin-top: 12px;
             border: 2px solid #e2e8f0;
@@ -284,9 +286,6 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 16px;
-            max-height: 500px;
-            overflow-y: auto;
-            touch-action: pan-y;
             padding-right: 8px;
         }
 
@@ -374,12 +373,14 @@
         }
 
         .order-image {
+            max-width: 120px;
             max-height: 120px;
-            object-fit: cover;
+            width: auto;
+            height: auto;
+            object-fit: contain;
             border-radius: 10px;
             margin-bottom: 12px;
             border: 2px solid #e2e8f0;
-            width: 100%;
             transition: transform 0.3s ease;
         }
 
@@ -571,8 +572,8 @@
             }
 
             .image-preview {
-                width: 50px;
-                height: 50px;
+                max-width: 70px;
+                max-height: 70px;
             }
 
             .add-btn {
@@ -605,7 +606,6 @@
 
             .orders-grid {
                 gap: 12px;
-                max-height: 450px;
             }
 
             .order-card {
@@ -626,6 +626,7 @@
             }
 
             .order-image {
+                max-width: 100px;
                 max-height: 100px;
             }
 
@@ -700,8 +701,8 @@
             }
 
             .image-preview {
-                width: 48px;
-                height: 48px;
+                max-width: 60px;
+                max-height: 60px;
             }
 
             .add-btn {
@@ -736,7 +737,6 @@
 
             .orders-grid {
                 gap: 10px;
-                max-height: 400px;
             }
 
             .order-card {
@@ -757,6 +757,7 @@
             }
 
             .order-image {
+                max-width: 80px;
                 max-height: 80px;
             }
 
