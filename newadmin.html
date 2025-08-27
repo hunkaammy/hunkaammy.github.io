@@ -101,6 +101,21 @@
       </div>
     </div>
 
+    <!-- Search Card -->
+    <div class="mt-8 bg-white rounded-xl shadow p-4">
+      <h2 class="text-lg font-semibold mb-3">Search Products</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label for="nameSearchInput" class="block text-sm font-medium text-gray-700">Search by Product Name</label>
+          <input id="nameSearchInput" type="text" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter product name..." />
+        </div>
+        <div>
+          <label for="partyCodeSearchInput" class="block text-sm font-medium text-gray-700">Search by Party Code</label>
+          <input id="partyCodeSearchInput" type="text" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter party code..." />
+        </div>
+      </div>
+    </div>
+
     <!-- Gallery -->
     <div class="mt-8">
       <h2 class="text-lg font-semibold mb-3">Products</h2>
@@ -136,6 +151,8 @@
     const progressList = document.getElementById('progressList');
     const galleryGrid = document.getElementById('galleryGrid');
     const globalDropOverlay = document.getElementById('globalDropOverlay');
+    const nameSearchInput = document.getElementById('nameSearchInput');
+    const partyCodeSearchInput = document.getElementById('partyCodeSearchInput');
 
     // 3) State
     const uploadQueue = [];
@@ -465,10 +482,19 @@
     }
 
     // 8) Optimized Realtime listeners with batch rendering
-    function batchRenderGallery() {
+    function batchRenderGallery(nameQuery = '', partyCodeQuery = '') {
       const fragment = document.createDocumentFragment();
-      products.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
-      products.forEach(({ key, data }) => {
+      const nameLower = nameQuery.toLowerCase().trim();
+      const partyCodeLower = partyCodeQuery.toLowerCase().trim();
+
+      const filteredProducts = products.filter(({ data }) => {
+        const nameMatch = !nameLower || (data.name && data.name.toLowerCase().includes(nameLower));
+        const partyCodeMatch = !partyCodeLower || (data.partyCode && data.partyCode.toLowerCase().includes(partyCodeLower));
+        return nameMatch && partyCodeMatch;
+      });
+
+      filteredProducts.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+      filteredProducts.forEach(({ key, data }) => {
         const card = renderCard(key, data);
         fragment.appendChild(card);
       });
@@ -476,7 +502,7 @@
       galleryGrid.appendChild(fragment);
     }
 
-    database.ref().limitToLast(50).on('value', (snapshot) => {
+    database.ref().on('value', (snapshot) => {
       products = [];
       loadedImageKeys.clear();
       snapshot.forEach(childSnapshot => {
@@ -485,7 +511,7 @@
         products.push({ key, data });
         loadedImageKeys.add(key);
       });
-      batchRenderGallery();
+      batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
     });
 
     database.ref().on('child_changed', (snapshot) => {
@@ -498,17 +524,25 @@
         products.push({ key, data: updatedData });
         loadedImageKeys.add(key);
       }
-      batchRenderGallery();
+      batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
     });
 
     database.ref().on('child_removed', (snapshot) => {
       const key = snapshot.key;
       products = products.filter(p => p.key !== key);
       loadedImageKeys.delete(key);
-      batchRenderGallery();
+      batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
     });
 
-    // 9) Inline editing
+    // 9) Search functionality
+    function handleSearch() {
+      batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
+    }
+
+    nameSearchInput.addEventListener('input', handleSearch);
+    partyCodeSearchInput.addEventListener('input', handleSearch);
+
+    // 10) Inline editing
     window.makeEditable = function(el, key, field) {
       const isPrice = field === 'price';
       const prev = el.textContent.replace(/^Price:\s*/i, '').replace(/^Party Code:\s*/i, '').trim();
@@ -559,7 +593,7 @@
       });
     };
 
-    // 10) Stock toggle, update date
+    // 11) Stock toggle, update date
     window.toggleStockStatus = function(key, current) {
       database.ref(key).update({ outOfStock: !current }).catch(err => {
         console.error('Toggle stock failed:', err);
@@ -573,7 +607,7 @@
       });
     };
 
-    // 11) Delete product
+    // 12) Delete product
     window.confirmDelete = function(key) {
       if (confirm('Are you sure you want to delete this product? This will also remove its associated image and video from storage.')) {
         deleteProduct(key);
@@ -612,7 +646,7 @@
         }
         products = products.filter(p => p.key !== key);
         loadedImageKeys.delete(key);
-        batchRenderGallery();
+        batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
 
         // Attempt to delete storage files
         const deletions = [];
@@ -644,7 +678,7 @@
         console.error('Failed to delete product:', err);
         alert(`Failed to delete product: ${err.message || 'Unknown error'}. Please check your Firebase permissions and try again.`);
         // Revert UI changes on failure
-        batchRenderGallery();
+        batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
       } finally {
         if (deleteButton) {
           deleteButton.disabled = false;
@@ -653,7 +687,7 @@
       }
     }
 
-    // 12) Replace image / video
+    // 13) Replace image / video
     window.replaceImage = function(key, currentImageUrlEncoded) {
       const currentImageUrl = decodeURIComponent(currentImageUrlEncoded || '');
       const input = document.createElement('input');
@@ -685,8 +719,8 @@
       input.click();
     };
 
-    window.replaceVideo = function(key, currentVideoUrlEncoded) {
-      const currentVideoUrl = decodeURIComponent(currentVideoUrlEncoded || '');
+    window.replaceVideo = function(key, restingVideoUrlEncoded) {
+      const currentVideoUrl = decodeURIComponent(restingVideoUrlEncoded || '');
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'video/*';
