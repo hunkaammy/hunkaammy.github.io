@@ -302,6 +302,11 @@
       margin-top: 10px;
       text-align: center;
     }
+
+    /* Ensure video modal appears above product modal */
+    #videoModal {
+      z-index: 1060;
+    }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 </head>
@@ -366,7 +371,7 @@
                       <span class="saved-feedback" ng-if="product.justSaved">Saved!</span>
                       <h4 ng-if="priceVisible"><b>{{product.price | currency:"₹":0 }}</b></h4>
                       <p>{{product.name}}</p>
-                      <p ng-if="product.videourl"><a href="#" class="watch-video" ng-click="showVideoModal(product.videourl)">Watch Video</a></p>
+                      <p ng-if="product.videourl"><a href="#" class="watch-video" ng-click="showVideoModal(product.videourl, false)">Watch Video</a></p>
                       <input type="number" class="qtyclass" placeholder="Qty" ng-model="product.field3" ng-change="submitData(product)" ng-model-options="{ debounce: 800 }">
                     </div>
                 </div>
@@ -399,7 +404,7 @@
                             <span class="saved-feedback" ng-if="product.justSaved">Saved!</span>
                             <h4 ng-if="priceVisible"><b>{{product.price | currency:"₹":0 }}</b></h4>
                             <p>{{product.name}}</p>
-                            <p ng-if="product.videourl"><a href="#" class="watch-video" ng-click="showVideoModal(product.videourl)">Watch Video</a></p>
+                            <p ng-if="product.videourl"><a href="#" class="watch-video" ng-click="showVideoModal(product.videourl, false)">Watch Video</a></p>
                             <input type="number" class="qtyclass" placeholder="Qty" ng-model="product.field3" ng-change="submitData(product)" ng-model-options="{ debounce: 800 }">
                         </div>
                     </div>
@@ -460,7 +465,7 @@
                   <span class="saved-feedback" ng-if="image.justSaved">Saved!</span>
                   <h4 ng-if="priceVisible"><b>{{image.price | currency:"₹":0 }}</b></h4>
                   <p>{{image.name}}</p>
-                  <p ng-if="image.videourl"><a href="#" class="watch-video" ng-click="showVideoModal(image.videourl)">Watch Video</a></p>
+                  <p ng-if="image.videourl"><a href="#" class="watch-video" ng-click="showVideoModal(image.videourl, true)">Watch Video</a></p>
                   <input type="number" class="qtyclass" placeholder="Qty" ng-model="image.field3" ng-change="submitData(image)" ng-model-options="{ debounce: 800 }">
                 </div>
               </div>
@@ -557,12 +562,16 @@
         var orderModal = bootstrap.Modal.getInstance(orderModalEl);
         var videoModal = bootstrap.Modal.getInstance(videoModalEl);
 
-        if (productModal && productModalEl.classList.contains('show')) {
+        if (videoModal && videoModalEl.classList.contains('show')) {
+            videoModal.hide();
+            // If product modal is open, keep it open by pushing a new state
+            if (productModal && productModalEl.classList.contains('show')) {
+                history.pushState({ modalId: 'productModal' }, '');
+            }
+        } else if (productModal && productModalEl.classList.contains('show')) {
             productModal.hide();
         } else if (orderModal && orderModalEl.classList.contains('show')) {
             orderModal.hide();
-        } else if (videoModal && videoModalEl.classList.contains('show')) {
-            videoModal.hide();
         } else {
             history.pushState(null, null, location.href);
         }
@@ -909,12 +918,12 @@
             }
         };
         
-        $scope.showVideoModal = function(videourl) {
-            console.log('Opening video modal with URL:', videourl);
+        $scope.showVideoModal = function(videourl, fromProductModal) {
+            console.log('Opening video modal with URL:', videourl, 'From product modal:', fromProductModal);
             $scope.videoError = ''; // Reset error message
             if (videourl) {
                 $scope.currentVideoUrl = $sce.trustAsResourceUrl(videourl);
-                history.pushState({ modalId: 'videoModal' }, '');
+                history.pushState({ modalId: 'videoModal', fromProductModal: fromProductModal }, '');
                 videoModal.show();
                 
                 // Add error handling for video playback
@@ -977,8 +986,31 @@
             localStorage.clear();
             $window.location.reload();
         };
+
+        // Ensure product modal stays open when video modal is opened
+        document.getElementById('videoModal').addEventListener('show.bs.modal', function() {
+            var productModalEl = document.getElementById('productModal');
+            if (productModalEl.classList.contains('show')) {
+                // Keep product modal in the background
+                productModalEl.style.display = 'block';
+            }
+        });
+
+        document.getElementById('videoModal').addEventListener('hide.bs.modal', function() {
+            var productModalEl = document.getElementById('productModal');
+            if (productModalEl.classList.contains('show')) {
+                // Ensure product modal remains visible
+                productModalEl.style.display = 'block';
+                document.body.classList.add('modal-open');
+                // Re-add backdrop if needed
+                if (!document.querySelector('.modal-backdrop')) {
+                    var backdrop = document.createElement('div');
+                    backdrop.className = 'modal-backdrop fade show';
+                    document.body.appendChild(backdrop);
+                }
+            }
+        });
     }]);
   </script>
 </body>
 </html>
-
