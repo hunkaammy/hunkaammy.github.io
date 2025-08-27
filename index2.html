@@ -295,6 +295,13 @@
     .video-modal-content .download-btn:hover {
       background-color: #2e7d32;
     }
+
+    .video-error {
+      color: var(--danger-color);
+      font-size: 12px;
+      margin-top: 10px;
+      text-align: center;
+    }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 </head>
@@ -475,10 +482,11 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" ng-click="closeVideoModal()"></button>
         </div>
         <div class="modal-body">
-          <video controls>
+          <video controls autoplay id="videoPlayer">
             <source ng-src="{{currentVideoUrl}}" type="video/mp4">
             Your browser does not support the video tag.
           </video>
+          <p class="video-error" ng-if="videoError">{{videoError}}</p>
           <a ng-href="{{currentVideoUrl}}" download class="download-btn">Download Video</a>
         </div>
       </div>
@@ -662,6 +670,7 @@
         $scope.searchResults = [];
         $scope.isLoadingSearchResults = false;
         $scope.currentVideoUrl = '';
+        $scope.videoError = '';
 
         var fetchConfig = { databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com" };
         var submitConfig = { databaseURL: "https://notes-12519-default-rtdb.firebaseio.com" };
@@ -901,14 +910,45 @@
         };
         
         $scope.showVideoModal = function(videourl) {
-            $scope.currentVideoUrl = $sce.trustAsResourceUrl('https://www.hindustantoys.in/mywebsite/videos/' + videourl + '.mp4');
-            history.pushState({ modalId: 'videoModal' }, '');
-            videoModal.show();
+            console.log('Opening video modal with URL:', videourl);
+            $scope.videoError = ''; // Reset error message
+            if (videourl) {
+                $scope.currentVideoUrl = $sce.trustAsResourceUrl(videourl);
+                history.pushState({ modalId: 'videoModal' }, '');
+                videoModal.show();
+                
+                // Add error handling for video playback
+                $timeout(function() {
+                    var videoElement = document.getElementById('videoPlayer');
+                    if (videoElement) {
+                        videoElement.load(); // Force reload the video source
+                        videoElement.onerror = function() {
+                            $scope.$apply(function() {
+                                $scope.videoError = 'Error loading video. Please check the URL or try again later.';
+                                console.error('Video playback error:', videourl);
+                            });
+                        };
+                        videoElement.onloadeddata = function() {
+                            console.log('Video loaded successfully:', videourl);
+                        };
+                    }
+                }, 0);
+            } else {
+                $scope.videoError = 'No video URL provided.';
+                console.error('No video URL provided');
+            }
         };
 
         $scope.closeVideoModal = function() {
+            var videoElement = document.getElementById('videoPlayer');
+            if (videoElement) {
+                videoElement.pause(); // Pause the video when closing
+                videoElement.currentTime = 0; // Reset to start
+            }
             videoModal.hide();
             $scope.currentVideoUrl = '';
+            $scope.videoError = '';
+            console.log('Video modal closed');
         };
 
         $scope.updateDisplayedProducts = function() {
