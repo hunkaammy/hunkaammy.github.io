@@ -371,7 +371,7 @@
                       <span class="saved-feedback" ng-if="product.justSaved">Saved!</span>
                       <h4 ng-if="priceVisible"><b>{{product.price | currency:"₹":0 }}</b></h4>
                       <p>{{product.name}}</p>
-                      <p ng-if="product.videourl"><a href="#" class="watch-video" ng-click="showVideoModal(product.videourl, false)">Watch Video</a></p>
+                      <p ng-if="product.videourl"><a href="#" class="watch-video" ng-click="showVideoModal($event, product.videourl, false)">Watch Video</a></p>
                       <input type="number" class="qtyclass" placeholder="Qty" ng-model="product.field3" ng-change="submitData(product)" ng-model-options="{ debounce: 800 }">
                     </div>
                 </div>
@@ -404,7 +404,7 @@
                             <span class="saved-feedback" ng-if="product.justSaved">Saved!</span>
                             <h4 ng-if="priceVisible"><b>{{product.price | currency:"₹":0 }}</b></h4>
                             <p>{{product.name}}</p>
-                            <p ng-if="product.videourl"><a href="#" class="watch-video" ng-click="showVideoModal(product.videourl, false)">Watch Video</a></p>
+                            <p ng-if="product.videourl"><a href="#" class="watch-video" ng-click="showVideoModal($event, product.videourl, false)">Watch Video</a></p>
                             <input type="number" class="qtyclass" placeholder="Qty" ng-model="product.field3" ng-change="submitData(product)" ng-model-options="{ debounce: 800 }">
                         </div>
                     </div>
@@ -465,7 +465,7 @@
                   <span class="saved-feedback" ng-if="image.justSaved">Saved!</span>
                   <h4 ng-if="priceVisible"><b>{{image.price | currency:"₹":0 }}</b></h4>
                   <p>{{image.name}}</p>
-                  <p ng-if="image.videourl"><a href="#" class="watch-video" ng-click="showVideoModal(image.videourl, true)">Watch Video</a></p>
+                  <p ng-if="image.videourl"><a href="#" class="watch-video" ng-click="showVideoModal($event, image.videourl, true)">Watch Video</a></p>
                   <input type="number" class="qtyclass" placeholder="Qty" ng-model="image.field3" ng-change="submitData(image)" ng-model-options="{ debounce: 800 }">
                 </div>
               </div>
@@ -536,7 +536,7 @@
           </div>
         </div>
         <div class="modal-footer">
-            <strong class="me-auto" ng-if="priceVisible">Total: {{ calculateOrderTotal() | currency:"₹":0 }}</strong>
+            <strong class="me-auto" ng-if="productVisible">Total: {{ calculateOrderTotal() | currency:"₹":0 }}</strong>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
@@ -562,16 +562,19 @@
         var orderModal = bootstrap.Modal.getInstance(orderModalEl);
         var videoModal = bootstrap.Modal.getInstance(videoModalEl);
 
-        if (videoModal && videoModalEl.classList.contains('show')) {
+        if (event.state && event.state.modalId === 'videoModal' && videoModal && videoModalEl.classList.contains('show')) {
             videoModal.hide();
-            // If product modal is open, keep it open by pushing a new state
-            if (productModal && productModalEl.classList.contains('show')) {
+            if (event.state.fromProductModal && productModal && productModalEl.classList.contains('show')) {
                 history.pushState({ modalId: 'productModal' }, '');
+            } else {
+                history.pushState(null, null, location.href);
             }
-        } else if (productModal && productModalEl.classList.contains('show')) {
+        } else if (event.state && event.state.modalId === 'productModal' && productModal && productModalEl.classList.contains('show')) {
             productModal.hide();
+            history.pushState(null, null, location.href);
         } else if (orderModal && orderModalEl.classList.contains('show')) {
             orderModal.hide();
+            history.pushState(null, null, location.href);
         } else {
             history.pushState(null, null, location.href);
         }
@@ -680,6 +683,7 @@
         $scope.isLoadingSearchResults = false;
         $scope.currentVideoUrl = '';
         $scope.videoError = '';
+        $scope.isProductModalOpen = false;
 
         var fetchConfig = { databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com" };
         var submitConfig = { databaseURL: "https://notes-12519-default-rtdb.firebaseio.com" };
@@ -802,6 +806,7 @@
             $scope.productNameFilter = filter;
             $scope.activeCategoryName = $scope.categories.find(c => c.id === tabId)?.name || 'Products';
             $scope.updateDisplayedProducts();
+            $scope.isProductModalOpen = true;
             history.pushState({ modalId: 'productModal' }, '');
             productModal.show();
         };
@@ -918,7 +923,9 @@
             }
         };
         
-        $scope.showVideoModal = function(videourl, fromProductModal) {
+        $scope.showVideoModal = function(event, videourl, fromProductModal) {
+            event.preventDefault();
+            event.stopPropagation();
             console.log('Opening video modal with URL:', videourl, 'From product modal:', fromProductModal);
             $scope.videoError = ''; // Reset error message
             if (videourl) {
@@ -987,22 +994,39 @@
             $window.location.reload();
         };
 
-        // Ensure product modal stays open when video modal is opened
+        // Track product modal state
+        document.getElementById('productModal').addEventListener('show.bs.modal', function() {
+            $scope.$apply(function() {
+                $scope.isProductModalOpen = true;
+            });
+        });
+
+        document.getElementById('productModal').addEventListener('hide.bs.modal', function() {
+            $scope.$apply(function() {
+                $scope.isProductModalOpen = false;
+            });
+        });
+
+        // Prevent product modal from closing when video modal is opened
         document.getElementById('videoModal').addEventListener('show.bs.modal', function() {
             var productModalEl = document.getElementById('productModal');
-            if (productModalEl.classList.contains('show')) {
-                // Keep product modal in the background
-                productModalEl.style.display = 'block';
+            if ($scope.isProductModalOpen && productModalEl.classList.contains('show')) {
+                // Prevent Bootstrap from removing modal-open class or backdrop
+                document.body.classList.add('modal-open');
+                var backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) {
+                    backdrop.style.display = 'block';
+                }
             }
         });
 
         document.getElementById('videoModal').addEventListener('hide.bs.modal', function() {
             var productModalEl = document.getElementById('productModal');
-            if (productModalEl.classList.contains('show')) {
-                // Ensure product modal remains visible
+            if ($scope.isProductModalOpen && productModalEl.classList.contains('show')) {
+                // Ensure product modal remains open
                 productModalEl.style.display = 'block';
                 document.body.classList.add('modal-open');
-                // Re-add backdrop if needed
+                // Restore backdrop if needed
                 if (!document.querySelector('.modal-backdrop')) {
                     var backdrop = document.createElement('div');
                     backdrop.className = 'modal-backdrop fade show';
@@ -1014,9 +1038,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
