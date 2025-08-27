@@ -178,8 +178,19 @@
       `;
     }
 
-    // 5) Drag & Drop
+    // 5) Drag & Drop and Click-to-Upload
     function setupDropZone(zone, input, previewFn) {
+      // Click to trigger file input
+      zone.addEventListener('click', () => {
+        try {
+          input.click();
+        } catch (err) {
+          console.error('Failed to trigger file input:', err);
+          alert('Failed to open file picker. Please try again or use drag-and-drop.');
+        }
+      });
+
+      // Drag-and-drop events
       zone.addEventListener('dragenter', (e) => {
         e.preventDefault();
         zone.classList.add('active');
@@ -253,8 +264,6 @@
     });
 
     // 6) Upload flow
-    uploadBtn.addEventListener('click', uploadImage);
-
     async function uploadImage() {
       const file = imageInput.files[0];
       const name = document.getElementById('nameInput').value.trim();
@@ -719,8 +728,8 @@
       input.click();
     };
 
-    window.replaceVideo = function(key, restingVideoUrlEncoded) {
-      const currentVideoUrl = decodeURIComponent(restingVideoUrlEncoded || '');
+    window.replaceVideo = function(key, currentVideoUrlEncoded) {
+      const currentVideoUrl = decodeURIComponent(currentVideoUrlEncoded || '');
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'video/*';
