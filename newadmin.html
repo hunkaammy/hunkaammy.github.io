@@ -125,17 +125,23 @@
 
   <script>
     // 1) Firebase init
-    const firebaseConfig = {
-      apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
-      authDomain: "htshop-e9c51.firebaseapp.com",
-      databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com",
-      projectId: "htshop-e9c51",
-      storageBucket: "htshop-e9c51.appspot.com",
-      messagingSenderId: "653137640907",
-      appId: "1:653137640907:web:672fd6a9e85ca448a70a4e",
-      measurementId: "G-FJ4Q0FHBEG"
-    };
-    firebase.initializeApp(firebaseConfig);
+    try {
+      const firebaseConfig = {
+        apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
+        authDomain: "htshop-e9c51.firebaseapp.com",
+        databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com",
+        projectId: "htshop-e9c51",
+        storageBucket: "htshop-e9c51.appspot.com",
+        messagingSenderId: "653137640907",
+        appId: "1:653137640907:web:672fd6a9e85ca448a70a4e",
+        measurementId: "G-FJ4Q0FHBEG"
+      };
+      firebase.initializeApp(firebaseConfig);
+      console.log('Firebase initialized successfully');
+    } catch (err) {
+      console.error('Firebase initialization failed:', err);
+      alert('Failed to initialize Firebase. Please check your configuration and try again.');
+    }
 
     const database = firebase.database();
     const storage = firebase.storage();
@@ -154,6 +160,12 @@
     const nameSearchInput = document.getElementById('nameSearchInput');
     const partyCodeSearchInput = document.getElementById('partyCodeSearchInput');
 
+    // Verify button exists
+    if (!uploadBtn) {
+      console.error('Upload button not found in DOM');
+      alert('Upload button not found. Please check the page structure.');
+    }
+
     // 3) State
     const uploadQueue = [];
     let isUploading = false;
@@ -162,7 +174,10 @@
 
     // 4) UI helpers
     function previewImage(file) {
-      if (!file || !file.type.startsWith('image/')) return;
+      if (!file || !file.type.startsWith('image/')) {
+        console.error('Invalid image file:', file);
+        return;
+      }
       const url = URL.createObjectURL(file);
       preview.innerHTML = `
         <img src="${url}" alt="preview" class="mx-auto w-full rounded-lg object-contain" style="max-height: 240px;" />
@@ -170,7 +185,10 @@
       `;
     }
     function previewVideo(file) {
-      if (!file || !file.type.startsWith('video/')) return;
+      if (!file || !file.type.startsWith('video/')) {
+        console.error('Invalid video file:', file);
+        return;
+      }
       const url = URL.createObjectURL(file);
       videoPreview.innerHTML = `
         <video src="${url}" controls class="mx-auto w-full rounded-lg" style="max-height: 240px;"></video>
@@ -180,17 +198,16 @@
 
     // 5) Drag & Drop and Click-to-Upload
     function setupDropZone(zone, input, previewFn) {
-      // Click to trigger file input
       zone.addEventListener('click', () => {
         try {
           input.click();
+          console.log('Drop zone clicked, triggering file input');
         } catch (err) {
           console.error('Failed to trigger file input:', err);
           alert('Failed to open file picker. Please try again or use drag-and-drop.');
         }
       });
 
-      // Drag-and-drop events
       zone.addEventListener('dragenter', (e) => {
         e.preventDefault();
         zone.classList.add('active');
@@ -257,88 +274,127 @@
     });
 
     imageInput.addEventListener('change', () => {
-      if (imageInput.files.length) previewImage(imageInput.files[0]);
+      if (imageInput.files.length) {
+        console.log('Image selected:', imageInput.files[0].name);
+        previewImage(imageInput.files[0]);
+      }
     });
     videoInput.addEventListener('change', () => {
-      if (videoInput.files.length) previewVideo(videoInput.files[0]);
+      if (videoInput.files.length) {
+        console.log('Video selected:', videoInput.files[0].name);
+        previewVideo(videoInput.files[0]);
+      }
     });
 
     // 6) Upload flow
+    uploadBtn.addEventListener('click', () => {
+      console.log('Upload button clicked');
+      uploadImage();
+    });
+
     async function uploadImage() {
-      const file = imageInput.files[0];
-      const name = document.getElementById('nameInput').value.trim();
-      const priceInput = parseFloat(document.getElementById('priceInput').value.trim());
-      const partyCode = document.getElementById('partyCodeInput').value.trim();
-      const videourlInputEl = document.getElementById('videourlInput');
+      try {
+        console.log('Starting upload process');
+        const file = imageInput.files && imageInput.files[0];
+        const name = document.getElementById('nameInput').value.trim();
+        const priceInput = parseFloat(document.getElementById('priceInput').value.trim());
+        const partyCode = document.getElementById('partyCodeInput').value.trim();
+        const videourlInputEl = document.getElementById('videourlInput');
 
-      if (!file || !name || !partyCode || isNaN(priceInput) || priceInput <= 0) {
-        alert('Please fill all required fields with valid values.');
-        return;
-      }
-
-      // Divide price by 2 before uploading
-      const price = priceInput / 2;
-
-      let finalVideoURL = (videourlInputEl.value || '').trim();
-      if (videoInput.files && videoInput.files[0]) {
-        const videoFile = videoInput.files[0];
-        const now = new Date().toISOString();
-        const videoStorageRef = storage.ref(`${now}_${sanitizePath(name)}_${videoFile.name}`);
-
-        const videoStatus = document.createElement('div');
-        videoStatus.className = 'mb-2 text-sm text-blue-600';
-        videoStatus.textContent = 'Uploading video...';
-        videoPreview.appendChild(videoStatus);
-
-        try {
-          await videoStorageRef.put(videoFile);
-          finalVideoURL = await videoStorageRef.getDownloadURL();
-          videourlInputEl.value = finalVideoURL;
-          videoStatus.textContent = 'Video uploaded.';
-        } catch (err) {
-          console.error('Video upload failed:', err);
-          videoStatus.textContent = 'Video upload failed.';
-          alert('Video upload failed. You can still upload the image, or try again.');
+        // Detailed validation
+        if (!file) {
+          console.error('No image file selected');
+          alert('Please select an image file.');
+          return;
         }
-      }
+        if (!name) {
+          console.error('Product name is empty');
+          alert('Please enter a product name.');
+          return;
+        }
+        if (!partyCode) {
+          console.error('Party code is empty');
+          alert('Please enter a party code.');
+          return;
+        }
+        if (isNaN(priceInput) || priceInput <= 0) {
+          console.error('Invalid price:', priceInput);
+          alert('Please enter a valid price greater than 0.');
+          return;
+        }
 
-      const thumbDataURL = await fileToDataURL(file);
-      const progressContainer = document.createElement('div');
-      progressContainer.className = 'p-3 bg-gray-100 rounded';
-      progressContainer.innerHTML = `
-        <div class="flex items-center">
-          <img src="${thumbDataURL}" alt="thumbnail" class="w-12 h-12 object-cover rounded mr-4" />
-          <div class="flex-grow">
-            <div class="flex justify-between items-center mb-1">
-              <span class="text-sm font-medium text-gray-800 truncate w-48" title="${file.name}">${file.name}</span>
-              <span class="status text-sm text-blue-600 font-semibold">Uploading...</span>
-            </div>
-            <div class="bg-gray-300 rounded-full h-2.5">
-              <div class="progress-bar bg-blue-600 h-2.5 rounded-full w-0 transition-all duration-300"></div>
+        // Divide price by 2 before uploading
+        const price = priceInput / 2;
+        console.log('Price after division:', price);
+
+        let finalVideoURL = (videourlInputEl.value || '').trim();
+        if (videoInput.files && videoInput.files[0]) {
+          const videoFile = videoInput.files[0];
+          const now = new Date().toISOString();
+          const videoStorageRef = storage.ref(`${now}_${sanitizePath(name)}_${videoFile.name}`);
+
+          const videoStatus = document.createElement('div');
+          videoStatus.className = 'mb-2 text-sm text-blue-600';
+          videoStatus.textContent = 'Uploading video...';
+          videoPreview.appendChild(videoStatus);
+
+          try {
+            console.log('Uploading video:', videoFile.name);
+            await videoStorageRef.put(videoFile);
+            finalVideoURL = await videoStorageRef.getDownloadURL();
+            videourlInputEl.value = finalVideoURL;
+            videoStatus.textContent = 'Video uploaded.';
+            console.log('Video uploaded, URL:', finalVideoURL);
+          } catch (err) {
+            console.error('Video upload failed:', err);
+            videoStatus.textContent = 'Video upload failed.';
+            alert('Video upload failed. You can still upload the image, or try again.');
+          }
+        }
+
+        const thumbDataURL = await fileToDataURL(file);
+        const progressContainer = document.createElement('div');
+        progressContainer.className = 'p-3 bg-gray-100 rounded';
+        progressContainer.innerHTML = `
+          <div class="flex items-center">
+            <img src="${thumbDataURL}" alt="thumbnail" class="w-12 h-12 object-cover rounded mr-4" />
+            <div class="flex-grow">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-sm font-medium text-gray-800 truncate w-48" title="${file.name}">${file.name}</span>
+                <span class="status text-sm text-blue-600 font-semibold">Uploading...</span>
+              </div>
+              <div class="bg-gray-300 rounded-full h-2.5">
+                <div class="progress-bar bg-blue-600 h-2.5 rounded-full w-0 transition-all duration-300"></div>
+              </div>
             </div>
           </div>
-        </div>
-      `;
-      progressList.prepend(progressContainer);
+        `;
+        progressList.prepend(progressContainer);
 
-      uploadQueue.push({
-        file,
-        name,
-        price,
-        partyCode,
-        videourl: finalVideoURL || '',
-        progressContainer
-      });
+        uploadQueue.push({
+          file,
+          name,
+          price,
+          partyCode,
+          videourl: finalVideoURL || '',
+          progressContainer
+        });
+        console.log('Added to upload queue:', { name, price, partyCode });
 
-      imageInput.value = '';
-      videoInput.value = '';
-      document.getElementById('nameInput').value = '';
-      document.getElementById('priceInput').value = '';
-      document.getElementById('partyCodeInput').value = '';
-      preview.innerHTML = '';
-      videoPreview.innerHTML = '';
+        // Clear inputs
+        imageInput.value = '';
+        videoInput.value = '';
+        document.getElementById('nameInput').value = '';
+        document.getElementById('priceInput').value = '';
+        document.getElementById('partyCodeInput').value = '';
+        preview.innerHTML = '';
+        videoPreview.innerHTML = '';
 
-      processUploadQueue();
+        processUploadQueue();
+      } catch (err) {
+        console.error('Upload image failed:', err);
+        alert(`Failed to start upload: ${err.message || 'Unknown error'}. Please try again.`);
+      }
     }
 
     function sanitizePath(s) {
@@ -354,11 +410,18 @@
     }
 
     async function processUploadQueue() {
-      if (isUploading) return;
-      if (uploadQueue.length === 0) return;
+      if (isUploading) {
+        console.log('Upload in progress, queue length:', uploadQueue.length);
+        return;
+      }
+      if (uploadQueue.length === 0) {
+        console.log('Upload queue empty');
+        return;
+      }
 
       isUploading = true;
       const item = uploadQueue.shift();
+      console.log('Processing upload:', item.name);
 
       const { file, name, price, partyCode, videourl, progressContainer } = item;
       const progressBar = progressContainer.querySelector('.progress-bar');
@@ -375,12 +438,17 @@
               const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
               progressBar.style.width = pct + '%';
               statusEl.textContent = `Uploading... ${pct}%`;
+              console.log('Upload progress:', pct + '%');
             },
-            (err) => reject(err),
+            (err) => {
+              console.error('Storage upload error:', err);
+              reject(err);
+            },
             async () => {
               try {
                 const imageURL = await storageRef.getDownloadURL();
                 statusEl.textContent = 'Finalizing...';
+                console.log('Image uploaded, URL:', imageURL);
 
                 const data = {
                   name,
@@ -393,6 +461,7 @@
                 };
                 const ref = database.ref().push();
                 await ref.set(data);
+                console.log('Database entry created:', data);
 
                 statusEl.textContent = 'Done';
                 progressBar.style.width = '100%';
@@ -400,11 +469,13 @@
 
                 resolve();
               } catch (e) {
+                console.error('Database write error:', e);
                 reject(e);
               }
             }
           );
         });
+        alert('Product uploaded successfully.');
       } catch (err) {
         console.error('Image upload failed:', err.message || err);
         statusEl.textContent = `Failed: ${err.message || 'Unknown error'}`;
@@ -413,7 +484,10 @@
         alert(`Image upload failed: ${err.message || 'Unknown error'}. Please check your Firebase permissions or network connection and try again.`);
       } finally {
         isUploading = false;
-        if (uploadQueue.length > 0) processUploadQueue();
+        if (uploadQueue.length > 0) {
+          console.log('Processing next item in queue');
+          processUploadQueue();
+        }
       }
     }
 
@@ -509,6 +583,7 @@
       });
       galleryGrid.innerHTML = '';
       galleryGrid.appendChild(fragment);
+      console.log('Gallery rendered, products:', filteredProducts.length);
     }
 
     database.ref().on('value', (snapshot) => {
@@ -520,6 +595,7 @@
         products.push({ key, data });
         loadedImageKeys.add(key);
       });
+      console.log('Database updated, products:', products.length);
       batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
     });
 
@@ -533,6 +609,7 @@
         products.push({ key, data: updatedData });
         loadedImageKeys.add(key);
       }
+      console.log('Child changed:', key);
       batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
     });
 
@@ -540,6 +617,7 @@
       const key = snapshot.key;
       products = products.filter(p => p.key !== key);
       loadedImageKeys.delete(key);
+      console.log('Child removed:', key);
       batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
     });
 
@@ -630,7 +708,6 @@
     }
 
     async function deleteProduct(key) {
-      // Disable the delete button to prevent multiple clicks
       const deleteButton = document.querySelector(`[data-key="${key}"] button[onclick*="confirmDelete"]`);
       if (deleteButton) {
         deleteButton.disabled = true;
@@ -638,7 +715,6 @@
       }
 
       try {
-        // Fetch product data
         const snapshot = await database.ref(key).once('value');
         if (!snapshot.exists()) {
           throw new Error('Product not found in database');
@@ -647,7 +723,6 @@
         const imageUrl = data.url;
         const videoUrl = data.videourl;
 
-        // Optimistically update UI
         const deletedElement = document.querySelector(`[data-key="${key}"]`);
         if (deletedElement) {
           deletedElement.style.opacity = '0.5';
@@ -657,13 +732,11 @@
         loadedImageKeys.delete(key);
         batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
 
-        // Attempt to delete storage files
         const deletions = [];
         if (imageUrl && isFirebaseStorageUrl(imageUrl)) {
           deletions.push(
             storage.refFromURL(imageUrl).delete().catch(err => {
               console.warn(`Unable to delete image from storage for ${key}:`, err);
-              // Continue even if image deletion fails
             })
           );
         }
@@ -671,22 +744,17 @@
           deletions.push(
             storage.refFromURL(videoUrl).delete().catch(err => {
               console.warn(`Unable to delete video from storage for ${key}:`, err);
-              // Continue even if video deletion fails
             })
           );
         }
 
-        // Wait for storage deletions to settle
         await Promise.allSettled(deletions);
-
-        // Remove product from database
         await database.ref(key).remove();
 
         alert('Product deleted successfully.');
       } catch (err) {
         console.error('Failed to delete product:', err);
         alert(`Failed to delete product: ${err.message || 'Unknown error'}. Please check your Firebase permissions and try again.`);
-        // Revert UI changes on failure
         batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
       } finally {
         if (deleteButton) {
