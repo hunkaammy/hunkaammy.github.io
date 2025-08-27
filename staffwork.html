@@ -22,6 +22,10 @@
       background-color: #f8fafc; /* slate-50 */
       border-color: #93c5fd; /* blue-300 */
     }
+    .drop-zone.dragging {
+      background-color: #f0f9ff; /* sky-50 */
+      border-color: #3b82f6; /* blue-500 */
+    }
     #globalDropOverlay {
       display: none;
     }
@@ -101,6 +105,20 @@
       </div>
     </div>
 
+    <!-- Search Section -->
+    <div class="mt-8">
+      <h2 class="text-lg font-semibold mb-3">Search Products</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <input id="searchName" type="text" placeholder="Search by product name" class="rounded-lg border-gray-300 p-2 focus:ring-blue-500 focus:border-blue-500">
+        <input id="searchPartyCode" type="text" placeholder="Search by party code" class="rounded-lg border-gray-300 p-2 focus:ring-blue-500 focus:border-blue-500">
+        <select id="searchStock" class="rounded-lg border-gray-300 p-2 focus:ring-blue-500 focus:border-blue-500">
+          <option value="all">All Stock Status</option>
+          <option value="available">Available</option>
+          <option value="outofstock">Out of Stock</option>
+        </select>
+      </div>
+    </div>
+
     <!-- Gallery -->
     <div class="mt-8">
       <h2 class="text-lg font-semibold mb-3">Products</h2>
@@ -140,6 +158,10 @@
     const galleryGrid = document.getElementById('galleryGrid');
     const globalDropOverlay = document.getElementById('globalDropOverlay');
 
+    const searchName = document.getElementById('searchName');
+    const searchPartyCode = document.getElementById('searchPartyCode');
+    const searchStock = document.getElementById('searchStock');
+
     // 3) State
     const uploadQueue = [];
     let isUploading = false;
@@ -163,7 +185,83 @@
       `;
     }
 
-    // 5) Drag & Drop
+    // 5) Drag & Drop - Global overlay handlers
+    window.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      globalDropOverlay.classList.add('active');
+    });
+    window.addEventListener('dragleave', (e) => {
+      if (e.relatedTarget === null) { // Only hide if leaving the window
+        globalDropOverlay.classList.remove('active');
+      }
+    });
+    window.addEventListener('drop', (e) => {
+      e.preventDefault();
+      globalDropOverlay.classList.remove('active');
+      // No action here; zone-specific drops handle files
+    });
+
+    // Zone-specific drag & drop for image
+    let imageDragCounter = 0;
+    imageDropZone.addEventListener('dragenter', (e) => {
+      e.preventDefault();
+      imageDragCounter++;
+      if (imageDragCounter > 0) imageDropZone.classList.add('dragging');
+    });
+    imageDropZone.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      imageDragCounter--;
+      if (imageDragCounter === 0) imageDropZone.classList.remove('dragging');
+    });
+    imageDropZone.addEventListener('dragover', (e) => e.preventDefault());
+    imageDropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      imageDropZone.classList.remove('dragging');
+      imageDragCounter = 0;
+      globalDropOverlay.classList.remove('active');
+      if (e.dataTransfer.files.length) {
+        const file = e.dataTransfer.files[0];
+        if (file.type.startsWith('image/')) {
+          imageInput.files = e.dataTransfer.files;
+          previewImage(file);
+        } else {
+          alert('Please drop an image file here.');
+        }
+      }
+    });
+
+    // Zone-specific drag & drop for video
+    let videoDragCounter = 0;
+    videoDropZone.addEventListener('dragenter', (e) => {
+      e.preventDefault();
+      videoDragCounter++;
+      if (videoDragCounter > 0) videoDropZone.classList.add('dragging');
+    });
+    videoDropZone.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      videoDragCounter--;
+      if (videoDragCounter === 0) videoDropZone.classList.remove('dragging');
+    });
+    videoDropZone.addEventListener('dragover', (e) => e.preventDefault());
+    videoDropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      videoDropZone.classList.remove('dragging');
+      videoDragCounter = 0;
+      globalDropOverlay.classList.remove('active');
+      if (e.dataTransfer.files.length) {
+        const file = e.dataTransfer.files[0];
+        if (file.type.startsWith('video/')) {
+          videoInput.files = e.dataTransfer.files;
+          previewVideo(file);
+        } else {
+          alert('Please drop a video file here.');
+        }
+      }
+    });
+
+    // Click handlers for inputs
     imageDropZone.addEventListener('click', () => imageInput.click());
     videoDropZone.addEventListener('click', () => videoInput.click());
     imageInput.addEventListener('change', () => {
@@ -173,39 +271,13 @@
       if (videoInput.files.length) previewVideo(videoInput.files[0]);
     });
 
-    window.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      globalDropOverlay.classList.add('active');
-    });
-    window.addEventListener('dragleave', (e) => {
-      if (e.target === document.documentElement || e.target === document.body) {
-        globalDropOverlay.classList.remove('active');
-      }
-    });
-    window.addEventListener('drop', (e) => {
-      e.preventDefault();
-      globalDropOverlay.classList.remove('active');
-
-      if (e.dataTransfer.files.length) {
-        const file = e.dataTransfer.files[0];
-        if (file.type.startsWith('image/')) {
-          imageInput.files = e.dataTransfer.files;
-          previewImage(file);
-        } else if (file.type.startsWith('video/')) {
-          videoInput.files = e.dataTransfer.files;
-          previewVideo(file);
-        }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    });
-
     // 6) Upload flow: upload optional video first (fill videourl field), then queue image upload + DB write
     uploadBtn.addEventListener('click', uploadImage);
 
     async function uploadImage() {
       const file = imageInput.files[0];
       const name = document.getElementById('nameInput').value.trim();
-      const price = parseFloat(document.getElementById('priceInput').value.trim());
+      let price = parseFloat(document.getElementById('priceInput').value.trim());
       const partyCode = document.getElementById('partyCodeInput').value.trim();
       const videourlInputEl = document.getElementById('videourlInput');
 
@@ -213,6 +285,9 @@
         alert('Please fill all required fields with valid values.');
         return;
       }
+
+      // Divide price by 2 before uploading
+      price = price / 2;
 
       // Upload video first if provided, then autofill the videourl input
       let finalVideoURL = (videourlInputEl.value || '').trim();
@@ -437,6 +512,7 @@
       const card = renderCard(key, data);
       galleryGrid.prepend(card);
       loadedImageKeys.add(key);
+      filterCards(); // Apply filters on add
     });
 
     database.ref().on('child_changed', (snapshot) => {
@@ -482,6 +558,8 @@
           videoRow.innerHTML = `<span class="text-sm text-gray-400">No video</span>`;
         }
       }
+
+      filterCards(); // Re-apply filters on change
     });
 
     database.ref().on('child_removed', (snapshot) => {
@@ -489,6 +567,7 @@
       const el = document.querySelector(`[data-key="${key}"]`);
       if (el) el.remove();
       loadedImageKeys.delete(key);
+      filterCards(); // Re-apply filters on remove
     });
 
     // 9) Inline editing
@@ -670,6 +749,33 @@
       };
       input.click();
     };
+
+    // 13) Filter cards based on search inputs
+    function filterCards() {
+      const nameQuery = searchName.value.toLowerCase().trim();
+      const codeQuery = searchPartyCode.value.toLowerCase().trim();
+      const stockQuery = searchStock.value;
+
+      const cards = galleryGrid.querySelectorAll('[data-key]');
+      cards.forEach(card => {
+        const title = card.querySelector('h3').textContent.toLowerCase();
+        const codeEl = card.querySelectorAll('p')[1]; // Second <p> is Party Code
+        const code = codeEl ? codeEl.textContent.replace('Party Code: ', '').toLowerCase() : '';
+        const statusEl = card.querySelector(`.status-display-${card.dataset.key}`);
+        const status = statusEl.textContent.toLowerCase().includes('available') ? 'available' : 'outofstock';
+
+        const matchName = nameQuery ? title.includes(nameQuery) : true;
+        const matchCode = codeQuery ? code.includes(codeQuery) : true;
+        const matchStock = (stockQuery === 'all') || (stockQuery === status);
+
+        card.style.display = (matchName && matchCode && matchStock) ? '' : 'none';
+      });
+    }
+
+    // Attach filter listeners
+    searchName.addEventListener('input', filterCards);
+    searchPartyCode.addEventListener('input', filterCards);
+    searchStock.addEventListener('change', filterCards);
   </script>
 </body>
 </html>
