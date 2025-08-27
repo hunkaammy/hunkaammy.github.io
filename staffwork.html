@@ -1,577 +1,675 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Work Procedures</title>
-    <style>
-        body {
-            font-family: 'Times New Roman', serif;
-            background-color: #f8f8f8;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            margin: 20px;
-        }
+  <meta charset="UTF-8" />
+  <title>Product Gallery with Image + Video (Firebase)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        .container {
-            background-color: #fff;
-            padding: 35px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-            width: 100%;
-            max-width: 850px;
-            border: 1px solid #ddd;
-        }
+  <!-- Tailwind for styles (optional; remove if you already include it elsewhere) -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 30px;
-            font-size: 2.2em;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-        }
+  <!-- Firebase v8 SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
-        .staff-selection-section {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .staff-selection-section label {
-            font-size: 1.1em;
-            font-weight: bold;
-            color: #333;
-        }
-
-        #staffSelect {
-            flex-grow: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 1.05em;
-            font-family: 'Times New Roman', serif;
-            max-width: 250px;
-        }
-
-        #addStaffBtn, #printBtn { /* Apply styles to both buttons */
-            padding: 10px 15px;
-            background-color: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.2s ease;
-            margin-left: 5px; /* Add some space between staff buttons */
-        }
-
-        #addStaffBtn:hover, #printBtn:hover {
-            background-color: #5a6268;
-        }
-
-        .input-section {
-            display: flex;
-            margin-bottom: 25px;
-            gap: 10px;
-        }
-
-        #newTaskInput {
-            flex-grow: 1;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 1.1em;
-            font-family: 'Times New Roman', serif;
-        }
-
-        #addTaskBtn {
-            padding: 12px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1.1em;
-            transition: background-color 0.2s ease;
-        }
-
-        #addTaskBtn:hover {
-            background-color: #0056b3;
-        }
-
-        /* Checklist Styling */
-        .checklist-container {
-            padding: 15px 0;
-        }
-
-        ul {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .task-item {
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        .task-item:last-child {
-            border-bottom: none;
-        }
-
-        .task-header {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            padding: 5px 0;
-            margin-bottom: 5px;
-        }
-
-        .task-content {
-            display: flex;
-            align-items: flex-start;
-            flex-grow: 1;
-            margin-right: 15px;
-        }
-
-        .task-number {
-            font-size: 1.1em;
-            font-weight: bold;
-            color: #333;
-            min-width: 70px;
-            text-align: right;
-            padding-right: 15px;
-        }
-
-        .task-text {
-            font-size: 1.1em;
-            color: #333;
-            flex-grow: 1;
-            line-height: 1.4;
-            font-weight: normal;
-        }
-
-        /* Adjust font size and weight for deeper levels */
-        .checklist-level-1 > .task-item > .task-header > .task-content > .task-number { font-size: 1.05em; }
-        .checklist-level-1 > .task-item > .task-header > .task-content > .task-text { font-size: 1.05em; font-style: italic; color: #555; }
-
-        .checklist-level-2 > .task-item > .task-header > .task-content > .task-number { font-size: 1em; }
-        .checklist-level-2 > .task-item > .task-header > .task-content > .task-text { font-size: 1em; font-style: normal; color: #666; }
-
-        .checklist-level-3 > .task-item > .task-header > .task-content > .task-number { font-size: 0.95em; }
-        .checklist-level-3 > .task-item > .task-header > .task-content > .task-text { font-size: 0.95em; font-style: normal; color: #777; }
-
-        /* Deeper levels will have more padding */
-        .checklist-level-0 { padding-left: 0; }
-        .checklist-level-1 { padding-left: 40px; }
-        .checklist-level-2 { padding-left: 40px; }
-        .checklist-level-3 { padding-left: 40px; }
-
-
-        .task-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .task-actions button {
-            padding: 7px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: background-color 0.2s ease;
-        }
-
-        .add-subtask-btn {
-            background-color: #17a2b8;
-            color: white;
-        }
-        .add-subtask-btn:hover {
-            background-color: #138496;
-        }
-
-        .delete-btn {
-            background-color: #dc3545;
-            color: white;
-        }
-        .delete-btn:hover {
-            background-color: #c82333;
-        }
-
-        /* Message when no tasks */
-        .no-tasks-message {
-            text-align: center;
-            padding: 30px;
-            color: #777;
-            font-style: italic;
-            font-size: 1.1em;
-        }
-
-        /* --- Print Specific Styles --- */
-        @media print {
-            body {
-                background-color: #fff; /* White background for print */
-                margin: 0;
-                padding: 0;
-            }
-            .container {
-                box-shadow: none; /* No shadow on print */
-                border: none; /* No border on print */
-                padding: 0; /* Remove padding */
-                margin: 0 auto; /* Center content */
-                max-width: 100%; /* Use full width */
-            }
-            /* Hide UI elements that shouldn't be printed */
-            .staff-selection-section,
-            .input-section,
-            .task-actions,
-            #addStaffBtn,
-            #printBtn {
-                display: none !important;
-            }
-            h1 {
-                margin-top: 20px; /* Add some top margin to title */
-                margin-bottom: 20px;
-                border-bottom: 2px solid #ccc; /* Slightly darker underline for print */
-            }
-            /* Adjust spacing and fonts for readability on paper */
-            .task-item {
-                margin-bottom: 10px;
-                padding-bottom: 5px;
-                border-bottom: 1px dotted #ccc; /* Dotted line for print */
-            }
-            .task-header {
-                padding: 0;
-                margin-bottom: 2px;
-            }
-            .task-number, .task-text {
-                color: #000; /* Ensure black text for print */
-            }
-            .checklist-level-1, .checklist-level-2, .checklist-level-3 {
-                padding-left: 30px; /* Reduce indentation slightly for print */
-            }
-             .checklist-level-1 > .task-item > .task-header > .task-content > .task-text { font-style: normal; } /* Remove italics on print */
-        }
-    </style>
+  <style>
+    .drop-zone {
+      border: 2px dashed #cbd5e1; /* slate-300 */
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+    .drop-zone:hover {
+      background-color: #f8fafc; /* slate-50 */
+      border-color: #93c5fd; /* blue-300 */
+    }
+    #globalDropOverlay {
+      display: none;
+    }
+    #globalDropOverlay.active {
+      display: flex;
+    }
+    .truncate-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  </style>
 </head>
-<body>
-    <div class="container">
-        <h1>Staff Work Procedures</h1>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Global Drag & Drop Overlay -->
+  <div id="globalDropOverlay" class="fixed inset-0 bg-black/50 z-50 items-center justify-center text-white text-xl">
+    Drop files to upload
+  </div>
 
-        <div class="staff-selection-section">
-            <label for="staffSelect">Select Staff:</label>
-            <select id="staffSelect">
-                </select>
-            <button id="addStaffBtn">Add New Staff</button>
-            <button id="printBtn">Print Procedures</button> </div>
+  <div class="max-w-6xl mx-auto px-4 py-6">
+    <h1 class="text-2xl font-bold mb-4">Product Manager</h1>
 
-        <div class="input-section">
-            <input type="text" id="newTaskInput" placeholder="Add a new main procedure...">
-            <button id="addTaskBtn">Add Procedure</button>
+    <!-- Upload Card -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <!-- Left: Upload inputs -->
+      <div class="lg:col-span-1 bg-white rounded-xl shadow p-4">
+        <h2 class="text-lg font-semibold mb-3">Add New Product</h2>
+
+        <div class="space-y-3">
+          <div>
+            <label for="nameInput" class="block text-sm font-medium text-gray-700">Name</label>
+            <input id="nameInput" type="text" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Product name" />
+          </div>
+
+          <div>
+            <label for="priceInput" class="block text-sm font-medium text-gray-700">Price</label>
+            <input id="priceInput" type="number" step="0.01" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="0.00" />
+          </div>
+
+          <div>
+            <label for="partyCodeInput" class="block text-sm font-medium text-gray-700">Party Code</label>
+            <input id="partyCodeInput" type="text" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., ABC123" />
+          </div>
+
+          <div>
+            <label for="videourlInput" class="block text-sm font-medium text-gray-700">
+              Video URL (auto-filled when you upload a video)
+            </label>
+            <input id="videourlInput" type="url" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="https://..." />
+          </div>
         </div>
 
-        <div class="checklist-container">
-            <ul id="taskList" class="checklist-level-0">
-                </ul>
+        <!-- Image drop zone -->
+        <div class="drop-zone rounded-lg p-4 text-center cursor-pointer mt-4" id="imageDropZone">
+          <div class="text-gray-500">Click to upload or Drag & Drop an image</div>
+          <div class="preview mt-4" id="preview"></div>
+          <input type="file" id="imageInput" class="hidden" accept="image/*" />
         </div>
+
+        <!-- Video drop zone (NEW) -->
+        <div class="drop-zone rounded-lg p-4 text-center cursor-pointer mt-4" id="videoDropZone">
+          <div class="text-gray-500">Optional: Click to upload or Drag & Drop a video</div>
+          <div class="preview mt-4" id="videoPreview"></div>
+          <input type="file" id="videoInput" class="hidden" accept="video/*" />
+        </div>
+
+        <button id="uploadBtn" class="w-full mt-5 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg">
+          Upload Product
+        </button>
+      </div>
+
+      <!-- Middle: Upload queue / progress -->
+      <div class="lg:col-span-2 bg-white rounded-xl shadow p-4">
+        <h2 class="text-lg font-semibold mb-3">Upload Queue & Progress</h2>
+        <div id="progressList" class="space-y-3"></div>
+      </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Get all necessary DOM elements and check if they exist
-            const staffSelect = document.getElementById('staffSelect');
-            const addStaffBtn = document.getElementById('addStaffBtn');
-            const printBtn = document.getElementById('printBtn'); // Get the new print button
-            const newTaskInput = document.getElementById('newTaskInput');
-            const addTaskBtn = document.getElementById('addTaskBtn');
-            const taskListContainer = document.getElementById('taskList');
+    <!-- Gallery -->
+    <div class="mt-8">
+      <h2 class="text-lg font-semibold mb-3">Products</h2>
+      <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
+    </div>
+  </div>
 
-            // Robust check for all elements - crucial for debugging "not working" issues
-            if (!staffSelect || !addStaffBtn || !printBtn || !newTaskInput || !addTaskBtn || !taskListContainer) {
-                console.error("Critical Error: One or more required DOM elements were not found. Please check your HTML IDs.");
-                return;
-            } else {
-                console.log("All essential DOM elements found.");
+  <script>
+    // 1) Firebase init — replace with your project config from Firebase Console
+    // IMPORTANT: These values are placeholders. Paste YOUR actual config values here.
+    const firebaseConfig = {
+     apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
+            authDomain: "htshop-e9c51.firebaseapp.com",
+            databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com",
+            projectId: "htshop-e9c51",
+            storageBucket: "htshop-e9c51.appspot.com",
+            messagingSenderId: "653137640907",
+            appId: "1:653137640907:web:672fd6a9e85ca448a70a4e",
+            measurementId: "G-FJ4Q0FHBEG"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    const database = firebase.database();
+    const storage = firebase.storage();
+
+    // 2) Element references
+    const imageDropZone = document.getElementById('imageDropZone');
+    const imageInput = document.getElementById('imageInput');
+    const preview = document.getElementById('preview');
+
+    const videoDropZone = document.getElementById('videoDropZone');
+    const videoInput = document.getElementById('videoInput');
+    const videoPreview = document.getElementById('videoPreview');
+
+    const uploadBtn = document.getElementById('uploadBtn');
+    const progressList = document.getElementById('progressList');
+    const galleryGrid = document.getElementById('galleryGrid');
+    const globalDropOverlay = document.getElementById('globalDropOverlay');
+
+    // 3) State
+    const uploadQueue = [];
+    let isUploading = false;
+    const loadedImageKeys = new Set();
+
+    // 4) UI helpers
+    function previewImage(file) {
+      if (!file || !file.type.startsWith('image/')) return;
+      const url = URL.createObjectURL(file);
+      preview.innerHTML = `
+        <img src="${url}" alt="preview" class="mx-auto w-full rounded-lg object-contain" style="max-height: 240px;" />
+        <div class="text-xs text-gray-500 mt-1 truncate">${file.name}</div>
+      `;
+    }
+    function previewVideo(file) {
+      if (!file || !file.type.startsWith('video/')) return;
+      const url = URL.createObjectURL(file);
+      videoPreview.innerHTML = `
+        <video src="${url}" controls class="mx-auto w-full rounded-lg" style="max-height: 240px;"></video>
+        <div class="text-xs text-gray-500 mt-1 truncate">${file.name}</div>
+      `;
+    }
+
+    // 5) Drag & Drop
+    imageDropZone.addEventListener('click', () => imageInput.click());
+    videoDropZone.addEventListener('click', () => videoInput.click());
+    imageInput.addEventListener('change', () => {
+      if (imageInput.files.length) previewImage(imageInput.files[0]);
+    });
+    videoInput.addEventListener('change', () => {
+      if (videoInput.files.length) previewVideo(videoInput.files[0]);
+    });
+
+    window.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      globalDropOverlay.classList.add('active');
+    });
+    window.addEventListener('dragleave', (e) => {
+      if (e.target === document.documentElement || e.target === document.body) {
+        globalDropOverlay.classList.remove('active');
+      }
+    });
+    window.addEventListener('drop', (e) => {
+      e.preventDefault();
+      globalDropOverlay.classList.remove('active');
+
+      if (e.dataTransfer.files.length) {
+        const file = e.dataTransfer.files[0];
+        if (file.type.startsWith('image/')) {
+          imageInput.files = e.dataTransfer.files;
+          previewImage(file);
+        } else if (file.type.startsWith('video/')) {
+          videoInput.files = e.dataTransfer.files;
+          previewVideo(file);
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+
+    // 6) Upload flow: upload optional video first (fill videourl field), then queue image upload + DB write
+    uploadBtn.addEventListener('click', uploadImage);
+
+    async function uploadImage() {
+      const file = imageInput.files[0];
+      const name = document.getElementById('nameInput').value.trim();
+      const price = parseFloat(document.getElementById('priceInput').value.trim());
+      const partyCode = document.getElementById('partyCodeInput').value.trim();
+      const videourlInputEl = document.getElementById('videourlInput');
+
+      if (!file || !name || !partyCode || isNaN(price) || price <= 0) {
+        alert('Please fill all required fields with valid values.');
+        return;
+      }
+
+      // Upload video first if provided, then autofill the videourl input
+      let finalVideoURL = (videourlInputEl.value || '').trim();
+      if (videoInput.files && videoInput.files[0]) {
+        const videoFile = videoInput.files[0];
+        const now = new Date().toISOString();
+        const videoStorageRef = storage.ref(`${now}_${sanitizePath(name)}_${videoFile.name}`);
+
+        const videoStatus = document.createElement('div');
+        videoStatus.className = 'mb-2 text-sm text-blue-600';
+        videoStatus.textContent = 'Uploading video...';
+        videoPreview.appendChild(videoStatus);
+
+        try {
+          await videoStorageRef.put(videoFile);
+          finalVideoURL = await videoStorageRef.getDownloadURL();
+          videourlInputEl.value = finalVideoURL;
+          videoStatus.textContent = 'Video uploaded.';
+        } catch (err) {
+          console.error('Video upload failed:', err);
+          videoStatus.textContent = 'Video upload failed.';
+          alert('Video upload failed. You can still upload the image, or try again.');
+        }
+      }
+
+      // Create a progress item for image
+      const thumbDataURL = await fileToDataURL(file);
+      const progressContainer = document.createElement('div');
+      progressContainer.className = 'p-3 bg-gray-100 rounded';
+      progressContainer.innerHTML = `
+        <div class="flex items-center">
+          <img src="${thumbDataURL}" alt="thumbnail" class="w-12 h-12 object-cover rounded mr-4" />
+          <div class="flex-grow">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-sm font-medium text-gray-800 truncate w-48" title="${file.name}">${file.name}</span>
+              <span class="status text-sm text-blue-600 font-semibold">Uploading...</span>
+            </div>
+            <div class="bg-gray-300 rounded-full h-2.5">
+              <div class="progress-bar bg-blue-600 h-2.5 rounded-full w-0 transition-all duration-300"></div>
+            </div>
+          </div>
+        </div>
+      `;
+      progressList.prepend(progressContainer);
+
+      // Enqueue image upload
+      uploadQueue.push({
+        file,
+        name,
+        price,
+        partyCode,
+        videourl: finalVideoURL || '',
+        progressContainer
+      });
+
+      // Reset inputs
+      imageInput.value = '';
+      videoInput.value = '';
+      document.getElementById('nameInput').value = '';
+      document.getElementById('priceInput').value = '';
+      document.getElementById('partyCodeInput').value = '';
+      preview.innerHTML = '';
+      videoPreview.innerHTML = '';
+
+      processUploadQueue();
+    }
+
+    function sanitizePath(s) {
+      return s.replace(/[^\w\-]+/g, '_');
+    }
+    function fileToDataURL(fileToRead) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = err => reject(err);
+        reader.readAsDataURL(fileToRead);
+      });
+    }
+
+    async function processUploadQueue() {
+      if (isUploading) return;
+      if (uploadQueue.length === 0) return;
+
+      isUploading = true;
+      const item = uploadQueue.shift();
+
+      const { file, name, price, partyCode, videourl, progressContainer } = item;
+      const progressBar = progressContainer.querySelector('.progress-bar');
+      const statusEl = progressContainer.querySelector('.status');
+
+      const now = new Date().toISOString();
+      const storageRef = storage.ref(`${now}_${sanitizePath(name)}_${file.name}`);
+
+      try {
+        await new Promise((resolve, reject) => {
+          const task = storageRef.put(file);
+          task.on('state_changed',
+            (snap) => {
+              const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+              progressBar.style.width = pct + '%';
+              statusEl.textContent = `Uploading... ${pct}%`;
+            },
+            (err) => reject(err),
+            async () => {
+              try {
+                const imageURL = await storageRef.getDownloadURL();
+                statusEl.textContent = 'Finalizing...';
+
+                // Write to DB (root-level push)
+                const data = {
+                  name,
+                  price,
+                  partyCode,
+                  url: imageURL,
+                  videourl: videourl || '',
+                  outOfStock: false,
+                  date: Date.now()
+                };
+                const ref = database.ref().push();
+                await ref.set(data);
+
+                statusEl.textContent = 'Done';
+                progressBar.style.width = '100%';
+                setTimeout(() => progressContainer.remove(), 1200);
+
+                resolve();
+              } catch (e) {
+                reject(e);
+              }
             }
-
-            // --- Persistence Keys (Declared First to Prevent ReferenceError) ---
-            const STAFF_DATA_KEY = 'staffWorkProcedures'; // Key for all staff data in localStorage
-            const LAST_STAFF_KEY = 'lastSelectedStaff';   // Key for the last selected staff member
-
-            // --- Local Storage Functions ---
-            function saveAllStaffProcedures() {
-                try {
-                    localStorage.setItem(STAFF_DATA_KEY, JSON.stringify(allStaffProcedures));
-                } catch (e) {
-                    console.error("Error saving to localStorage:", e);
-                    alert("Could not save data. Your browser's storage might be full or blocked.");
-                }
-            }
-
-            function loadAllStaffProcedures() {
-                try {
-                    const storedData = localStorage.getItem(STAFF_DATA_KEY);
-                    return storedData ? JSON.parse(storedData) : {};
-                } catch (e) {
-                    console.error("Error loading from localStorage:", e);
-                    localStorage.removeItem(STAFF_DATA_KEY);
-                    alert("Could not load saved data. Data might be corrupted and has been cleared.");
-                    return {};
-                }
-            }
-
-            // Data structure: An object where keys are staff names, values are their procedure arrays
-            // Initialize this *after* persistence keys and functions are defined
-            let allStaffProcedures = loadAllStaffProcedures();
-            let currentStaffName = ''; // Stores the currently selected staff member's name
-
-            // --- Staff Management Functions ---
-            function populateStaffDropdown() {
-                staffSelect.innerHTML = ''; // Clear existing options
-
-                const staffNames = Object.keys(allStaffProcedures).sort(); // Get and sort staff names
-
-                if (staffNames.length === 0) {
-                    const option = document.createElement('option');
-                    option.value = '';
-                    option.textContent = 'No staff added yet';
-                    option.disabled = true;
-                    option.selected = true;
-                    staffSelect.appendChild(option);
-                    currentStaffName = '';
-                    // Disable task input/add button and print button if no staff is selected
-                    newTaskInput.disabled = true;
-                    addTaskBtn.disabled = true;
-                    printBtn.disabled = true; // Disable print button
-                } else {
-                    newTaskInput.disabled = false;
-                    addTaskBtn.disabled = false;
-                    printBtn.disabled = false; // Enable print button
-                    staffNames.forEach(name => {
-                        const option = document.createElement('option');
-                        option.value = name;
-                        option.textContent = name;
-                        staffSelect.appendChild(option);
-                    });
-
-                    const lastSelectedStaff = localStorage.getItem(LAST_STAFF_KEY);
-                    if (lastSelectedStaff && staffNames.includes(lastSelectedStaff)) {
-                        currentStaffName = lastSelectedStaff;
-                        staffSelect.value = currentStaffName;
-                    } else {
-                        currentStaffName = staffNames[0];
-                        staffSelect.value = currentStaffName;
-                        localStorage.setItem(LAST_STAFF_KEY, currentStaffName);
-                    }
-                }
-                renderProceduresForCurrentStaff();
-            }
-
-            function addStaff() {
-                const newStaffNameInput = prompt('Enter the name of the new staff member:');
-
-                if (newStaffNameInput === null || newStaffNameInput.trim() === '') {
-                    if (newStaffNameInput !== null) {
-                        alert('Staff name cannot be empty.');
-                    }
-                    return;
-                }
-
-                let newStaffName = newStaffNameInput.trim();
-                newStaffName = newStaffName.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-
-                if (allStaffProcedures[newStaffName]) {
-                    alert(`Staff member "${newStaffName}" already exists!`);
-                } else {
-                    allStaffProcedures[newStaffName] = [];
-                    saveAllStaffProcedures();
-                    currentStaffName = newStaffName;
-                    localStorage.setItem(LAST_STAFF_KEY, currentStaffName);
-                    populateStaffDropdown();
-                    alert(`Staff member "${newStaffName}" added successfully!`);
-                }
-            }
-
-            // --- Procedure Rendering ---
-            function renderProceduresForCurrentStaff() {
-                if (!currentStaffName) {
-                    taskListContainer.innerHTML = `<li class="no-tasks-message">Please add or select a staff member to view/manage procedures.</li>`;
-                    return;
-                }
-                const procedures = allStaffProcedures[currentStaffName] || [];
-                renderTasks(procedures, taskListContainer, 0, '');
-            }
-
-            function renderTasks(currentTasks, parentUl, level = 0, parentNumber = '') {
-                if (parentUl) {
-                   parentUl.innerHTML = '';
-                }
-
-                if (!currentTasks || currentTasks.length === 0) {
-                    if (level === 0) {
-                         const message = document.createElement('li');
-                         message.className = 'no-tasks-message';
-                         message.textContent = 'No procedures for this staff member yet. Add a main procedure below!';
-                         parentUl.appendChild(message);
-                    }
-                    return;
-                }
-
-                if (level === 0) {
-                    const existingMessage = taskListContainer.querySelector('.no-tasks-message');
-                    if (existingMessage) existingMessage.remove();
-                }
-
-                currentTasks.forEach((task, index) => {
-                    const listItem = document.createElement('li');
-                    listItem.classList.add('task-item');
-                    listItem.dataset.id = task.id;
-
-                    const currentNumber = parentNumber ? `${parentNumber}.${index + 1}` : `${index + 1}.0`;
-
-                    listItem.innerHTML = `
-                        <div class="task-header">
-                            <div class="task-content">
-                                <span class="task-number">${currentNumber}</span>
-                                <span class="task-text">${task.text}</span>
-                            </div>
-                            <div class="task-actions">
-                                <button class="add-subtask-btn" data-parent-id="${task.id}">Add Subprocedure</button>
-                                <button class="delete-btn" data-id="${task.id}">Delete</button>
-                            </div>
-                        </div>
-                        <ul class="checklist-level-${level + 1}">
-                            </ul>
-                    `;
-
-                    const childUl = listItem.querySelector(`ul.checklist-level-${level + 1}`);
-                    renderTasks(task.children, childUl, level + 1, currentNumber);
-
-                    parentUl.appendChild(listItem);
-                });
-            }
-
-            // --- Helper Functions for Procedure Data Manipulation ---
-            function findTaskById(id, tasksArray) {
-                for (const task of tasksArray) {
-                    if (task.id === id) {
-                        return task;
-                    }
-                    if (task.children && task.children.length > 0) {
-                        const foundChild = findTaskById(id, task.children);
-                        if (foundChild) {
-                            return foundChild;
-                        }
-                    }
-                }
-                return null;
-            }
-
-            function removeTaskById(id, tasksArray) {
-                for (let i = 0; i < tasksArray.length; i++) {
-                    if (tasksArray[i].id === id) {
-                        tasksArray.splice(i, 1);
-                        return true;
-                    }
-                    if (tasksArray[i].children && tasksArray[i].children.length > 0) {
-                        if (removeTaskById(id, tasksArray[i].children)) {
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }
-
-            // --- Event Listeners ---
-
-            staffSelect.addEventListener('change', (event) => {
-                currentStaffName = event.target.value;
-                localStorage.setItem(LAST_STAFF_KEY, currentStaffName);
-                renderProceduresForCurrentStaff();
-            });
-
-            addStaffBtn.addEventListener('click', addStaff);
-
-            // NEW: Print button event listener
-            printBtn.addEventListener('click', () => {
-                if (!currentStaffName) {
-                    alert('Please select a staff member to print their procedures.');
-                    return;
-                }
-                window.print(); // Triggers the browser's print dialog
-            });
-
-            addTaskBtn.addEventListener('click', () => {
-                if (!currentStaffName) {
-                    alert('Please select or add a staff member first!');
-                    return;
-                }
-                const taskText = newTaskInput.value.trim();
-                if (taskText) {
-                    allStaffProcedures[currentStaffName].push({
-                        id: 'task_' + Date.now(),
-                        text: taskText,
-                        children: []
-                    });
-                    saveAllStaffProcedures();
-                    newTaskInput.value = '';
-                    renderProceduresForCurrentStaff();
-                } else {
-                    alert('Please enter a main procedure description.');
-                }
-            });
-
-            newTaskInput.addEventListener('keypress', (event) => {
-                if (event.key === 'Enter') {
-                    addTaskBtn.click();
-                }
-            });
-
-            taskListContainer.addEventListener('click', (event) => {
-                const target = event.target;
-
-                if (!currentStaffName) {
-                    alert('Please select a staff member first!');
-                    return;
-                }
-
-                if (target.classList.contains('add-subtask-btn')) {
-                    const parentId = target.dataset.parentId;
-                    const parentTask = findTaskById(parentId, allStaffProcedures[currentStaffName]);
-                    const subtaskText = prompt('Enter subprocedure description:');
-
-                    if (subtaskText && subtaskText.trim()) {
-                        if (parentTask) {
-                            parentTask.children.push({
-                                id: parentId + '_' + Date.now(),
-                                text: subtaskText.trim(),
-                                children: []
-                            });
-                            saveAllStaffProcedures();
-                            renderProceduresForCurrentStaff();
-                        }
-                    } else if (subtaskText !== null) {
-                        alert('Subprocedure description cannot be empty.');
-                    }
-                }
-                else if (target.classList.contains('delete-btn')) {
-                    const taskId = target.dataset.id;
-                    if (confirm('Are you sure you want to delete this procedure and all its sub-procedures?')) {
-                        removeTaskById(taskId, allStaffProcedures[currentStaffName]);
-                        saveAllStaffProcedures();
-                        renderProceduresForCurrentStaff();
-                    }
-                }
-            });
-
-            // --- Initial Setup ---
-            populateStaffDropdown();
+          );
         });
-    </script>
+      } catch (err) {
+        console.error('Image upload failed:', err);
+        statusEl.textContent = 'Failed';
+        progressBar.classList.remove('bg-blue-600');
+        progressBar.classList.add('bg-red-500');
+      } finally {
+        isUploading = false;
+        if (uploadQueue.length > 0) processUploadQueue();
+      }
+    }
+
+    // 7) Render cards
+    function renderCard(key, data) {
+      const container = document.createElement('div');
+      container.className = 'bg-white rounded-xl shadow overflow-hidden';
+      container.dataset.key = key;
+
+      container.innerHTML = `
+        <img src="${data.url}" alt="${escapeHtml(data.name)}" class="w-full h-48 object-cover" loading="lazy">
+        <div class="p-4">
+          <h3 class="font-semibold text-lg mb-2 editable-field truncate-2" onclick="makeEditable(this, '${key}', 'name')" title="Click to edit name">
+            ${escapeHtml(data.name)}
+          </h3>
+
+          <p class="text-gray-600 mb-1 editable-field" onclick="makeEditable(this, '${key}', 'price')" title="Click to edit price">
+            Price: ${Number(data.price).toFixed(2)}
+          </p>
+          <p class="text-gray-600 mb-2 editable-field" onclick="makeEditable(this, '${key}', 'partyCode')" title="Click to edit party code">
+            Party Code: ${escapeHtml(data.partyCode || '')}
+          </p>
+
+          <div class="mt-2" id="videoRow-${key}">
+            ${
+              data.videourl
+                ? `<a href="${data.videourl}" target="_blank" class="text-blue-600 hover:underline text-sm">Watch video</a>`
+                : `<span class="text-sm text-gray-400">No video</span>`
+            }
+          </div>
+
+          <div class="flex justify-between items-center mt-3">
+            <p class="text-gray-600 status-display-${key}">Status: ${data.outOfStock ? 'Out of Stock' : 'Available'}</p>
+            <button onclick="toggleStockStatus('${key}', ${!!data.outOfStock})"
+              class="text-white py-1 px-3 rounded-full text-sm font-semibold ${data.outOfStock ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}">
+              ${data.outOfStock ? 'Mark Available' : 'Mark Out of Stock'}
+            </button>
+          </div>
+
+          <div class="flex justify-between items-center mt-2">
+            <p class="text-sm text-gray-500 uploaded-date-${key}">Uploaded: ${new Date(data.date || Date.now()).toLocaleString()}</p>
+            <button onclick="updateUploadDate('${key}')" class="text-white py-1 px-3 rounded-full text-xs font-semibold bg-blue-500 hover:bg-blue-600">
+              Update Date
+            </button>
+          </div>
+
+          <div class="flex flex-wrap gap-2 items-center mt-4">
+            <button onclick="replaceImage('${key}', '${encodeURIComponent(data.url || '')}')"
+              class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-3 rounded text-sm">
+              Replace Image
+            </button>
+            <button onclick="replaceVideo('${key}', '${encodeURIComponent(data.videourl || '')}')"
+              class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-3 rounded text-sm">
+              Replace Video
+            </button>
+
+            <button onclick="confirmDelete('${key}')"
+              class="ml-auto bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+              Delete
+            </button>
+          </div>
+        </div>
+      `;
+      return container;
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, s => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      }[s]));
+    }
+
+    // 8) Realtime listeners
+    database.ref().on('child_added', (snapshot) => {
+      const key = snapshot.key;
+      const data = snapshot.val() || {};
+      if (loadedImageKeys.has(key)) return;
+      const card = renderCard(key, data);
+      galleryGrid.prepend(card);
+      loadedImageKeys.add(key);
+    });
+
+    database.ref().on('child_changed', (snapshot) => {
+      const key = snapshot.key;
+      const updatedData = snapshot.val() || {};
+      const imageCard = document.querySelector(`[data-key="${key}"]`);
+      if (!imageCard) return;
+
+      const imgEl = imageCard.querySelector('img');
+      if (imgEl && updatedData.url) {
+        imgEl.src = updatedData.url;
+        imgEl.alt = updatedData.name || '';
+      }
+
+      const titleEl = imageCard.querySelector('h3');
+      if (titleEl) titleEl.textContent = updatedData.name || '';
+
+      const pEls = imageCard.querySelectorAll('p');
+      if (pEls[0]) pEls[0].textContent = `Price: ${Number(updatedData.price || 0).toFixed(2)}`;
+      if (pEls[1]) pEls[1].textContent = `Party Code: ${updatedData.partyCode || ''}`;
+
+      const statusDisplay = imageCard.querySelector(`.status-display-${key}`);
+      const statusButton = imageCard.querySelector(`[onclick^="toggleStockStatus('${key}',"]`);
+      if (statusDisplay) {
+        statusDisplay.textContent = `Status: ${updatedData.outOfStock ? 'Out of Stock' : 'Available'}`;
+      }
+      if (statusButton) {
+        statusButton.textContent = updatedData.outOfStock ? 'Mark Available' : 'Mark Out of Stock';
+        statusButton.className = `text-white py-1 px-3 rounded-full text-sm font-semibold ${updatedData.outOfStock ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`;
+        statusButton.setAttribute('onclick', `toggleStockStatus('${key}', ${!!updatedData.outOfStock})`);
+      }
+
+      const dateDisplay = imageCard.querySelector(`.uploaded-date-${key}`);
+      if (dateDisplay) {
+        dateDisplay.textContent = `Uploaded: ${new Date(updatedData.date || Date.now()).toLocaleString()}`;
+      }
+
+      const videoRow = imageCard.querySelector(`#videoRow-${key}`);
+      if (videoRow) {
+        if (updatedData.videourl) {
+          videoRow.innerHTML = `<a href="${updatedData.videourl}" target="_blank" class="text-blue-600 hover:underline text-sm">Watch video</a>`;
+        } else {
+          videoRow.innerHTML = `<span class="text-sm text-gray-400">No video</span>`;
+        }
+      }
+    });
+
+    database.ref().on('child_removed', (snapshot) => {
+      const key = snapshot.key;
+      const el = document.querySelector(`[data-key="${key}"]`);
+      if (el) el.remove();
+      loadedImageKeys.delete(key);
+    });
+
+    // 9) Inline editing
+    window.makeEditable = function(el, key, field) {
+      const isPrice = field === 'price';
+      const prev = el.textContent.replace(/^Price:\s*/i, '').replace(/^Party Code:\s*/i, '').trim();
+      const input = document.createElement('input');
+      input.type = isPrice ? 'number' : 'text';
+      if (isPrice) input.step = '0.01';
+      input.value = prev;
+      input.className = 'w-full border border-gray-300 rounded px-2 py-1';
+      el.replaceWith(input);
+      input.focus();
+      input.select();
+
+      function commit() {
+        let value = input.value.trim();
+        if (isPrice) value = parseFloat(value || '0') || 0;
+
+        const updateObj = {};
+        updateObj[field] = value;
+        database.ref(key).update(updateObj).then(() => {
+          const span = document.createElement(field === 'name' ? 'h3' : 'p');
+          if (field === 'name') {
+            span.className = 'font-semibold text-lg mb-2 editable-field truncate-2';
+            span.title = 'Click to edit name';
+            span.setAttribute('onclick', `makeEditable(this, '${key}', 'name')`);
+            span.textContent = String(value);
+          } else if (field === 'price') {
+            span.className = 'text-gray-600 mb-1 editable-field';
+            span.title = 'Click to edit price';
+            span.setAttribute('onclick', `makeEditable(this, '${key}', 'price')`);
+            span.textContent = `Price: ${Number(value).toFixed(2)}`;
+          } else {
+            span.className = 'text-gray-600 mb-2 editable-field';
+            span.title = 'Click to edit party code';
+            span.setAttribute('onclick', `makeEditable(this, '${key}', 'partyCode')`);
+            span.textContent = `Party Code: ${String(value)}`;
+          }
+          input.replaceWith(span);
+        }).catch(err => {
+          console.error('Update failed:', err);
+          alert('Failed to update. Please try again.');
+          input.replaceWith(el);
+        });
+      }
+      input.addEventListener('blur', commit);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') commit();
+        if (e.key === 'Escape') input.replaceWith(el);
+      });
+    };
+
+    // 10) Stock toggle, update date
+    window.toggleStockStatus = function(key, current) {
+      database.ref(key).update({ outOfStock: !current }).catch(err => {
+        console.error('Toggle stock failed:', err);
+        alert('Failed to toggle stock status.');
+      });
+    };
+    window.updateUploadDate = function(key) {
+      database.ref(key).update({ date: Date.now() }).catch(err => {
+        console.error('Update date failed:', err);
+        alert('Failed to update upload date.');
+      });
+    };
+
+    // 11) Delete product (delete exact image and video from Storage first)
+    window.confirmDelete = function(key) {
+      if (confirm('Are you sure you want to delete this product?')) {
+        deleteProduct(key);
+      }
+    };
+
+    function isFirebaseStorageUrl(url) {
+      if (!url) return false;
+      return url.startsWith('https://firebasestorage.googleapis.com') ||
+             (typeof firebaseConfig?.storageBucket === 'string' && url.includes(firebaseConfig.storageBucket));
+    }
+
+    function deleteProduct(key) {
+      database.ref(key).once('value').then(snapshot => {
+        const data = snapshot.val() || {};
+        const imageUrl = data.url;
+        const videoUrl = data.videourl;
+
+        const deletions = [];
+
+        if (imageUrl && isFirebaseStorageUrl(imageUrl)) {
+          deletions.push(
+            storage.refFromURL(imageUrl).delete().catch(err => {
+              console.warn(`Unable to delete image from storage for ${key}:`, err);
+            })
+          );
+        }
+        if (videoUrl && isFirebaseStorageUrl(videoUrl)) {
+          deletions.push(
+            storage.refFromURL(videoUrl).delete().catch(err => {
+              console.warn(`Unable to delete video from storage for ${key}:`, err);
+            })
+          );
+        }
+
+        Promise.allSettled(deletions).then(() => {
+          database.ref(key).remove().then(() => {
+            const deletedElement = document.querySelector(`[data-key="${key}"]`);
+            if (deletedElement) deletedElement.remove();
+            loadedImageKeys.delete(key);
+          }).catch(dbErr => {
+            console.error(`Error deleting product ${key} from database:`, dbErr);
+            alert('Error deleting product from database.');
+          });
+        });
+      }).catch(err => {
+        console.error('Failed to load product for deletion:', err);
+        alert('Could not load product details for deletion.');
+      });
+    }
+
+    // 12) Replace image / video (upload new, update DB, then delete old)
+    window.replaceImage = function(key, currentImageUrlEncoded) {
+      const currentImageUrl = decodeURIComponent(currentImageUrlEncoded || '');
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = async () => {
+        const file = input.files[0];
+        if (!file) return;
+        const now = new Date().toISOString();
+        const storageRefNew = storage.ref(`${now}_REPLACE_${file.name}`);
+
+        try {
+          await storageRefNew.put(file);
+          const newUrl = await storageRefNew.getDownloadURL();
+          await database.ref(key).update({ url: newUrl });
+
+          if (currentImageUrl && isFirebaseStorageUrl(currentImageUrl)) {
+            storage.refFromURL(currentImageUrl).delete().catch(err => {
+              console.warn('Old image delete failed:', err);
+            });
+          }
+
+          alert('Image replaced successfully.');
+        } catch (err) {
+          console.error('Replace image failed:', err);
+          alert('Failed to replace image.');
+        }
+      };
+      input.click();
+    };
+
+    window.replaceVideo = function(key, currentVideoUrlEncoded) {
+      const currentVideoUrl = decodeURIComponent(currentVideoUrlEncoded || '');
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'video/*';
+      input.onchange = async () => {
+        const file = input.files[0];
+        if (!file) return;
+        const now = new Date().toISOString();
+        const storageRefNew = storage.ref(`${now}_REPLACE_${file.name}`);
+
+        try {
+          await storageRefNew.put(file);
+          const newUrl = await storageRefNew.getDownloadURL();
+          await database.ref(key).update({ videourl: newUrl });
+
+          if (currentVideoUrl && isFirebaseStorageUrl(currentVideoUrl)) {
+            storage.refFromURL(currentVideoUrl).delete().catch(err => {
+              console.warn('Old video delete failed:', err);
+            });
+          }
+
+          alert('Video replaced successfully.');
+        } catch (err) {
+          console.error('Replace video failed:', err);
+          alert('Failed to replace video.');
+        }
+      };
+      input.click();
+    };
+  </script>
 </body>
 </html>
