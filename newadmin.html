@@ -690,10 +690,15 @@
     nameSearchInput.addEventListener('input', debouncedSearch);
     partyCodeSearchInput.addEventListener('input', debouncedSearch);
 
-    // 12) Inline editing
+    // 12) Optimized Inline editing
     window.makeEditable = function(el, key, field) {
       const isPrice = field === 'price';
-      const prev = el.textContent.replace(/^Price:\s*/i, '').replace(/^Party Code:\s*/i, '').trim();
+      const isPartyCode = field === 'partyCode';
+      // Remove prefixes for display in input
+      const prev = el.textContent
+        .replace(/^Price:\s*/i, '')
+        .replace(/^Party Code:\s*/i, '')
+        .trim();
       const input = document.createElement('input');
       input.type = isPrice ? 'number' : 'text';
       if (isPrice) input.step = '0.01';
@@ -705,35 +710,57 @@
 
       function commit() {
         let value = input.value.trim();
-        if (isPrice) value = parseFloat(value || '0') || 0;
+        if (isPrice) {
+          value = parseFloat(value || '0') || 0;
+          // Divide price by 2 before updating
+          value = value / 2;
+        }
+        if (!value && isPrice) {
+          alert('Price cannot be empty or zero.');
+          input.replaceWith(el);
+          return;
+        }
+        if (!value && isPartyCode) {
+          alert('Party code cannot be empty.');
+          input.replaceWith(el);
+          return;
+        }
+        if (!value && field === 'name') {
+          alert('Product name cannot be empty.');
+          input.replaceWith(el);
+          return;
+        }
 
         const updateObj = {};
         updateObj[field] = value;
+
+        // Update only the specific field in the DOM to avoid full re-render
         database.ref(key).update(updateObj).then(() => {
-          const span = document.createElement(field === 'name' ? 'h3' : 'p');
+          const newEl = document.createElement(field === 'name' ? 'h3' : 'p');
           if (field === 'name') {
-            span.className = 'font-semibold text-lg mb-2 editable-field truncate-2';
-            span.title = 'Click to edit name';
-            span.setAttribute('onclick', `makeEditable(this, '${key}', 'name')`);
-            span.textContent = String(value);
-          } else if (field === 'price') {
-            span.className = 'text-gray-600 mb-1 editable-field';
-            span.title = 'Click to edit price';
-            span.setAttribute('onclick', `makeEditable(this, '${key}', 'price')`);
-            span.textContent = `Price: ${Number(value).toFixed(2)}`;
+            newEl.className = 'font-semibold text-lg mb-2 editable-field truncate-2';
+            newEl.title = 'Click to edit name';
+            newEl.setAttribute('onclick', `makeEditable(this, '${key}', 'name')`);
+            newEl.textContent = escapeHtml(value);
+          } else if (isPrice) {
+            newEl.className = 'text-gray-600 mb-1 editable-field';
+            newEl.title = 'Click to edit price';
+            newEl.setAttribute('onclick', `makeEditable(this, '${key}', 'price')`);
+            newEl.textContent = `Price: ${Number(value).toFixed(2)}`;
           } else {
-            span.className = 'text-gray-600 mb-2 editable-field';
-            span.title = 'Click to edit party code';
-            span.setAttribute('onclick', `makeEditable(this, '${key}', 'partyCode')`);
-            span.textContent = `Party Code: ${String(value)}`;
+            newEl.className = 'text-gray-600 mb-2 editable-field';
+            newEl.title = 'Click to edit party code';
+            newEl.setAttribute('onclick', `makeEditable(this, '${key}', 'partyCode')`);
+            newEl.textContent = `Party Code: ${escapeHtml(value)}`;
           }
-          input.replaceWith(span);
+          input.replaceWith(newEl);
         }).catch(err => {
           console.error('Update failed:', err);
           alert('Failed to update. Please try again.');
           input.replaceWith(el);
         });
       }
+
       input.addEventListener('blur', commit);
       input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') commit();
