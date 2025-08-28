@@ -415,12 +415,12 @@
         });
         console.log('Added to upload queue:', { name, price, partyCode });
 
-        // Clear inputs
+        // Clear inputs except partyCodeInput
         imageInput.value = '';
         videoInput.value = '';
         document.getElementById('nameInput').value = '';
         document.getElementById('priceInput').value = '';
-        document.getElementById('partyCodeInput').value = '';
+        document.getElementById('videourlInput').value = '';
         preview.innerHTML = '';
         videoPreview.innerHTML = '';
 
