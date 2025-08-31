@@ -1,299 +1,1194 @@
-Of course. Here is the revised code, optimized to be more "finger-friendly" and readable on Android and other mobile devices.
-
-The main change is increased row height for each product in the list, making it easier to read and tap the correct action buttons without sacrificing usability on small screens.
-
------
-
-### **Mobile-Perfected Admin Panel Code**
-
-This updated code provides a better viewing and interaction experience on mobile devices.
-
-```html
 <!DOCTYPE html>
-<html lang="en" ng-app="adminApp">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Hindustan Toys - Admin Panel</title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-  <style>
-    body { 
-        background-color: #f8f9fa; 
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
-    }
-    .navbar { 
-        background-color: #343a40 !important; 
-        color: #fff; 
-    }
-    .container-fluid { 
-        margin-top: 15px;
-        padding: 0 8px;
-    }
-    .order-card { 
-        margin-bottom: 15px; 
-        border: 1px solid #dee2e6; 
-        box-shadow: 0 2px 5px rgba(0,0,0,.05); 
-    }
-    .order-header { 
-        background-color: #f1f1f1; 
-        padding: 12px 15px; 
-        cursor: pointer; 
-        display: flex; 
-        justify-content: space-between; 
-        align-items: center; 
-    }
-    .order-header h5 { 
-        margin: 0; 
-        font-weight: 600; 
-        font-size: 1.0rem; 
-    }
-    /* Increased product image size */
-    .product-image { 
-        width: 55px; 
-        height: 55px; 
-        object-fit: cover; 
-        border-radius: 5px; 
-    }
-    /* Increased table row height and font size */
-    .table th, .table td { 
-        vertical-align: middle !important; 
-        font-size: 0.9rem; 
-        white-space: nowrap;
-        padding: 12px 10px; /* Increased padding for more height */
-    }
-    .table-responsive {
-        display: block;
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    /* Increased button size for easier tapping */
-    .action-buttons .btn { 
-        margin: 0 3px; 
-        padding: 0.35rem 0.6rem; 
-        font-size: 0.85rem; 
-    }
-    .loading-spinner, .no-orders { 
-        text-align: center; 
-        margin-top: 50px; 
-        color: #6c757d; 
-    }
-    .nav-tabs .nav-link { 
-        font-weight: 500;
-        padding: 0.6rem 0.8rem;
-        font-size: 0.9rem;
-    }
-    .badge { 
-        font-size: 0.8em; 
-        padding: 0.4em 0.6em;
-    }
-
-    @media (max-width: 576px) {
-        .order-header {
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube DJ Player with Played History</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            align-items: center;
+            margin: 0;
+            background: linear-gradient(135deg, #1a1a1a, #333333);
+            color: #f0f0f0;
+            padding: 20px;
+            box-sizing: border-box;
         }
-        .order-header h5 {
-            margin-bottom: 8px;
+
+        h1 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #ff5500;
+            text-shadow: 0 0 10px rgba(255, 85, 0, 0.7);
+            font-size: 28px;
+            letter-spacing: 2px;
         }
-        .container-fluid {
+
+        .track-control-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 600px;
+            margin: 20px 0;
+        }
+
+        .track-selector {
+            margin-right: 10px;
+            flex: 1;
+            position: relative;
+        }
+
+        label, input, select, button {
+            display: block;
             margin-top: 10px;
-            padding: 0 5px;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            background-color: #222222;
+            color: #f0f0f0;
         }
-    }
-  </style>
+
+        button {
+            cursor: pointer;
+            background-color: #ff5500;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #ff7700;
+        }
+
+        .player-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 900px;
+            margin: 20px 0;
+        }
+
+        .video-player {
+            flex: 1;
+            margin: 0 10px;
+            border: 2px solid #444444;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 45%;
+            background-color: #111111;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .tempo-controls {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 0 0 10px 10px;
+        }
+
+        .tempo-slider {
+            width: 100%;
+            margin: 10px 0;
+            height: 10px;
+            background: #333333;
+            border-radius: 5px;
+        }
+
+        .tempo-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #ff5500;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .balance-control {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 600px;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            padding: 20px;
+        }
+
+        .balance-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 25px;
+            background: #333333;
+            border-radius: 10px;
+            outline: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            border: 1px solid #ff5500;
+        }
+
+        .balance-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 30px;
+            height: 30px;
+            background: #ff5500;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 85, 0, 0.7);
+        }
+
+        .balance-slider::-moz-range-thumb {
+            width: 30px;
+            height: 30px;
+            background: #ff5500;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 85, 0, 0.7);
+        }
+
+        .volume-percentage {
+            font-size: 20px;
+            color: #fff;
+            margin-top: 10px;
+        }
+
+        .history-container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            overflow-x: auto;
+            border: 1px solid #444444;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #444444;
+        }
+
+        th {
+            background-color: #222222;
+            color: #ff5500;
+        }
+
+        td button {
+            padding: 5px 10px;
+            background-color: #222222;
+            color: white;
+            border: 1px solid #444444;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        td button:hover {
+            background-color: #1abc9c;
+        }
+
+        .edit-btn {
+            background-color: #f39c12;
+        }
+
+        .edit-btn:hover {
+            background-color: #e67e22;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+        }
+
+        .modal-content {
+            background-color: #34495e;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        #notes-textarea {
+            width: 100%;
+            height: 200px;
+            margin: 10px 0;
+            background: #2c3e50;
+            border: 1px solid #444;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        #notes-btn {
+            margin-left: 10px;
+            padding: 8px 15px;
+            background: #1abc9c;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        #notes-btn:hover {
+            background: #16a085;
+        }
+
+        .buttons-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        #backup-btn, #restore-btn {
+            margin-top: 20px;
+        }
+
+        .current-track-info {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+        }
+
+        .custom-dropdown {
+            position: absolute;
+            width: 100%;
+            max-width: 300px;
+            margin: 10px 0;
+            z-index: 10;
+            background: #34495e;
+            max-height: 200px;
+            overflow-y: auto;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .custom-dropdown .dropdown-item {
+            display: flex;
+            cursor: pointer;
+            margin-bottom: 5px;
+            color: white;
+            background-color: transparent;
+            transition: background-color 0.3s ease;
+        }
+
+        .custom-dropdown .dropdown-item:hover {
+            background-color: #2980b9;
+        }
+
+        .custom-dropdown img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+
+        .custom-dropdown .title {
+            flex: 1;
+            font-size: 10px;
+        }
+
+        .beat-loop {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .beat-loop-select {
+            padding: 5px;
+            background: #34495e;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .beat-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .beat-btn {
+            flex: 1;
+            padding: 5px 10px;
+            background-color: #34495e;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .beat-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .beat-btn.active {
+            background-color: #e74c3c;
+        }
+
+        .transition-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 600px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+        }
+
+        .transition-control select,
+        .transition-control input,
+        .transition-control button {
+            padding: 8px;
+            font-size: 14px;
+            border-radius: 5px;
+            border: none;
+            background-color: #222222;
+            color: #f0f0f0;
+        }
+
+        .transition-control button {
+            background-color: #ff5500;
+            cursor: pointer;
+        }
+
+        .transition-control button:hover {
+            background-color: #ff7700;
+        }
+
+        #transition-progress {
+            display: none;
+            width: 100%;
+            max-width: 600px;
+            height: 5px;
+            background: #333;
+            margin-top: 10px;
+        }
+
+        #progress-bar {
+            width: 0;
+            height: 100%;
+            background: #ff5500;
+            transition: width linear;
+        }
+
+        @media (max-width: 768px) {
+            .player-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .video-player {
+                width: 90%;
+                margin: 10px 0;
+            }
+        }
+    </style>
 </head>
-<body ng-controller="AdminController as admin">
+<body>
+    <h1>SAMMY'S YT DJ PROJECT</h1>
 
-  <nav class="navbar navbar-dark">
-    <a class="navbar-brand" href="#" style="font-size: 1.1rem;">
-      <i class="fas fa-dolly-flatbed"></i>
-      Order Management
-    </a>
-  </nav>
+    <select id="api-key-select">
+        <option value="YOUR_YOUTUBE_API_KEY_1">API Key 1</option>
+        <option value="YOUR_YOUTUBE_API_KEY_2">API Key 2</option>
+    </select>
 
-  <div class="container-fluid">
-    <ul class="nav nav-tabs mb-3">
-      <li class="nav-item">
-        <a class="nav-link" ng-class="{active: admin.activeTab === 'pending'}" ng-click="admin.activeTab = 'pending'" href="#">
-          <i class="fas fa-hourglass-half"></i> Pending <span class="badge badge-primary ml-1">{{ admin.getShopCount(admin.groupedOrders.pending) }}</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" ng-class="{active: admin.activeTab === 'processed'}" ng-click="admin.activeTab = 'processed'" href="#">
-          <i class="fas fa-check-circle"></i> Processed <span class="badge badge-success ml-1">{{ admin.getShopCount(admin.groupedOrders.processed) }}</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" ng-class="{active: admin.activeTab === 'outOfStock'}" ng-click="admin.activeTab = 'outOfStock'" href="#">
-          <i class="fas fa-exclamation-triangle"></i> Out of Stock <span class="badge badge-warning ml-1">{{ admin.getShopCount(admin.groupedOrders.outOfStock) }}</span>
-        </a>
-      </li>
-    </ul>
+    <button id="notes-btn" onclick="openNotesModal()">Notes</button>
 
-    <div class="loading-spinner" ng-if="admin.loading">
-        <div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div>
-        <p>Fetching Orders...</p>
+    <div id="notes-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeNotesModal()">&times;</span>
+            <h3>DJ Notes</h3>
+            <textarea id="notes-textarea" placeholder="Add your notes here..."></textarea>
+            <button onclick="saveNotes()">Save Notes</button>
+        </div>
     </div>
 
-    <div class="tab-content" ng-if="!admin.loading">
-        <div ng-repeat="(shopName, order) in admin.groupedOrders[admin.activeTab]">
-            <div class="order-card">
-                <div class="order-header" data-toggle="collapse" href="#collapse-{{admin.activeTab}}-{{$index}}">
-                    <h5><i class="fas fa-store"></i> {{ shopName }}</h5>
-                    <div class="d-flex align-items-center">
-                        <span class="badge badge-info mr-2">Items: {{ order.items.length }}</span>
-                        <span class="badge badge-secondary mr-2">Total Qty: {{ order.totalQuantity }}</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                </div>
-                <div id="collapse-{{admin.activeTab}}-{{$index}}" class="collapse">
-                    <div class="table-responsive">
-                        <table class="table table-hover table-sm mb-0">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>Image</th>
-                                    <th>Product</th>
-                                    <th>Price</th>
-                                    <th>Qty</th>
-                                    <th>Submitted</th>
-                                    <th ng-if="admin.activeTab === 'pending'">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr ng-repeat="item in order.items">
-                                    <td><img ng-src="{{item.field1}}" class="product-image" alt="{{item.productName}}"></td>
-                                    <td>{{ item.productName }}</td>
-                                    <td>₹{{ item.productPrice | number:2 }}</td>
-                                    <td><b>{{ item.field3 }}</b></td>
-                                    <td>{{ item.submitDate }} {{ item.submitTime }}</td>
-                                    <td class="action-buttons" ng-if="admin.activeTab === 'pending'">
-                                        <button class="btn btn-success btn-sm" ng-click="admin.updateItemStatus(item, 'processed')" title="Mark as Processed"><i class="fas fa-check"></i></button>
-                                        <button class="btn btn-warning btn-sm" ng-click="admin.updateItemStatus(item, 'outOfStock')" title="Mark as Out of Stock"><i class="fas fa-times"></i></button>
-                                        <button class="btn btn-danger btn-sm" ng-click="admin.deleteItem(item)" title="Delete Item"><i class="fas fa-trash"></i></button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+    <div class="track-control-container">
+        <div class="track-selector">
+            <label for="search-deck1">Search DECK-1:</label>
+            <input type="text" id="search-deck1" placeholder="Search YouTube">
+            <button onclick="searchYouTubeForDeck('deck1')">Search</button>
+            <div id="custom-dropdown1" class="custom-dropdown"></div>
+            <select id="track-list1" style="display:none;"></select>
+        </div>
+
+        <div class="track-selector">
+            <label for="search-deck2">Search DECK-2:</label>
+            <input type="text" id="search-deck2" placeholder="Search YouTube">
+            <button onclick="searchYouTubeForDeck('deck2')">Search</button>
+            <div id="custom-dropdown2" class="custom-dropdown"></div>
+            <select id="track-list2" style="display:none;"></select>
+        </div>
+    </div>
+
+    <div class="player-container">
+        <div class="video-player" id="player1">
+            <iframe id="youtube-player1" width="100%" height="315" 
+                src="https://www.youtube.com/embed?enablejsapi=1&playsinline=1&disablekb=1" 
+                frameborder="0" 
+                allowfullscreen
+                allow="autoplay">
+            </iframe>
+            <div class="tempo-controls">
+                <label>Reference BPM: <input type="number" id="bpm-input1" value="120" min="60" max="180" step="1"></label>
+                <button onclick="setReferenceBPM(1)">Set BPM</button>
+                <label>BPM: <span id="tempo1-value">120</span></label>
+                <input type="range" id="tempo1" min="60" max="180" step="1" value="120" class="tempo-slider">
+                <div class="beat-loop">
+                    <label>Beat Loop:</label>
+                    <div class="beat-buttons">
+                        <button class="beat-btn" data-beats="1" onclick="toggleBeatLoop(1, 1)">1</button>
+                        <button class="beat-btn" data-beats="2" onclick="toggleBeatLoop(1, 2)">2</button>
+                        <button class="beat-btn" data-beats="3" onclick="toggleBeatLoop(1, 3)">3</button>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="no-orders" ng-if="!admin.loading && admin.getShopCount(admin.groupedOrders[admin.activeTab]) === 0">
-            <i class="fas fa-folder-open fa-3x"></i>
-            <h3>No Items Here</h3>
-            <p>There are no items with the status '{{admin.activeTab}}' right now.</p>
+        <div class="video-player" id="player2">
+            <iframe id="youtube-player2" width="100%" height="315" 
+                src="https://www.youtube.com/embed?enablejsapi=1&playsinline=1&disablekb=1" 
+                frameborder="0" 
+                allowfullscreen
+                allow="autoplay">
+            </iframe>
+            <div class="tempo-controls">
+                <label>Reference BPM: <input type="number" id="bpm-input2" value="120" min="60" max="180" step="1"></label>
+                <button onclick="setReferenceBPM(2)">Set BPM</button>
+                <label>BPM: <span id="tempo2-value">120</span></label>
+                <input type="range" id="tempo2" min="60" max="180" step="1" value="120" class="tempo-slider">
+                <div class="beat-loop">
+                    <label>Beat Loop:</label>
+                    <div class="beat-buttons">
+                        <button class="beat-btn" data-beats="1" onclick="toggleBeatLoop(2, 1)">1</button>
+                        <button class="beat-btn" data-beats="2" onclick="toggleBeatLoop(2, 2)">2</button>
+                        <button class="beat-btn" data-beats="3" onclick="toggleBeatLoop(2, 3)">3</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-  </div>
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
-  <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
+    <div class="balance-control">
+        <input type="range" id="balance-slider" class="balance-slider" min="0" max="100" value="50">
+    </div>
 
-  <script>
-    const app = angular.module('adminApp', ['firebase']);
+    <div class="volume-percentage" id="volume-percentage">Center (0%)</div>
 
-    app.controller('AdminController', ['$scope', '$firebaseArray', function($scope, $firebaseArray) {
-        const vm = this;
-        vm.loading = true;
-        vm.activeTab = 'pending';
-        
-        const firebaseConfigSubmit = {
-            apiKey: "AIzaSyAMFjDnZaszneoR6nO8bmXUxwZJplLvNfU",
-            authDomain: "notes-12519.firebaseapp.com",
-            databaseURL: "https://notes-12519-default-rtdb.firebaseio.com",
-            projectId: "notes-12519",
-            storageBucket: "notes-12519.appspot.com",
-            messagingSenderId: "1073774450189",
-            appId: "1:1073774450189:web:0b6d4a9f95823abbf36744"
-        };
-        
-        try {
-            const submitApp = firebase.initializeApp(firebaseConfigSubmit, 'submitApp');
-            const db = submitApp.database();
-            const ref = db.ref();
+    <div class="transition-control">
+        <label for="transition-type">Transition Type:</label>
+        <select id="transition-type">
+            <option value="crossfade">Crossfade</option>
+            <option value="fade-out-in">Fade Out/In</option>
+            <option value="echo">Echo</option>
+            <option value="stutter">Stutter</option>
+            <option value="tempo-synced">Tempo-Synced</option>
+        </select>
+        <label for="transition-duration">Duration (ms):</label>
+        <input type="number" id="transition-duration" value="3000" min="1000" max="10000" step="100">
+        <button onclick="startTransition()">Start Transition</button>
+    </div>
 
-            vm.allOrderItems = $firebaseArray(ref);
-            vm.groupedOrders = { pending: {}, processed: {}, outOfStock: {} };
+    <div id="transition-progress">
+        <div id="progress-bar"></div>
+    </div>
 
-            const groupAndFilterOrders = function(items) {
-                const grouped = { pending: {}, processed: {}, outOfStock: {} };
-                if (!items) return grouped;
+    <div class="current-track-info">
+        <h2>Current Track</h2>
+        <p id="current-track-deck1">Deck 1: <span id="current-track-title1">None</span></p>
+        <p id="current-track-deck2">Deck 2: <span id="current-track-title2">None</span></p>
+    </div>
 
-                items.forEach(function(item) {
-                    if (!item || !item.field2) return;
+    <div class="history-container">
+        <h2>Played History</h2>
+        <input type="text" id="history-search" placeholder="Search in history" onkeyup="filterHistory()">
+        <p>Total Tracks Played: <span id="track-count">0</span></p>
+        <table id="history-list">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
 
-                    const shopName = item.field2;
-                    const status = item.status || 'pending';
-                    
-                    if (!grouped[status]) {
-                        grouped[status] = {};
-                    }
+    <button id="backup-btn" onclick="backupHistory()">Backup History</button>
+    <input type="file" id="restore-input" style="display:none" onchange="restoreHistory(event)">
+    <button id="restore-btn" onclick="document.getElementById('restore-input').click()">Restore History</button>
 
-                    if (!grouped[status][shopName]) {
-                        grouped[status][shopName] = { items: [], totalQuantity: 0 };
-                    }
+    <script>
+        const apiKeys = [
+            'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A',
+            'AIzaSyDX2n08WCf5Ol1nffaqJU_aJp_BODlw1H4'
+        ];
 
-                    grouped[status][shopName].items.push(item);
-                    grouped[status][shopName].totalQuantity += parseInt(item.field3, 10) || 0;
-                });
-                return grouped;
-            };
+        let currentApiKeyIndex = 0; 
+        let apiKey = apiKeys[currentApiKeyIndex]; 
 
-            const updateView = function() {
-                vm.groupedOrders = groupAndFilterOrders(vm.allOrderItems);
-            };
+        function switchApiKey() {
+            currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length;
+            apiKey = apiKeys[currentApiKeyIndex];
+            alert(`API Key switched to: Key ${currentApiKeyIndex + 1}`);
+        }
 
-            vm.allOrderItems.$loaded().then(function() {
-                updateView();
-                vm.loading = false;
-            }).catch(function(error) {
-                console.error("Critical Error on Load:", error);
-                vm.loading = false;
+        function loadYouTubeAPI() {
+            const script = document.createElement('script');
+            script.src = "https://www.youtube.com/iframe_api";
+            document.body.appendChild(script);
+        }
+
+        let player1, player2;
+
+        function onYouTubeIframeAPIReady() {
+            player1 = new YT.Player('youtube-player1', {
+                events: {
+                    'onReady': onPlayer1Ready,
+                    'onStateChange': onPlayer1StateChange
+                }
             });
 
-            vm.allOrderItems.$watch(function(event) {
-                updateView();
+            player2 = new YT.Player('youtube-player2', {
+                events: {
+                    'onReady': onPlayer2Ready,
+                    'onStateChange': onPlayer2StateChange
+                }
             });
+        }
 
-            vm.updateItemStatus = function(item, newStatus) {
-                item.status = newStatus;
-                vm.allOrderItems.$save(item).catch(function(error) {
-                    console.error("Error Saving Item:", error);
-                });
-            };
+        function openNotesModal() {
+            document.getElementById('notes-modal').style.display = 'block';
+            loadNotes();
+        }
 
-            vm.deleteItem = function(item) {
-                if (confirm('Are you sure you want to permanently delete "' + item.productName + '"?')) {
-                    vm.allOrderItems.$remove(item).catch(function(error) {
-                        console.error("Error Deleting Item:", error);
+        function closeNotesModal() {
+            document.getElementById('notes-modal').style.display = 'none';
+        }
+
+        function saveNotes() {
+            const notes = document.getElementById('notes-textarea').value;
+            localStorage.setItem('djNotes', notes);
+            closeNotesModal();
+        }
+
+        function loadNotes() {
+            const savedNotes = localStorage.getItem('djNotes') || '';
+            document.getElementById('notes-textarea').value = savedNotes;
+        }
+
+        function onPlayer1Ready(event) {
+            player1.setVolume(50);
+            initTempoControl(1);
+        }
+
+        function onPlayer2Ready(event) {
+            player2.setVolume(50);
+            initTempoControl(2);
+        }
+
+        function toggleBeatLoop(deckNumber, beats) {
+            const player = deckNumber === 1 ? player1 : player2;
+            const button = document.querySelector(`#player${deckNumber} .beat-btn[data-beats="${beats}"]`);
+            
+            if (button.classList.contains('active')) {
+                button.classList.remove('active');
+                window['loopActive' + deckNumber] = false;
+                window['loopBeats' + deckNumber] = 0;
+                if (window['loopInterval' + deckNumber]) {
+                    clearInterval(window['loopInterval' + deckNumber]);
+                    window['loopInterval' + deckNumber] = null;
+                }
+                return;
+            }
+            
+            if (window['loopInterval' + deckNumber]) {
+                clearInterval(window['loopInterval' + deckNumber]);
+            }
+            
+            document.querySelectorAll(`#player${deckNumber} .beat-btn`).forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            button.classList.add('active');
+            
+            if (player && player.getPlayerState) {
+                if (player.getPlayerState() === YT.PlayerState.PLAYING) {
+                    startLoop(deckNumber, beats);
+                } else {
+                    window['loopBeats' + deckNumber] = beats;
+                }
+            }
+        }
+
+        function startLoop(deckNumber, beats) {
+            const player = deckNumber === 1 ? player1 : player2;
+            const bpm = window[`referenceBPM${deckNumber}`] || 120;
+            const beatDuration = 60 / bpm;
+            const loopDuration = beats * beatDuration;
+            
+            if (window['loopInterval' + deckNumber]) {
+                clearInterval(window['loopInterval' + deckNumber]);
+            }
+            
+            window['loopStartTime' + deckNumber] = player.getCurrentTime();
+            window['loopActive' + deckNumber] = true;
+            
+            window['loopInterval' + deckNumber] = setInterval(() => {
+                if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
+                    const currentTime = player.getCurrentTime();
+                    const endTime = window['loopStartTime' + deckNumber] + loopDuration;
+                    if (currentTime >= endTime) {
+                        player.seekTo(window['loopStartTime' + deckNumber], true);
+                    }
+                }
+            }, 20);
+        }
+
+        function onPlayer1StateChange(event) {
+            handlePlayerStateChange(1, event);
+        }
+
+        function onPlayer2StateChange(event) {
+            handlePlayerStateChange(2, event);
+        }
+
+        function handlePlayerStateChange(deckNumber, event) {
+            const player = deckNumber === 1 ? player1 : player2;
+            if (event.data === YT.PlayerState.PLAYING) {
+                const beats = window['loopBeats' + deckNumber];
+                if (beats > 0) {
+                    startLoop(deckNumber, beats);
+                    document.querySelectorAll(`#player${deckNumber} .beat-btn`).forEach(btn => {
+                        if (parseInt(btn.getAttribute('data-beats')) === beats) {
+                            btn.classList.add('active');
+                        } else {
+                            btn.classList.remove('active');
+                        }
                     });
                 }
-            };
-
-            vm.getShopCount = function(orderGroup) {
-                return orderGroup ? Object.keys(orderGroup).length : 0;
-            };
-
-        } catch (e) {
-            console.error("Initialization failed:", e);
-            vm.loading = false;
-            alert("Could not initialize the application. Please check the console for errors.");
+            }
+            if (event.data === YT.PlayerState.ENDED || event.data === YT.PlayerState.PAUSED) {
+                if (window['loopInterval' + deckNumber]) {
+                    clearInterval(window['loopInterval' + deckNumber]);
+                    window['loopInterval' + deckNumber] = null;
+                }
+                window['loopActive' + deckNumber] = false;
+            }
         }
-    }]);
 
-    app.filter('number', function() {
-        return function(input) {
-            return (input != null) ? input.toLocaleString('en-IN') : '0';
+        function initTempoControl(deckNumber) {
+            const tempoSlider = document.getElementById(`tempo${deckNumber}`);
+            const tempoValue = document.getElementById(`tempo${deckNumber}-value`);
+            const player = deckNumber === 1 ? player1 : player2;
+            let currentBPM = 120;
+            let targetBPM = 120;
+            let tempoInterval = null;
+            
+            window[`referenceBPM${deckNumber}`] = 120;
+        
+            tempoSlider.addEventListener('input', () => {
+                targetBPM = parseInt(tempoSlider.value);
+                tempoValue.textContent = targetBPM;
+                
+                const targetRate = targetBPM / window[`referenceBPM${deckNumber}`];
+                
+                if (tempoInterval) {
+                    clearInterval(tempoInterval);
+                }
+                
+                tempoInterval = setInterval(() => {
+                    if (Math.abs(currentBPM - targetBPM) < 1) {
+                        currentBPM = targetBPM;
+                        const exactRate = currentBPM / window[`referenceBPM${deckNumber}`];
+                        if (player && typeof player.setPlaybackRate === 'function') {
+                            player.setPlaybackRate(exactRate);
+                        }
+                        clearInterval(tempoInterval);
+                        tempoInterval = null;
+                        return;
+                    }
+                    
+                    if (currentBPM < targetBPM) {
+                        currentBPM += 1;
+                    } else {
+                        currentBPM -= 1;
+                    }
+                    
+                    const newRate = currentBPM / window[`referenceBPM${deckNumber}`];
+                    if (player && typeof player.setPlaybackRate === 'function') {
+                        player.setPlaybackRate(newRate);
+                    }
+                }, 50);
+            });
+        }
+
+        function setReferenceBPM(deckNumber) {
+            const bpm = parseInt(document.getElementById(`bpm-input${deckNumber}`).value);
+            window[`referenceBPM${deckNumber}`] = bpm;
+            const targetBPM = parseInt(document.getElementById(`tempo${deckNumber}`).value);
+            const player = deckNumber === 1 ? player1 : player2;
+            if (player && typeof player.setPlaybackRate === 'function') {
+                const newRate = targetBPM / bpm;
+                player.setPlaybackRate(newRate);
+            }
+        }
+
+        function searchYouTubeForDeck(deck) {
+            const query = document.getElementById(`search-${deck}`).value;
+            if (query.trim() === '') {
+                alert('Please enter a search term.');
+                return;
+            }
+
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=50&key=${apiKey}`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error && data.error.code === 403) {
+                        alert('Quota exceeded for the current API key. Switching to a new API key...');
+                        switchApiKey();
+                        searchYouTubeForDeck(deck);
+                    } else if (data.items.length === 0) {
+                        alert('No videos found for your search.');
+                    } else {
+                        const dropdown = document.getElementById(`custom-dropdown${deck === 'deck1' ? 1 : 2}`);
+                        dropdown.innerHTML = '';
+                        dropdown.style.display = 'block';
+                        data.items.forEach(video => {
+                            const dropdownItem = document.createElement('div');
+                            dropdownItem.className = 'dropdown-item';
+                            dropdownItem.onclick = () => {
+                                const selectedVideoId = video.id.videoId;
+                                const trackTitle = video.snippet.title;
+                                const player = deck === 'deck1' ? player1 : player2;
+                                try {
+                                    player.loadVideoById(selectedVideoId);
+                                    document.getElementById(`current-track-title${deck === 'deck1' ? 1 : 2}`).textContent = trackTitle;
+                                    dropdown.style.display = 'none';
+                                    addToHistory(trackTitle, selectedVideoId);
+                                    updateTrackCount();
+                                    saveHistoryToLocalStorage();
+                                } catch (error) {
+                                    alert('Error loading video. Please try another track.');
+                                    console.error('Video load error:', error);
+                                }
+                            };
+                            dropdownItem.innerHTML = `
+                                <img src="${video.snippet.thumbnails.default.url}" alt="${video.snippet.title} thumbnail">
+                                <span class="title">${video.snippet.title}</span>
+                            `;
+                            dropdown.appendChild(dropdownItem);
+                        });
+                    }
+                })
+                .catch(error => {
+                    alert('Error fetching YouTube data. Please try again later.');
+                    console.error('Fetch error:', error);
+                });
+        }
+
+        function addToHistory(title, videoId) {
+            const historyList = document.getElementById('history-list').getElementsByTagName('tbody')[0];
+            const historyItem = document.createElement('tr');
+            historyItem.innerHTML = `
+                <td contenteditable="true" class="track-title">${title}</td>
+                <td>
+                    <div class="buttons-container">
+                        <button onclick="replayTrack('player1', '${videoId}')">Play on Deck 1</button>
+                        <button onclick="replayTrack('player2', '${videoId}')">Play on Deck 2</button>
+                    </div>
+                    <button class="edit-btn" onclick="editTrackTitle(this)">Edit Title</button>
+                    <button class="delete-btn" onclick="deleteTrack(this)">Delete</button>
+                </td>
+            `;
+            historyItem.setAttribute('data-video-id', videoId);
+            historyList.insertBefore(historyItem, historyList.firstChild);
+            updateTrackCount();
+            saveHistoryToLocalStorage();
+        }
+
+        function replayTrack(playerId, videoId) {
+            const player = playerId === 'player1' ? player1 : player2;
+            const deckNumber = playerId === 'player11' ? 1 : 2;
+            if (player) {
+                player.loadVideoById(videoId);
+                const historyItems = document.querySelectorAll('#history-list tbody tr');
+                let trackTitle = 'Unknown Track';
+                historyItems.forEach(item => {
+                    if (item.getAttribute('data-video-id') === videoId) {
+                        trackTitle = item.querySelector('.track-title').textContent;
+                    }
+                });
+                document.getElementById(`current-track-title${deckNumber}`).textContent = trackTitle;
+                addToHistory(trackTitle, videoId);
+                updateTrackCount();
+                saveHistoryToLocalStorage();
+            }
+        }
+
+        function editTrackTitle(button) {
+            const trackTitle = button.closest('tr').querySelector('.track-title');
+            trackTitle.contentEditable = true;
+            trackTitle.focus();
+            button.textContent = "Save Title";
+            button.setAttribute('onclick', 'saveTrackTitle(this)');
+        }
+
+        function saveTrackTitle(button) {
+            const trackTitle = button.closest('tr').querySelector('.track-title');
+            trackTitle.contentEditable = false;
+            button.textContent = "Edit Title";
+            button.setAttribute('onclick', 'editTrackTitle(this)');
+            saveHistoryToLocalStorage();
+        }
+
+        function deleteTrack(button) {
+            button.closest('tr').remove();
+            saveHistoryToLocalStorage();
+            updateTrackCount();
+        }
+
+        function updateTrackCount() {
+            const trackCount = document.querySelectorAll('#history-list tbody tr').length;
+            document.getElementById('track-count').textContent = trackCount;
+        }
+
+        function saveHistoryToLocalStorage() {
+            const historyItems = document.querySelectorAll('#history-list tbody tr');
+            const historyData = [];
+            historyItems.forEach(item => {
+                const title = item.querySelector('.track-title').textContent;
+                const videoId = item.getAttribute('data-video-id');
+                historyData.push({ title, videoId });
+            });
+            localStorage.setItem('playedHistory', JSON.stringify(historyData));
+        }
+
+        function loadHistoryFromLocalStorage() {
+            const savedHistory = JSON.parse(localStorage.getItem('playedHistory')) || [];
+            document.getElementById('track-count').textContent = savedHistory.length;
+            savedHistory.reverse().forEach(track => {
+                addToHistory(track.title, track.videoId);
+            });
+        }
+
+        function backupHistory() {
+            const historyData = JSON.parse(localStorage.getItem('playedHistory')) || [];
+            const blob = new Blob([JSON.stringify(historyData, null, 2)], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'played-history.json';
+            link.click();
+        }
+
+        function restoreHistory(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const historyData = JSON.parse(e.target.result);
+                if (Array.isArray(historyData)) {
+                    document.getElementById('history-list').getElementsByTagName('tbody')[0].innerHTML = '';
+                    historyData.reverse().forEach(track => {
+                        addToHistory(track.title, track.videoId);
+                    });
+                    localStorage.setItem('playedHistory', JSON.stringify(historyData));
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function initBalanceControl() {
+            const balanceSlider = document.getElementById('balance-slider');
+            const volumePercentage = document.getElementById('volume-percentage');
+
+            balanceSlider.addEventListener('input', () => {
+                const balance = balanceSlider.value;
+                const percentage = balance < 50 ? (50 - balance) : (balance - 50);
+                volumePercentage.textContent = `${percentage}%`;
+                if (player1 && player2) {
+                    player1.setVolume(100 - balance);
+                    player2.setVolume(balance);
+                }
+            });
+        }
+
+        function filterHistory() {
+            const query = document.getElementById('history-search').value.toLowerCase();
+            const rows = document.querySelectorAll('#history-list tbody tr');
+            rows.forEach(row => {
+                const title = row.querySelector('.track-title').textContent.toLowerCase();
+                row.style.display = title.includes(query) ? '' : 'none';
+            });
+        }
+
+        function isPlayerReady(player) {
+            return player.getPlayerState() !== undefined && player.getPlayerState() !== YT.PlayerState.UNSTARTED;
+        }
+
+        function preparePlayersForTransition(fromDeck, toDeck) {
+            const fromPlayer = fromDeck === 1 ? player1 : player2;
+            const toPlayer = toDeck === 1 ? player1 : player2;
+            if (!isPlayerReady(fromPlayer) || !isPlayerReady(toPlayer)) {
+                alert('Please ensure both decks have tracks loaded.');
+                return false;
+            }
+            if (toPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
+                toPlayer.playVideo();
+            }
+            fromPlayer.setVolume(100);
+            toPlayer.setVolume(0);
+            return true;
+        }
+
+        function updateProgressBar(duration) {
+            const progressBar = document.getElementById('progress-bar');
+            document.getElementById('transition-progress').style.display = 'block';
+            progressBar.style.transitionDuration = `${duration}ms`;
+            progressBar.style.width = '100%';
+            setTimeout(() => {
+                progressBar.style.width = '0';
+                document.getElementById('transition-progress').style.display = 'none';
+            }, duration);
+        }
+
+        function startTransition() {
+            const transitionType = document.getElementById('transition-type').value;
+            const duration = parseInt(document.getElementById('transition-duration').value);
+            const deck1Playing = player1.getPlayerState() === YT.PlayerState.PLAYING;
+            const deck2Playing = player2.getPlayerState() === YT.PlayerState.PLAYING;
+            const fromDeck = deck1Playing ? 1 : (deck2Playing ? 2 : null);
+            const toDeck = deck1Playing ? 2 : (deck2Playing ? 1 : null);
+
+            if (!fromDeck || !toDeck) {
+                alert('Please ensure one deck is playing and the other has a track loaded.');
+                return;
+            }
+
+            if (!preparePlayersForTransition(fromDeck, toDeck)) return;
+
+            updateProgressBar(duration);
+
+            switch (transitionType) {
+                case 'crossfade':
+                    crossfadeTransition(fromDeck, toDeck, duration);
+                    break;
+                case 'fade-out-in':
+                    fadeOutInTransition(fromDeck, toDeck, duration);
+                    break;
+                case 'echo':
+                    echoTransition(fromDeck, toDeck, duration);
+                    break;
+                case 'stutter':
+                    stutterTransition(fromDeck, toDeck, duration);
+                    break;
+                case 'tempo-synced':
+                    tempoSyncedTransition(fromDeck, toDeck, duration);
+                    break;
+            }
+        }
+
+        function crossfadeTransition(fromDeck, toDeck, duration) {
+            const fromPlayer = fromDeck === 1 ? player1 : player2;
+            const toPlayer = toDeck === 1 ? player1 : player2;
+            const steps = 100;
+            const stepSize = 100 / steps;
+            let currentStep = 0;
+
+            const interval = setInterval(() => {
+                if (currentStep >= steps) {
+                    clearInterval(interval);
+                    fromPlayer.pauseVideo();
+                    toPlayer.setVolume(100);
+                    updateTrackCount();
+                    return;
+                }
+                fromPlayer.setVolume(100 - (currentStep * stepSize));
+                toPlayer.setVolume(currentStep * stepSize);
+                currentStep++;
+            }, duration / steps);
+        }
+
+        function fadeOutInTransition(fromDeck, toDeck, duration) {
+            const fromPlayer = fromDeck === 1 ? player1 : player2;
+            const toPlayer = toDeck === 1 ? player1 : player2;
+            const halfDuration = duration / 2;
+            const steps = 50;
+            const stepSize = 100 / steps;
+            let currentStep = 0;
+
+            const fadeOut = setInterval(() => {
+                if (currentStep >= steps) {
+                    clearInterval(fadeOut);
+                    fromPlayer.pauseVideo();
+                    currentStep = 0;
+                    const fadeIn = setInterval(() => {
+                        if (currentStep >= steps) {
+                            clearInterval(fadeIn);
+                            toPlayer.setVolume(100);
+                            updateTrackCount();
+                            return;
+                        }
+                        toPlayer.setVolume(currentStep * stepSize);
+                        currentStep++;
+                    }, halfDuration / steps);
+                    return;
+                }
+                fromPlayer.setVolume(100 - (currentStep * stepSize));
+                currentStep++;
+            }, halfDuration / steps);
+        }
+
+        function echoTransition(fromDeck, toDeck, duration) {
+            const fromPlayer = fromDeck === 1 ? player1 : player2;
+            const toPlayer = toDeck === 1 ? player1 : player2;
+            const echoCount = 3;
+            const echoDuration = duration / (echoCount + 1);
+            let echoIndex = 0;
+
+            function playEcho() {
+                if (echoIndex >= echoCount) {
+                    fromPlayer.pauseVideo();
+                    toPlayer.setVolume(100);
+                    updateTrackCount();
+                    return;
+                }
+                const startTime = fromPlayer.getCurrentTime();
+                fromPlayer.setVolume(100 - (echoIndex + 1) * (80 / echoCount));
+                toPlayer.setVolume((echoIndex + 1) * (100 / (echoCount + 1)));
+                setTimeout(() => {
+                    fromPlayer.seekTo(startTime, true);
+                    echoIndex++;
+                    playEcho();
+                }, echoDuration);
+            }
+            playEcho();
+        }
+
+        function stutterTransition(fromDeck, toDeck, duration) {
+            const fromPlayer = fromDeck === 1 ? player1 : player2;
+            const toPlayer = toDeck === 1 ? player1 : player2;
+            const stutterCount = 5;
+            const stutterDuration = duration / (stutterCount + 1);
+            let stutterIndex = 0;
+            const segmentLength = 200;
+
+            function playStutter() {
+                if (stutterIndex >= stutterCount) {
+                    fromPlayer.pauseVideo();
+                    toPlayer.setVolume(100);
+                    updateTrackCount();
+                    return;
+                }
+                const startTime = fromPlayer.getCurrentTime();
+                fromPlayer.setVolume(100 - (stutterIndex + 1) * (80 / stutterCount));
+                toPlayer.setVolume((stutterIndex + 1) * (100 / (stutterCount + 1)));
+                setTimeout(() => {
+                    fromPlayer.seekTo(startTime, true);
+                    stutterIndex++;
+                    playStutter();
+                }, segmentLength);
+            }
+            playStutter();
+        }
+
+        function tempoSyncedTransition(fromDeck, toDeck, duration) {
+            const fromPlayer = fromDeck === 1 ? player1 : player2;
+            const toPlayer = toDeck === 1 ? player1 : player2;
+            const fromBPM = window[`referenceBPM${fromDeck}`] || 120;
+            const beatDuration = 60 / fromBPM * 1000;
+            const beatsPerTransition = Math.round(duration / beatDuration);
+            const adjustedDuration = beatsPerTransition * beatDuration;
+            const steps = beatsPerTransition * 4;
+            const stepSize = 100 / steps;
+            let currentStep = 0;
+
+            const interval = setInterval(() => {
+                if (currentStep >= steps) {
+                    clearInterval(interval);
+                    fromPlayer.pauseVideo();
+                    toPlayer.setVolume(100);
+                    updateTrackCount();
+                    return;
+                }
+                fromPlayer.setVolume(100 - (currentStep * stepSize));
+                toPlayer.setVolume(currentStep * stepSize);
+                currentStep++;
+            }, adjustedDuration / steps);
+        }
+
+        document.addEventListener('click', (event) => {
+            const dropdown1 = document.getElementById('custom-dropdown1');
+            const dropdown2 = document.getElementById('custom-dropdown2');
+            const searchDeck1 = document.getElementById('search-deck1');
+            const searchDeck2 = document.getElementById('search-deck2');
+
+            if (!dropdown1.contains(event.target) && !searchDeck1.contains(event.target)) {
+                dropdown1.style.display = 'none';
+            }
+            if (!dropdown2.contains(event.target) && !searchDeck2.contains(event.target)) {
+                dropdown2.style.display = 'none';
+            }
+        });
+
+        window.onload = () => {
+            loadYouTubeAPI();
+            initBalanceControl();
+            loadHistoryFromLocalStorage();
+            loadNotes();
         };
-    });
-  </script>
+    </script>
 </body>
 </html>
-```
