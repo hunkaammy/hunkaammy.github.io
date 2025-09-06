@@ -76,7 +76,7 @@
 
           <div>
             <label for="videourlInput" class="block text-sm font-medium text-gray-700">
-              Video URL (auto-filled when you upload a video)
+              Video URL (enter manually or upload below)
             </label>
             <input id="videourlInput" type="url" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="https://..." />
           </div>
@@ -382,7 +382,7 @@
           } catch (err) {
             console.error('Video upload failed:', err);
             videoStatus.textContent = 'Video upload failed.';
-            alert('Video upload failed. You can still upload the image, or try again.');
+            alert('Video upload failed. You can still upload the product with a manually entered video URL or try again.');
           }
         }
 
@@ -413,7 +413,7 @@
           videourl: finalVideoURL || '',
           progressContainer
         });
-        console.log('Added to upload queue:', { name, price, partyCode });
+        console.log('Added to upload queue:', { name, price, partyCode, videourl: finalVideoURL });
 
         // Clear inputs except partyCodeInput
         imageInput.value = '';
@@ -546,10 +546,13 @@
           </p>
 
           <div class="mt-2" id="videoRow-${key}">
+            <p class="text-gray-600 mb-2 editable-field" onclick="makeEditableVideo(this, '${key}', 'videourl')" title="Click to edit video URL">
+              Video URL: ${escapeHtml(data.videourl || 'No video')}
+            </p>
             ${
               data.videourl
                 ? `<a href="${data.videourl}" target="_blank" class="text-blue-600 hover:underline text-sm">Watch video</a>`
-                : `<span class="text-sm text-gray-400">No video</span>`
+                : ''
             }
           </div>
 
@@ -577,7 +580,14 @@
               class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-3 rounded text-sm">
               Replace Video
             </button>
-
+            ${
+              data.videourl
+                ? `<button onclick="removeVideo('${key}', '${encodeURIComponent(data.videourl || '')}')"
+                    class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-3 rounded text-sm">
+                    Remove Video
+                  </button>`
+                : ''
+            }
             <button onclick="confirmDelete('${key}')"
               class="ml-auto bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
               Delete
@@ -768,7 +778,43 @@
       });
     };
 
-    // 13) Stock toggle, update date
+    // 13) Video URL editing
+    window.makeEditableVideo = function(el, key, field) {
+      const prev = el.textContent.replace(/^Video URL:\s*/i, '').trim();
+      const input = document.createElement('input');
+      input.type = 'url';
+      input.value = prev === 'No video' ? '' : prev;
+      input.className = 'w-full border border-gray-300 rounded px-2 py-1';
+      el.replaceWith(input);
+      input.focus();
+      input.select();
+
+      function commit() {
+        const value = input.value.trim();
+        const updateObj = { videourl: value || '' };
+
+        database.ref(key).update(updateObj).then(() => {
+          const newEl = document.createElement('p');
+          newEl.className = 'text-gray-600 mb-2 editable-field';
+          newEl.title = 'Click to edit video URL';
+          newEl.setAttribute('onclick', `makeEditableVideo(this, '${key}', 'videourl')`);
+          newEl.textContent = `Video URL: ${escapeHtml(value || 'No video')}`;
+          input.replaceWith(newEl);
+        }).catch(err => {
+          console.error('Update video URL failed:', err);
+          alert('Failed to update video URL. Please try again.');
+          input.replaceWith(el);
+        });
+      }
+
+      input.addEventListener('blur', commit);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') commit();
+        if (e.key === 'Escape') input.replaceWith(el);
+      });
+    };
+
+    // 14) Stock toggle, update date
     window.toggleStockStatus = function(key, current) {
       database.ref(key).update({ outOfStock: !current }).catch(err => {
         console.error('Toggle stock failed:', err);
@@ -782,7 +828,7 @@
       });
     };
 
-    // 14) Delete product
+    // 15) Delete product
     window.confirmDelete = function(key) {
       if (confirm('Are you sure you want to delete this product? This will also remove its associated image and video from storage.')) {
         deleteProduct(key);
@@ -852,7 +898,7 @@
       }
     }
 
-    // 15) Replace image / video
+    // 16) Replace image / video
     window.replaceImage = function(key, currentImageUrlEncoded) {
       const currentImageUrl = decodeURIComponent(currentImageUrlEncoded || '');
       const input = document.createElement('input');
@@ -886,33 +932,153 @@
 
     window.replaceVideo = function(key, currentVideoUrlEncoded) {
       const currentVideoUrl = decodeURIComponent(currentVideoUrlEncoded || '');
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'video/*';
-      input.onchange = async () => {
-        const file = input.files[0];
-        if (!file) return;
-        const now = new Date().toISOString();
-        const storageRefNew = storage.ref().child(`${now}_REPLACE_${file.name}`);
+      const choice = prompt('Enter a new video URL or click OK to upload a video file:', currentVideoUrl || '');
+      
+      if (choice === null) return; // User cancelled
 
-        try {
-          await storageRefNew.put(file);
-          const newUrl = await storageRefNew.getDownloadURL();
-          await database.ref(key).update({ videourl: newUrl });
+      if (choice.trim() === '') {
+        // Clear video
+        database.ref(key).update({ videourl: '' }).then(() => {
+          alert('Video removed successfully.');
+        }).catch(err => {
+          console.error('Remove video failed:', err);
+          alert('Failed to remove video.');
+        });
+        return;
+      }
 
-          if (currentVideoUrl && isFirebaseStorageUrl(currentVideoUrl)) {
-            storage.refFromURL(currentVideoUrl).delete().catch(err => {
-              console.warn('Old video delete failed:', err);
-            });
+      if (choice.trim().startsWith('http')) {
+        // Update with new URL
+        database.ref(key).update({ videourl: choice.trim() }).then(() => {
+          alert('Video URL updated successfully.');
+        }).catch(err => {
+          console.error('Update video URL failed:', err);
+          alert('Failed to update video URL.');
+        });
+      } else {
+        // Upload new video file
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'video/*';
+        input.onchange = async () => {
+          const file = input.files[0];
+          if (!file) return;
+          const now = new Date().toISOString();
+          const storageRefNew = storage.ref().child(`${now}_REPLACE_${file.name}`);
+
+          try {
+            await storageRefNew.put(file);
+            const newUrl = await storageRefNew.getDownloadURL();
+            await database.ref(key).update({ videourl: newUrl });
+
+            if (currentVideoUrl && isFirebaseStorageUrl(currentVideoUrl)) {
+              storage.refFromURL(currentVideoUrl).delete().catch(err => {
+                console.warn('Old video delete failed:', err);
+              });
+            }
+
+            alert('Video replaced successfully.');
+          } catch (err) {
+            console.error('Replace video failed:', err);
+            alert('Failed to replace video.');
           }
+        };
+        input.click();
+      }
+    };
 
-          alert('Video replaced successfully.');
-        } catch (err) {
-          console.error('Replace video failed:', err);
-          alert('Failed to replace video.');
+    // 17) Remove video
+    window.removeVideo = async function(key, currentVideoUrlEncoded) {
+      console.log('removeVideo called with key:', key, 'and encoded URL:', currentVideoUrlEncoded);
+      const currentVideoUrl = decodeURIComponent(currentVideoUrlEncoded || '');
+      if (!currentVideoUrl) {
+        console.warn('No video URL provided for removal');
+        alert('No video to remove.');
+        return;
+      }
+
+      const confirmRemoval = confirm('Are you sure you want to remove this video? This will delete the video from storage if it is hosted on Firebase.');
+      if (!confirmRemoval) {
+        console.log('Video removal cancelled by user');
+        return;
+      }
+
+      const cardElement = document.querySelector(`[data-key="${key}"]`);
+      const removeButton = document.querySelector(`[data-key="${key}"] button[onclick*="removeVideo"]`);
+      if (cardElement) {
+        cardElement.style.opacity = '0.5';
+        cardElement.style.pointerEvents = 'none';
+      }
+      if (removeButton) {
+        removeButton.disabled = true;
+        removeButton.textContent = 'Removing...';
+      }
+
+      try {
+        // Verify product exists
+        const snapshot = await database.ref(key).once('value');
+        if (!snapshot.exists()) {
+          throw new Error('Product not found in database');
         }
-      };
-      input.click();
+        console.log('Product found in database for key:', key);
+
+        // Delete video from storage if it's a Firebase URL
+        if (isFirebaseStorageUrl(currentVideoUrl)) {
+          console.log('Attempting to delete video from Firebase storage:', currentVideoUrl);
+          try {
+            await storage.refFromURL(currentVideoUrl).delete();
+            console.log('Video deleted from storage successfully');
+          } catch (err) {
+            console.warn('Failed to delete video from storage:', err.message || err);
+            // Continue to clear videourl even if storage deletion fails
+          }
+        } else {
+          console.log('Video URL is not a Firebase storage URL, skipping storage deletion:', currentVideoUrl);
+        }
+
+        // Update database to clear videourl
+        console.log('Updating database to clear videourl for key:', key);
+        await database.ref(key).update({ videourl: '' });
+        console.log('Database updated, videourl cleared');
+
+        // Force UI update in case listener fails
+        const index = products.findIndex(p => p.key === key);
+        if (index !== -1) {
+          products[index].data.videourl = '';
+        }
+        batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
+
+        alert('Video removed successfully.');
+      } catch (err) {
+        console.error('Remove video failed:', err);
+        let errorMessage = err.message || 'Unknown error';
+        if (err.code === 'storage/unauthorized') {
+          errorMessage = 'Permission denied. Check Firebase Storage rules.';
+        } else if (err.code === 'storage/object-not-found') {
+          errorMessage = 'Video file not found in storage. Clearing URL anyway.';
+          // Attempt to clear videourl even if storage deletion fails
+          try {
+            await database.ref(key).update({ videourl: '' });
+            console.log('Database updated, videourl cleared after storage error');
+            alert('Video file not found in storage, but URL cleared successfully.');
+          } catch (dbErr) {
+            console.error('Database update failed after storage error:', dbErr);
+            alert(`Failed to clear video URL: ${dbErr.message || 'Unknown error'}.`);
+          }
+        }
+        if (err.message !== 'Product not found in database') {
+          alert(`Failed to remove video: ${errorMessage}. Please check your Firebase permissions and try again.`);
+        }
+      } finally {
+        if (cardElement) {
+          cardElement.style.opacity = '1';
+          cardElement.style.pointerEvents = 'auto';
+        }
+        if (removeButton) {
+          removeButton.disabled = false;
+          removeButton.textContent = 'Remove Video';
+        }
+      }
     };
   </script>
 </body>
