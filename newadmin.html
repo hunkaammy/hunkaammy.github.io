@@ -487,7 +487,7 @@
                 const data = {
                   name,
                   price,
-                  partyCode: partyCode.trim(), // Ensure partyCode is trimmed
+                  partyCode,
                   url: imageURL,
                   videourl: videourl || '',
                   outOfStock: false,
@@ -609,94 +609,56 @@
     }
 
     // 10) Optimized Realtime listeners with batch rendering
-    async function batchRenderGallery(nameQuery = '', partyCodeQuery = '') {
+    function batchRenderGallery(nameQuery = '', partyCodeQuery = '') {
       const fragment = document.createDocumentFragment();
       const nameLower = nameQuery.toLowerCase().trim();
-      const partyCodeLower = partyCodeQuery.trim(); // Trim to remove spaces
+      const partyCodeLower = partyCodeQuery.toLowerCase().trim();
 
-      let filteredProducts = [];
+      const filteredProducts = products.filter(({ data }) => {
+        const nameMatch = !nameLower || (data.name && data.name.toLowerCase().includes(nameLower));
+        const partyCodeMatch = !partyCodeLower || (data.partyCode && data.partyCode.toLowerCase() === partyCodeLower);
+        return nameMatch && partyCodeMatch;
+      });
 
-      try {
-        let query = database.ref();
+      filteredProducts.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
 
-        // If partyCodeQuery is provided, query for exact match
-        if (partyCodeLower) {
-          console.log('Querying Firebase for partyCode:', partyCodeLower);
-          query = query.orderByChild('partyCode').equalTo(partyCodeLower);
+      // Batch render only a limited number of items to save bandwidth
+      const batchSize = 20;
+      const batch = filteredProducts.slice(0, batchSize);
+      batch.forEach(({ key, data }) => {
+        const card = renderCard(key, data);
+        fragment.appendChild(card);
+      });
+
+      galleryGrid.innerHTML = '';
+      galleryGrid.appendChild(fragment);
+      console.log('Gallery rendered, products:', batch.length);
+      setupLazyLoading();
+
+      // Load more on scroll
+      let isLoadingMore = false;
+      let lastIndex = batchSize;
+      window.removeEventListener('scroll', window.scrollHandler); // Remove any existing listener
+      window.scrollHandler = () => {
+        if (isLoadingMore || lastIndex >= filteredProducts.length) return;
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+          isLoadingMore = true;
+          const nextBatch = filteredProducts.slice(lastIndex, lastIndex + batchSize);
+          const nextFragment = document.createDocumentFragment();
+          nextBatch.forEach(({ key, data }) => {
+            const card = renderCard(key, data);
+            nextFragment.appendChild(card);
+          });
+          galleryGrid.appendChild(nextFragment);
+          lastIndex += batchSize;
+          setupLazyLoading();
+          isLoadingMore = false;
+          console.log('Loaded more products, total:', lastIndex);
         }
-
-        // Fetch data from Firebase
-        const snapshot = await query.once('value');
-        let results = [];
-        snapshot.forEach(childSnapshot => {
-          const key = childSnapshot.key;
-          const data = childSnapshot.val() || {};
-          // Log the fetched data for debugging
-          console.log('Fetched product:', { key, partyCode: data.partyCode, name: data.name });
-          results.push({ key, data });
-        });
-
-        // Filter by name client-side (since Firebase doesn't support substring search)
-        filteredProducts = results.filter(({ data }) => {
-          const nameMatch = !nameLower || (data.name && data.name.toLowerCase().includes(nameLower));
-          // Double-check partyCode exact match client-side
-          const partyCodeMatch = !partyCodeLower || (data.partyCode && data.partyCode.trim() === partyCodeLower);
-          return nameMatch && partyCodeMatch;
-        });
-
-        console.log('Filtered products:', filteredProducts.map(p => ({
-          key: p.key,
-          partyCode: p.data.partyCode,
-          name: p.data.name
-        })));
-
-        // Sort by date descending
-        filteredProducts.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
-
-        // Batch render only a limited number of items to save bandwidth
-        const batchSize = 20;
-        const batch = filteredProducts.slice(0, batchSize);
-        batch.forEach(({ key, data }) => {
-          const card = renderCard(key, data);
-          fragment.appendChild(card);
-        });
-
-        galleryGrid.innerHTML = '';
-        galleryGrid.appendChild(fragment);
-        console.log('Gallery rendered, products:', batch.length);
-        setupLazyLoading();
-
-        // Load more on scroll
-        let isLoadingMore = false;
-        let lastIndex = batchSize;
-        window.removeEventListener('scroll', handleScroll); // Remove previous listener to avoid duplicates
-        window.addEventListener('scroll', handleScroll);
-
-        function handleScroll() {
-          if (isLoadingMore || lastIndex >= filteredProducts.length) return;
-          if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
-            isLoadingMore = true;
-            const nextBatch = filteredProducts.slice(lastIndex, lastIndex + batchSize);
-            const nextFragment = document.createDocumentFragment();
-            nextBatch.forEach(({ key, data }) => {
-              const card = renderCard(key, data);
-              nextFragment.appendChild(card);
-            });
-            galleryGrid.appendChild(nextFragment);
-            lastIndex += batchSize;
-            setupLazyLoading();
-            isLoadingMore = false;
-            console.log('Loaded more products, total:', lastIndex);
-          }
-        }
-      } catch (err) {
-        console.error('Search query failed:', err);
-        alert('Failed to fetch search results. Please check your network or Firebase permissions.');
-        galleryGrid.innerHTML = '';
-      }
+      };
+      window.addEventListener('scroll', window.scrollHandler);
     }
 
-    // Maintain local cache for non-search display
     database.ref().on('value', (snapshot) => {
       products = [];
       loadedImageKeys.clear();
@@ -707,10 +669,7 @@
         loadedImageKeys.add(key);
       });
       console.log('Database updated, products:', products.length);
-      // Only render if no search query is active
-      if (!nameSearchInput.value && !partyCodeSearchInput.value) {
-        batchRenderGallery();
-      }
+      batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
     });
 
     database.ref().on('child_changed', (snapshot) => {
@@ -724,10 +683,7 @@
         loadedImageKeys.add(key);
       }
       console.log('Child changed:', key);
-      // Only render if no search query is active
-      if (!nameSearchInput.value && !partyCodeSearchInput.value) {
-        batchRenderGallery();
-      }
+      batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
     });
 
     database.ref().on('child_removed', (snapshot) => {
@@ -735,10 +691,7 @@
       products = products.filter(p => p.key !== key);
       loadedImageKeys.delete(key);
       console.log('Child removed:', key);
-      // Only render if no search query is active
-      if (!nameSearchInput.value && !partyCodeSearchInput.value) {
-        batchRenderGallery();
-      }
+      batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
     });
 
     // 11) Search functionality with debounce
