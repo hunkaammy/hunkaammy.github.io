@@ -616,7 +616,7 @@
 
       const filteredProducts = products.filter(({ data }) => {
         const nameMatch = !nameLower || (data.name && data.name.toLowerCase().includes(nameLower));
-        const partyCodeMatch = !partyCodeLower || (data.partyCode && data.partyCode.toLowerCase().includes(partyCodeLower));
+        const partyCodeMatch = !partyCodeLower || (data.partyCode && data.partyCode.toLowerCase() === partyCodeLower);
         return nameMatch && partyCodeMatch;
       });
 
@@ -638,7 +638,8 @@
       // Load more on scroll
       let isLoadingMore = false;
       let lastIndex = batchSize;
-      window.addEventListener('scroll', () => {
+      window.removeEventListener('scroll', window.scrollHandler); // Remove any existing listener
+      window.scrollHandler = () => {
         if (isLoadingMore || lastIndex >= filteredProducts.length) return;
         if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
           isLoadingMore = true;
@@ -654,7 +655,8 @@
           isLoadingMore = false;
           console.log('Loaded more products, total:', lastIndex);
         }
-      });
+      };
+      window.addEventListener('scroll', window.scrollHandler);
     }
 
     database.ref().on('value', (snapshot) => {
