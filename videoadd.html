@@ -3,262 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Gallery</title>
+    <title>Mistress AI - Hinglish BDSM Chat</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
         }
-        h1 {
-            text-align: center;
-            color: #333;
+        #chat-container {
+            width: 400px;
+            height: 600px;
+            background-color: #333;
+            border: 1px solid #666;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .video-card {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            padding: 15px;
-            text-align: center;
-        }
-        .video-card video {
-            width: 100%;
-            height: 200px;
-            border-radius: 5px;
-        }
-        .video-card h3 {
-            margin: 10px 0;
-            font-size: 1.2em;
-            color: #333;
-        }
-        .video-card p {
-            color: #666;
-            font-size: 0.9em;
-        }
-        .video-card .buttons {
-            margin-top: 10px;
-        }
-        .video-card button {
-            padding: 8px 12px;
-            margin: 0 5px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .video-card .edit-btn {
-            background: #28a745;
-            color: white;
-        }
-        .video-card .edit-btn:hover {
-            background: #218838;
-        }
-        .video-card .delete-btn {
-            background: #dc3545;
-            color: white;
-        }
-        .video-card .delete-btn:hover {
-            background: #c82333;
-        }
-        .form-container, .edit-form-container {
-            max-width: 500px;
-            margin: 20px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .form-container input, .edit-form-container input {
-            width: 100%;
+        #chat-window {
+            flex: 1;
             padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            overflow-y: auto;
+            border-bottom: 1px solid #666;
         }
-        .form-container button, .edit-form-container button {
-            width: 100%;
+        .message {
+            margin-bottom: 10px;
             padding: 10px;
-            background: #007bff;
-            color: white;
-            border: none;
             border-radius: 5px;
+        }
+        .user {
+            background-color: #4CAF50;
+            text-align: right;
+        }
+        .mistress {
+            background-color: #f44336;
+            text-align: left;
+        }
+        #input-container {
+            display: flex;
+            padding: 10px;
+        }
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px 0 0 5px;
+            background-color: #444;
+            color: #fff;
+        }
+        #send-btn {
+            padding: 10px 20px;
+            background-color: #f44336;
+            border: none;
+            color: white;
             cursor: pointer;
+            border-radius: 0 5px 5px 0;
         }
-        .form-container button:hover, .edit-form-container button:hover {
-            background: #0056b3;
-        }
-        .edit-form-container {
-            display: none;
-        }
-        .edit-form-container .cancel-btn {
-            background: #6c757d;
-        }
-        .edit-form-container .cancel-btn:hover {
-            background: #5a6268;
+        #send-btn:hover {
+            background-color: #d32f2f;
         }
     </style>
 </head>
 <body>
-    <h1>Video Gallery</h1>
-    <div class="form-container">
-        <input type="text" id="videoTitle" placeholder="Video Title">
-        <input type="text" id="videoUrl" placeholder="Video URL (e.g., https://example.com/video.mp4)">
-        <input type="text" id="videoDuration" placeholder="Duration (e.g., 3:45)">
-        <button onclick="addVideo()">Add Video</button>
+    <div id="chat-container">
+        <div id="chat-window"></div>
+        <div id="input-container">
+            <input type="text" id="user-input" placeholder="Type your message...">
+            <button id="send-btn">Send</button>
+        </div>
     </div>
-    <div class="edit-form-container" id="editForm">
-        <h2>Edit Video</h2>
-        <input type="text" id="editVideoTitle" placeholder="Video Title">
-        <input type="text" id="editVideoUrl" placeholder="Video URL">
-        <input type="text" id="editVideoDuration" placeholder="Duration">
-        <button onclick="updateVideo()">Update Video</button>
-        <button class="cancel-btn" onclick="cancelEdit()">Cancel</button>
-    </div>
-    <div class="gallery" id="videoGallery"></div>
-
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
 
     <script>
-        // Firebase configuration (replace with your Firebase project details)
-        const firebaseConfig = {
-             apiKey: "AIzaSyDM7HUVDfdy_UXAaCx3kYWmDhxrF0y8jyA",
-  authDomain: "model-poses.firebaseapp.com",
-  databaseURL: "https://model-poses.firebaseio.com",
-  projectId: "model-poses",
-  storageBucket: "model-poses.firebasestorage.app",
-  messagingSenderId: "10510371385",
-  appId: "1:10510371385:web:1f93c15f032b729fe61be8"
-        };
+        // WARNING: Embedding API key client-side is insecure! Regenerate after use.
+        const API_KEY = 'AIzaSyDvexg4JvvhQuEWUcrPqi8dmKpXjfmtOCY';
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        const videosRef = database.ref('videos');
+        // Chat window elements
+        const chatWindow = document.getElementById('chat-window');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
 
-        // Function to add a video to Firebase
-        function addVideo() {
-            const title = document.getElementById('videoTitle').value;
-            const url = document.getElementById('videoUrl').value;
-            const duration = document.getElementById('videoDuration').value;
-
-            if (title && url && duration) {
-                videosRef.push({
-                    title: title,
-                    url: url,
-                    duration: duration
-                }).then(() => {
-                    document.getElementById('videoTitle').value = '';
-                    document.getElementById('videoUrl').value = '';
-                    document.getElementById('videoDuration').value = '';
-                    alert('Video added successfully!');
-                }).catch(error => {
-                    console.error('Error adding video:', error);
-                    alert('Failed to add video.');
-                });
-            } else {
-                alert('Please fill in all fields.');
-            }
+        // Function to add message to chat
+        function addMessage(text, className) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', className);
+            messageDiv.textContent = text;
+            chatWindow.appendChild(messageDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
         }
 
-        // Function to display videos
-        function displayVideos() {
-            const gallery = document.getElementById('videoGallery');
-            gallery.innerHTML = ''; // Clear existing content
+        // Function to call Gemini API
+        async function getMistressResponse(userMessage) {
+            // System prompt to enforce persona and style
+            const systemPrompt = `You are a dominating, seductive Mistress speaking in Hinglish (a mix of Hindi and English). Your tone is commanding, teasing, and seductive, with a focus on BDSM themes (e.g., whips, chains, paddles, collars, pain, and pleasure). Always respond in a conversational, provocative manner, maintaining a balance of dominance and seduction. Avoid explicit content beyond suggestive BDSM themes. Example: "Arre slave, kneel kar aur meri whip ka darr feel kar. Ready hai for pain and pleasure? 😈"`;
 
-            videosRef.on('value', (snapshot) => {
-                gallery.innerHTML = ''; // Clear again to prevent duplicates
-                const videos = snapshot.val();
-                if (videos) {
-                    Object.keys(videos).forEach(key => {
-                        const video = videos[key];
-                        const videoCard = document.createElement('div');
-                        videoCard.className = 'video-card';
-                        videoCard.innerHTML = `
-                            <video controls>
-                                <source src="${video.url}" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                            <h3>${video.title}</h3>
-                            <p>Duration: ${video.duration}</p>
-                            <div class="buttons">
-                                <button class="edit-btn" onclick="editVideo('${key}', '${video.title}', '${video.url}', '${video.duration}')">Edit</button>
-                                <button class="delete-btn" onclick="deleteVideo('${key}')">Delete</button>
-                            </div>
-                        `;
-                        gallery.appendChild(videoCard);
-                    });
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [
+                            {
+                                parts: [
+                                    { text: systemPrompt },
+                                    { text: `User says: ${userMessage}` }
+                                ]
+                            }
+                        ]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API request failed');
                 }
-            }, (error) => {
-                console.error('Error fetching videos:', error);
-            });
-        }
 
-        // Function to start editing a video
-        let currentEditKey = null;
-        function editVideo(key, title, url, duration) {
-            currentEditKey = key;
-            document.getElementById('editVideoTitle').value = title;
-            document.getElementById('editVideoUrl').value = url;
-            document.getElementById('editVideoDuration').value = duration;
-            document.getElementById('editForm').style.display = 'block';
-            window.scrollTo(0, document.getElementById('editForm').offsetTop);
-        }
-
-        // Function to update a video
-        function updateVideo() {
-            const title = document.getElementById('editVideoTitle').value;
-            const url = document.getElementById('editVideoUrl').value;
-            const duration = document.getElementById('editVideoDuration').value;
-
-            if (title && url && duration && currentEditKey) {
-                videosRef.child(currentEditKey).update({
-                    title: title,
-                    url: url,
-                    duration: duration
-                }).then(() => {
-                    alert('Video updated successfully!');
-                    cancelEdit();
-                }).catch(error => {
-                    console.error('Error updating video:', error);
-                    alert('Failed to update video.');
-                });
-            } else {
-                alert('Please fill in all fields.');
+                const data = await response.json();
+                const reply = data.candidates[0].content.parts[0].text;
+                return reply || 'Kuch galat ho gaya, slave. Try again! 😈';
+            } catch (error) {
+                console.error('Error:', error);
+                return 'Arre, tu ne meri patience test ki! Try again, slave. 😈';
             }
         }
 
-        // Function to cancel editing
-        function cancelEdit() {
-            document.getElementById('editForm').style.display = 'none';
-            document.getElementById('editVideoTitle').value = '';
-            document.getElementById('editVideoUrl').value = '';
-            document.getElementById('editVideoDuration').value = '';
-            currentEditKey = null;
-        }
+        // Event listener for send button
+        sendBtn.addEventListener('click', async () => {
+            const message = userInput.value.trim();
+            if (message) {
+                addMessage(message, 'user');
+                userInput.value = '';
 
-        // Function to delete a video
-        function deleteVideo(key) {
-            if (confirm('Are you sure you want to delete this video?')) {
-                videosRef.child(key).remove().then(() => {
-                    alert('Video deleted successfully!');
-                }).catch(error => {
-                    console.error('Error deleting video:', error);
-                    alert('Failed to delete video.');
-                });
+                // Show "thinking" indicator
+                addMessage('Mistress is thinking...', 'mistress');
+
+                // Get response from Gemini API
+                const reply = await getMistressResponse(message);
+
+                // Remove thinking message and add response
+                chatWindow.removeChild(chatWindow.lastChild);
+                addMessage(reply, 'mistress');
             }
-        }
+        });
 
-        // Load videos when the page loads
-        window.onload = displayVideos;
+        // Allow enter key to send
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendBtn.click();
+            }
+        });
+
+        // Initial greeting
+        addMessage('Namaste mere slave, main teri Mistress hoon. Bol, kya chahta hai? Ready for my whip and seduction? ⛓️', 'mistress');
     </script>
 </body>
 </html>
