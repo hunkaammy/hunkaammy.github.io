@@ -616,7 +616,7 @@
 
       const filteredProducts = products.filter(({ data }) => {
         const nameMatch = !nameLower || (data.name && data.name.toLowerCase().includes(nameLower));
-        const partyCodeMatch = !partyCodeLower || (data.partyCode && data.partyCode.toLowerCase().includes(partyCodeLower));
+        const partyCodeMatch = !partyCodeLower || (data.partyCode && data.partyCode.toLowerCase() === partyCodeLower);
         return nameMatch && partyCodeMatch;
       });
 
