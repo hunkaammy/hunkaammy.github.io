@@ -303,7 +303,6 @@
       text-align: center;
     }
 
-    /* Ensure video modal appears above product modal */
     #videoModal {
       z-index: 1060;
     }
@@ -457,7 +456,7 @@
           <div ng-if="!isLoading">
             <div class="product-grid">
               <div class="card" ng-repeat="image in displayedProducts" ng-hide="image.markedForRemoval">
-                <img ng-src="{{image.url}}" alt="{{image.name}}" ng-click="showEnlargedImage(image.url)" loading="lazy">
+                <img ng-src="{{image.url}}" alt="{{image.name}}" ng-click="showEnlargedImage(image.url, true)" loading="lazy">
                 <button ng-if="dynamicField2Value === 'sammyadmin'" class="btn btn-danger btn-sm mt-2 mx-2" ng-click="markOutOfStock(image)">
                   Mark Out of Stock
                 </button>
@@ -554,8 +553,8 @@
     // Global flag to track if enlarged image is open
     var isEnlargedImageOpen = false;
 
-    // Back Button Control - Enhanced to prevent navigating to previous website
-    history.pushState({ state: 'home' }, null, location.href); // Initial state for homepage
+    // Back Button Control - Enhanced to fix navigation to previous page
+    history.pushState({ state: 'home' }, null, location.href); // Initial home state
     window.addEventListener('popstate', function (event) {
         var productModalEl = document.getElementById('productModal');
         var orderModalEl = document.getElementById('myModal');
@@ -567,52 +566,52 @@
         var videoModal = bootstrap.Modal.getInstance(videoModalEl);
         var scope = angular.element(document.body).scope();
 
-        // 1st: If enlarged image is open, close it
+        // 1st: If enlarged image is open, close it and restore appropriate state
         if (isEnlargedImageOpen && enlargedOverlayEl.style.display === 'flex') {
             scope.$apply(function() {
                 scope.closeEnlargedImage();
             });
             isEnlargedImageOpen = false;
-            // Push home state or product modal state if it was open
+            // If product modal is open, restore its state; otherwise, go to home
             if (productModal && productModalEl.classList.contains('show')) {
-                history.pushState({ modalId: 'productModal' }, null, location.href);
+                history.pushState({ state: 'productModal' }, null, location.href);
             } else {
                 history.pushState({ state: 'home' }, null, location.href);
             }
             return;
         }
 
-        // 2nd: If product modal is open, close it and stay on homepage
-        if (productModal && productModalEl.classList.contains('show')) { // Simplified condition
+        // 2nd: If product modal is open, close it and go to home
+        if (productModal && productModalEl.classList.contains('show')) {
             scope.$apply(function() {
                 productModal.hide();
                 scope.isProductModalOpen = false;
             });
-            history.pushState({ state: 'home' }, null, location.href); // Push home state to prevent leaving
+            history.pushState({ state: 'home' }, null, location.href);
             return;
         }
 
-        // 3rd: If video modal is open, close it
-        if (event.state && event.state.modalId === 'videoModal' && videoModal && videoModalEl.classList.contains('show')) {
+        // 3rd: If video modal is open, close it and restore appropriate state
+        if (videoModal && videoModalEl.classList.contains('show')) {
             scope.$apply(function() {
                 scope.closeVideoModal();
             });
-            if (event.state.fromProductModal && productModal && productModalEl.classList.contains('show')) {
-                history.pushState({ modalId: 'productModal' }, null, location.href);
+            if (event.state && event.state.fromProductModal && productModal && productModalEl.classList.contains('show')) {
+                history.pushState({ state: 'productModal' }, null, location.href);
             } else {
                 history.pushState({ state: 'home' }, null, location.href);
             }
             return;
         }
 
-        // 3rd (continued): If order modal is open, close it
+        // 4th: If order modal is open, close it and go to home
         if (orderModal && orderModalEl.classList.contains('show')) {
             orderModal.hide();
             history.pushState({ state: 'home' }, null, location.href);
             return;
         }
 
-        // 3rd (continued): If on main page with search active, reset search
+        // 5th: If search is active, reset it and go to home
         if (scope && (scope.isSearching || (scope.searchQuery && scope.searchQuery.length > 0))) {
             scope.$apply(function() {
                 scope.searchQuery = '';
@@ -623,11 +622,11 @@
             return;
         }
 
-        // 4th: If only homepage (no modals, no search, no enlarged image), block back
-        history.pushState({ state: 'home' }, null, location.href); // Repush home state to prevent leaving
+        // 6th: If on homepage, block back navigation
+        history.pushState({ state: 'home' }, null, location.href);
     });
 
-    // Update enlarged image flag when opening/closing
+    // Update enlarged image flag
     document.getElementById('enlarged-image-overlay').addEventListener('transitionend', function() {
         isEnlargedImageOpen = this.style.display === 'flex';
     });
@@ -683,7 +682,6 @@
             }
             document.getElementById('login-container').style.display = 'none';
             document.getElementById('content').style.display = 'block';
-            // Ensure home state is set after login
             history.pushState({ state: 'home' }, null, location.href);
         }
 
@@ -842,7 +840,7 @@
             if ($scope.searchQuery && $scope.searchQuery.length > 0) {
                 $scope.isSearching = true;
                 $scope.isLoadingSearchResults = true;
-                history.pushState({ state: 'search' }, null, location.href); // Push search state
+                history.pushState({ state: 'search' }, null, location.href);
 
                 $timeout(function() {
                     $scope.searchResults = $filter('filter')(vm.images, { name: $scope.searchQuery });
@@ -851,7 +849,7 @@
             } else {
                 $scope.isSearching = false;
                 $scope.searchResults = [];
-                history.pushState({ state: 'home' }, null, location.href); // Reset to home state
+                history.pushState({ state: 'home' }, null, location.href);
             }
         };
         
@@ -863,7 +861,7 @@
             $scope.activeCategoryName = $scope.categories.find(c => c.id === tabId)?.name || 'Products';
             $scope.updateDisplayedProducts();
             $scope.isProductModalOpen = true;
-            history.pushState({ modalId: 'productModal' }, null, location.href); // Ensure state is pushed
+            history.pushState({ state: 'productModal' }, null, location.href);
             productModal.show();
         };
         
@@ -964,13 +962,14 @@
             });
         };
         
-        $scope.showEnlargedImage = function(src) {
+        $scope.showEnlargedImage = function(src, fromProductModal) {
             const overlay = document.getElementById('enlarged-image-overlay');
             if (overlay) {
                 overlay.style.display = 'flex';
                 overlay.querySelector('img').src = src;
                 isEnlargedImageOpen = true;
-                history.pushState({ state: 'enlargedImage' }, null, location.href); // Push state for enlarged image
+                // Push state with context of whether it was opened from product modal
+                history.pushState({ state: 'enlargedImage', fromProductModal: !!fromProductModal }, null, location.href);
             }
         };
 
@@ -979,17 +978,24 @@
             if (overlay) {
                 overlay.style.display = 'none';
                 isEnlargedImageOpen = false;
+                // Push appropriate state based on context
+                var productModalEl = document.getElementById('productModal');
+                var productModal = bootstrap.Modal.getInstance(productModalEl);
+                if (productModal && productModalEl.classList.contains('show')) {
+                    history.pushState({ state: 'productModal' }, null, location.href);
+                } else {
+                    history.pushState({ state: 'home' }, null, location.href);
+                }
             }
         };
         
         $scope.showVideoModal = function(event, videourl, fromProductModal) {
             event.preventDefault();
             event.stopPropagation();
-            console.log('Opening video modal with URL:', videourl, 'From product modal:', fromProductModal);
             $scope.videoError = '';
             if (videourl) {
                 $scope.currentVideoUrl = $sce.trustAsResourceUrl(videourl);
-                history.pushState({ modalId: 'videoModal', fromProductModal: fromProductModal }, null, location.href);
+                history.pushState({ state: 'videoModal', fromProductModal: fromProductModal }, null, location.href);
                 videoModal.show();
                 
                 $timeout(function() {
@@ -1022,7 +1028,13 @@
             videoModal.hide();
             $scope.currentVideoUrl = '';
             $scope.videoError = '';
-            console.log('Video modal closed');
+            var productModalEl = document.getElementById('productModal');
+            var productModal = bootstrap.Modal.getInstance(productModalEl);
+            if (productModal && productModalEl.classList.contains('show')) {
+                history.pushState({ state: 'productModal' }, null, location.href);
+            } else {
+                history.pushState({ state: 'home' }, null, location.href);
+            }
         };
 
         $scope.updateDisplayedProducts = function() {
@@ -1052,7 +1064,6 @@
             $window.location.reload();
         };
 
-        // Track product modal state
         document.getElementById('productModal').addEventListener('show.bs.modal', function() {
             $scope.$apply(function() {
                 $scope.isProductModalOpen = true;
@@ -1062,11 +1073,10 @@
         document.getElementById('productModal').addEventListener('hide.bs.modal', function() {
             $scope.$apply(function() {
                 $scope.isProductModalOpen = false;
-                history.pushState({ state: 'home' }, null, location.href); // Push home state when closing
+                history.pushState({ state: 'home' }, null, location.href);
             });
         });
 
-        // Prevent product modal from closing when video modal is opened
         document.getElementById('videoModal').addEventListener('show.bs.modal', function() {
             var productModalEl = document.getElementById('productModal');
             if ($scope.isProductModalOpen && productModalEl.classList.contains('show')) {
