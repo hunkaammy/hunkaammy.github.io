@@ -551,11 +551,11 @@
   <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
 
   <script>
-    // Global flag to track if enlarged image is open (for back button handling)
+    // Global flag to track if enlarged image is open
     var isEnlargedImageOpen = false;
 
-    // Back Button Control - Enhanced for all specified priorities
-    history.pushState(null, null, location.href);
+    // Back Button Control - Enhanced to prevent navigating to previous website
+    history.pushState({ state: 'home' }, null, location.href); // Initial state for homepage
     window.addEventListener('popstate', function (event) {
         var productModalEl = document.getElementById('productModal');
         var orderModalEl = document.getElementById('myModal');
@@ -573,51 +573,61 @@
                 scope.closeEnlargedImage();
             });
             isEnlargedImageOpen = false;
-            history.pushState(null, null, location.href);
-            return;
-        }
-
-        // 2nd: If product modal is open (and no enlarged image), close it
-        if (event.state && event.state.modalId === 'productModal' && productModal && productModalEl.classList.contains('show')) {
-            productModal.hide();
-            history.pushState(null, null, location.href);
-            return;
-        }
-
-        // 3rd: If video modal is open, close it (and restore product modal if from there)
-        if (event.state && event.state.modalId === 'videoModal' && videoModal && videoModalEl.classList.contains('show')) {
-            videoModal.hide();
-            if (event.state.fromProductModal && productModal && productModalEl.classList.contains('show')) {
-                history.pushState({ modalId: 'productModal' }, '');
+            // Push home state or product modal state if it was open
+            if (productModal && productModalEl.classList.contains('show')) {
+                history.pushState({ modalId: 'productModal' }, null, location.href);
             } else {
-                history.pushState(null, null, location.href);
+                history.pushState({ state: 'home' }, null, location.href);
             }
             return;
         }
 
-        // If order modal is open, close it
-        if (orderModal && orderModalEl.classList.contains('show')) {
-            orderModal.hide();
-            history.pushState(null, null, location.href);
+        // 2nd: If product modal is open, close it and stay on homepage
+        if (productModal && productModalEl.classList.contains('show')) { // Simplified condition
+            scope.$apply(function() {
+                productModal.hide();
+                scope.isProductModalOpen = false;
+            });
+            history.pushState({ state: 'home' }, null, location.href); // Push home state to prevent leaving
             return;
         }
 
-        // 3rd (continued): If on main page with search active (isSearching true or searchQuery non-empty), reset search
+        // 3rd: If video modal is open, close it
+        if (event.state && event.state.modalId === 'videoModal' && videoModal && videoModalEl.classList.contains('show')) {
+            scope.$apply(function() {
+                scope.closeVideoModal();
+            });
+            if (event.state.fromProductModal && productModal && productModalEl.classList.contains('show')) {
+                history.pushState({ modalId: 'productModal' }, null, location.href);
+            } else {
+                history.pushState({ state: 'home' }, null, location.href);
+            }
+            return;
+        }
+
+        // 3rd (continued): If order modal is open, close it
+        if (orderModal && orderModalEl.classList.contains('show')) {
+            orderModal.hide();
+            history.pushState({ state: 'home' }, null, location.href);
+            return;
+        }
+
+        // 3rd (continued): If on main page with search active, reset search
         if (scope && (scope.isSearching || (scope.searchQuery && scope.searchQuery.length > 0))) {
             scope.$apply(function() {
                 scope.searchQuery = '';
                 scope.isSearching = false;
-                scope.onSearchChange(); // Trigger reset
+                scope.onSearchChange();
             });
-            history.pushState(null, null, location.href);
+            history.pushState({ state: 'home' }, null, location.href);
             return;
         }
 
-        // 4th: If only homepage (no modals, no search, no enlarged image), block back - repush current state to prevent leaving site
-        history.pushState(null, null, location.href);
+        // 4th: If only homepage (no modals, no search, no enlarged image), block back
+        history.pushState({ state: 'home' }, null, location.href); // Repush home state to prevent leaving
     });
 
-    // Update enlarged image flag when opening/closing (integrate with Angular scope)
+    // Update enlarged image flag when opening/closing
     document.getElementById('enlarged-image-overlay').addEventListener('transitionend', function() {
         isEnlargedImageOpen = this.style.display === 'flex';
     });
@@ -673,6 +683,8 @@
             }
             document.getElementById('login-container').style.display = 'none';
             document.getElementById('content').style.display = 'block';
+            // Ensure home state is set after login
+            history.pushState({ state: 'home' }, null, location.href);
         }
 
         function checkAuthentication() {
@@ -830,6 +842,7 @@
             if ($scope.searchQuery && $scope.searchQuery.length > 0) {
                 $scope.isSearching = true;
                 $scope.isLoadingSearchResults = true;
+                history.pushState({ state: 'search' }, null, location.href); // Push search state
 
                 $timeout(function() {
                     $scope.searchResults = $filter('filter')(vm.images, { name: $scope.searchQuery });
@@ -838,6 +851,7 @@
             } else {
                 $scope.isSearching = false;
                 $scope.searchResults = [];
+                history.pushState({ state: 'home' }, null, location.href); // Reset to home state
             }
         };
         
@@ -849,7 +863,7 @@
             $scope.activeCategoryName = $scope.categories.find(c => c.id === tabId)?.name || 'Products';
             $scope.updateDisplayedProducts();
             $scope.isProductModalOpen = true;
-            history.pushState({ modalId: 'productModal' }, '');
+            history.pushState({ modalId: 'productModal' }, null, location.href); // Ensure state is pushed
             productModal.show();
         };
         
@@ -955,8 +969,8 @@
             if (overlay) {
                 overlay.style.display = 'flex';
                 overlay.querySelector('img').src = src;
-                isEnlargedImageOpen = true; // Set global flag
-                history.pushState({ enlargedImage: true }, ''); // Push state for back button
+                isEnlargedImageOpen = true;
+                history.pushState({ state: 'enlargedImage' }, null, location.href); // Push state for enlarged image
             }
         };
 
@@ -964,7 +978,7 @@
             const overlay = document.getElementById('enlarged-image-overlay');
             if (overlay) {
                 overlay.style.display = 'none';
-                isEnlargedImageOpen = false; // Reset global flag
+                isEnlargedImageOpen = false;
             }
         };
         
@@ -972,17 +986,16 @@
             event.preventDefault();
             event.stopPropagation();
             console.log('Opening video modal with URL:', videourl, 'From product modal:', fromProductModal);
-            $scope.videoError = ''; // Reset error message
+            $scope.videoError = '';
             if (videourl) {
                 $scope.currentVideoUrl = $sce.trustAsResourceUrl(videourl);
-                history.pushState({ modalId: 'videoModal', fromProductModal: fromProductModal }, '');
+                history.pushState({ modalId: 'videoModal', fromProductModal: fromProductModal }, null, location.href);
                 videoModal.show();
                 
-                // Add error handling for video playback
                 $timeout(function() {
                     var videoElement = document.getElementById('videoPlayer');
                     if (videoElement) {
-                        videoElement.load(); // Force reload the video source
+                        videoElement.load();
                         videoElement.onerror = function() {
                             $scope.$apply(function() {
                                 $scope.videoError = 'Error loading video. Please check the URL or try again later.';
@@ -1003,8 +1016,8 @@
         $scope.closeVideoModal = function() {
             var videoElement = document.getElementById('videoPlayer');
             if (videoElement) {
-                videoElement.pause(); // Pause the video when closing
-                videoElement.currentTime = 0; // Reset to start
+                videoElement.pause();
+                videoElement.currentTime = 0;
             }
             videoModal.hide();
             $scope.currentVideoUrl = '';
@@ -1049,6 +1062,7 @@
         document.getElementById('productModal').addEventListener('hide.bs.modal', function() {
             $scope.$apply(function() {
                 $scope.isProductModalOpen = false;
+                history.pushState({ state: 'home' }, null, location.href); // Push home state when closing
             });
         });
 
@@ -1056,7 +1070,6 @@
         document.getElementById('videoModal').addEventListener('show.bs.modal', function() {
             var productModalEl = document.getElementById('productModal');
             if ($scope.isProductModalOpen && productModalEl.classList.contains('show')) {
-                // Prevent Bootstrap from removing modal-open class or backdrop
                 document.body.classList.add('modal-open');
                 var backdrop = document.querySelector('.modal-backdrop');
                 if (backdrop) {
@@ -1068,10 +1081,8 @@
         document.getElementById('videoModal').addEventListener('hide.bs.modal', function() {
             var productModalEl = document.getElementById('productModal');
             if ($scope.isProductModalOpen && productModalEl.classList.contains('show')) {
-                // Ensure product modal remains open
                 productModalEl.style.display = 'block';
                 document.body.classList.add('modal-open');
-                // Restore backdrop if needed
                 if (!document.querySelector('.modal-backdrop')) {
                     var backdrop = document.createElement('div');
                     backdrop.className = 'modal-backdrop fade show';
