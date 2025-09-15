@@ -712,8 +712,12 @@
           if (isEnlargedImageOpen && enlargedOverlayEl && enlargedOverlayEl.style.display === 'flex') {
             scope.closeEnlargedImage();
             isEnlargedImageOpen = false;
-            // Restore state based on whether product modal is open
-            if (productModal && productModalEl.classList.contains('show')) {
+            // Check if enlarged image was opened from product modal
+            if (event.state && event.state.fromProductModal && productModal && scope.isProductModalOpen) {
+              // Ensure product modal is visible
+              if (!productModalEl.classList.contains('show')) {
+                productModal.show();
+              }
               history.pushState({ state: 'productModal' }, null, location.href);
             } else {
               history.pushState({ state: 'home' }, null, location.href);
@@ -732,8 +736,11 @@
           // 3: If video modal is open, close it
           if (videoModal && videoModalEl.classList.contains('show')) {
             scope.closeVideoModal();
-            // Restore state based on whether product modal is open
-            if (event.state && event.state.fromProductModal && productModal && productModalEl.classList.contains('show')) {
+            // Restore product modal if opened from there
+            if (event.state && event.state.fromProductModal && productModal && scope.isProductModalOpen) {
+              if (!productModalEl.classList.contains('show')) {
+                productModal.show();
+              }
               history.pushState({ state: 'productModal' }, null, location.href);
             } else {
               history.pushState({ state: 'home' }, null, location.href);
@@ -1190,7 +1197,10 @@
               isEnlargedImageOpen = false;
               var productModalEl = document.getElementById('productModal');
               var productModal = bootstrap.Modal.getInstance(productModalEl);
-              if (productModal && productModalEl.classList.contains('show')) {
+              if ($scope.isProductModalOpen && productModal) {
+                if (!productModalEl.classList.contains('show')) {
+                  productModal.show();
+                }
                 history.pushState({ state: 'productModal' }, null, location.href);
               } else {
                 history.pushState({ state: 'home' }, null, location.href);
@@ -1249,7 +1259,10 @@
             $scope.videoError = '';
             var productModalEl = document.getElementById('productModal');
             var productModal = bootstrap.Modal.getInstance(productModalEl);
-            if (productModal && productModalEl.classList.contains('show')) {
+            if ($scope.isProductModalOpen && productModal) {
+              if (!productModalEl.classList.contains('show')) {
+                productModal.show();
+              }
               history.pushState({ state: 'productModal' }, null, location.href);
             } else {
               history.pushState({ state: 'home' }, null, location.href);
