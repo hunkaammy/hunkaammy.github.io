@@ -708,13 +708,12 @@
         }
 
         scope.$applyAsync(function() {
-          // 1: If enlarged image is open, close it
-          if (isEnlargedImageOpen && enlargedOverlayEl && enlargedOverlayEl.style.display === 'flex') {
+          // 1: If enlarged image is open or state is 'enlargedImage', close it
+          if (isEnlargedImageOpen && enlargedOverlayEl && enlargedOverlayEl.style.display === 'flex' || (event.state && event.state.state === 'enlargedImage')) {
             scope.closeEnlargedImage();
             isEnlargedImageOpen = false;
-            // Check if enlarged image was opened from product modal
+            // Restore state based on whether product modal is open
             if (event.state && event.state.fromProductModal && productModal && scope.isProductModalOpen) {
-              // Ensure product modal is visible
               if (!productModalEl.classList.contains('show')) {
                 productModal.show();
               }
@@ -725,18 +724,20 @@
             return;
           }
 
-          // 2: If product modal is open, close it and go to home
-          if (productModal && productModalEl.classList.contains('show')) {
+          // 2: If product modal is open and state is 'productModal', close it and go to home
+          if (event.state && event.state.state === 'productModal' && productModal && productModalEl.classList.contains('show') && !scope.justClosedEnlarged) {
             productModal.hide();
             scope.isProductModalOpen = false;
             history.pushState({ state: 'home' }, null, location.href);
             return;
           }
 
-          // 3: If video modal is open, close it
-          if (videoModal && videoModalEl.classList.contains('show')) {
+          scope.justClosedEnlarged = false;
+
+          // 3: If video modal is open and state is 'videoModal', close it
+          if (event.state && event.state.state === 'videoModal' && videoModal && videoModalEl.classList.contains('show')) {
             scope.closeVideoModal();
-            // Restore product modal if opened from there
+            // Restore state based on whether product modal is open
             if (event.state && event.state.fromProductModal && productModal && scope.isProductModalOpen) {
               if (!productModalEl.classList.contains('show')) {
                 productModal.show();
@@ -748,15 +749,15 @@
             return;
           }
 
-          // 4: If order modal is open, close it
-          if (orderModal && orderModalEl.classList.contains('show')) {
+          // 4: If order modal is open and state is 'orderModal', close it
+          if (event.state && event.state.state === 'orderModal' && orderModal && orderModalEl.classList.contains('show')) {
             orderModal.hide();
             history.pushState({ state: 'home' }, null, location.href);
             return;
           }
 
-          // 5: If search is active, reset it
-          if (scope.isSearching || (scope.searchQuery && scope.searchQuery.length > 0)) {
+          // 5: If search is active and state is 'search', reset it
+          if (event.state && event.state.state === 'search' && (scope.isSearching || (scope.searchQuery && scope.searchQuery.length > 0))) {
             scope.searchQuery = '';
             scope.isSearching = false;
             scope.onSearchChange();
@@ -884,6 +885,8 @@
     var app = angular.module('myApp', ['firebase']);
     app.controller('imagesController', ['$scope', '$firebaseArray', '$filter', '$window', '$timeout', '$sce', function($scope, $firebaseArray, $filter, $window, $timeout, $sce) {
       try {
+        $scope.justClosedEnlarged = false;
+
         var vm = this;
         vm.images = [];
         $scope.displayedProducts = []; 
@@ -1195,16 +1198,8 @@
             if (overlay) {
               overlay.style.display = 'none';
               isEnlargedImageOpen = false;
-              var productModalEl = document.getElementById('productModal');
-              var productModal = bootstrap.Modal.getInstance(productModalEl);
-              if ($scope.isProductModalOpen && productModal) {
-                if (!productModalEl.classList.contains('show')) {
-                  productModal.show();
-                }
-                history.pushState({ state: 'productModal' }, null, location.href);
-              } else {
-                history.pushState({ state: 'home' }, null, location.href);
-              }
+              $scope.justClosedEnlarged = true;
+              history.back();
             }
           } catch (e) {
             console.error("Close Enlarged Image Error:", e);
@@ -1259,10 +1254,7 @@
             $scope.videoError = '';
             var productModalEl = document.getElementById('productModal');
             var productModal = bootstrap.Modal.getInstance(productModalEl);
-            if ($scope.isProductModalOpen && productModal) {
-              if (!productModalEl.classList.contains('show')) {
-                productModal.show();
-              }
+            if (productModal && productModalEl.classList.contains('show')) {
               history.pushState({ state: 'productModal' }, null, location.href);
             } else {
               history.pushState({ state: 'home' }, null, location.href);
@@ -1347,6 +1339,13 @@
                     document.body.appendChild(backdrop);
                   }
                 }
+              });
+            }
+
+            var orderModalEl = document.getElementById('myModal');
+            if (orderModalEl) {
+              orderModalEl.addEventListener('show.bs.modal', function() {
+                history.pushState({ state: 'orderModal' }, null, location.href);
               });
             }
           } catch (e) {
