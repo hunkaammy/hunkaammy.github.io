@@ -33,7 +33,6 @@
         display: none !important;
     }
 
-    /* Constrain content width to tablet-like size on all devices */
     #content, #login-container {
       max-width: 768px;
       margin: 0 auto;
@@ -685,23 +684,22 @@
         column: colno,
         error: error
       });
-      // Optionally show user-friendly message
       alert('An error occurred. Please try refreshing the page.');
-      return true; // Prevent default browser error handling
+      return true;
     };
 
     // Back Button Control
     history.pushState({ state: 'home' }, null, location.href);
     window.addEventListener('popstate', function (event) {
       try {
-        var productModalEl = document.getElementById('productModal');
-        var orderModalEl = document.getElementById('myModal');
-        var videoModalEl = document.getElementById('videoModal');
         var enlargedOverlayEl = document.getElementById('enlarged-image-overlay');
+        var productModalEl = document.getElementById('productModal');
+        var videoModalEl = document.getElementById('videoModal');
+        var orderModalEl = document.getElementById('myModal');
         
-        var productModal = bootstrap.Modal.getInstance(productModalEl);
-        var orderModal = bootstrap.Modal.getInstance(orderModalEl);
-        var videoModal = bootstrap.Modal.getInstance(videoModalEl);
+        var productModal = productModalEl ? bootstrap.Modal.getInstance(productModalEl) : null;
+        var videoModal = videoModalEl ? bootstrap.Modal.getInstance(videoModalEl) : null;
+        var orderModal = orderModalEl ? bootstrap.Modal.getInstance(orderModalEl) : null;
         var scope = angular.element(document.body).scope();
 
         if (!scope) {
@@ -710,10 +708,11 @@
         }
 
         scope.$applyAsync(function() {
-          // 1st: Close enlarged image
+          // 1: If enlarged image is open, close it
           if (isEnlargedImageOpen && enlargedOverlayEl && enlargedOverlayEl.style.display === 'flex') {
             scope.closeEnlargedImage();
             isEnlargedImageOpen = false;
+            // Restore state based on whether product modal is open
             if (productModal && productModalEl.classList.contains('show')) {
               history.pushState({ state: 'productModal' }, null, location.href);
             } else {
@@ -722,7 +721,7 @@
             return;
           }
 
-          // 2nd: Close product modal
+          // 2: If product modal is open, close it and go to home
           if (productModal && productModalEl.classList.contains('show')) {
             productModal.hide();
             scope.isProductModalOpen = false;
@@ -730,9 +729,10 @@
             return;
           }
 
-          // 3rd: Close video modal
+          // 3: If video modal is open, close it
           if (videoModal && videoModalEl.classList.contains('show')) {
             scope.closeVideoModal();
+            // Restore state based on whether product modal is open
             if (event.state && event.state.fromProductModal && productModal && productModalEl.classList.contains('show')) {
               history.pushState({ state: 'productModal' }, null, location.href);
             } else {
@@ -741,14 +741,14 @@
             return;
           }
 
-          // 4th: Close order modal
+          // 4: If order modal is open, close it
           if (orderModal && orderModalEl.classList.contains('show')) {
             orderModal.hide();
             history.pushState({ state: 'home' }, null, location.href);
             return;
           }
 
-          // 5th: Reset search
+          // 5: If search is active, reset it
           if (scope.isSearching || (scope.searchQuery && scope.searchQuery.length > 0)) {
             scope.searchQuery = '';
             scope.isSearching = false;
@@ -757,8 +757,10 @@
             return;
           }
 
-          // 6th: Block back navigation on homepage
-          history.pushState({ state: 'home' }, null, location.href);
+          // 6: Block back navigation on homepage
+          if (event.state && event.state.state === 'home') {
+            history.pushState({ state: 'home' }, null, location.href);
+          }
         });
       } catch (e) {
         console.error('Popstate error:', e);
@@ -1292,7 +1294,6 @@
           }
         };
 
-        // Modal event listeners
         $timeout(function() {
           try {
             var productModalEl = document.getElementById('productModal');
