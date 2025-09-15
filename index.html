@@ -33,9 +33,49 @@
         display: none !important;
     }
 
+    /* Constrain content width to tablet-like size on all devices */
+    #content, #login-container {
+      max-width: 768px;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+
+    #login-container {
+      background-size: cover;
+      background-position: center;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    #inside {
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+      text-align: center;
+      width: 100%;
+      max-width: 360px;
+    }
+
+    .navbar {
+      background-color: #fff;
+      padding: 8px 15px;
+      position: fixed;
+      width: 100%;
+      max-width: 768px;
+      top: 0;
+      z-index: 1030;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
     .page-title {
-        font-size: 18px;
-        font-weight: 600;
+      font-size: 18px;
+      font-weight: 600;
     }
     
     .section-container {
@@ -84,23 +124,10 @@
       font-weight: 500;
       color: #555;
     }
-    
-    #login-container {
-      background-size: cover; background-position: center; height: 100vh;
-      display: flex; justify-content: center; align-items: center; padding: 20px;
-    }
 
-    #inside {
-      background-color: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 12px;
-      box-shadow: var(--card-shadow); text-align: center; width: 100%; max-width: 360px;
+    .modal-body {
+      background-color: var(--light-gray);
     }
-
-    .navbar {
-      background-color: #fff; padding: 8px 15px; position: fixed;
-      width: 100%; top: 0; z-index: 1030; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .modal-body { background-color: var(--light-gray); }
 
     .product-grid {
       display: grid;
@@ -109,8 +136,13 @@
     }
 
     .card {
-      box-shadow: var(--card-shadow); width: 100%; border-radius: 8px;
-      text-align: center; background: #fff; overflow: hidden; padding-bottom: 8px;
+      box-shadow: var(--card-shadow);
+      width: 100%;
+      border-radius: 8px;
+      text-align: center;
+      background: #fff;
+      overflow: hidden;
+      padding-bottom: 8px;
     }
 
     .card img {
@@ -119,27 +151,62 @@
       cursor: pointer;
     }
     
-    .containers { padding: 8px; position: relative; }
-    .containers h4 { margin: 0 0 4px; font-size: 13px; font-weight: bold; }
-    .containers p { margin: 0 0 4px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; font-size: 11px; }
-    .containers a.watch-video { font-size: 11px; color: var(--secondary-color); cursor: pointer; }
+    .containers {
+      padding: 8px;
+      position: relative;
+    }
+    .containers h4 {
+      margin: 0 0 4px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+    .containers p {
+      margin: 0 0 4px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      font-size: 11px;
+    }
+    .containers a.watch-video {
+      font-size: 11px;
+      color: var(--secondary-color);
+      cursor: pointer;
+    }
 
     .qtyclass {
-      height: 32px; width: 50px; margin-right: 5px; font-size: 12px;
-      border-radius: 6px; border: 1px solid #ced4da; text-align: center;
+      height: 32px;
+      width: 50px;
+      margin-right: 5px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: 1px solid #ced4da;
+      text-align: center;
     }
 
     .saved-feedback {
-        color: var(--primary-color); font-size: 10px; font-weight: bold;
-        position: absolute; top: 8px; right: 8px;
-        animation: fadeOut 2s forwards;
+      color: var(--primary-color);
+      font-size: 10px;
+      font-weight: bold;
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      animation: fadeOut 2s forwards;
     }
-    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
     
     .enlarged-image-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       background-color: rgba(0, 0, 0, 0.7);
-      display: none; justify-content: center; align-items: center;
+      display: none;
+      justify-content: center;
+      align-items: center;
       z-index: 1060;
       cursor: pointer;
     }
@@ -155,10 +222,25 @@
       50% { background-color: #f0f0f0; }
       100% { background-color: #e0e0e0; }
     }
-    .skeleton-card { background-color: #fff; padding: 0; }
-    .skeleton-image { width: 100%; height: 140px; animation: skeleton-pulse 1.5s infinite ease-in-out; }
-    .skeleton-line { height: 12px; width: 90%; margin: 8px auto; border-radius: 4px; animation: skeleton-pulse 1.5s infinite ease-in-out; }
-    .skeleton-line.short { width: 60%; }
+    .skeleton-card {
+      background-color: #fff;
+      padding: 0;
+    }
+    .skeleton-image {
+      width: 100%;
+      height: 140px;
+      animation: skeleton-pulse 1.5s infinite ease-in-out;
+    }
+    .skeleton-line {
+      height: 12px;
+      width: 90%;
+      margin: 8px auto;
+      border-radius: 4px;
+      animation: skeleton-pulse 1.5s infinite ease-in-out;
+    }
+    .skeleton-line.short {
+      width: 60%;
+    }
 
     .skeleton-category-card {
       background-color: #e0e0e0;
@@ -187,16 +269,22 @@
       border-radius: 4px;
     }
 
-    .order-item-img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-right: 15px; }
+    .order-item-img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-right: 15px;
+    }
     .qty-control {
-        display: flex;
-        align-items: center;
+      display: flex;
+      align-items: center;
     }
     .qty-display {
-        width: 40px;
-        text-align: center;
-        font-weight: bold;
-        font-size: 16px;
+      width: 40px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 16px;
     }
 
     .manual-slideshow-container {
@@ -204,18 +292,18 @@
     }
 
     .manual-slideshow-scroll-wrapper {
-        display: flex;
-        flex-wrap: nowrap; 
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch; 
-        scroll-snap-type: x mandatory; 
-        padding-bottom: 10px;
-        gap: 12px; 
-        scrollbar-width: none;
-        -ms-overflow-style: none; 
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 10px;
+      gap: 12px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
     .manual-slideshow-scroll-wrapper::-webkit-scrollbar {
-        display: none;
+      display: none;
     }
 
     .manual-slideshow-scroll-wrapper .card {
@@ -225,25 +313,25 @@
     }
 
     .manual-slideshow-scroll-wrapper .card img {
-        object-fit: cover;
+      object-fit: cover;
     }
     .manual-slideshow-scroll-wrapper .card .containers {
-        padding: 6px;
+      padding: 6px;
     }
     .manual-slideshow-scroll-wrapper .card .containers h4 {
-        font-size: 12px;
+      font-size: 12px;
     }
     .manual-slideshow-scroll-wrapper .card .containers p {
-        font-size: 10px; 
-        line-height: 1.2;
+      font-size: 10px;
+      line-height: 1.2;
     }
     .manual-slideshow-scroll-wrapper .card .containers a.watch-video {
-        font-size: 10px;
+      font-size: 10px;
     }
     .manual-slideshow-scroll-wrapper .card .qtyclass {
-        height: 28px;
-        width: 45px;
-        font-size: 11px;
+      height: 28px;
+      width: 45px;
+      font-size: 11px;
     }
 
     .manual-slideshow-controls {
@@ -306,11 +394,47 @@
     #videoModal {
       z-index: 1060;
     }
+
+    .search-results-container {
+      max-width: 768px;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+
+    .modal-dialog {
+      max-width: 768px;
+      margin: 1.75rem auto;
+    }
+
+    @media (min-width: 768px) {
+      #productModal .modal-dialog,
+      #myModal .modal-dialog {
+        max-width: 768px;
+        margin: 1.75rem auto;
+      }
+      #productModal .modal-content,
+      #myModal .modal-content {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 767.98px) {
+      .modal-dialog {
+        max-width: none;
+        margin: 0;
+        width: 100%;
+        height: 100%;
+      }
+      .modal-content {
+        height: 100%;
+        border-radius: 0;
+      }
+    }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 </head>
 <body ng-controller="imagesController as vm">
-  <div id="login-container" style="background-image: ur[](https://hunkaammy.github.io/mywebsite/NEWWEBSITE/loginpg.jpeg);">
+  <div id="login-container" style="background-image: url(https://hunkaammy.github.io/mywebsite/NEWWEBSITE/loginpg.jpeg);">
     <div id="inside">
       <h2 class="mb-4">HINDUSTAN TOYS</h2>
       <input type="text" id="name" placeholder="Enter your shop name" class="form-control mb-2" autocomplete="off">
@@ -437,7 +561,7 @@
   </div>
 
   <div class="modal fade" id="productModal" tabindex="-1">
-    <div class="modal-dialog modal-fullscreen">
+    <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title text-uppercase">{{ activeCategoryName }}</h5>
@@ -491,7 +615,6 @@
             Your browser does not support the video tag.
           </video>
           <p class="video-error" ng-if="videoError">{{videoError}}</p>
-         <!-- <a ng-href="{{currentVideoUrl}}" download class="download-btn">Download Video</a> -->
         </div>
       </div>
     </div>
@@ -502,7 +625,7 @@
   </div>
   
   <div class="modal fade" id="myModal" tabindex="-1">
-    <div class="modal-dialog modal-fullscreen">
+    <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">{{dynamicField2Value}}'s Order List</h5>
@@ -535,7 +658,7 @@
           </div>
         </div>
         <div class="modal-footer">
-            <strong class="me-auto" ng-if="productVisible">Total: {{ calculateOrderTotal() | currency:"₹":0 }}</strong>
+            <strong class="me-auto" ng-if="priceVisible">Total: {{ calculateOrderTotal() | currency:"₹":0 }}</strong>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
@@ -553,9 +676,24 @@
     // Global flag to track if enlarged image is open
     var isEnlargedImageOpen = false;
 
-    // Back Button Control - Enhanced to fix navigation to previous page
-    history.pushState({ state: 'home' }, null, location.href); // Initial home state
+    // Error handling for script loading
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.error('Script Error:', {
+        message: message,
+        source: source,
+        line: lineno,
+        column: colno,
+        error: error
+      });
+      // Optionally show user-friendly message
+      alert('An error occurred. Please try refreshing the page.');
+      return true; // Prevent default browser error handling
+    };
+
+    // Back Button Control
+    history.pushState({ state: 'home' }, null, location.href);
     window.addEventListener('popstate', function (event) {
+      try {
         var productModalEl = document.getElementById('productModal');
         var orderModalEl = document.getElementById('myModal');
         var videoModalEl = document.getElementById('videoModal');
@@ -566,158 +704,177 @@
         var videoModal = bootstrap.Modal.getInstance(videoModalEl);
         var scope = angular.element(document.body).scope();
 
-        // 1st: If enlarged image is open, close it and restore appropriate state
-        if (isEnlargedImageOpen && enlargedOverlayEl.style.display === 'flex') {
-            scope.$apply(function() {
-                scope.closeEnlargedImage();
-            });
-            isEnlargedImageOpen = false;
-            // If product modal is open, restore its state; otherwise, go to home
-            if (productModal && productModalEl.classList.contains('show')) {
-                history.pushState({ state: 'productModal' }, null, location.href);
-            } else {
-                history.pushState({ state: 'home' }, null, location.href);
-            }
-            return;
+        if (!scope) {
+          console.error('Angular scope not found');
+          return;
         }
 
-        // 2nd: If product modal is open, close it and go to home
-        if (productModal && productModalEl.classList.contains('show')) {
-            scope.$apply(function() {
-                productModal.hide();
-                scope.isProductModalOpen = false;
-            });
+        scope.$applyAsync(function() {
+          // 1st: Close enlarged image
+          if (isEnlargedImageOpen && enlargedOverlayEl && enlargedOverlayEl.style.display === 'flex') {
+            scope.closeEnlargedImage();
+            isEnlargedImageOpen = false;
+            if (productModal && productModalEl.classList.contains('show')) {
+              history.pushState({ state: 'productModal' }, null, location.href);
+            } else {
+              history.pushState({ state: 'home' }, null, location.href);
+            }
+            return;
+          }
+
+          // 2nd: Close product modal
+          if (productModal && productModalEl.classList.contains('show')) {
+            productModal.hide();
+            scope.isProductModalOpen = false;
             history.pushState({ state: 'home' }, null, location.href);
             return;
-        }
+          }
 
-        // 3rd: If video modal is open, close it and restore appropriate state
-        if (videoModal && videoModalEl.classList.contains('show')) {
-            scope.$apply(function() {
-                scope.closeVideoModal();
-            });
+          // 3rd: Close video modal
+          if (videoModal && videoModalEl.classList.contains('show')) {
+            scope.closeVideoModal();
             if (event.state && event.state.fromProductModal && productModal && productModalEl.classList.contains('show')) {
-                history.pushState({ state: 'productModal' }, null, location.href);
+              history.pushState({ state: 'productModal' }, null, location.href);
             } else {
-                history.pushState({ state: 'home' }, null, location.href);
+              history.pushState({ state: 'home' }, null, location.href);
             }
             return;
-        }
+          }
 
-        // 4th: If order modal is open, close it and go to home
-        if (orderModal && orderModalEl.classList.contains('show')) {
+          // 4th: Close order modal
+          if (orderModal && orderModalEl.classList.contains('show')) {
             orderModal.hide();
             history.pushState({ state: 'home' }, null, location.href);
             return;
-        }
+          }
 
-        // 5th: If search is active, reset it and go to home
-        if (scope && (scope.isSearching || (scope.searchQuery && scope.searchQuery.length > 0))) {
-            scope.$apply(function() {
-                scope.searchQuery = '';
-                scope.isSearching = false;
-                scope.onSearchChange();
-            });
+          // 5th: Reset search
+          if (scope.isSearching || (scope.searchQuery && scope.searchQuery.length > 0)) {
+            scope.searchQuery = '';
+            scope.isSearching = false;
+            scope.onSearchChange();
             history.pushState({ state: 'home' }, null, location.href);
             return;
-        }
+          }
 
-        // 6th: If on homepage, block back navigation
-        history.pushState({ state: 'home' }, null, location.href);
+          // 6th: Block back navigation on homepage
+          history.pushState({ state: 'home' }, null, location.href);
+        });
+      } catch (e) {
+        console.error('Popstate error:', e);
+      }
     });
 
     // Update enlarged image flag
     document.getElementById('enlarged-image-overlay').addEventListener('transitionend', function() {
-        isEnlargedImageOpen = this.style.display === 'flex';
+      isEnlargedImageOpen = this.style.display === 'flex';
     });
 
     // Login Logic
     (function() {
-        var loginConfig = {
-            apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
-            authDomain: "shop-reminder-3ce10.firebaseapp.com",
-            databaseURL: "https://shop-reminder-3ce10-default-rtdb.firebaseio.com",
-        };
-        var blockedNumbers = ['7000913701', '8269731362', '9876543210', '9123456789', '8987854256', '9039199794', '9166220046', '8269731352', '6263821242', '6616495946', '6266242180', '9109390639', '8576911011'];
-        var blockedPageUrl = 'https://www.hindustantoys.in/mywebsite/NEWWEBSITE/blocked.html';
+      var loginConfig = {
+        apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
+        authDomain: "shop-reminder-3ce10.firebaseapp.com",
+        databaseURL: "https://shop-reminder-3ce10-default-rtdb.firebaseio.com",
+      };
+      var blockedNumbers = ['7000913701', '8269731362', '9876543210', '9123456789', '8987854256', '9039199794', '9166220046', '8269731352', '6263821242', '6616495946', '6266242180', '9109390639', '8576911011'];
+      var blockedPageUrl = 'https://www.hindustantoys.in/mywebsite/NEWWEBSITE/blocked.html';
 
-        var loginApp;
-        if (!firebase.apps.some(app => app.name === 'loginApp')) {
-            loginApp = firebase.initializeApp(loginConfig, 'loginApp');
-        } else {
-            loginApp = firebase.app('loginApp');
-        }
+      try {
+        var loginApp = firebase.apps.find(app => app.name === 'loginApp') || firebase.initializeApp(loginConfig, 'loginApp');
         var loginDb = loginApp.database();
 
         window.validateLogin = function() {
+          try {
             var nameInput = document.getElementById('name');
             var mobileInput = document.getElementById('mobile');
             var name = nameInput.value.trim();
             var mobile = mobileInput.value.trim();
 
             if (blockedNumbers.includes(mobile)) {
-                window.location.href = blockedPageUrl;
-                return;
+              window.location.href = blockedPageUrl;
+              return;
             }
 
             if (name.length < 4 || !/^[6-9]\d{9}$/.test(mobile)) {
-                alert('Please enter valid details.');
-                return;
+              alert('Please enter valid details.');
+              return;
             }
 
-            try {
-                loginDb.ref('users').push({ name: name, mobile: mobile, timestamp: firebase.database.ServerValue.TIMESTAMP });
-                localStorage.setItem('name', name);
-                localStorage.setItem('mobile', mobile);
-                showContent(name);
-            } catch(e) { 
-                console.error("Login Error:", e); 
-            }
+            loginDb.ref('users').push({ 
+              name: name, 
+              mobile: mobile, 
+              timestamp: firebase.database.ServerValue.TIMESTAMP 
+            }).then(() => {
+              localStorage.setItem('name', name);
+              localStorage.setItem('mobile', mobile);
+              showContent(name);
+            }).catch(e => {
+              console.error("Login Firebase Error:", e);
+              alert('Login failed. Please try again.');
+            });
+          } catch (e) {
+            console.error("Validate Login Error:", e);
+            alert('An error occurred during login.');
+          }
         };
 
         function showContent(name) {
+          try {
             var scope = angular.element(document.body).scope();
             if (scope) {
-                scope.$apply(function() { scope.dynamicField2Value = name; });
+              scope.$applyAsync(function() { 
+                scope.dynamicField2Value = name; 
+              });
             }
             document.getElementById('login-container').style.display = 'none';
             document.getElementById('content').style.display = 'block';
             history.pushState({ state: 'home' }, null, location.href);
+          } catch (e) {
+            console.error("Show Content Error:", e);
+          }
         }
 
         function checkAuthentication() {
+          try {
             var name = localStorage.getItem('name');
             var mobile = localStorage.getItem('mobile');
 
             if (mobile && blockedNumbers.includes(mobile)) {
-                window.location.href = blockedPageUrl;
-                return;
+              window.location.href = blockedPageUrl;
+              return;
             }
 
             if (name && mobile) {
-                document.getElementById('name').value = name;
-                document.getElementById('mobile').value = mobile;
+              document.getElementById('name').value = name;
+              document.getElementById('mobile').value = mobile;
 
-                try {
-                    loginDb.ref('users').push({ 
-                        name: name, 
-                        mobile: mobile, 
-                        timestamp: firebase.database.ServerValue.TIMESTAMP,
-                        loginType: 'auto'
-                    });
-                } catch(e) { 
-                    console.error("Auto-login Firebase Error:", e); 
-                }
+              loginDb.ref('users').push({ 
+                name: name, 
+                mobile: mobile, 
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                loginType: 'auto'
+              }).catch(e => {
+                console.error("Auto-login Firebase Error:", e);
+              });
 
-                showContent(name);
+              showContent(name);
             }
+          } catch (e) {
+            console.error("Check Authentication Error:", e);
+          }
         }
 
         checkAuthentication();
+      } catch (e) {
+        console.error("Firebase Initialization Error:", e);
+        alert('Failed to initialize application. Please check your network and try again.');
+      }
     })();
     
     var app = angular.module('myApp', ['firebase']);
     app.controller('imagesController', ['$scope', '$firebaseArray', '$filter', '$window', '$timeout', '$sce', function($scope, $firebaseArray, $filter, $window, $timeout, $sce) {
+      try {
         var vm = this;
         vm.images = [];
         $scope.displayedProducts = []; 
@@ -740,202 +897,246 @@
         var fetchConfig = { databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com" };
         var submitConfig = { databaseURL: "https://notes-12519-default-rtdb.firebaseio.com" };
         
-        var fetchApp;
-        if (!firebase.apps.some(app => app.name === 'fetchApp')) {
-            fetchApp = firebase.initializeApp(fetchConfig, 'fetchApp');
-        } else {
-            fetchApp = firebase.app('fetchApp');
-        }
+        var fetchApp = firebase.apps.find(app => app.name === 'fetchApp') || firebase.initializeApp(fetchConfig, 'fetchApp');
         var fetchDb = fetchApp.database().ref();
 
-        var submitApp;
-        if (!firebase.apps.some(app => app.name === 'submitApp')) {
-            submitApp = firebase.initializeApp(submitConfig, 'submitApp');
-        } else {
-            submitApp = firebase.app('submitApp');
-        }
+        var submitApp = firebase.apps.find(app => app.name === 'submitApp') || firebase.initializeApp(submitConfig, 'submitApp');
         var submitDb = submitApp.database().ref();
         
         fetchDb.once('value').then(function(snapshot) {
-            const allData = [];
-            snapshot.forEach(function(childSnapshot) {
-                var item = childSnapshot.val();
-                item.$id = childSnapshot.key;
-                allData.push(item);
-            });
+          const allData = [];
+          snapshot.forEach(function(childSnapshot) {
+            var item = childSnapshot.val();
+            item.$id = childSnapshot.key;
+            allData.push(item);
+          });
 
-            vm.images = allData.filter(item => !item.outOfStock);
+          vm.images = allData.filter(item => !item.outOfStock);
 
-            $scope.$apply(function() {
-                angular.forEach($scope.categories, function(category) {
-                    if (category.filter === '') {
-                        category.productCount = vm.images.length;
-                    } else {
-                        category.productCount = $filter('filter')(vm.images, { name: category.filter }).length;
-                    }
-                });
-                $scope.newlyArrivedProducts = $filter('orderBy')(vm.images, '-date').slice(0, 50);
-                $scope.isLoading = false;
-                $scope.isLoadingCategories = false;
-                $scope.isLoadingNewlyArrived = false;
-                $scope.updateDisplayedProducts();
+          $scope.$applyAsync(function() {
+            angular.forEach($scope.categories, function(category) {
+              if (category.filter === '') {
+                category.productCount = vm.images.length;
+              } else {
+                category.productCount = $filter('filter')(vm.images, { name: category.filter }).length;
+              }
             });
+            $scope.newlyArrivedProducts = $filter('orderBy')(vm.images, '-date').slice(0, 50);
+            $scope.isLoading = false;
+            $scope.isLoadingCategories = false;
+            $scope.isLoadingNewlyArrived = false;
+            $scope.updateDisplayedProducts();
+          });
         }).catch(function(error) {
-            console.error("Error loading products:", error);
-            $scope.$apply(function() {
-                $scope.isLoading = false;
-                $scope.isLoadingNewlyArrived = false;
-                $scope.isLoadingCategories = false;
-            });
+          console.error("Error loading products:", error);
+          $scope.$applyAsync(function() {
+            $scope.isLoading = false;
+            $scope.isLoadingNewlyArrived = false;
+            $scope.isLoadingCategories = false;
+          });
+          alert('Failed to load products. Please check your network and try again.');
         });
         
         $scope.allOrders = $firebaseArray(submitDb);
         
         $scope.categories = [
-            { id: 0, name: 'ALL PRODUCTS', filter: '', imageUrl: 'https://www.hindustantoys.in/images/all.jpeg' },
-            { id: 9, name: 'MIX TOYS', filter: 'MIX', imageUrl: 'https://www.hindustantoys.in/images/mix.jpeg' },
-            { id: 41, name: 'BATTERY CAR/JEEP', filter: 'BATTERY CAR', imageUrl: 'https://www.hindustantoys.in/images/Jeep.jpg' },
-            { id: 40, name: 'BATTERY BIKES', filter: 'BATTERY BIKE', imageUrl: 'https://www.hindustantoys.in/images/bike.jpg' },
-            { id: 39, name: 'RAKHI SPECIAL', filter: 'RAKHI', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2025-07-15T09%3A53%3A46.047Z_DOLL%20(MIX)_eaa17f06-7fb6-473a-a75c-05a60fdf2b9f.jpg?alt=media&token=0a3e5de7-a66d-48eb-8223-30a99d3954a7?alt=media&token=64ee5147-65c7-4de8-897d-55df6cb84857' },
-            { id: 38, name: 'UMBRELLA', filter: 'UMBRELLA', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2024-06-24T16%3A35%3A31.407Z_RAINBOW%20UMBRELLA_IMG-20240529-WA0047.jpg?alt=media&token=64ee5147-65c7-4de8-897d-55df6cb84857' },
-            { id: 10, name: 'LUMO & OTHER', filter: 'LUMO', imageUrl: 'https://www.hindustantoys.in/images/lumo.jpeg' },
-            { id: 36, name: 'BAT BALL & SET', filter: 'BAT BALL', imageUrl: 'https://www.hindustantoys.in/images/bat.jpeg' },
-            { id: 35, name: 'CARROM BOARD', filter: 'CARROM', imageUrl: 'https://www.hindustantoys.in/images/carrom.jpeg' },
-            { id: 37, name: 'SWINGS', filter: 'SWING', imageUrl: 'https://www.hindustantoys.in/images/swing.jpeg' },
-            { id: 3, name: 'INDIAN TOYS', filter: 'INDIAN TOYS', imageUrl: 'https://www.hindustantoys.in/images/JCB.jpeg' },
-            { id: 9, name: 'MIX TOYS', filter: 'MIX', imageUrl: 'https://www.hindustantoys.in/images/mix.jpeg' },
-            { id: 13, name: 'BATTERY OPERATED', filter: 'BATTERY', imageUrl: 'https://www.hindustantoys.in/images/battery.jpeg' },
-            { id: 34, name: 'VALENTINES/TEDDY', filter: 'TEDDY', imageUrl: 'https://www.hindustantoys.in/images/TEDDY.jpg' },
-            { id: 31, name: 'KITCHEN SETS', filter: 'KITCHEN', imageUrl: 'https://www.hindustantoys.in/images/KITCHEN.jpg' },
-            { id: 6, name: 'RACKET', filter: 'RACKET', imageUrl: 'https://www.hindustantoys.in/images/racket.jpeg' },
-            { id: 7, name: 'REMOTE CAR', filter: 'REMOTE', imageUrl: 'https://www.hindustantoys.in/images/remote.jpeg' },
-            { id: 11, name: 'MAGIC RIDDER', filter: 'RIDDER', imageUrl: 'https://www.hindustantoys.in/images/ridder.jpeg' },
-            { id: 25, name: 'HIGH QUALITY', filter: 'HIGH QUALITY', imageUrl: 'https://www.hindustantoys.in/images/high.jpeg' },
-            { id: 30, name: 'HT PRODUCTS', filter: 'OWN', imageUrl: 'https://www.hindustantoys.in/images/htquality.jpg' },
-            { id: 29, name: 'PALNA', filter: 'PALNA', imageUrl: 'https://www.hindustantoys.in/images/palna.png' },
-            { id: 5, name: 'WALKER', filter: 'WALKER', imageUrl: 'https://www.hindustantoys.in/images/walker.jpeg' },
-            { id: 28, name: 'LUNCH BOX', filter: 'LUNCH BOX', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2025-07-01T08%3A45%3A26.021Z_LUNCH%20BOX_667798d8-2789-471f-985a-8605b19313b1.jpg?alt=media&token=bb3a00ab-a86c-43c5-9e10-d18f4a427451' },
-            { id: 27, name: 'PENCIL BOX', filter: 'PENCIL BOX', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-            { id: 23, name: 'WATER BOTTLE', filter: 'BOTTLE', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-            { id: 26, name: 'BOARD GAME', filter: 'BOARD GAME', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-            { id: 22, name: 'EDUCATIONAL', filter: 'EDUCATIONAL', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-            { id: 21, name: 'BIG ITEMS', filter: 'BIG', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-            { id: 19, name: 'TRICYCLES', filter: 'TRICYCLE', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-            { id: 18, name: 'SPORTS ITEM', filter: 'SPORTS', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-            { id: 17, name: 'PATTA ITEMS', filter: 'PATTA', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-            { id: 15, name: 'GUNS VARIETY', filter: 'GUN', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-            { id: 1, name: 'STATIONERY', filter: 'STATIONERY', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-            { id: 8, name: 'DOLL', filter: 'DOLL', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-            { id: 12, name: 'FANCY ITEMS', filter: 'FANCY', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-            { id: 14, name: 'DOZEN PACKING', filter: 'DOZEN', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-            { id: 32, name: 'GODOWN-1', filter: 'G1', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-            { id: 33, name: 'GODOWN-2', filter: 'G2', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-            { id: 16, name: 'EMPTY', filter: 'GUN', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' }
+          { id: 0, name: 'ALL PRODUCTS', filter: '', imageUrl: 'https://www.hindustantoys.in/images/all.jpeg' },
+          { id: 9, name: 'MIX TOYS', filter: 'MIX', imageUrl: 'https://www.hindustantoys.in/images/mix.jpeg' },
+          { id: 41, name: 'BATTERY CAR/JEEP', filter: 'BATTERY CAR', imageUrl: 'https://www.hindustantoys.in/images/Jeep.jpg' },
+          { id: 40, name: 'BATTERY BIKES', filter: 'BATTERY BIKE', imageUrl: 'https://www.hindustantoys.in/images/bike.jpg' },
+          { id: 39, name: 'RAKHI SPECIAL', filter: 'RAKHI', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2025-07-15T09%3A53%3A46.047Z_DOLL%20(MIX)_eaa17f06-7fb6-473a-a75c-05a60fdf2b9f.jpg?alt=media&token=0a3e5de7-a66d-48eb-8223-30a99d3954a7' },
+          { id: 38, name: 'UMBRELLA', filter: 'UMBRELLA', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2024-06-24T16%3A35%3A31.407Z_RAINBOW%20UMBRELLA_IMG-20240529-WA0047.jpg?alt=media&token=64ee5147-65c7-4de8-897d-55df6cb84857' },
+          { id: 10, name: 'LUMO & OTHER', filter: 'LUMO', imageUrl: 'https://www.hindustantoys.in/images/lumo.jpeg' },
+          { id: 36, name: 'BAT BALL & SET', filter: 'BAT BALL', imageUrl: 'https://www.hindustantoys.in/images/bat.jpeg' },
+          { id: 35, name: 'CARROM BOARD', filter: 'CARROM', imageUrl: 'https://www.hindustantoys.in/images/carrom.jpeg' },
+          { id: 37, name: 'SWINGS', filter: 'SWING', imageUrl: 'https://www.hindustantoys.in/images/swing.jpeg' },
+          { id: 3, name: 'INDIAN TOYS', filter: 'INDIAN TOYS', imageUrl: 'https://www.hindustantoys.in/images/JCB.jpeg' },
+          { id: 13, name: 'BATTERY OPERATED', filter: 'BATTERY', imageUrl: 'https://www.hindustantoys.in/images/battery.jpeg' },
+          { id: 34, name: 'VALENTINES/TEDDY', filter: 'TEDDY', imageUrl: 'https://www.hindustantoys.in/images/TEDDY.jpg' },
+          { id: 31, name: 'KITCHEN SETS', filter: 'KITCHEN', imageUrl: 'https://www.hindustantoys.in/images/KITCHEN.jpg' },
+          { id: 6, name: 'RACKET', filter: 'RACKET', imageUrl: 'https://www.hindustantoys.in/images/racket.jpeg' },
+          { id: 7, name: 'REMOTE CAR', filter: 'REMOTE', imageUrl: 'https://www.hindustantoys.in/images/remote.jpeg' },
+          { id: 11, name: 'MAGIC RIDDER', filter: 'RIDDER', imageUrl: 'https://www.hindustantoys.in/images/ridder.jpeg' },
+          { id: 25, name: 'HIGH QUALITY', filter: 'HIGH QUALITY', imageUrl: 'https://www.hindustantoys.in/images/high.jpeg' },
+          { id: 30, name: 'HT PRODUCTS', filter: 'OWN', imageUrl: 'https://www.hindustantoys.in/images/htquality.jpg' },
+          { id: 29, name: 'PALNA', filter: 'PALNA', imageUrl: 'https://www.hindustantoys.in/images/palna.png' },
+          { id: 5, name: 'WALKER', filter: 'WALKER', imageUrl: 'https://www.hindustantoys.in/images/walker.jpeg' },
+          { id: 28, name: 'LUNCH BOX', filter: 'LUNCH BOX', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2025-07-01T08%3A45%3A26.021Z_LUNCH%20BOX_667798d8-2789-471f-985a-8605b19313b1.jpg?alt=media&token=bb3a00ab-a86c-43c5-9e10-d18f4a427451' },
+          { id: 27, name: 'PENCIL BOX', filter: 'PENCIL BOX', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+          { id: 23, name: 'WATER BOTTLE', filter: 'BOTTLE', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+          { id: 26, name: 'BOARD GAME', filter: 'BOARD GAME', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+          { id: 22, name: 'EDUCATIONAL', filter: 'EDUCATIONAL', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+          { id: 21, name: 'BIG ITEMS', filter: 'BIG', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+          { id: 19, name: 'TRICYCLES', filter: 'TRICYCLE', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+          { id: 18, name: 'SPORTS ITEM', filter: 'SPORTS', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+          { id: 17, name: 'PATTA ITEMS', filter: 'PATTA', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+          { id: 15, name: 'GUNS VARIETY', filter: 'GUN', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+          { id: 1, name: 'STATIONERY', filter: 'STATIONERY', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+          { id: 8, name: 'DOLL', filter: 'DOLL', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+          { id: 12, name: 'FANCY ITEMS', filter: 'FANCY', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+          { id: 14, name: 'DOZEN PACKING', filter: 'DOZEN', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+          { id: 32, name: 'GODOWN-1', filter: 'G1', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+          { id: 33, name: 'GODOWN-2', filter: 'G2', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
+          { id: 16, name: 'EMPTY', filter: 'GUN', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' }
         ];
         
-        var productModal = new bootstrap.Modal(document.getElementById('productModal'));
-        var videoModal = new bootstrap.Modal(document.getElementById('videoModal'));
-        
-        $scope.onSearchChange = function() {
-            if ($scope.searchQuery && $scope.searchQuery.length > 0) {
-                $scope.isSearching = true;
-                $scope.isLoadingSearchResults = true;
-                history.pushState({ state: 'search' }, null, location.href);
+        var productModal = null;
+        var videoModal = null;
+        $timeout(function() {
+          try {
+            productModal = new bootstrap.Modal(document.getElementById('productModal'));
+            videoModal = new bootstrap.Modal(document.getElementById('videoModal'));
+          } catch (e) {
+            console.error("Modal Initialization Error:", e);
+          }
+        }, 0);
 
-                $timeout(function() {
-                    $scope.searchResults = $filter('filter')(vm.images, { name: $scope.searchQuery });
-                    $scope.isLoadingSearchResults = false;
-                }, 100); 
+        $scope.onSearchChange = function() {
+          try {
+            if ($scope.searchQuery && $scope.searchQuery.length > 0) {
+              $scope.isSearching = true;
+              $scope.isLoadingSearchResults = true;
+              history.pushState({ state: 'search' }, null, location.href);
+
+              $timeout(function() {
+                $scope.searchResults = $filter('filter')(vm.images, { name: $scope.searchQuery }) || [];
+                $scope.isLoadingSearchResults = false;
+              }, 100);
             } else {
-                $scope.isSearching = false;
-                $scope.searchResults = [];
-                history.pushState({ state: 'home' }, null, location.href);
+              $scope.isSearching = false;
+              $scope.searchResults = [];
+              history.pushState({ state: 'home' }, null, location.href);
             }
+          } catch (e) {
+            console.error("Search Change Error:", e);
+            $scope.isSearching = false;
+            $scope.isLoadingSearchResults = false;
+          }
         };
         
         $scope.setTab = function(filter, tabId) {
-            $scope.searchQuery = ''; 
-            $scope.isSearching = false; 
-
+          try {
+            $scope.searchQuery = '';
+            $scope.isSearching = false;
             $scope.productNameFilter = filter;
             $scope.activeCategoryName = $scope.categories.find(c => c.id === tabId)?.name || 'Products';
             $scope.updateDisplayedProducts();
             $scope.isProductModalOpen = true;
             history.pushState({ state: 'productModal' }, null, location.href);
-            productModal.show();
+            if (productModal) productModal.show();
+          } catch (e) {
+            console.error("Set Tab Error:", e);
+          }
         };
         
         $scope.togglePriceVisibility = function() {
+          try {
             localStorage.setItem('priceVisible', $scope.priceVisible);
+          } catch (e) {
+            console.error("Toggle Price Visibility Error:", e);
+          }
         };
 
         $scope.incrementOrderItem = function(item) {
-            item.field3 = parseInt(item.field3) + 1;
-            $scope.allOrders.$save(item);
+          try {
+            if (item) {
+              item.field3 = parseInt(item.field3 || 0) + 1;
+              $scope.allOrders.$save(item).catch(e => {
+                console.error("Increment Order Item Error:", e);
+              });
+            }
+          } catch (e) {
+            console.error("Increment Order Item Error:", e);
+          }
         };
 
         $scope.decrementOrderItem = function(item) {
-            var newQty = parseInt(item.field3) - 1;
-            if (newQty < 1) { newQty = 1; }
-            item.field3 = newQty;
-            $scope.allOrders.$save(item);
+          try {
+            if (item) {
+              var newQty = parseInt(item.field3 || 0) - 1;
+              if (newQty < 1) newQty = 1;
+              item.field3 = newQty;
+              $scope.allOrders.$save(item).catch(e => {
+                console.error("Decrement Order Item Error:", e);
+              });
+            }
+          } catch (e) {
+            console.error("Decrement Order Item Error:", e);
+          }
         };
 
         $scope.deleteOrderItem = function(item) {
-            $scope.allOrders.$remove(item);
+          try {
+            if (item) {
+              $scope.allOrders.$remove(item).catch(e => {
+                console.error("Delete Order Item Error:", e);
+              });
+            }
+          } catch (e) {
+            console.error("Delete Order Item Error:", e);
+          }
         };
         
         $scope.calculateOrderTotal = function() {
+          try {
             var total = 0;
             if (!$scope.allOrders) return 0;
             for (var i = 0; i < $scope.allOrders.length; i++) {
-                var item = $scope.allOrders[i];
-                if (item.field2 === $scope.dynamicField2Value) {
-                    total += (parseFloat(item.productPrice) || 0) * (parseInt(item.field3) || 0);
-                }
+              var item = $scope.allOrders[i];
+              if (item.field2 === $scope.dynamicField2Value) {
+                total += (parseFloat(item.productPrice) || 0) * (parseInt(item.field3) || 0);
+              }
             }
             return total;
+          } catch (e) {
+            console.error("Calculate Order Total Error:", e);
+            return 0;
+          }
         };
 
         $scope.markOutOfStock = function(image) {
+          try {
             if (!image || !image.$id || image.markedForRemoval) return;
 
-            image.markedForRemoval = true; 
-
+            image.markedForRemoval = true;
             var itemRef = fetchDb.child(image.$id);
             itemRef.update({ 
-                outOfStock: true,
-                lastModified: firebase.database.ServerValue.TIMESTAMP 
-            })
-            .then(function() {
-                $timeout(function() {
-                    const masterIndex = vm.images.findIndex(i => i.$id === image.$id);
-                    if (masterIndex > -1) vm.images.splice(masterIndex, 1);
-                    
-                    const newlyArrivedIndex = $scope.newlyArrivedProducts.findIndex(p => p.$id === image.$id);
-                    if (newlyArrivedIndex > -1) $scope.newlyArrivedProducts.splice(newlyArrivedIndex, 1);
+              outOfStock: true,
+              lastModified: firebase.database.ServerValue.TIMESTAMP 
+            }).then(function() {
+              $timeout(function() {
+                const masterIndex = vm.images.findIndex(i => i.$id === image.$id);
+                if (masterIndex > -1) vm.images.splice(masterIndex, 1);
+                
+                const newlyArrivedIndex = $scope.newlyArrivedProducts.findIndex(p => p.$id === image.$id);
+                if (newlyArrivedIndex > -1) $scope.newlyArrivedProducts.splice(newlyArrivedIndex, 1);
 
-                    const displayIndex = $scope.displayedProducts.findIndex(p => p.$id === image.$id);
-                    if (displayIndex > -1) $scope.displayedProducts.splice(displayIndex, 1);
-                }, 200); 
-            })
-            .catch(function(error) {
-                console.error("Error marking out of stock:", error);
-                alert("An error occurred: " + error.message);
-                image.markedForRemoval = false;
+                const displayIndex = $scope.displayedProducts.findIndex(p => p.$id === image.$id);
+                if (displayIndex > -1) $scope.displayedProducts.splice(displayIndex, 1);
+              }, 200);
+            }).catch(function(error) {
+              console.error("Error marking out of stock:", error);
+              alert("An error occurred: " + error.message);
+              image.markedForRemoval = false;
             });
+          } catch (e) {
+            console.error("Mark Out of Stock Error:", e);
+          }
         };
 
         $scope.submitData = function(image) {
+          try {
             if (!image) return;
-            var baseId = image.$id || image.name.replace(/[^a-zA-Z0-9]/g, ''); 
+            var baseId = image.$id || image.name.replace(/[^a-zA-Z0-9]/g, '');
             var uniqueId = $scope.dynamicField2Value.replace(/[^a-zA-Z0-9]/g, '') + '-' + baseId;
             
             var recordRef = submitDb.child(uniqueId);
 
             if (!image.field3 || image.field3 <= 0) {
-                recordRef.remove();
-                return; 
+              recordRef.remove().catch(e => {
+                console.error("Remove Order Error:", e);
+              });
+              return;
             }
 
             const now = new Date();
@@ -943,163 +1144,205 @@
             const time = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase();
 
             var dataToSubmit = {
-                field1: image.url,
-                field2: $scope.dynamicField2Value,
-                field3: image.field3,
-                productName: image.name,
-                productPrice: image.price,
-                serverTimestamp: firebase.database.ServerValue.TIMESTAMP,
-                submitDate: date,
-                submitTime: time
+              field1: image.url,
+              field2: $scope.dynamicField2Value,
+              field3: image.field3,
+              productName: image.name,
+              productPrice: image.price,
+              serverTimestamp: firebase.database.ServerValue.TIMESTAMP,
+              submitDate: date,
+              submitTime: time
             };
             
             recordRef.set(dataToSubmit).then(() => {
-                image.justSaved = true;
-                $timeout(() => { image.justSaved = false; }, 2000);
+              image.justSaved = true;
+              $timeout(() => { image.justSaved = false; }, 2000);
             }).catch(error => {
-                console.error("Error submitting data:", error);
-                alert("Could not save order: " + error.message);
+              console.error("Error submitting data:", error);
+              alert("Could not save order: " + error.message);
             });
+          } catch (e) {
+            console.error("Submit Data Error:", e);
+          }
         };
         
         $scope.showEnlargedImage = function(src, fromProductModal) {
+          try {
             const overlay = document.getElementById('enlarged-image-overlay');
             if (overlay) {
-                overlay.style.display = 'flex';
-                overlay.querySelector('img').src = src;
-                isEnlargedImageOpen = true;
-                // Push state with context of whether it was opened from product modal
-                history.pushState({ state: 'enlargedImage', fromProductModal: !!fromProductModal }, null, location.href);
+              overlay.style.display = 'flex';
+              overlay.querySelector('img').src = src || '';
+              isEnlargedImageOpen = true;
+              history.pushState({ state: 'enlargedImage', fromProductModal: !!fromProductModal }, null, location.href);
             }
+          } catch (e) {
+            console.error("Show Enlarged Image Error:", e);
+          }
         };
 
         $scope.closeEnlargedImage = function() {
+          try {
             const overlay = document.getElementById('enlarged-image-overlay');
             if (overlay) {
-                overlay.style.display = 'none';
-                isEnlargedImageOpen = false;
-                // Push appropriate state based on context
-                var productModalEl = document.getElementById('productModal');
-                var productModal = bootstrap.Modal.getInstance(productModalEl);
-                if (productModal && productModalEl.classList.contains('show')) {
-                    history.pushState({ state: 'productModal' }, null, location.href);
-                } else {
-                    history.pushState({ state: 'home' }, null, location.href);
-                }
+              overlay.style.display = 'none';
+              isEnlargedImageOpen = false;
+              var productModalEl = document.getElementById('productModal');
+              var productModal = bootstrap.Modal.getInstance(productModalEl);
+              if (productModal && productModalEl.classList.contains('show')) {
+                history.pushState({ state: 'productModal' }, null, location.href);
+              } else {
+                history.pushState({ state: 'home' }, null, location.href);
+              }
             }
+          } catch (e) {
+            console.error("Close Enlarged Image Error:", e);
+          }
         };
         
         $scope.showVideoModal = function(event, videourl, fromProductModal) {
-            event.preventDefault();
-            event.stopPropagation();
+          try {
+            if (event) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
             $scope.videoError = '';
             if (videourl) {
-                $scope.currentVideoUrl = $sce.trustAsResourceUrl(videourl);
-                history.pushState({ state: 'videoModal', fromProductModal: fromProductModal }, null, location.href);
-                videoModal.show();
-                
-                $timeout(function() {
-                    var videoElement = document.getElementById('videoPlayer');
-                    if (videoElement) {
-                        videoElement.load();
-                        videoElement.onerror = function() {
-                            $scope.$apply(function() {
-                                $scope.videoError = 'Error loading video. Please check the URL or try again later.';
-                                console.error('Video playback error:', videourl);
-                            });
-                        };
-                        videoElement.onloadeddata = function() {
-                            console.log('Video loaded successfully:', videourl);
-                        };
-                    }
-                }, 0);
+              $scope.currentVideoUrl = $sce.trustAsResourceUrl(videourl);
+              history.pushState({ state: 'videoModal', fromProductModal: fromProductModal }, null, location.href);
+              if (videoModal) videoModal.show();
+              
+              $timeout(function() {
+                var videoElement = document.getElementById('videoPlayer');
+                if (videoElement) {
+                  videoElement.load();
+                  videoElement.onerror = function() {
+                    $scope.$applyAsync(function() {
+                      $scope.videoError = 'Error loading video. Please check the URL or try again later.';
+                      console.error('Video playback error:', videourl);
+                    });
+                  };
+                  videoElement.onloadeddata = function() {
+                    console.log('Video loaded successfully:', videourl);
+                  };
+                }
+              }, 0);
             } else {
-                $scope.videoError = 'No video URL provided.';
-                console.error('No video URL provided');
+              $scope.videoError = 'No video URL provided.';
+              console.error('No video URL provided');
             }
+          } catch (e) {
+            console.error("Show Video Modal Error:", e);
+          }
         };
 
         $scope.closeVideoModal = function() {
+          try {
             var videoElement = document.getElementById('videoPlayer');
             if (videoElement) {
-                videoElement.pause();
-                videoElement.currentTime = 0;
+              videoElement.pause();
+              videoElement.currentTime = 0;
             }
-            videoModal.hide();
+            if (videoModal) videoModal.hide();
             $scope.currentVideoUrl = '';
             $scope.videoError = '';
             var productModalEl = document.getElementById('productModal');
             var productModal = bootstrap.Modal.getInstance(productModalEl);
             if (productModal && productModalEl.classList.contains('show')) {
-                history.pushState({ state: 'productModal' }, null, location.href);
+              history.pushState({ state: 'productModal' }, null, location.href);
             } else {
-                history.pushState({ state: 'home' }, null, location.href);
+              history.pushState({ state: 'home' }, null, location.href);
             }
+          } catch (e) {
+            console.error("Close Video Modal Error:", e);
+          }
         };
 
         $scope.updateDisplayedProducts = function() {
-            if ($scope.isLoading || !$scope.dynamicField2Value) { return; }
+          try {
+            if ($scope.isLoading || !$scope.dynamicField2Value) return;
 
             let filteredImages = vm.images;
             if ($scope.productNameFilter) {
-                 filteredImages = $filter('filter')(vm.images, { name: $scope.productNameFilter });
+              filteredImages = $filter('filter')(vm.images, { name: $scope.productNameFilter }) || [];
             }
             if ($scope.searchQuery && !$scope.productNameFilter) {
-                filteredImages = $filter('filter')(filteredImages, { name: $scope.searchQuery });
+              filteredImages = $filter('filter')(filteredImages, { name: $scope.searchQuery }) || [];
             }
 
             if ($scope.sortOrder === 'price') {
-                filteredImages = $filter('orderBy')(filteredImages, 'price');
+              filteredImages = $filter('orderBy')(filteredImages, 'price');
             } else if ($scope.sortOrder === '-price') {
-                filteredImages = $filter('orderBy')(filteredImages, '-price');
+              filteredImages = $filter('orderBy')(filteredImages, '-price');
             } else {
-                filteredImages = $filter('orderBy')(filteredImages, '-date');
+              filteredImages = $filter('orderBy')(filteredImages, '-date');
             }
             
             $scope.displayedProducts = filteredImages;
+          } catch (e) {
+            console.error("Update Displayed Products Error:", e);
+          }
         };
 
         $scope.logout = function() {
+          try {
             localStorage.clear();
             $window.location.reload();
+          } catch (e) {
+            console.error("Logout Error:", e);
+          }
         };
 
-        document.getElementById('productModal').addEventListener('show.bs.modal', function() {
-            $scope.$apply(function() {
-                $scope.isProductModalOpen = true;
-            });
-        });
-
-        document.getElementById('productModal').addEventListener('hide.bs.modal', function() {
-            $scope.$apply(function() {
-                $scope.isProductModalOpen = false;
-                history.pushState({ state: 'home' }, null, location.href);
-            });
-        });
-
-        document.getElementById('videoModal').addEventListener('show.bs.modal', function() {
+        // Modal event listeners
+        $timeout(function() {
+          try {
             var productModalEl = document.getElementById('productModal');
-            if ($scope.isProductModalOpen && productModalEl.classList.contains('show')) {
-                document.body.classList.add('modal-open');
-                var backdrop = document.querySelector('.modal-backdrop');
-                if (backdrop) {
-                    backdrop.style.display = 'block';
-                }
+            if (productModalEl) {
+              productModalEl.addEventListener('show.bs.modal', function() {
+                $scope.$applyAsync(function() {
+                  $scope.isProductModalOpen = true;
+                });
+              });
+              productModalEl.addEventListener('hide.bs.modal', function() {
+                $scope.$applyAsync(function() {
+                  $scope.isProductModalOpen = false;
+                  history.pushState({ state: 'home' }, null, location.href);
+                });
+              });
             }
-        });
 
-        document.getElementById('videoModal').addEventListener('hide.bs.modal', function() {
-            var productModalEl = document.getElementById('productModal');
-            if ($scope.isProductModalOpen && productModalEl.classList.contains('show')) {
-                productModalEl.style.display = 'block';
-                document.body.classList.add('modal-open');
-                if (!document.querySelector('.modal-backdrop')) {
+            var videoModalEl = document.getElementById('videoModal');
+            if (videoModalEl) {
+              videoModalEl.addEventListener('show.bs.modal', function() {
+                var productModalEl = document.getElementById('productModal');
+                if ($scope.isProductModalOpen && productModalEl.classList.contains('show')) {
+                  document.body.classList.add('modal-open');
+                  var backdrop = document.querySelector('.modal-backdrop');
+                  if (backdrop) {
+                    backdrop.style.display = 'block';
+                  }
+                }
+              });
+              videoModalEl.addEventListener('hide.bs.modal', function() {
+                var productModalEl = document.getElementById('productModal');
+                if ($scope.isProductModalOpen && productModalEl.classList.contains('show')) {
+                  productModalEl.style.display = 'block';
+                  document.body.classList.add('modal-open');
+                  if (!document.querySelector('.modal-backdrop')) {
                     var backdrop = document.createElement('div');
                     backdrop.className = 'modal-backdrop fade show';
                     document.body.appendChild(backdrop);
+                  }
                 }
+              });
             }
-        });
+          } catch (e) {
+            console.error("Modal Event Listener Error:", e);
+          }
+        }, 0);
+      } catch (e) {
+        console.error("Controller Initialization Error:", e);
+        alert('Application initialization failed. Please refresh the page.');
+      }
     }]);
   </script>
 </body>
