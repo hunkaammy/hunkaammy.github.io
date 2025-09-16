@@ -406,6 +406,28 @@
       margin: 1.75rem auto;
     }
 
+    #productModal .modal-header {
+    position: fixed;
+    top: 0;
+    left: -18px;
+    right: 0;
+    z-index: 1060;
+    background-color: #fff;
+    border-bottom: 1px solid #dee2e6;
+    padding: 10px 15px;
+    width: 100%;
+    max-width: 766px;
+    margin: 0 auto;
+}
+
+    #productModal .modal-content {
+      position: relative;
+    }
+
+    #productModal .modal-body {
+      padding-top: 60px; /* Adjust based on header height to prevent content overlap */
+    }
+
     @media (min-width: 768px) {
       #productModal .modal-dialog,
       #myModal .modal-dialog {
@@ -429,12 +451,19 @@
         height: 100%;
         border-radius: 0;
       }
+      #productModal .modal-header {
+        max-width: none;
+        width: 100%;
+      }
+      #productModal .modal-body {
+        padding-top: 60px; /* Consistent padding for smaller screens */
+      }
     }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 </head>
 <body ng-controller="imagesController as vm">
-  <div id="login-container" style="background-image: url(https://hunkaammy.github.io/mywebsite/NEWWEBSITE/loginpg.jpeg);">
+  <div id="login-container" style="background-image: ur[](https://hunkaammy.github.io/mywebsite/NEWWEBSITE/loginpg.jpeg);">
     <div id="inside">
       <h2 class="mb-4">HINDUSTAN TOYS</h2>
       <input type="text" id="name" placeholder="Enter your shop name" class="form-control mb-2" autocomplete="off">
@@ -685,9 +714,8 @@
         column: colno,
         error: error
       });
-      // Optionally show user-friendly message
       alert('An error occurred. Please try refreshing the page.');
-      return true; // Prevent default browser error handling
+      return true;
     };
 
     // Back Button Control
@@ -710,7 +738,6 @@
         }
 
         scope.$applyAsync(function() {
-          // 1st: Close enlarged image
           if (isEnlargedImageOpen && enlargedOverlayEl && enlargedOverlayEl.style.display === 'flex') {
             scope.closeEnlargedImage();
             isEnlargedImageOpen = false;
@@ -722,7 +749,6 @@
             return;
           }
 
-          // 2nd: Close product modal
           if (productModal && productModalEl.classList.contains('show')) {
             productModal.hide();
             scope.isProductModalOpen = false;
@@ -730,7 +756,6 @@
             return;
           }
 
-          // 3rd: Close video modal
           if (videoModal && videoModalEl.classList.contains('show')) {
             scope.closeVideoModal();
             if (event.state && event.state.fromProductModal && productModal && productModalEl.classList.contains('show')) {
@@ -741,14 +766,12 @@
             return;
           }
 
-          // 4th: Close order modal
           if (orderModal && orderModalEl.classList.contains('show')) {
             orderModal.hide();
             history.pushState({ state: 'home' }, null, location.href);
             return;
           }
 
-          // 5th: Reset search
           if (scope.isSearching || (scope.searchQuery && scope.searchQuery.length > 0)) {
             scope.searchQuery = '';
             scope.isSearching = false;
@@ -757,7 +780,6 @@
             return;
           }
 
-          // 6th: Block back navigation on homepage
           history.pushState({ state: 'home' }, null, location.href);
         });
       } catch (e) {
@@ -765,7 +787,6 @@
       }
     });
 
-    // Update enlarged image flag
     document.getElementById('enlarged-image-overlay').addEventListener('transitionend', function() {
       isEnlargedImageOpen = this.style.display === 'flex';
     });
@@ -1292,7 +1313,6 @@
           }
         };
 
-        // Modal event listeners
         $timeout(function() {
           try {
             var productModalEl = document.getElementById('productModal');
@@ -1347,4 +1367,3 @@
   </script>
 </body>
 </html>
-
