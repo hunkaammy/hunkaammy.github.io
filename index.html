@@ -217,29 +217,6 @@
       object-fit: contain;
     }
 
-    .enlarged-image-close {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background-color: rgba(255, 255, 255, 0.9);
-      border: none;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 18px;
-      color: var(--dark-gray);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      transition: background-color 0.2s ease;
-    }
-
-    .enlarged-image-close:hover {
-      background-color: rgba(255, 255, 255, 1);
-    }
-
     @keyframes skeleton-pulse {
       0% { background-color: #e0e0e0; }
       50% { background-color: #f0f0f0; }
@@ -429,6 +406,7 @@
       margin: 1.75rem auto;
     }
 
+    /* Updated styles for fixed modal header */
     #productModal .modal-header {
       position: sticky;
       top: 0;
@@ -701,9 +679,8 @@
     </div>
   </div>
   
-  <div id="enlarged-image-overlay" class="enlarged-image-overlay">
-    <img class="enlarged-image-content" id="enlarged-image" src="">
-    <button class="enlarged-image-close" ng-click="closeEnlargedImage()"><i class="fas fa-times"></i></button>
+  <div id="enlarged-image-overlay" class="enlarged-image-overlay" ng-click="closeEnlargedImage()"> 
+    <img class="enlarged-image-content" id="enlarged-image" src=""> 
   </div>
   
   <div class="modal fade" id="myModal" tabindex="-1">
