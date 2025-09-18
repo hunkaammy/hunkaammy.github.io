@@ -771,11 +771,24 @@
       return true;
     };
 
-    // Back Button Block
-   history.pushState(null, null, location.href);
-window.addEventListener('popstate', function(event) {
-  history.pushState(null, null, location.href);
-});
+    // Back Button Control
+    history.pushState({ state: 'home' }, null, location.href);
+    window.addEventListener('popstate', function (event) {
+      try {
+        var productModalEl = document.getElementById('productModal');
+        var orderModalEl = document.getElementById('myModal');
+        var videoModalEl = document.getElementById('videoModal');
+        var enlargedOverlayEl = document.getElementById('enlarged-image-overlay');
+        
+        var productModal = bootstrap.Modal.getInstance(productModalEl);
+        var orderModal = bootstrap.Modal.getInstance(orderModalEl);
+        var videoModal = bootstrap.Modal.getInstance(videoModalEl);
+        var scope = angular.element(document.body).scope();
+
+        if (!scope) {
+          console.error('Angular scope not found');
+          return;
+        }
 
         scope.$applyAsync(function() {
           if (isEnlargedImageOpen && enlargedOverlayEl && enlargedOverlayEl.style.display === 'flex') {
@@ -1409,4 +1422,3 @@ window.addEventListener('popstate', function(event) {
   </script>
 </body>
 </html>
-
