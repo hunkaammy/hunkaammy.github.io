@@ -217,6 +217,29 @@
       object-fit: contain;
     }
 
+    .enlarged-image-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background-color: rgba(255, 255, 255, 0.9);
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      color: var(--dark-gray);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.2s ease;
+    }
+
+    .enlarged-image-close:hover {
+      background-color: rgba(255, 255, 255, 1);
+    }
+
     @keyframes skeleton-pulse {
       0% { background-color: #e0e0e0; }
       50% { background-color: #f0f0f0; }
@@ -406,6 +429,50 @@
       margin: 1.75rem auto;
     }
 
+    #productModal .modal-header {
+      position: sticky;
+      top: 0;
+      background-color: #fff;
+      z-index: 1050;
+      padding: 10px 15px;
+      border-bottom: 1px solid #dee2e6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: nowrap;
+    }
+
+    #productModal .modal-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      flex-grow: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #productModal .sort-container {
+      flex-shrink: 0;
+      margin-left: 10px;
+    }
+
+    #productModal .form-select-sm {
+      width: auto;
+      min-width: 120px;
+      font-size: 12px;
+      padding: 4px 8px;
+    }
+
+    #productModal .btn-close {
+      flex-shrink: 0;
+      margin-left: 10px;
+    }
+
+    #productModal .modal-body {
+      padding-top: 10px;
+    }
+
     @media (min-width: 768px) {
       #productModal .modal-dialog,
       #myModal .modal-dialog {
@@ -428,6 +495,20 @@
       .modal-content {
         height: 100%;
         border-radius: 0;
+      }
+      #productModal .modal-header {
+        flex-wrap: wrap;
+        padding: 8px 10px;
+      }
+      #productModal .modal-title {
+        font-size: 16px;
+      }
+      #productModal .sort-container {
+        margin-left: 0;
+        margin-top: 5px;
+      }
+      #productModal .form-select-sm {
+        width: 100%;
       }
     }
   </style>
@@ -565,14 +646,14 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title text-uppercase">{{ activeCategoryName }}</h5>
-          <div class="ms-auto">
+          <div class="sort-container">
             <select ng-model="sortOrder" ng-change="updateDisplayedProducts()" class="form-select form-select-sm">
               <option value="default">Sort: Newest</option>
               <option value="price">Sort: Price Low</option>
               <option value="-price">Sort: Price High</option>
             </select>
           </div>
-          <button type="button" class="btn-close ms-2" data-bs-dismiss="modal"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <div ng-if="isLoading" class="product-grid">
@@ -620,8 +701,9 @@
     </div>
   </div>
   
-  <div id="enlarged-image-overlay" class="enlarged-image-overlay" ng-click="closeEnlargedImage()"> 
-    <img class="enlarged-image-content" id="enlarged-image" src=""> 
+  <div id="enlarged-image-overlay" class="enlarged-image-overlay">
+    <img class="enlarged-image-content" id="enlarged-image" src="">
+    <button class="enlarged-image-close" ng-click="closeEnlargedImage()"><i class="fas fa-times"></i></button>
   </div>
   
   <div class="modal fade" id="myModal" tabindex="-1">
@@ -685,9 +767,8 @@
         column: colno,
         error: error
       });
-      // Optionally show user-friendly message
       alert('An error occurred. Please try refreshing the page.');
-      return true; // Prevent default browser error handling
+      return true;
     };
 
     // Back Button Control
@@ -710,7 +791,6 @@
         }
 
         scope.$applyAsync(function() {
-          // 1st: Close enlarged image
           if (isEnlargedImageOpen && enlargedOverlayEl && enlargedOverlayEl.style.display === 'flex') {
             scope.closeEnlargedImage();
             isEnlargedImageOpen = false;
@@ -722,7 +802,6 @@
             return;
           }
 
-          // 2nd: Close product modal
           if (productModal && productModalEl.classList.contains('show')) {
             productModal.hide();
             scope.isProductModalOpen = false;
@@ -730,7 +809,6 @@
             return;
           }
 
-          // 3rd: Close video modal
           if (videoModal && videoModalEl.classList.contains('show')) {
             scope.closeVideoModal();
             if (event.state && event.state.fromProductModal && productModal && productModalEl.classList.contains('show')) {
@@ -741,14 +819,12 @@
             return;
           }
 
-          // 4th: Close order modal
           if (orderModal && orderModalEl.classList.contains('show')) {
             orderModal.hide();
             history.pushState({ state: 'home' }, null, location.href);
             return;
           }
 
-          // 5th: Reset search
           if (scope.isSearching || (scope.searchQuery && scope.searchQuery.length > 0)) {
             scope.searchQuery = '';
             scope.isSearching = false;
@@ -757,7 +833,6 @@
             return;
           }
 
-          // 6th: Block back navigation on homepage
           history.pushState({ state: 'home' }, null, location.href);
         });
       } catch (e) {
