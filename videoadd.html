@@ -180,7 +180,7 @@
     const auth = firebase.auth();
 
     // 2) Authentication setup
-    const allowedOwnerEmail = 'owner@example.com'; // Replace with the actual owner's email
+    const allowedOwnerEmail = 'your.actual.owner@gmail.com'; // Replace with the actual owner's email
     const signInBtn = document.getElementById('signInBtn');
     const signOutBtn = document.getElementById('signOutBtn');
     const authContainer = document.getElementById('authContainer');
@@ -196,19 +196,56 @@
       authError.classList.add('hidden');
     }
 
-    // Google Sign-In
+    // Google Sign-In with popup and redirect fallback
     signInBtn.addEventListener('click', () => {
+      signInBtn.disabled = true;
+      signInBtn.textContent = 'Signing in...';
       const provider = new firebase.auth.GoogleAuthProvider();
+
+      // Try signInWithPopup first
       auth.signInWithPopup(provider)
         .then((result) => {
           console.log('Sign-in successful:', result.user.email);
           hideAuthError();
+          signInBtn.disabled = false;
+          signInBtn.textContent = 'Sign in with Google';
         })
         .catch((error) => {
-          console.error('Sign-in failed:', error);
-          showAuthError(`Sign-in failed: ${error.message}`);
+          console.error('Popup sign-in failed:', error);
+          if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/popup-blocked') {
+            // Fallback to signInWithRedirect
+            console.log('Falling back to signInWithRedirect');
+            auth.signInWithRedirect(provider)
+              .catch((redirectError) => {
+                console.error('Redirect sign-in failed:', redirectError);
+                showAuthError(`Sign-in failed: ${redirectError.message}. Please try again or allow popups.`);
+                signInBtn.disabled = false;
+                signInBtn.textContent = 'Sign in with Google';
+              });
+          } else {
+            showAuthError(`Sign-in failed: ${error.message}. Please try again.`);
+            signInBtn.disabled = false;
+            signInBtn.textContent = 'Sign in with Google';
+          }
         });
     });
+
+    // Handle redirect result (after signInWithRedirect)
+    auth.getRedirectResult()
+      .then((result) => {
+        if (result.user) {
+          console.log('Redirect sign-in successful:', result.user.email);
+          hideAuthError();
+          signInBtn.disabled = false;
+          signInBtn.textContent = 'Sign in with Google';
+        }
+      })
+      .catch((error) => {
+        console.error('Redirect result error:', error);
+        showAuthError(`Sign-in failed: ${error.message}. Please try again.`);
+        signInBtn.disabled = false;
+        signInBtn.textContent = 'Sign in with Google';
+      });
 
     // Sign Out
     signOutBtn.addEventListener('click', () => {
