@@ -1,166 +1,1180 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mistress AI - Hinglish BDSM Chat</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #1a1a1a;
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        #chat-container {
-            width: 400px;
-            height: 600px;
-            background-color: #333;
-            border: 1px solid #666;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        #chat-window {
-            flex: 1;
-            padding: 10px;
-            overflow-y: auto;
-            border-bottom: 1px solid #666;
-        }
-        .message {
-            margin-bottom: 10px;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .user {
-            background-color: #4CAF50;
-            text-align: right;
-        }
-        .mistress {
-            background-color: #f44336;
-            text-align: left;
-        }
-        #input-container {
-            display: flex;
-            padding: 10px;
-        }
-        #user-input {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 5px 0 0 5px;
-            background-color: #444;
-            color: #fff;
-        }
-        #send-btn {
-            padding: 10px 20px;
-            background-color: #f44336;
-            border: none;
-            color: white;
-            cursor: pointer;
-            border-radius: 0 5px 5px 0;
-        }
-        #send-btn:hover {
-            background-color: #d32f2f;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Product Gallery with Image + Video (Firebase)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Tailwind for styles -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Firebase v8 SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+  <style>
+    .drop-zone {
+      border: 2px dashed #cbd5e1; /* slate-300 */
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+    .drop-zone:hover, .drop-zone.active {
+      background-color: #f8fafc; /* slate-50 */
+      border-color: #3b82f6; /* blue-500 */
+    }
+    #globalDropOverlay {
+      display: none;
+    }
+    #globalDropOverlay.active {
+      display: flex;
+    }
+    .truncate-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    img[data-src] {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    img.loaded {
+      opacity: 1;
+    }
+    #authContainer.unauthenticated {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+    }
+  </style>
 </head>
-<body>
-    <div id="chat-container">
-        <div id="chat-window"></div>
-        <div id="input-container">
-            <input type="text" id="user-input" placeholder="Type your message...">
-            <button id="send-btn">Send</button>
-        </div>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Authentication Container -->
+  <div id="authContainer" class="unauthenticated hidden">
+    <h1 class="text-2xl font-bold mb-4">Product Manager</h1>
+    <p class="text-lg text-gray-600 mb-6">Please sign in to access the Product Manager.</p>
+    <button id="signInBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg">
+      Sign in with Google
+    </button>
+    <p id="authError" class="text-red-500 mt-4 hidden"></p>
+  </div>
+
+  <!-- Main Content (Hidden until authenticated) -->
+  <div id="mainContent" class="hidden max-w-6xl mx-auto px-4 py-6">
+    <!-- Global Drag & Drop Overlay -->
+    <div id="globalDropOverlay" class="fixed inset-0 bg-black/50 z-50 items-center justify-center text-white text-xl">
+      Drop files to upload
     </div>
 
-    <script>
-        // WARNING: Embedding API key client-side is insecure! Regenerate after use.
-        const API_KEY = 'AIzaSyDvexg4JvvhQuEWUcrPqi8dmKpXjfmtOCY';
-        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-2xl font-bold">Product Manager</h1>
+      <button id="signOutBtn" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg">
+        Sign Out
+      </button>
+    </div>
 
-        // Chat window elements
-        const chatWindow = document.getElementById('chat-window');
-        const userInput = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
+    <!-- Upload Card -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <!-- Left: Upload inputs -->
+      <div class="lg:col-span-1 bg-white rounded-xl shadow p-4">
+        <h2 class="text-lg font-semibold mb-3">Add New Product</h2>
 
-        // Function to add message to chat
-        function addMessage(text, className) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message', className);
-            messageDiv.textContent = text;
-            chatWindow.appendChild(messageDiv);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
+        <div class="space-y-3">
+          <div>
+            <label for="nameInput" class="block text-sm font-medium text-gray-700">Name</label>
+            <input id="nameInput" type="text" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Product name" />
+          </div>
+
+          <div>
+            <label for="priceInput" class="block text-sm font-medium text-gray-700">Price</label>
+            <input id="priceInput" type="number" step="0.01" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="0.00" />
+          </div>
+
+          <div>
+            <label for="partyCodeInput" class="block text-sm font-medium text-gray-700">Party Code</label>
+            <input id="partyCodeInput" type="text" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., ABC123" />
+          </div>
+
+          <div>
+            <label for="videourlInput" class="block text-sm font-medium text-gray-700">
+              Video URL (enter manually or upload below)
+            </label>
+            <input id="videourlInput" type="url" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="https://..." />
+          </div>
+        </div>
+
+        <!-- Image drop zone -->
+        <div class="drop-zone rounded-lg p-4 text-center cursor-pointer mt-4" id="imageDropZone">
+          <div class="text-gray-500">Click to upload or Drag & Drop an image</div>
+          <div class="preview mt-4" id="preview"></div>
+          <input type="file" id="imageInput" class="hidden" accept="image/*" />
+        </div>
+
+        <!-- Video drop zone -->
+        <div class="drop-zone rounded-lg p-4 text-center cursor-pointer mt-4" id="videoDropZone">
+          <div class="text-gray-500">Optional: Click to upload or Drag & Drop a video</div>
+          <div class="preview mt-4" id="videoPreview"></div>
+          <input type="file" id="videoInput" class="hidden" accept="video/*" />
+        </div>
+
+        <button id="uploadBtn" class="w-full mt-5 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg">
+          Upload Product
+        </button>
+      </div>
+
+      <!-- Middle: Upload queue / progress -->
+      <div class="lg:col-span-2 bg-white rounded-xl shadow p-4">
+        <h2 class="text-lg font-semibold mb-3">Upload Queue & Progress</h2>
+        <div id="progressList" class="space-y-3"></div>
+      </div>
+    </div>
+
+    <!-- Search Card -->
+    <div class="mt-8 bg-white rounded-xl shadow p-4">
+      <h2 class="text-lg font-semibold mb-3">Search Products</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label for="nameSearchInput" class="block text-sm font-medium text-gray-700">Search by Product Name</label>
+          <input id="nameSearchInput" type="text" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter product name..." />
+        </div>
+        <div>
+          <label for="partyCodeSearchInput" class="block text-sm font-medium text-gray-700">Search by Party Code</label>
+          <input id="partyCodeSearchInput" type="text" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter party code..." />
+        </div>
+      </div>
+    </div>
+
+    <!-- Gallery -->
+    <div class="mt-8">
+      <h2 class="text-lg font-semibold mb-3">Products</h2>
+      <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
+    </div>
+  </div>
+
+  <script>
+    // 1) Firebase init
+    try {
+      const firebaseConfig = {
+        apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
+        authDomain: "htshop-e9c51.firebaseapp.com",
+        databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com",
+        projectId: "htshop-e9c51",
+        storageBucket: "htshop-e9c51.appspot.com",
+        messagingSenderId: "653137640907",
+        appId: "1:653137640907:web:672fd6a9e85ca448a70a4e",
+        measurementId: "G-FJ4Q0FHBEG"
+      };
+      firebase.initializeApp(firebaseConfig);
+      console.log('Firebase initialized successfully');
+    } catch (err) {
+      console.error('Firebase initialization failed:', err);
+      alert('Failed to initialize Firebase. Please check your configuration and try again.');
+    }
+
+    const database = firebase.database();
+    const storage = firebase.storage();
+    const auth = firebase.auth();
+
+    // 2) Authentication setup
+    const allowedOwnerEmail = 'owner@example.com'; // Replace with the actual owner's email
+    const signInBtn = document.getElementById('signInBtn');
+    const signOutBtn = document.getElementById('signOutBtn');
+    const authContainer = document.getElementById('authContainer');
+    const mainContent = document.getElementById('mainContent');
+    const authError = document.getElementById('authError');
+
+    function showAuthError(message) {
+      authError.textContent = message;
+      authError.classList.remove('hidden');
+    }
+
+    function hideAuthError() {
+      authError.classList.add('hidden');
+    }
+
+    // Google Sign-In
+    signInBtn.addEventListener('click', () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then((result) => {
+          console.log('Sign-in successful:', result.user.email);
+          hideAuthError();
+        })
+        .catch((error) => {
+          console.error('Sign-in failed:', error);
+          showAuthError(`Sign-in failed: ${error.message}`);
+        });
+    });
+
+    // Sign Out
+    signOutBtn.addEventListener('click', () => {
+      auth.signOut()
+        .then(() => {
+          console.log('User signed out');
+          hideAuthError();
+        })
+        .catch((error) => {
+          console.error('Sign-out failed:', error);
+          showAuthError(`Sign-out failed: ${error.message}`);
+        });
+    });
+
+    // Authentication state listener
+    auth.onAuthStateChanged((user) => {
+      if (user && user.email === allowedOwnerEmail) {
+        console.log('Authorized user:', user.email);
+        authContainer.classList.add('hidden');
+        mainContent.classList.remove('hidden');
+        hideAuthError();
+        initializeApp(); // Initialize app logic only for authorized user
+      } else {
+        console.log('Unauthorized or no user:', user ? user.email : 'No user');
+        authContainer.classList.remove('hidden');
+        mainContent.classList.add('hidden');
+        if (user) {
+          showAuthError('Access denied: You are not the authorized owner.');
+        } else {
+          hideAuthError();
         }
+      }
+    });
 
-        // Function to call Gemini API
-        async function getMistressResponse(userMessage) {
-            // System prompt to enforce persona and style
-            const systemPrompt = `You are a dominating, seductive Mistress speaking in Hinglish (a mix of Hindi and English). Your tone is commanding, teasing, and seductive, with a focus on BDSM themes (e.g., whips, chains, paddles, collars, pain, and pleasure). Always respond in a conversational, provocative manner, maintaining a balance of dominance and seduction. Avoid explicit content beyond suggestive BDSM themes. Example: "Arre slave, kneel kar aur meri whip ka darr feel kar. Ready hai for pain and pleasure? 😈"`;
+    // 3) Initialize app logic (called only for authorized user)
+    function initializeApp() {
+      // 4) Element references
+      const imageDropZone = document.getElementById('imageDropZone');
+      const imageInput = document.getElementById('imageInput');
+      const preview = document.getElementById('preview');
+      const videoDropZone = document.getElementById('videoDropZone');
+      const videoInput = document.getElementById('videoInput');
+      const videoPreview = document.getElementById('videoPreview');
+      const uploadBtn = document.getElementById('uploadBtn');
+      const progressList = document.getElementById('progressList');
+      const galleryGrid = document.getElementById('galleryGrid');
+      const globalDropOverlay = document.getElementById('globalDropOverlay');
+      const nameSearchInput = document.getElementById('nameSearchInput');
+      const partyCodeSearchInput = document.getElementById('partyCodeSearchInput');
+
+      // Verify button exists
+      if (!uploadBtn) {
+        console.error('Upload button not found in DOM');
+        alert('Upload button not found. Please check the page structure.');
+      }
+
+      // 5) State
+      const uploadQueue = [];
+      let isUploading = false;
+      const loadedImageKeys = new Set();
+      let products = [];
+
+      // 6) Debounce utility
+      function debounce(func, wait) {
+        let timeout;
+        return function (...args) {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+      }
+
+      // 7) UI helpers
+      function previewImage(file) {
+        if (!file || !file.type.startsWith('image/')) {
+          console.error('Invalid image file:', file);
+          return;
+        }
+        const url = URL.createObjectURL(file);
+        preview.innerHTML = `
+          <img src="${url}" alt="preview" class="mx-auto w-full rounded-lg object-contain" style="max-height: 240px;" />
+          <div class="text-xs text-gray-500 mt-1 truncate">${file.name}</div>
+        `;
+      }
+      function previewVideo(file) {
+        if (!file || !file.type.startsWith('video/')) {
+          console.error('Invalid video file:', file);
+          return;
+        }
+        const url = URL.createObjectURL(file);
+        videoPreview.innerHTML = `
+          <video src="${url}" controls class="mx-auto w-full rounded-lg" style="max-height: 240px;"></video>
+          <div class="text-xs text-gray-500 mt-1 truncate">${file.name}</div>
+        `;
+      }
+
+      // 8) Lazy load images
+      function setupLazyLoading() {
+        const observer = new IntersectionObserver((entries, obs) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const img = entry.target;
+              img.src = img.dataset.src;
+              img.classList.add('loaded');
+              img.removeAttribute('data-src');
+              obs.unobserve(img);
+            }
+          });
+        }, { rootMargin: '100px' });
+
+        const images = galleryGrid.querySelectorAll('img[data-src]');
+        images.forEach(img => observer.observe(img));
+      }
+
+      // 9) Drag & Drop and Click-to-Upload
+      function setupDropZone(zone, input, previewFn) {
+        zone.addEventListener('click', () => {
+          try {
+            input.click();
+            console.log('Drop zone clicked, triggering file input');
+          } catch (err) {
+            console.error('Failed to trigger file input:', err);
+            alert('Failed to open file picker. Please try again or use drag-and-drop.');
+          }
+        });
+
+        zone.addEventListener('dragenter', (e) => {
+          e.preventDefault();
+          zone.classList.add('active');
+          globalDropOverlay.classList.remove('active');
+        });
+        zone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          zone.classList.add('active');
+        });
+        zone.addEventListener('dragleave', (e) => {
+          e.preventDefault();
+          if (!zone.contains(e.relatedTarget)) {
+            zone.classList.remove('active');
+          }
+        });
+        zone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          zone.classList.remove('active');
+          globalDropOverlay.classList.remove('active');
+          const files = e.dataTransfer.files;
+          if (files.length) {
+            input.files = files;
+            previewFn(files[0]);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        });
+      }
+
+      setupDropZone(imageDropZone, imageInput, previewImage);
+      setupDropZone(videoDropZone, videoInput, previewVideo);
+
+      window.addEventListener('dragenter', (e) => {
+        e.preventDefault();
+        if (!imageDropZone.contains(e.target) && !videoDropZone.contains(e.target)) {
+          globalDropOverlay.classList.add('active');
+        }
+      });
+      window.addEventListener('dragover', (e) => {
+        e.preventDefault();
+      });
+      window.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        if (!e.relatedTarget || e.relatedTarget === document.documentElement || e.relatedTarget === document.body) {
+          globalDropOverlay.classList.remove('active');
+        }
+      });
+      window.addEventListener('drop', (e) => {
+        e.preventDefault();
+        globalDropOverlay.classList.remove('active');
+        if (!imageDropZone.contains(e.target) && !videoDropZone.contains(e.target)) {
+          const files = e.dataTransfer.files;
+          if (files.length) {
+            const file = files[0];
+            if (file.type.startsWith('image/')) {
+              imageInput.files = files;
+              previewImage(file);
+            } else if (file.type.startsWith('video/')) {
+              videoInput.files = files;
+              previewVideo(file);
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        }
+      });
+
+      imageInput.addEventListener('change', () => {
+        if (imageInput.files.length) {
+          console.log('Image selected:', imageInput.files[0].name);
+          previewImage(imageInput.files[0]);
+        }
+      });
+      videoInput.addEventListener('change', () => {
+        if (videoInput.files.length) {
+          console.log('Video selected:', videoInput.files[0].name);
+          previewVideo(videoInput.files[0]);
+        }
+      });
+
+      // 10) Upload flow
+      uploadBtn.addEventListener('click', () => {
+        console.log('Upload button clicked');
+        uploadImage();
+      });
+
+      async function uploadImage() {
+        try {
+          console.log('Starting upload process');
+          const file = imageInput.files && imageInput.files[0];
+          const name = document.getElementById('nameInput').value.trim();
+          const priceInput = parseFloat(document.getElementById('priceInput').value.trim());
+          const partyCode = document.getElementById('partyCodeInput').value.trim();
+          const videourlInputEl = document.getElementById('videourlInput');
+
+          // Detailed validation
+          if (!file) {
+            console.error('No image file selected');
+            alert('Please select an image file.');
+            return;
+          }
+          if (!name) {
+            console.error('Product name is empty');
+            alert('Please enter a product name.');
+            return;
+          }
+          if (!partyCode) {
+            console.error('Party code is empty');
+            alert('Please enter a party code.');
+            return;
+          }
+          if (isNaN(priceInput) || priceInput <= 0) {
+            console.error('Invalid price:', priceInput);
+            alert('Please enter a valid price greater than 0.');
+            return;
+          }
+
+          // Divide price by 2 before uploading
+          const price = priceInput / 2;
+          console.log('Price after division:', price);
+
+          let finalVideoURL = (videourlInputEl.value || '').trim();
+          if (videoInput.files && videoInput.files[0]) {
+            const videoFile = videoInput.files[0];
+            const now = new Date().toISOString();
+            const videoStorageRef = storage.ref(`${now}_${sanitizePath(name)}_${videoFile.name}`);
+
+            const videoStatus = document.createElement('div');
+            videoStatus.className = 'mb-2 text-sm text-blue-600';
+            videoStatus.textContent = 'Uploading video...';
+            videoPreview.appendChild(videoStatus);
 
             try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        contents: [
-                            {
-                                parts: [
-                                    { text: systemPrompt },
-                                    { text: `User says: ${userMessage}` }
-                                ]
-                            }
-                        ]
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('API request failed');
-                }
-
-                const data = await response.json();
-                const reply = data.candidates[0].content.parts[0].text;
-                return reply || 'Kuch galat ho gaya, slave. Try again! 😈';
-            } catch (error) {
-                console.error('Error:', error);
-                return 'Arre, tu ne meri patience test ki! Try again, slave. 😈';
+              console.log('Uploading video:', videoFile.name);
+              await videoStorageRef.put(videoFile);
+              finalVideoURL = await videoStorageRef.getDownloadURL();
+              videourlInputEl.value = finalVideoURL;
+              videoStatus.textContent = 'Video uploaded.';
+              console.log('Video uploaded, URL:', finalVideoURL);
+            } catch (err) {
+              console.error('Video upload failed:', err);
+              videoStatus.textContent = 'Video upload failed.';
+              alert('Video upload failed. You can still upload the product with a manually entered video URL or try again.');
             }
+          }
+
+          const thumbDataURL = await fileToDataURL(file);
+          const progressContainer = document.createElement('div');
+          progressContainer.className = 'p-3 bg-gray-100 rounded';
+          progressContainer.innerHTML = `
+            <div class="flex items-center">
+              <img src="${thumbDataURL}" alt="thumbnail" class="w-12 h-12 object-cover rounded mr-4" />
+              <div class="flex-grow">
+                <div class="flex justify-between items-center mb-1">
+                  <span class="text-sm font-medium text-gray-800 truncate w-48" title="${file.name}">${file.name}</span>
+                  <span class="status text-sm text-blue-600 font-semibold">Uploading...</span>
+                </div>
+                <div class="bg-gray-300 rounded-full h-2.5">
+                  <div class="progress-bar bg-blue-600 h-2.5 rounded-full w-0 transition-all duration-300"></div>
+                </div>
+              </div>
+            </div>
+          `;
+          progressList.prepend(progressContainer);
+
+          uploadQueue.push({
+            file,
+            name,
+            price,
+            partyCode,
+            videourl: finalVideoURL || '',
+            progressContainer
+          });
+          console.log('Added to upload queue:', { name, price, partyCode, videourl: finalVideoURL });
+
+          // Clear inputs except partyCodeInput
+          imageInput.value = '';
+          videoInput.value = '';
+          document.getElementById('nameInput').value = '';
+          document.getElementById('priceInput').value = '';
+          document.getElementById('videourlInput').value = '';
+          preview.innerHTML = '';
+          videoPreview.innerHTML = '';
+
+          processUploadQueue();
+        } catch (err) {
+          console.error('Upload image failed:', err);
+          alert(`Failed to start upload: ${err.message || 'Unknown error'}. Please try again.`);
+        }
+      }
+
+      function sanitizePath(s) {
+        return s.replace(/[^\w\-]+/g, '_');
+      }
+      function fileToDataURL(fileToRead) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result);
+          reader.onerror = err => reject(err);
+          reader.readAsDataURL(fileToRead);
+        });
+      }
+
+      async function processUploadQueue() {
+        if (isUploading) {
+          console.log('Upload in progress, queue length:', uploadQueue.length);
+          return;
+        }
+        if (uploadQueue.length === 0) {
+          console.log('Upload queue empty');
+          return;
         }
 
-        // Event listener for send button
-        sendBtn.addEventListener('click', async () => {
-            const message = userInput.value.trim();
-            if (message) {
-                addMessage(message, 'user');
-                userInput.value = '';
+        isUploading = true;
+        const item = uploadQueue.shift();
+        console.log('Processing upload:', item.name);
 
-                // Show "thinking" indicator
-                addMessage('Mistress is thinking...', 'mistress');
+        const { file, name, price, partyCode, videourl, progressContainer } = item;
+        const progressBar = progressContainer.querySelector('.progress-bar');
+        const statusEl = progressContainer.querySelector('.status');
 
-                // Get response from Gemini API
-                const reply = await getMistressResponse(message);
+        const now = new Date().toISOString();
+        const storageRef = storage.ref().child(`${now}_${sanitizePath(name)}_${file.name}`);
 
-                // Remove thinking message and add response
-                chatWindow.removeChild(chatWindow.lastChild);
-                addMessage(reply, 'mistress');
-            }
+        try {
+          await new Promise((resolve, reject) => {
+            const task = storageRef.put(file);
+            task.on('state_changed',
+              (snap) => {
+                const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+                progressBar.style.width = pct + '%';
+                statusEl.textContent = `Uploading... ${pct}%`;
+                console.log('Upload progress:', pct + '%');
+              },
+              (err) => {
+                console.error('Storage upload error:', err);
+                reject(err);
+              },
+              async () => {
+                try {
+                  const imageURL = await storageRef.getDownloadURL();
+                  statusEl.textContent = 'Finalizing...';
+                  console.log('Image uploaded, URL:', imageURL);
+
+                  const data = {
+                    name,
+                    price,
+                    partyCode,
+                    url: imageURL,
+                    videourl: videourl || '',
+                    outOfStock: false,
+                    date: new Date().toISOString()
+                  };
+                  const ref = database.ref().push();
+                  await ref.set(data);
+                  console.log('Database entry created:', data);
+
+                  statusEl.textContent = 'Done';
+                  progressBar.style.width = '100%';
+                  setTimeout(() => progressContainer.remove(), 1200);
+
+                  resolve();
+                } catch (e) {
+                  console.error('Database write error:', e);
+                  reject(e);
+                }
+              }
+            );
+          });
+          alert('Product uploaded successfully.');
+        } catch (err) {
+          console.error('Image upload failed:', err.message || err);
+          statusEl.textContent = `Failed: ${err.message || 'Unknown error'}`;
+          progressBar.classList.remove('bg-blue-600');
+          progressBar.classList.add('bg-red-500');
+          alert(`Image upload failed: ${err.message || 'Unknown error'}. Please check your Firebase permissions or network connection and try again.`);
+        } finally {
+          isUploading = false;
+          if (uploadQueue.length > 0) {
+            console.log('Processing next item in queue');
+            processUploadQueue();
+          }
+        }
+      }
+
+      // 11) Render cards
+      function renderCard(key, data) {
+        const container = document.createElement('div');
+        container.className = 'bg-white rounded-xl shadow overflow-hidden';
+        container.dataset.key = key;
+
+        container.innerHTML = `
+          <img data-src="${data.url}" alt="${escapeHtml(data.name)}" class="w-full h-48 object-cover" loading="lazy">
+          <div class="p-4">
+            <h3 class="font-semibold text-lg mb-2 editable-field truncate-2" onclick="makeEditable(this, '${key}', 'name')" title="Click to edit name">
+              ${escapeHtml(data.name)}
+            </h3>
+
+            <p class="text-gray-600 mb-1 editable-field" onclick="makeEditable(this, '${key}', 'price')" title="Click to edit price">
+              Price: ${Number(data.price).toFixed(2)}
+            </p>
+            <p class="text-gray-600 mb-2 editable-field" onclick="makeEditable(this, '${key}', 'partyCode')" title="Click to edit party code">
+              Party Code: ${escapeHtml(data.partyCode || '')}
+            </p>
+
+            <div class="mt-2" id="videoRow-${key}">
+              <p class="text-gray-600 mb-2 editable-field" onclick="makeEditableVideo(this, '${key}', 'videourl')" title="Click to edit video URL">
+                Video URL: ${escapeHtml(data.videourl || 'No video')}
+              </p>
+              ${
+                data.videourl
+                  ? `<a href="${data.videourl}" target="_blank" class="text-blue-600 hover:underline text-sm">Watch video</a>`
+                  : ''
+              }
+            </div>
+
+            <div class="flex justify-between items-center mt-3">
+              <p class="text-gray-600 status-display-${key}">Status: ${data.outOfStock ? 'Out of Stock' : 'Available'}</p>
+              <button onclick="toggleStockStatus('${key}', ${!!data.outOfStock})"
+                class="text-white py-1 px-3 rounded-full text-sm font-semibold ${data.outOfStock ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}">
+                ${data.outOfStock ? 'Mark Available' : 'Mark Out of Stock'}
+              </button>
+            </div>
+
+            <div class="flex justify-between items-center mt-2">
+              <p class="text-sm text-gray-500 uploaded-date-${key}">Uploaded: ${data.date || new Date().toISOString()}</p>
+              <button onclick="updateUploadDate('${key}')" class="text-white py-1 px-3 rounded-full text-xs font-semibold bg-blue-500 hover:bg-blue-600">
+                Update Date
+              </button>
+            </div>
+
+            <div class="flex flex-wrap gap-2 items-center mt-4">
+              <button onclick="replaceImage('${key}', '${encodeURIComponent(data.url || '')}')"
+                class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-3 rounded text-sm">
+                Replace Image
+              </button>
+              <button onclick="replaceVideo('${key}', '${encodeURIComponent(data.videourl || '')}')"
+                class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-3 rounded text-sm">
+                Replace Video
+              </button>
+              ${
+                data.videourl
+                  ? `<button onclick="removeVideo('${key}', '${encodeURIComponent(data.videourl || '')}')"
+                      class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-3 rounded text-sm">
+                      Remove Video
+                    </button>`
+                  : ''
+              }
+              <button onclick="confirmDelete('${key}')"
+                class="ml-auto bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                Delete
+              </button>
+            </div>
+          </div>
+        `;
+        return container;
+      }
+
+      function escapeHtml(str) {
+        return String(str || '').replace(/[&<>"']/g, s => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;'
+        }[s]));
+      }
+
+      // 12) Optimized Realtime listeners with batch rendering
+      function batchRenderGallery(nameQuery = '', partyCodeQuery = '') {
+        const fragment = document.createDocumentFragment();
+        const nameLower = nameQuery.toLowerCase().trim();
+        const partyCodeLower = partyCodeQuery.toLowerCase().trim();
+
+        const filteredProducts = products.filter(({ data }) => {
+          const nameMatch = !nameLower || (data.name && data.name.toLowerCase().includes(nameLower));
+          const partyCodeMatch = !partyCodeLower || (data.partyCode && data.partyCode.toLowerCase() === partyCodeLower);
+          return nameMatch && partyCodeMatch;
         });
 
-        // Allow enter key to send
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendBtn.click();
-            }
+        filteredProducts.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+
+        // Batch render only a limited number of items to save bandwidth
+        const batchSize = 20;
+        const batch = filteredProducts.slice(0, batchSize);
+        batch.forEach(({ key, data }) => {
+          const card = renderCard(key, data);
+          fragment.appendChild(card);
         });
 
-        // Initial greeting
-        addMessage('Namaste mere slave, main teri Mistress hoon. Bol, kya chahta hai? Ready for my whip and seduction? ⛓️', 'mistress');
-    </script>
+        galleryGrid.innerHTML = '';
+        galleryGrid.appendChild(fragment);
+        console.log('Gallery rendered, products:', batch.length);
+        setupLazyLoading();
+
+        // Load more on scroll
+        let isLoadingMore = false;
+        let lastIndex = batchSize;
+        window.removeEventListener('scroll', window.scrollHandler); // Remove any existing listener
+        window.scrollHandler = () => {
+          if (isLoadingMore || lastIndex >= filteredProducts.length) return;
+          if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+            isLoadingMore = true;
+            const nextBatch = filteredProducts.slice(lastIndex, lastIndex + batchSize);
+            const nextFragment = document.createDocumentFragment();
+            nextBatch.forEach(({ key, data }) => {
+              const card = renderCard(key, data);
+              nextFragment.appendChild(card);
+            });
+            galleryGrid.appendChild(nextFragment);
+            lastIndex += batchSize;
+            setupLazyLoading();
+            isLoadingMore = false;
+            console.log('Loaded more products, total:', lastIndex);
+          }
+        };
+        window.addEventListener('scroll', window.scrollHandler);
+      }
+
+      database.ref().on('value', (snapshot) => {
+        products = [];
+        loadedImageKeys.clear();
+        snapshot.forEach(childSnapshot => {
+          const key = childSnapshot.key;
+          const data = childSnapshot.val() || {};
+          products.push({ key, data });
+          loadedImageKeys.add(key);
+        });
+        console.log('Database updated, products:', products.length);
+        batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
+      });
+
+      database.ref().on('child_changed', (snapshot) => {
+        const key = snapshot.key;
+        const updatedData = snapshot.val() || {};
+        const index = products.findIndex(p => p.key === key);
+        if (index !== -1) {
+          products[index].data = updatedData;
+        } else {
+          products.push({ key, data: updatedData });
+          loadedImageKeys.add(key);
+        }
+        console.log('Child changed:', key);
+        batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
+      });
+
+      database.ref().on('child_removed', (snapshot) => {
+        const key = snapshot.key;
+        products = products.filter(p => p.key !== key);
+        loadedImageKeys.delete(key);
+        console.log('Child removed:', key);
+        batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
+      });
+
+      // 13) Search functionality with debounce
+      const debouncedSearch = debounce(() => {
+        batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
+      }, 300);
+
+      nameSearchInput.addEventListener('input', debouncedSearch);
+      partyCodeSearchInput.addEventListener('input', debouncedSearch);
+
+      // 14) Optimized Inline editing
+      window.makeEditable = function(el, key, field) {
+        const isPrice = field === 'price';
+        const isPartyCode = field === 'partyCode';
+        // Remove prefixes for display in input
+        const prev = el.textContent
+          .replace(/^Price:\s*/i, '')
+          .replace(/^Party Code:\s*/i, '')
+          .trim();
+        const input = document.createElement('input');
+        input.type = isPrice ? 'number' : 'text';
+        if (isPrice) input.step = '0.01';
+        input.value = prev;
+        input.className = 'w-full border border-gray-300 rounded px-2 py-1';
+        el.replaceWith(input);
+        input.focus();
+        input.select();
+
+        function commit() {
+          let value = input.value.trim();
+          if (isPrice) {
+            value = parseFloat(value || '0') || 0;
+            // Divide price by 2 before updating
+            value = value / 2;
+          }
+          if (!value && isPrice) {
+            alert('Price cannot be empty or zero.');
+            input.replaceWith(el);
+            return;
+          }
+          if (!value && isPartyCode) {
+            alert('Party code cannot be empty.');
+            input.replaceWith(el);
+            return;
+          }
+          if (!value && field === 'name') {
+            alert('Product name cannot be empty.');
+            input.replaceWith(el);
+            return;
+          }
+
+          const updateObj = {};
+          updateObj[field] = value;
+
+          // Update only the specific field in the DOM to avoid full re-render
+          database.ref(key).update(updateObj).then(() => {
+            const newEl = document.createElement(field === 'name' ? 'h3' : 'p');
+            if (field === 'name') {
+              newEl.className = 'font-semibold text-lg mb-2 editable-field truncate-2';
+              newEl.title = 'Click to edit name';
+              newEl.setAttribute('onclick', `makeEditable(this, '${key}', 'name')`);
+              newEl.textContent = escapeHtml(value);
+            } else if (isPrice) {
+              newEl.className = 'text-gray-600 mb-1 editable-field';
+              newEl.title = 'Click to edit price';
+              newEl.setAttribute('onclick', `makeEditable(this, '${key}', 'price')`);
+              newEl.textContent = `Price: ${Number(value).toFixed(2)}`;
+            } else {
+              newEl.className = 'text-gray-600 mb-2 editable-field';
+              newEl.title = 'Click to edit party code';
+              newEl.setAttribute('onclick', `makeEditable(this, '${key}', 'partyCode')`);
+              newEl.textContent = `Party Code: ${escapeHtml(value)}`;
+            }
+            input.replaceWith(newEl);
+          }).catch(err => {
+            console.error('Update failed:', err);
+            alert('Failed to update. Please try again.');
+            input.replaceWith(el);
+          });
+        }
+
+        input.addEventListener('blur', commit);
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') commit();
+          if (e.key === 'Escape') input.replaceWith(el);
+        });
+      };
+
+      // 15) Video URL editing
+      window.makeEditableVideo = function(el, key, field) {
+        const prev = el.textContent.replace(/^Video URL:\s*/i, '').trim();
+        const input = document.createElement('input');
+        input.type = 'url';
+        input.value = prev === 'No video' ? '' : prev;
+        input.className = 'w-full border border-gray-300 rounded px-2 py-1';
+        el.replaceWith(input);
+        input.focus();
+        input.select();
+
+        function commit() {
+          const value = input.value.trim();
+          const updateObj = { videourl: value || '' };
+
+          database.ref(key).update(updateObj).then(() => {
+            const newEl = document.createElement('p');
+            newEl.className = 'text-gray-600 mb-2 editable-field';
+            newEl.title = 'Click to edit video URL';
+            newEl.setAttribute('onclick', `makeEditableVideo(this, '${key}', 'videourl')`);
+            newEl.textContent = `Video URL: ${escapeHtml(value || 'No video')}`;
+            input.replaceWith(newEl);
+          }).catch(err => {
+            console.error('Update video URL failed:', err);
+            alert('Failed to update video URL. Please try again.');
+            input.replaceWith(el);
+          });
+        }
+
+        input.addEventListener('blur', commit);
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') commit();
+          if (e.key === 'Escape') input.replaceWith(el);
+        });
+      };
+
+      // 16) Stock toggle, update date
+      window.toggleStockStatus = function(key, current) {
+        database.ref(key).update({ outOfStock: !current }).catch(err => {
+          console.error('Toggle stock failed:', err);
+          alert('Failed to toggle stock status.');
+        });
+      };
+      window.updateUploadDate = function(key) {
+        database.ref(key).update({ date: new Date().toISOString() }).catch(err => {
+          console.error('Update date failed:', err);
+          alert('Failed to update upload date.');
+        });
+      };
+
+      // 17) Delete product
+      window.confirmDelete = function(key) {
+        if (confirm('Are you sure you want to delete this product? This will also remove its associated image and video from storage.')) {
+          deleteProduct(key);
+        }
+      };
+
+      function isFirebaseStorageUrl(url) {
+        if (!url) return false;
+        return url.startsWith('https://firebasestorage.googleapis.com') ||
+               (typeof firebaseConfig?.storageBucket === 'string' && url.includes(firebaseConfig.storageBucket));
+      }
+
+      async function deleteProduct(key) {
+        const deleteButton = document.querySelector(`[data-key="${key}"] button[onclick*="confirmDelete"]`);
+        if (deleteButton) {
+          deleteButton.disabled = true;
+          deleteButton.textContent = 'Deleting...';
+        }
+
+        try {
+          const snapshot = await database.ref(key).once('value');
+          if (!snapshot.exists()) {
+            throw new Error('Product not found in database');
+          }
+          const data = snapshot.val() || {};
+          const imageUrl = data.url;
+          const videoUrl = data.videourl;
+
+          const deletedElement = document.querySelector(`[data-key="${key}"]`);
+          if (deletedElement) {
+            deletedElement.style.opacity = '0.5';
+            deletedElement.style.pointerEvents = 'none';
+          }
+          products = products.filter(p => p.key !== key);
+          loadedImageKeys.delete(key);
+          batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
+
+          const deletions = [];
+          if (imageUrl && isFirebaseStorageUrl(imageUrl)) {
+            deletions.push(
+              storage.refFromURL(imageUrl).delete().catch(err => {
+                console.warn(`Unable to delete image from storage for ${key}:`, err);
+              })
+            );
+          }
+          if (videoUrl && isFirebaseStorageUrl(videoUrl)) {
+            deletions.push(
+              storage.refFromURL(videoUrl).delete().catch(err => {
+                console.warn(`Unable to delete video from storage for ${key}:`, err);
+              })
+            );
+          }
+
+          await Promise.allSettled(deletions);
+          await database.ref(key).remove();
+
+          alert('Product deleted successfully.');
+        } catch (err) {
+          console.error('Failed to delete product:', err);
+          alert(`Failed to delete product: ${err.message || 'Unknown error'}. Please check your Firebase permissions and try again.`);
+          batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
+        } finally {
+          if (deleteButton) {
+            deleteButton.disabled = false;
+            deleteButton.textContent = 'Delete';
+          }
+        }
+      }
+
+      // 18) Replace image / video
+      window.replaceImage = function(key, currentImageUrlEncoded) {
+        const currentImageUrl = decodeURIComponent(currentImageUrlEncoded || '');
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = async () => {
+          const file = input.files[0];
+          if (!file) return;
+          const now = new Date().toISOString();
+          const storageRefNew = storage.ref().child(`${now}_REPLACE_${file.name}`);
+
+          try {
+            await storageRefNew.put(file);
+            const newUrl = await storageRefNew.getDownloadURL();
+            await database.ref(key).update({ url: newUrl });
+
+            if (currentImageUrl && isFirebaseStorageUrl(currentImageUrl)) {
+              storage.refFromURL(currentImageUrl).delete().catch(err => {
+                console.warn('Old image delete failed:', err);
+              });
+            }
+
+            alert('Image replaced successfully.');
+          } catch (err) {
+            console.error('Replace image failed:', err);
+            alert('Failed to replace image.');
+          }
+        };
+        input.click();
+      };
+
+      window.replaceVideo = function(key, currentVideoUrlEncoded) {
+        const currentVideoUrl = decodeURIComponent(currentVideoUrlEncoded || '');
+        const choice = prompt('Enter a new video URL or click OK to upload a video file:', currentVideoUrl || '');
+        
+        if (choice === null) return; // User cancelled
+
+        if (choice.trim() === '') {
+          // Clear video
+          database.ref(key).update({ videourl: '' }).then(() => {
+            alert('Video removed successfully.');
+          }).catch(err => {
+            console.error('Remove video failed:', err);
+            alert('Failed to remove video.');
+          });
+          return;
+        }
+
+        if (choice.trim().startsWith('http')) {
+          // Update with new URL
+          database.ref(key).update({ videourl: choice.trim() }).then(() => {
+            alert('Video URL updated successfully.');
+          }).catch(err => {
+            console.error('Update video URL failed:', err);
+            alert('Failed to update video URL.');
+          });
+        } else {
+          // Upload new video file
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = 'video/*';
+          input.onchange = async () => {
+            const file = input.files[0];
+            if (!file) return;
+            const now = new Date().toISOString();
+            const storageRefNew = storage.ref().child(`${now}_REPLACE_${file.name}`);
+
+            try {
+              await storageRefNew.put(file);
+              const newUrl = await storageRefNew.getDownloadURL();
+              await database.ref(key).update({ videourl: newUrl });
+
+              if (currentVideoUrl && isFirebaseStorageUrl(currentVideoUrl)) {
+                storage.refFromURL(currentVideoUrl).delete().catch(err => {
+                  console.warn('Old video delete failed:', err);
+                });
+              }
+
+              alert('Video replaced successfully.');
+            } catch (err) {
+              console.error('Replace video failed:', err);
+              alert('Failed to replace video.');
+            }
+          };
+          input.click();
+        }
+      };
+
+      // 19) Remove video
+      window.removeVideo = async function(key, currentVideoUrlEncoded) {
+        console.log('removeVideo called with key:', key, 'and encoded URL:', currentVideoUrlEncoded);
+        const currentVideoUrl = decodeURIComponent(currentVideoUrlEncoded || '');
+        if (!currentVideoUrl) {
+          console.warn('No video URL provided for removal');
+          alert('No video to remove.');
+          return;
+        }
+
+        const confirmRemoval = confirm('Are you sure you want to remove this video? This will delete the video from storage if it is hosted on Firebase.');
+        if (!confirmRemoval) {
+          console.log('Video removal cancelled by user');
+          return;
+        }
+
+        const cardElement = document.querySelector(`[data-key="${key}"]`);
+        const removeButton = document.querySelector(`[data-key="${key}"] button[onclick*="removeVideo"]`);
+        if (cardElement) {
+          cardElement.style.opacity = '0.5';
+          cardElement.style.pointerEvents = 'none';
+        }
+        if (removeButton) {
+          removeButton.disabled = true;
+          removeButton.textContent = 'Removing...';
+        }
+
+        try {
+          // Verify product exists
+          const snapshot = await database.ref(key).once('value');
+          if (!snapshot.exists()) {
+            throw new Error('Product not found in database');
+          }
+          console.log('Product found in database for key:', key);
+
+          // Delete video from storage if it's a Firebase URL
+          if (isFirebaseStorageUrl(currentVideoUrl)) {
+            console.log('Attempting to delete video from Firebase storage:', currentVideoUrl);
+            try {
+              await storage.refFromURL(currentVideoUrl).delete();
+              console.log('Video deleted from storage successfully');
+            } catch (err) {
+              console.warn('Failed to delete video from storage:', err.message || err);
+              // Continue to clear videourl even if storage deletion fails
+            }
+          } else {
+            console.log('Video URL is not a Firebase storage URL, skipping storage deletion:', currentVideoUrl);
+          }
+
+          // Update database to clear videourl
+          console.log('Updating database to clear videourl for key:', key);
+          await database.ref(key).update({ videourl: '' });
+          console.log('Database updated, videourl cleared');
+
+          // Force UI update in case listener fails
+          const index = products.findIndex(p => p.key === key);
+          if (index !== -1) {
+            products[index].data.videourl = '';
+          }
+          batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
+
+          alert('Video removed successfully.');
+        } catch (err) {
+          console.error('Remove video failed:', err);
+          let errorMessage = err.message || 'Unknown error';
+          if (err.code === 'storage/unauthorized') {
+            errorMessage = 'Permission denied. Check Firebase Storage rules.';
+          } else if (err.code === 'storage/object-not-found') {
+            errorMessage = 'Video file not found in storage. Clearing URL anyway.';
+            // Attempt to clear videourl even if storage deletion fails
+            try {
+              await database.ref(key).update({ videourl: '' });
+              console.log('Database updated, videourl cleared after storage error');
+              alert('Video file not found in storage, but URL cleared successfully.');
+            } catch (dbErr) {
+              console.error('Database update failed after storage error:', dbErr);
+              alert(`Failed to clear video URL: ${dbErr.message || 'Unknown error'}.`);
+            }
+          }
+          if (err.message !== 'Product not found in database') {
+            alert(`Failed to remove video: ${errorMessage}. Please check your Firebase permissions and try again.`);
+          }
+        } finally {
+          if (cardElement) {
+            cardElement.style.opacity = '1';
+            cardElement.style.pointerEvents = 'auto';
+          }
+          if (removeButton) {
+            removeButton.disabled = false;
+            removeButton.textContent = 'Remove Video';
+          }
+        }
+      };
+    }
+  </script>
 </body>
 </html>
