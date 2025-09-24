@@ -88,7 +88,7 @@
             border-radius: 0 0 10px 10px;
         }
 
-        .tempo-slider, .eq-slider {
+        .tempo-slider, .eq-slider, .volume-slider {
             width: 100%;
             margin: 10px 0;
             height: 10px;
@@ -96,7 +96,7 @@
             border-radius: 5px;
         }
 
-        .tempo-slider::-webkit-slider-thumb, .eq-slider::-webkit-slider-thumb {
+        .tempo-slider::-webkit-slider-thumb, .eq-slider::-webkit-slider-thumb, .volume-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
             width: 20px;
@@ -150,6 +150,7 @@
             height: 50px;
             background: #222222;
             margin-top: 10px;
+            position: relative;
         }
 
         .waveform-canvas {
@@ -157,13 +158,22 @@
             height: 100%;
         }
 
-        .effect-controls, .cue-controls, .pitch-controls {
+        .scratch-area {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+
+        .effect-controls, .cue-controls, .pitch-controls, .hot-cue-controls {
             display: flex;
             gap: 10px;
             margin-top: 10px;
         }
 
-        .effect-btn, .cue-btn, .pitch-btn {
+        .effect-btn, .cue-btn, .pitch-btn, .hot-cue-btn {
             flex: 1;
             padding: 8px;
             background-color: #34495e;
@@ -174,12 +184,16 @@
             transition: background-color 0.3s;
         }
 
-        .effect-btn:hover, .cue-btn:hover, .pitch-btn:hover {
+        .effect-btn:hover, .cue-btn:hover, .pitch-btn:hover, .hot-cue-btn:hover {
             background-color: #2980b9;
         }
 
         .effect-btn.active {
             background-color: #e74c3c;
+        }
+
+        .hot-cue-btn.active {
+            background-color: #ff5500;
         }
 
         .balance-control {
@@ -374,20 +388,20 @@
                 width: 90%;
                 margin: 10px 0;
             }
-        }
 
-        .current-track-info {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            width: 100%;
-            max-width: 900px;
-            text-align: center;
-        }
+            button, .beat-btn, .effect-btn, .cue-btn, .pitch-btn, .hot-cue-btn {
+                padding: 15px;
+                font-size: 18px;
+            }
 
-        table {
-            font-size: 14px;
+            .tempo-slider::-webkit-slider-thumb, .eq-slider::-webkit-slider-thumb, .volume-slider::-webkit-slider-thumb, .seek-slider::-webkit-slider-thumb {
+                width: 30px;
+                height: 30px;
+            }
+
+            .scratch-area {
+                height: 70px;
+            }
         }
 
         .beat-loop {
@@ -422,7 +436,7 @@
     </style>
 </head>
 <body>
-    <h1>SAMMY'S DJ PROJECT</h1>
+    <h1>SAMMY'S YT DJ PROJECT</h1>
 
     <button id="notes-btn" onclick="openNotesModal()">Notes</button>
 
@@ -451,11 +465,14 @@
             <audio id="audio-player1" controls style="width: 100%;"></audio>
             <div class="waveform-container">
                 <canvas id="waveform1" class="waveform-canvas"></canvas>
+                <div class="scratch-area" id="scratch1"></div>
             </div>
             <div class="tempo-controls">
                 <label>BPM: <span id="tempo1-value">120</span></label>
                 <input type="range" id="tempo1" min="60" max="180" step="1" value="120" class="tempo-slider">
                 <button class="effect-btn" onclick="toggleReverb(1)">Reverb</button>
+                <button class="effect-btn" onclick="toggleEcho(1)">Echo</button>
+                <button class="effect-btn" onclick="toggleFlanger(1)">Flanger</button>
                 <div class="beat-loop">
                     <label>Beat Loop:</label>
                     <div class="beat-buttons">
@@ -465,6 +482,12 @@
                         <button class="beat-btn" data-beats="8" onclick="toggleBeatLoop(1, 8)">8</button>
                         <button class="beat-btn" data-beats="16" onclick="toggleBeatLoop(1, 16)">16</button>
                     </div>
+                </div>
+                <div class="hot-cue-controls">
+                    <button class="hot-cue-btn" data-cue="1" onclick="handleHotCue(1, 1)">Cue 1</button>
+                    <button class="hot-cue-btn" data-cue="2" onclick="handleHotCue(1, 2)">Cue 2</button>
+                    <button class="hot-cue-btn" data-cue="3" onclick="handleHotCue(1, 3)">Cue 3</button>
+                    <button class="hot-cue-btn" data-cue="4" onclick="handleHotCue(1, 4)">Cue 4</button>
                 </div>
                 <div class="cue-controls">
                     <button class="cue-btn" onclick="setCuePoint(1)">Set Cue</button>
@@ -482,6 +505,9 @@
                     <label>High: <span id="eq-high1-value">0</span></label>
                     <input type="range" id="eq-high1" min="-40" max="40" value="0" class="eq-slider">
                 </div>
+                <label>Volume: <span id="volume1-value">100</span></label>
+                <input type="range" id="volume1" min="0" max="100" value="100" class="volume-slider">
+                <button class="effect-btn" onclick="detectBPM(1)">Detect BPM</button>
                 <button class="effect-btn" onclick="syncBPM(1)">Sync BPM</button>
                 <div class="seek-container">
                     <label>Seek: <span id="time-display1">0:00 / 0:00</span></label>
@@ -493,11 +519,14 @@
             <audio id="audio-player2" controls style="width: 100%;"></audio>
             <div class="waveform-container">
                 <canvas id="waveform2" class="waveform-canvas"></canvas>
+                <div class="scratch-area" id="scratch2"></div>
             </div>
             <div class="tempo-controls">
                 <label>BPM: <span id="tempo2-value">120</span></label>
                 <input type="range" id="tempo2" min="60" max="180" step="1" value="120" class="tempo-slider">
                 <button class="effect-btn" onclick="toggleReverb(2)">Reverb</button>
+                <button class="effect-btn" onclick="toggleEcho(2)">Echo</button>
+                <button class="effect-btn" onclick="toggleFlanger(2)">Flanger</button>
                 <div class="beat-loop">
                     <label>Beat Loop:</label>
                     <div class="beat-buttons">
@@ -507,6 +536,12 @@
                         <button class="beat-btn" data-beats="8" onclick="toggleBeatLoop(2, 8)">8</button>
                         <button class="beat-btn" data-beats="16" onclick="toggleBeatLoop(2, 16)">16</button>
                     </div>
+                </div>
+                <div class="hot-cue-controls">
+                    <button class="hot-cue-btn" data-cue="1" onclick="handleHotCue(2, 1)">Cue 1</button>
+                    <button class="hot-cue-btn" data-cue="2" onclick="handleHotCue(2, 2)">Cue 2</button>
+                    <button class="hot-cue-btn" data-cue="3" onclick="handleHotCue(2, 3)">Cue 3</button>
+                    <button class="hot-cue-btn" data-cue="4" onclick="handleHotCue(2, 4)">Cue 4</button>
                 </div>
                 <div class="cue-controls">
                     <button class="cue-btn" onclick="setCuePoint(2)">Set Cue</button>
@@ -524,6 +559,9 @@
                     <label>High: <span id="eq-high2-value">0</span></label>
                     <input type="range" id="eq-high2" min="-40" max="40" value="0" class="eq-slider">
                 </div>
+                <label>Volume: <span id="volume2-value">100</span></label>
+                <input type="range" id="volume2" min="0" max="100" value="100" class="volume-slider">
+                <button class="effect-btn" onclick="detectBPM(2)">Detect BPM</button>
                 <button class="effect-btn" onclick="syncBPM(2)">Sync BPM</button>
                 <div class="seek-container">
                     <label>Seek: <span id="time-display2">0:00 / 0:00</span></label>
@@ -568,9 +606,10 @@
     <script>
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         const players = {
-            1: { audio: null, source: null, gain: null, reverb: null, eqLow: null, eqMid: null, eqHigh: null, analyser: null, cuePoint: null },
-            2: { audio: null, source: null, gain: null, reverb: null, eqLow: null, eqMid: null, eqHigh: null, analyser: null, cuePoint: null }
+            1: { audio: null, source: null, gain: null, reverb: null, echo: null, echoGain: null, flangerDelay: null, flangerOsc: null, flangerGain: null, eqLow: null, eqMid: null, eqHigh: null, analyser: null, cuePoint: null, hotCues: [null, null, null, null], scratchStart: null, scratchPreviousTime: null },
+            2: { audio: null, source: null, gain: null, reverb: null, echo: null, echoGain: null, flangerDelay: null, flangerOsc: null, flangerGain: null, eqLow: null, eqMid: null, eqHigh: null, analyser: null, cuePoint: null, hotCues: [null, null, null, null], scratchStart: null, scratchPreviousTime: null }
         };
+        const trackCache = new Map();
 
         function formatTime(seconds) {
             const minutes = Math.floor(seconds / 60);
@@ -644,7 +683,7 @@
         }
 
         function toggleReverb(deckNumber) {
-            const button = document.querySelector(`#player${deckNumber} .effect-btn`);
+            const button = document.querySelector(`#player${deckNumber} .effect-btn[onclick="toggleReverb(${deckNumber})"]`);
             const reverb = players[deckNumber].reverb;
             if (button.classList.contains('active')) {
                 button.classList.remove('active');
@@ -654,7 +693,80 @@
                 button.classList.add('active');
                 players[deckNumber].source.disconnect(players[deckNumber].eqLow);
                 players[deckNumber].source.connect(reverb);
+                reverb.connect(players[deckNumber].eqLow);
             }
+        }
+
+        function toggleEcho(deckNumber) {
+            const button = document.querySelector(`#player${deckNumber} .effect-btn[onclick="toggleEcho(${deckNumber})"]`);
+            const echo = players[deckNumber].echo;
+            const echoGain = players[deckNumber].echoGain;
+            if (button.classList.contains('active')) {
+                button.classList.remove('active');
+                players[deckNumber].source.disconnect(echo);
+            } else {
+                button.classList.add('active');
+                players[deckNumber].source.connect(echo);
+                echo.connect(echoGain);
+                echoGain.connect(players[deckNumber].source);
+            }
+        }
+
+        function toggleFlanger(deckNumber) {
+            const button = document.querySelector(`#player${deckNumber} .effect-btn[onclick="toggleFlanger(${deckNumber})"]`);
+            const flangerDelay = players[deckNumber].flangerDelay;
+            const flangerOsc = players[deckNumber].flangerOsc;
+            const flangerGain = players[deckNumber].flangerGain;
+            if (button.classList.contains('active')) {
+                button.classList.remove('active');
+                players[deckNumber].source.disconnect(flangerDelay);
+                flangerOsc.stop();
+            } else {
+                button.classList.add('active');
+                players[deckNumber].source.connect(flangerDelay);
+                flangerDelay.connect(players[deckNumber].eqLow);
+                flangerOsc.connect(flangerGain);
+                flangerGain.connect(flangerDelay.delayTime);
+                flangerOsc.start();
+            }
+        }
+
+        function detectBPM(deckNumber) {
+            const analyser = players[deckNumber].analyser;
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            const peaks = [];
+
+            const interval = setInterval(() => {
+                analyser.getByteTimeDomainData(dataArray);
+                const max = Math.max(...dataArray);
+                if (max > 128 + 30) {
+                    peaks.push(performance.now());
+                }
+            }, 50);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                if (peaks.length < 2) {
+                    alert('Unable to detect BPM');
+                    return;
+                }
+                const intervals = [];
+                for (let i = 1; i < peaks.length; i++) {
+                    intervals.push(peaks[i] - peaks[i - 1]);
+                }
+                const averageInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+                const bpm = Math.round(60000 / averageInterval);
+                document.getElementById(`tempo${deckNumber}`).value = bpm;
+                document.getElementById(`tempo${deckNumber}-value`).textContent = bpm;
+                const audio = players[deckNumber].audio;
+                window[`referenceBPM${deckNumber}`] = bpm;
+                audio.playbackRate = 1; // Reset to normal rate
+                if (window['loopActive' + deckNumber]) {
+                    startLoop(deckNumber, window['loopBeats' + deckNumber]);
+                }
+                alert(`Detected BPM: ${bpm}`);
+            }, 10000); // Analyze for 10 seconds
         }
 
         function setCuePoint(deckNumber) {
@@ -671,6 +783,21 @@
                     window['loopStartTime' + deckNumber] = audio.currentTime;
                 }
                 updateSeekBar(deckNumber);
+            }
+        }
+
+        function handleHotCue(deckNumber, cueIndex) {
+            const audio = players[deckNumber].audio;
+            const button = document.querySelector(`#player${deckNumber} .hot-cue-btn[data-cue="${cueIndex}"]`);
+            if (button.classList.contains('active')) {
+                audio.currentTime = players[deckNumber].hotCues[cueIndex - 1];
+                if (window['loopActive' + deckNumber]) {
+                    window['loopStartTime' + deckNumber] = audio.currentTime;
+                }
+                updateSeekBar(deckNumber);
+            } else {
+                players[deckNumber].hotCues[cueIndex - 1] = audio.currentTime;
+                button.classList.add('active');
             }
         }
 
@@ -845,7 +972,59 @@
             });
         }
 
+        function initVolumeControl(deckNumber) {
+            const volumeSlider = document.getElementById(`volume${deckNumber}`);
+            const volumeValue = document.getElementById(`volume${deckNumber}-value`);
+            const gain = players[deckNumber].gain;
+
+            volumeSlider.addEventListener('input', () => {
+                const volume = parseFloat(volumeSlider.value) / 100;
+                gain.gain.setValueAtTime(volume, audioContext.currentTime);
+                volumeValue.textContent = volumeSlider.value;
+            });
+        }
+
+        function initScratchControl(deckNumber) {
+            const scratchArea = document.getElementById(`scratch${deckNumber}`);
+            const audio = players[deckNumber].audio;
+
+            const handleStart = (e) => {
+                e.preventDefault();
+                players[deckNumber].scratchStart = e.touches ? e.touches[0].clientX : e.clientX;
+                players[deckNumber].scratchPreviousTime = audio.currentTime;
+                scratchArea.style.cursor = 'grabbing';
+            };
+
+            const handleMove = (e) => {
+                e.preventDefault();
+                if (players[deckNumber].scratchStart === null) return;
+                const currentX = e.touches ? e.touches[0].clientX : e.clientX;
+                const deltaX = currentX - players[deckNumber].scratchStart;
+                const scratchSpeed = deltaX / 100; // Adjust sensitivity
+                audio.playbackRate = 1 + scratchSpeed;
+                audio.currentTime = players[deckNumber].scratchPreviousTime + scratchSpeed * 0.1; // Simulate scratch position
+            };
+
+            const handleEnd = (e) => {
+                e.preventDefault();
+                players[deckNumber].scratchStart = null;
+                audio.playbackRate = 1;
+                scratchArea.style.cursor = 'grab';
+            };
+
+            scratchArea.addEventListener('mousedown', handleStart);
+            scratchArea.addEventListener('mousemove', handleMove);
+            scratchArea.addEventListener('mouseup', handleEnd);
+            scratchArea.addEventListener('mouseleave', handleEnd);
+
+            scratchArea.addEventListener('touchstart', handleStart, { passive: false });
+            scratchArea.addEventListener('touchmove', handleMove, { passive: false });
+            scratchArea.addEventListener('touchend', handleEnd, { passive: false });
+        }
+
         function initAudio(deckNumber, file) {
+            trackCache.set(file.name, file);
+
             const audio = document.getElementById(`audio-player${deckNumber}`);
             audio.src = URL.createObjectURL(file);
             audio.load();
@@ -855,6 +1034,11 @@
             const source = audioContext.createMediaElementSource(audio);
             const gain = audioContext.createGain();
             const reverb = audioContext.createConvolver();
+            const echo = audioContext.createDelay(0.3);
+            const echoGain = audioContext.createGain();
+            const flangerDelay = audioContext.createDelay(0.005);
+            const flangerOsc = audioContext.createOscillator();
+            const flangerGain = audioContext.createGain();
             const eqLow = audioContext.createBiquadFilter();
             const eqMid = audioContext.createBiquadFilter();
             const eqHigh = audioContext.createBiquadFilter();
@@ -881,6 +1065,12 @@
             }
             reverb.buffer = reverbBuffer;
 
+            echoGain.gain.value = 0.5;
+
+            flangerOsc.type = 'sine';
+            flangerOsc.frequency.value = 0.5;
+            flangerGain.gain.value = 0.003;
+
             source.connect(eqLow);
             eqLow.connect(eqMid);
             eqMid.connect(eqHigh);
@@ -891,12 +1081,17 @@
             players[deckNumber].source = source;
             players[deckNumber].gain = gain;
             players[deckNumber].reverb = reverb;
+            players[deckNumber].echo = echo;
+            players[deckNumber].echoGain = echoGain;
+            players[deckNumber].flangerDelay = flangerDelay;
+            players[deckNumber].flangerOsc = flangerOsc;
+            players[deckNumber].flangerGain = flangerGain;
             players[deckNumber].eqLow = eqLow;
             players[deckNumber].eqMid = eqMid;
             players[deckNumber].eqHigh = eqHigh;
             players[deckNumber].analyser = analyser;
 
-            gain.gain.setValueAtTime(deckNumber === 1 ? 0.5 : 0.5, audioContext.currentTime);
+            gain.gain.setValueAtTime(1, audioContext.currentTime);
 
             audio.addEventListener('play', () => {
                 if (audioContext.state === 'suspended') {
@@ -926,6 +1121,8 @@
             initTempoControl(deckNumber);
             initSeekControl(deckNumber);
             initEQControl(deckNumber);
+            initVolumeControl(deckNumber);
+            initScratchControl(deckNumber);
             drawWaveform(deckNumber);
 
             document.getElementById(`current-track-title${deckNumber}`).textContent = file.name;
@@ -978,9 +1175,14 @@
                 }
             });
 
-            document.getElementById(`current-track-title${deckNumber}`).textContent = trackTitle;
-            alert('Please reselect the file manually, as local files cannot be reloaded automatically due to browser security restrictions.');
-            document.getElementById(`file-deck${deckNumber}`).click();
+            const file = trackCache.get(fileName);
+            if (file) {
+                initAudio(deckNumber, file);
+                document.getElementById(`current-track-title${deckNumber}`).textContent = trackTitle;
+            } else {
+                alert(`File "${fileName}" not found in cache. Please reselect it.`);
+                document.getElementById(`file-deck${deckNumber}`).click();
+            }
         }
 
         function editTrackTitle(button) {
