@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -225,59 +226,59 @@
         }
 
         /* Notes Modal Styles */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.8);
-}
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+        }
 
-.modal-content {
-    background-color: #34495e;
-    margin: 15% auto;
-    padding: 20px;
-    border-radius: 8px;
-    width: 80%;
-    max-width: 600px;
-    position: relative;
-}
+        .modal-content {
+            background-color: #34495e;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            position: relative;
+        }
 
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    cursor: pointer;
-}
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            cursor: pointer;
+        }
 
-#notes-textarea {
-    width: 100%;
-    height: 200px;
-    margin: 10px 0;
-    background: #2c3e50;
-    border: 1px solid #444;
-    color: white;
-    padding: 10px;
-    border-radius: 4px;
-    resize: vertical;
-}
+        #notes-textarea {
+            width: 100%;
+            height: 200px;
+            margin: 10px 0;
+            background: #2c3e50;
+            border: 1px solid #444;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            resize: vertical;
+        }
 
-#notes-btn {
-    margin-left: 10px;
-    padding: 8px 15px;
-    background: #1abc9c;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s;
-}
+        #notes-btn {
+            margin-left: 10px;
+            padding: 8px 15px;
+            background: #1abc9c;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
 
-#notes-btn:hover {
-    background: #16a085;
-}
+        #notes-btn:hover {
+            background: #16a085;
+        }
 
         .buttons-container {
             display: flex;
@@ -322,7 +323,7 @@
             margin: 10px 0;
             z-index: 10;
             background: #34495e;
-            max-height: 200px;
+            max-height: 300px;
             overflow-y: auto;
             border-radius: 5px;
             display: none; /* Initially hidden */
@@ -428,92 +429,27 @@
             font-size: 14px;
         }
 
-        /* Custom dropdown styling */
-        .custom-dropdown {
-            position: absolute;
-            width: 100%;
-            max-width: 300px;
-            margin: 10px 0;
-            z-index: 10;
-            background: #34495e;
-            max-height: 200px;
-            overflow-y: auto;
-            border-radius: 5px;
-            display: none; /* Initially hidden */
-        }
-
-        .custom-dropdown .dropdown-item {
-            display: flex;
-            cursor: pointer;
-            margin-bottom: 5px;
-            color: white;
-            background-color: transparent;
-            transition: background-color 0.3s ease;
-        }
-
-        .custom-dropdown .dropdown-item:hover {
-            background-color: #2980b9;
-        }
-
-        .custom-dropdown img {
-            width: 50px;
-            height: 50px;
-            margin-right: 10px;
-            border-radius: 5px;
-            object-fit: cover;
-        }
-
-        .custom-dropdown .title {
-            flex: 1;
-            font-size: 10px;
-        }
-
-        .tempo-controls {
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 0 0 10px 10px;
-        }
-
-        .tempo-slider {
-            width: 100%;
-            margin: 10px 0;
-        }
-
-        .beat-loop {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .beat-loop-select {
-            padding: 5px;
-            background: #34495e;
-            color: white;
-            border: none;
-            border-radius: 5px;
+        .custom-dropdown .dropdown-item:hover img {
+            transform: scale(1.5);
+            transition: transform 0.3s ease;
+            z-index: 20;
         }
     </style>
 </head>
 <body>
     <h1>SAMMY'S YT DJ PROJECT</h1>
 
-    <select id="api-key-select">
-        <option value="YOUR_YOUTUBE_API_KEY_1">API Key 1</option>
-        <option value="YOUR_YOUTUBE_API_KEY_2">API Key 2</option>
-        <!-- Add more options as needed -->
-    </select>
+    <!-- Add Notes Button -->
+    <button id="notes-btn" onclick="openNotesModal()">Notes</button>
 
-  <!-- Add Notes Button -->
-  <button id="notes-btn" onclick="openNotesModal()">Notes</button>
-
-  <div id="notes-modal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeNotesModal()">&times;</span>
-        <h3>DJ Notes</h3>
-        <textarea id="notes-textarea" placeholder="Add your notes here..."></textarea>
-        <button onclick="saveNotes()">Save Notes</button>
+    <div id="notes-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeNotesModal()">&times;</span>
+            <h3>DJ Notes</h3>
+            <textarea id="notes-textarea" placeholder="Add your notes here..."></textarea>
+            <button onclick="saveNotes()">Save Notes</button>
+        </div>
     </div>
-</div>
 
     <div class="track-control-container">
         <div class="track-selector">
@@ -610,21 +546,6 @@
     <button id="restore-btn" onclick="document.getElementById('restore-input').click()">Restore History</button>
 
     <script>
-        const apiKeys = [
-            'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A',
-            'AIzaSyDX2n08WCf5Ol1nffaqJU_aJp_BODlw1H4',
-            // Add more API keys here
-        ];
-
-        let currentApiKeyIndex = 0; 
-        let apiKey = apiKeys[currentApiKeyIndex]; 
-
-        function switchApiKey() {
-            currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length;
-            apiKey = apiKeys[currentApiKeyIndex];
-            alert(`API Key switched to: ${apiKey}`);
-        }
-
         function loadYouTubeAPI() {
             const script = document.createElement('script');
             script.src = "https://www.youtube.com/iframe_api";
@@ -650,29 +571,28 @@
         }
 
         function openNotesModal() {
-        document.getElementById('notes-modal').style.display = 'block';
-        loadNotes();  // Load existing notes when opening
-    }
+            document.getElementById('notes-modal').style.display = 'block';
+            loadNotes();
+        }
 
-    function closeNotesModal() {
-        document.getElementById('notes-modal').style.display = 'none';
-    }
+        function closeNotesModal() {
+            document.getElementById('notes-modal').style.display = 'none';
+        }
 
-    function saveNotes() {
-        const notes = document.getElementById('notes-textarea').value;
-        localStorage.setItem('djNotes', notes);
-        closeNotesModal();
-    }
+        function saveNotes() {
+            const notes = document.getElementById('notes-textarea').value;
+            localStorage.setItem('djNotes', notes);
+            closeNotesModal();
+        }
 
-    function loadNotes() {
-        const savedNotes = localStorage.getItem('djNotes') || '';
-        document.getElementById('notes-textarea').value = savedNotes;
-    }
+        function loadNotes() {
+            const savedNotes = localStorage.getItem('djNotes') || '';
+            document.getElementById('notes-textarea').value = savedNotes;
+        }
 
         function onPlayer1Ready(event) {
             player1.setVolume(50);
             initTempoControl(1);
-            // Beat loop is now handled by the button click events
         }
 
         function onPlayer2Ready(event) {
@@ -682,16 +602,13 @@
 
         function toggleBeatLoop(deckNumber, beats) {
             const player = deckNumber === 1 ? player1 : player2;
-            // Fix the selector to properly identify buttons in each player
             const button = document.querySelector(`#player${deckNumber} .beat-btn[data-beats="${beats}"]`);
             
-            // If the clicked button was already active, we're just turning off the loop
             if (button.classList.contains('active')) {
                 button.classList.remove('active');
                 window['loopActive' + deckNumber] = false;
                 window['loopBeats' + deckNumber] = 0;
                 
-                // Clear any existing loops
                 if (window['loopInterval' + deckNumber]) {
                     clearInterval(window['loopInterval' + deckNumber]);
                     window['loopInterval' + deckNumber] = null;
@@ -700,26 +617,21 @@
                 return;
             }
             
-            // Clear any existing loops and remove active class from all buttons
             if (window['loopInterval' + deckNumber]) {
                 clearInterval(window['loopInterval' + deckNumber]);
                 window['loopInterval' + deckNumber] = null;
             }
             
-            // Remove active class from all buttons in this deck
             document.querySelectorAll(`#player${deckNumber} .beat-btn`).forEach(btn => {
                 btn.classList.remove('active');
             });
             
-            // Add active class to the clicked button
             button.classList.add('active');
             
-            // Start the loop if the player is ready
             if (player && player.getPlayerState) {
                 if (player.getPlayerState() === YT.PlayerState.PLAYING) {
                     startLoop(deckNumber, beats);
                 } else {
-                    // Store the beats for when the video starts playing
                     window['loopBeats' + deckNumber] = beats;
                 }
             }
@@ -728,17 +640,14 @@
         function startLoop(deckNumber, beats) {
             const player = deckNumber === 1 ? player1 : player2;
             
-            // Clear any existing interval
             if (window['loopInterval' + deckNumber]) {
                 clearInterval(window['loopInterval' + deckNumber]);
             }
             
-            // Set the start time to current position
             window['loopStartTime' + deckNumber] = player.getCurrentTime();
             window['loopActive' + deckNumber] = true;
             
-            // Calculate loop duration (in seconds)
-            const loopDuration = beats * 2; // 2 seconds per beat
+            const loopDuration = beats * 2;
             console.log(`Starting simple loop for deck ${deckNumber}: ${beats} beats`);
 
             window['loopInterval' + deckNumber] = setInterval(() => {
@@ -751,7 +660,7 @@
                         console.log(`Loop reset to ${window['loopStartTime' + deckNumber]}`);
                     }
                 }
-            }, 20); // Basic timing check
+            }, 20);
         }
 
         function onPlayer1StateChange(event) {
@@ -765,13 +674,11 @@
         function handlePlayerStateChange(deckNumber, event) {
             const player = deckNumber === 1 ? player1 : player2;
             
-            // If video starts playing and we have a beat loop set
             if (event.data === YT.PlayerState.PLAYING) {
                 const beats = window['loopBeats' + deckNumber];
                 if (beats > 0) {
                     startLoop(deckNumber, beats);
                     
-                    // Make sure the correct button is active
                     document.querySelectorAll(`.video-player:nth-child(${deckNumber}) .beat-btn`).forEach(btn => {
                         if (parseInt(btn.getAttribute('data-beats')) === beats) {
                             btn.classList.add('active');
@@ -782,7 +689,6 @@
                 }
             }
             
-            // If video ends or is paused, clear the loop
             if (event.data === YT.PlayerState.ENDED || event.data === YT.PlayerState.PAUSED) {
                 if (window['loopInterval' + deckNumber]) {
                     clearInterval(window['loopInterval' + deckNumber]);
@@ -792,7 +698,6 @@
             }
         }
 
-        // Add these functions before the window.onload
         function initTempoControl(deckNumber) {
             const tempoSlider = document.getElementById(`tempo${deckNumber}`);
             const tempoValue = document.getElementById(`tempo${deckNumber}-value`);
@@ -801,26 +706,20 @@
             let targetBPM = 120;
             let tempoInterval = null;
             
-            // Default reference BPM (assuming videos are at 120 BPM by default)
             window[`referenceBPM${deckNumber}`] = 120;
         
             tempoSlider.addEventListener('input', () => {
-                // Get the target BPM from the slider
                 targetBPM = parseInt(tempoSlider.value);
                 tempoValue.textContent = targetBPM;
                 
-                // Calculate playback rate based on BPM ratio
                 const targetRate = targetBPM / window[`referenceBPM${deckNumber}`];
                 
-                // Clear any existing interval
                 if (tempoInterval) {
                     clearInterval(tempoInterval);
                 }
                 
-                // Set up interval to gradually change the tempo
                 tempoInterval = setInterval(() => {
                     if (Math.abs(currentBPM - targetBPM) < 1) {
-                        // We're close enough, set to exact target value
                         currentBPM = targetBPM;
                         const exactRate = currentBPM / window[`referenceBPM${deckNumber}`];
                         
@@ -832,28 +731,23 @@
                         return;
                     }
                     
-                    // Gradually adjust the BPM (1 BPM increments)
                     if (currentBPM < targetBPM) {
                         currentBPM += 1;
                     } else {
                         currentBPM -= 1;
                     }
                     
-                    // Calculate the new rate based on BPM
                     const newRate = currentBPM / window[`referenceBPM${deckNumber}`];
                     
-                    // Update the player's playback rate
                     if (player && typeof player.setPlaybackRate === 'function') {
                         player.setPlaybackRate(newRate);
                         console.log(`Deck ${deckNumber} BPM: ${currentBPM} (rate: ${newRate.toFixed(2)}x)`);
                     }
-                }, 50); // Update every 50ms for smooth transition
+                }, 50);
             });
             
-            // Add a function to set the reference BPM for a track
             window[`setReferenceBPM${deckNumber}`] = function(bpm) {
                 window[`referenceBPM${deckNumber}`] = bpm;
-                // Update the playback rate to maintain the current target BPM
                 if (player && typeof player.setPlaybackRate === 'function') {
                     const newRate = targetBPM / bpm;
                     player.setPlaybackRate(newRate);
@@ -861,36 +755,52 @@
             };
         }
 
-        function searchYouTubeForDeck(deck) {
+        const API_KEYS = [
+            '13452c8109msh7750057c5193b47p1c47c0jsn5d53a80bb998',
+            'd85300e47amsh5ad671c2832cec6p1b7953jsnab9c3a237b6e'
+        ];
+
+        function searchYouTubeForDeck(deck, apiKeyIndex = 0) {
             const query = document.getElementById(`search-${deck}`).value;
             if (query.trim() === '') {
                 alert('Please enter a search term.');
                 return;
             }
 
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=50&key=${apiKey}`;
+            const url = `https://youtube-search-and-download.p.rapidapi.com/search?query=${encodeURIComponent(query)}&type=video`;
 
-            fetch(url)
-                .then(response => response.json())
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'x-rapidapi-host': 'youtube-search-and-download.p.rapidapi.com',
+                    'x-rapidapi-key': API_KEYS[apiKeyIndex]
+                }
+            })
+                .then(response => {
+                    if (response.status === 429 && apiKeyIndex < API_KEYS.length - 1) {
+                        console.log(`API key ${apiKeyIndex + 1} quota exceeded, trying next key...`);
+                        return searchYouTubeForDeck(deck, apiKeyIndex + 1);
+                    }
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    if (data.error && data.error.code === 403) {
-                        alert('Quota exceeded for the current API key. Switching to a new API key...');
-                        switchApiKey();
-                        searchYouTubeForDeck(deck); 
-                    } else {
-                        const dropdown = document.getElementById(`custom-dropdown${deck === 'deck1' ? 1 : 2}`);
-                        dropdown.innerHTML = ''; 
-                        dropdown.style.display = 'block'; // Show dropdown
+                    const dropdown = document.getElementById(`custom-dropdown${deck === 'deck1' ? 1 : 2}`);
+                    dropdown.innerHTML = ''; 
+                    dropdown.style.display = 'block';
 
-                        if (data.items.length > 0) {
-                            data.items.forEach(video => {
+                    if (data.contents && data.contents.length > 0) {
+                        data.contents.slice(0, 30).forEach(item => {
+                            if (item.video) {
+                                const video = item.video;
                                 const dropdownItem = document.createElement('div');
                                 dropdownItem.className = 'dropdown-item';
                                 dropdownItem.onclick = () => {
-                                    const selectedVideoId = video.id.videoId;
-                                    const trackTitle = video.snippet.title;
+                                    const selectedVideoId = video.videoId;
+                                    const trackTitle = video.title;
 
-                                    // Load selected track into the appropriate player
                                     if (deck === 'deck1') {
                                         player1.loadVideoById(selectedVideoId);
                                         document.getElementById('current-track-title1').textContent = trackTitle;
@@ -899,21 +809,31 @@
                                         document.getElementById('current-track-title2').textContent = trackTitle;
                                     }
 
-                                    dropdown.style.display = 'none'; // Hide dropdown after selection
+                                    dropdown.style.display = 'none';
                                     addToHistory(trackTitle, selectedVideoId);
                                     saveHistoryToLocalStorage();
                                 };
 
                                 dropdownItem.innerHTML = `
-                                    <img src="${video.snippet.thumbnails.default.url}" alt="${video.snippet.title} thumbnail">
-                                    <span class="title">${video.snippet.title}</span>
+                                    <img src="${video.thumbnails[0]?.url || 'https://via.placeholder.com/50'}" alt="${video.title} thumbnail">
+                                    <span class="title">${video.title} (${video.duration || 'Unknown'})</span>
                                 `;
                                 dropdown.appendChild(dropdownItem);
-                            });
-                        }
+                            }
+                        });
+                    } else {
+                        alert('No results found.');
                     }
                 })
-                .catch(error => console.error('Error fetching data:', error));
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    if (error.message.includes('429') && apiKeyIndex < API_KEYS.length - 1) {
+                        console.log(`Retrying with API key ${apiKeyIndex + 2}...`);
+                        searchYouTubeForDeck(deck, apiKeyIndex + 1);
+                    } else {
+                        alert('Error fetching search results. Both API keys may be exhausted or another error occurred. Please try again later.');
+                    }
+                });
         }
 
         function addToHistory(title, videoId) {
@@ -934,14 +854,6 @@
             historyItem.setAttribute('data-video-id', videoId);
 
             historyList.insertBefore(historyItem, historyList.firstChild); 
-        }
-
-        // Remove this function entirely
-        function saveRating(selectElement) {
-            const row = selectElement.closest('tr');
-            const rating = selectElement.value;
-            row.setAttribute('data-rating', rating); // Save the rating in the row attribute
-            saveHistoryToLocalStorage(); // Save history to local storage with ratings
         }
 
         function replayTrack(playerId, videoId) {
@@ -1001,9 +913,9 @@
 
         function loadHistoryFromLocalStorage() {
             const savedHistory = JSON.parse(localStorage.getItem('playedHistory')) || [];
-            document.getElementById('track-count').textContent = savedHistory.length; // Update track count
+            document.getElementById('track-count').textContent = savedHistory.length;
             savedHistory.reverse().forEach(track => {
-                addToHistory(track.title, track.videoId); // Add track to history
+                addToHistory(track.title, track.videoId);
             });
         }
 
@@ -1043,8 +955,8 @@
                 const percentage = balance < 50 ? (50 - balance) : (balance - 50);
                 volumePercentage.textContent = `${percentage}%`;
                 if (player1 && player2) {
-                    player1.setVolume(100 - balance); // Left player volume decreases as slider moves right
-                    player2.setVolume(balance);      // Right player volume increases as slider moves right
+                    player1.setVolume(100 - balance);
+                    player2.setVolume(balance);
                 }
             });
         }
@@ -1054,7 +966,8 @@
             const rows = document.querySelectorAll('#history-list tbody tr');
             rows.forEach(row => {
                 const title = row.querySelector('.track-title').textContent.toLowerCase();
-                if (title.includes(query)) {
+                const videoId = row.getAttribute('data-video-id').toLowerCase();
+                if (title.includes(query) || videoId.includes(query)) {
                     row.style.display = '';
                 } else {
                     row.style.display = 'none';
@@ -1062,7 +975,6 @@
             });
         }
 
-        // Close dropdown if clicked outside
         document.addEventListener('click', (event) => {
             const dropdown1 = document.getElementById('custom-dropdown1');
             const dropdown2 = document.getElementById('custom-dropdown2');
@@ -1074,7 +986,6 @@
             const clickedOnSearchDeck1 = searchDeck1.contains(event.target);
             const clickedOnSearchDeck2 = searchDeck2.contains(event.target);
 
-            // Close dropdown if clicked outside of the dropdown and search input
             if (!clickedInsideDropdown1 && !clickedOnSearchDeck1) {
                 dropdown1.style.display = 'none';
             }
@@ -1084,11 +995,12 @@
         });
 
         window.onload = () => {
-        loadYouTubeAPI();
-        initBalanceControl();
-        loadHistoryFromLocalStorage();
-        loadNotes(); // Load notes when page loads
-    };
+            loadYouTubeAPI();
+            initBalanceControl();
+            loadHistoryFromLocalStorage();
+            loadNotes();
+        };
     </script>
 </body>
 </html>
+```
