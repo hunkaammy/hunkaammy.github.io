@@ -1,1249 +1,1063 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Product Gallery with Image + Video (Firebase)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube DJ Player with Played History</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            background: linear-gradient(135deg, #1a1a1a, #333333);
+            color: #f0f0f0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
 
-  <!-- Tailwind for styles -->
-  <script src="https://cdn.tailwindcss.com"></script>
+        h1 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #ff5500;
+            text-shadow: 0 0 10px rgba(255, 85, 0, 0.7);
+            font-size: 28px;
+            letter-spacing: 2px;
+        }
 
-  <!-- Firebase v8 SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+        .track-control-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 600px;
+            margin: 20px 0;
+        }
 
-  <style>
-    .drop-zone {
-      border: 2px dashed #cbd5e1; /* slate-300 */
-      transition: background-color 0.2s ease, border-color 0.2s ease;
-    }
-    .drop-zone:hover, .drop-zone.active {
-      background-color: #f8fafc; /* slate-50 */
-      border-color: #3b82f6; /* blue-500 */
-    }
-    #globalDropOverlay {
-      display: none;
-    }
-    #globalDropOverlay.active {
-      display: flex;
-    }
-    .truncate-2 {
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    img[data-src] {
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    img.loaded {
-      opacity: 1;
-    }
-    .carousel {
-      position: relative;
-      overflow: hidden;
-    }
-    .carousel-inner {
-      display: flex;
-      transition: transform 0.3s ease;
-    }
-    .carousel-item {
-      flex: 0 0 100%;
-    }
-    .carousel-control {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(0, 0, 0, 0.5);
-      color: white;
-      padding: 8px;
-      cursor: pointer;
-      user-select: none;
-    }
-    .carousel-control.prev {
-      left: 0;
-    }
-    .carousel-control.next {
-      right: 0;
-    }
-  </style>
+        .track-selector {
+            margin-right: 10px;
+            flex: 1;
+            position: relative;
+        }
+
+        label, input, select, button {
+            display: block;
+            margin-top: 10px;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            background-color: #222222;
+            color: #f0f0f0;
+        }
+
+        button {
+            cursor: pointer;
+            background-color: #ff5500;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #ff7700;
+        }
+
+        .player-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin: 20px 0;
+            max-width: 900px;
+        }
+
+        .video-player {
+            flex: 1;
+            margin: 0 10px;
+            border: 2px solid #444444;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 45%;
+            background-color: #111111;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .tempo-controls {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 0 0 10px 10px;
+        }
+
+        .tempo-slider {
+            width: 100%;
+            margin: 10px 0;
+            height: 10px;
+            background: #333333;
+            border-radius: 5px;
+        }
+
+        .tempo-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #ff5500;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .seek-container {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .seek-slider {
+            width: 100%;
+            margin: 10px 0;
+            height: 10px;
+            background: #333333;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .seek-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #ff5500;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .seek-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #ff5500;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .time-display {
+            font-size: 14px;
+            color: #f0f0f0;
+            margin-top: 5px;
+            text-align: center;
+        }
+
+        .balance-control {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 600px;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            padding: 20px;
+        }
+
+        .balance-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 25px;
+            background: #333333;
+            border-radius: 10px;
+            outline: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            border: 1px solid #ff5500;
+        }
+
+        .balance-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 30px;
+            height: 30px;
+            background: #ff5500;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 85, 0, 0.7);
+        }
+
+        .balance-slider::-moz-range-thumb {
+            width: 30px;
+            height: 30px;
+            background: #ff5500;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 85, 0, 0.7);
+        }
+
+        .volume-percentage {
+            font-size: 20px;
+            color: #fff;
+            margin-top: 10px;
+        }
+
+        .history-container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            overflow-x: auto;
+            border: 1px solid #444444;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #444444;
+        }
+
+        th {
+            background-color: #222222;
+            color: #ff5500;
+        }
+
+        td button {
+            padding: 5px 10px;
+            background-color: #222222;
+            color: white;
+            border: 1px solid #444444;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .beat-btn:hover {
+            background-color: #444444;
+        }
+
+        .beat-btn.active {
+            background-color: #ff5500;
+            box-shadow: 0 0 10px rgba(255, 85, 0, 0.7);
+        }
+
+        td button:hover {
+            background-color: #1abc9c;
+        }
+
+        .edit-btn {
+            background-color: #f39c12;
+        }
+
+        .edit-btn:hover {
+            background-color: #e67e22;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+        }
+
+        .modal-content {
+            background-color: #34495e;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        #notes-textarea {
+            width: 100%;
+            height: 200px;
+            margin: 10px 0;
+            background: #2c3e50;
+            border: 1px solid #444;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        #notes-btn {
+            margin-left: 10px;
+            padding: 8px 15px;
+            background: #1abc9c;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        #notes-btn:hover {
+            background: #16a085;
+        }
+
+        .buttons-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        #backup-btn, #restore-btn {
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .player-container {
+                align-items: center;
+            }
+
+            .video-player {
+                width: 90%;
+                margin: 10px 0;
+            }
+        }
+
+        .current-track-info {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+        }
+
+        table {
+            font-size: 14px;
+        }
+
+        .custom-dropdown {
+            position: absolute;
+            width: 100%;
+            max-width: 300px;
+            margin: 10px 0;
+            z-index: 10;
+            background: #34495e;
+            max-height: 200px;
+            overflow-y: auto;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .custom-dropdown .dropdown-item {
+            display: flex;
+            cursor: pointer;
+            margin-bottom: 5px;
+            color: white;
+            background-color: transparent;
+            transition: background-color 0.3s ease;
+        }
+
+        .custom-dropdown .dropdown-item:hover {
+            background-color: #2980b9;
+        }
+
+        .custom-dropdown img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+
+        .custom-dropdown .title {
+            flex: 1;
+            font-size: 10px;
+        }
+
+        .beat-loop {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .beat-loop-select {
+            padding: 5px;
+            background: #34495e;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .beat-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .beat-btn {
+            flex: 1;
+            padding: 5px 10px;
+            background-color: #34495e;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .beat-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .beat-btn.active {
+            background-color: #e74c3c;
+        }
+    </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <!-- Global Drag & Drop Overlay -->
-  <div id="globalDropOverlay" class="fixed inset-0 bg-black/50 z-50 items-center justify-center text-white text-xl">
-    Drop files to upload
-  </div>
+<body>
+    <h1>SAMMY'S YT DJ PROJECT</h1>
 
-  <div class="max-w-6xl mx-auto px-4 py-6">
-    <h1 class="text-2xl font-bold mb-4">Product Manager</h1>
+    <select id="api-key-select">
+        <option value="YOUR_YOUTUBE_API_KEY_1">API Key 1</option>
+        <option value="YOUR_YOUTUBE_API_KEY_2">API Key 2</option>
+    </select>
 
-    <!-- Upload Card -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-      <!-- Left: Upload inputs -->
-      <div class="lg:col-span-1 bg-white rounded-xl shadow p-4">
-        <h2 class="text-lg font-semibold mb-3">Add New Product</h2>
+    <button id="notes-btn" onclick="openNotesModal()">Notes</button>
 
-        <div class="space-y-3">
-          <div>
-            <label for="nameInput" class="block text-sm font-medium text-gray-700">Name</label>
-            <input id="nameInput" type="text" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Product name" />
-          </div>
-
-          <div>
-            <label for="priceInput" class="block text-sm font-medium text-gray-700">Price</label>
-            <input id="priceInput" type="number" step="0.01" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="0.00" />
-          </div>
-
-          <div>
-            <label for="partyCodeInput" class="block text-sm font-medium text-gray-700">Party Code</label>
-            <input id="partyCodeInput" type="text" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., ABC123" />
-          </div>
-
-          <div>
-            <label for="videourlInput" class="block text-sm font-medium text-gray-700">
-              Video URL (enter manually or upload below)
-            </label>
-            <input id="videourlInput" type="url" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="https://..." />
-          </div>
+    <div id="notes-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeNotesModal()">&times;</span>
+            <h3>DJ Notes</h3>
+            <textarea id="notes-textarea" placeholder="Add your notes here..."></textarea>
+            <button onclick="saveNotes()">Save Notes</button>
         </div>
-
-        <!-- Image drop zone -->
-        <div class="drop-zone rounded-lg p-4 text-center cursor-pointer mt-4" id="imageDropZone">
-          <div class="text-gray-500">Click to upload or Drag & Drop images (multiple allowed)</div>
-          <div class="preview mt-4" id="preview"></div>
-          <input type="file" id="imageInput" class="hidden" accept="image/*" multiple />
-        </div>
-
-        <!-- Video drop zone -->
-        <div class="drop-zone rounded-lg p-4 text-center cursor-pointer mt-4" id="videoDropZone">
-          <div class="text-gray-500">Optional: Click to upload or Drag & Drop a video</div>
-          <div class="preview mt-4" id="videoPreview"></div>
-          <input type="file" id="videoInput" class="hidden" accept="video/*" />
-        </div>
-
-        <button id="uploadBtn" class="w-full mt-5 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg">
-          Upload Product
-        </button>
-      </div>
-
-      <!-- Middle: Upload queue / progress -->
-      <div class="lg:col-span-2 bg-white rounded-xl shadow p-4">
-        <h2 class="text-lg font-semibold mb-3">Upload Queue & Progress</h2>
-        <div id="progressList" class="space-y-3"></div>
-      </div>
     </div>
 
-    <!-- Search Card -->
-    <div class="mt-8 bg-white rounded-xl shadow p-4">
-      <h2 class="text-lg font-semibold mb-3">Search Products</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label for="nameSearchInput" class="block text-sm font-medium text-gray-700">Search by Product Name</label>
-          <input id="nameSearchInput" type="text" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter product name..." />
+    <div class="track-control-container">
+        <div class="track-selector">
+            <label for="search-deck1">Search DECK-1:</label>
+            <input type="text" id="search-deck1" placeholder="Search YouTube">
+            <button onclick="searchYouTubeForDeck('deck1')">Search</button>
+            <div id="custom-dropdown1" class="custom-dropdown"></div>
+            <select id="track-list1" style="display:none;"></select>
         </div>
-        <div>
-          <label for="partyCodeSearchInput" class="block text-sm font-medium text-gray-700">Search by Party Code</label>
-          <input id="partyCodeSearchInput" type="text" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter party code..." />
+
+        <div class="track-selector">
+            <label for="search-deck2">Search DECK-2:</label>
+            <input type="text" id="search-deck2" placeholder="Search YouTube">
+            <button onclick="searchYouTubeForDeck('deck2')">Search</button>
+            <div id="custom-dropdown2" class="custom-dropdown"></div>
+            <select id="track-list2" style="display:none;"></select>
         </div>
-      </div>
     </div>
 
-    <!-- Gallery -->
-    <div class="mt-8">
-      <h2 class="text-lg font-semibold mb-3">Products</h2>
-      <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
-    </div>
-  </div>
-
-  <script>
-    // 1) Firebase init
-    try {
-      const firebaseConfig = {
-        apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
-        authDomain: "htshop-e9c51.firebaseapp.com",
-        databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com",
-        projectId: "htshop-e9c51",
-        storageBucket: "htshop-e9c51.appspot.com",
-        messagingSenderId: "653137640907",
-        appId: "1:653137640907:web:672fd6a9e85ca448a70a4e",
-        measurementId: "G-FJ4Q0FHBEG"
-      };
-      firebase.initializeApp(firebaseConfig);
-      console.log('Firebase initialized successfully');
-    } catch (err) {
-      console.error('Firebase initialization failed:', err);
-      alert('Failed to initialize Firebase. Please check your configuration and try again.');
-    }
-
-    const database = firebase.database();
-    const storage = firebase.storage();
-
-    // 2) Element references
-    const imageDropZone = document.getElementById('imageDropZone');
-    const imageInput = document.getElementById('imageInput');
-    const preview = document.getElementById('preview');
-    const videoDropZone = document.getElementById('videoDropZone');
-    const videoInput = document.getElementById('videoInput');
-    const videoPreview = document.getElementById('videoPreview');
-    const uploadBtn = document.getElementById('uploadBtn');
-    const progressList = document.getElementById('progressList');
-    const galleryGrid = document.getElementById('galleryGrid');
-    const globalDropOverlay = document.getElementById('globalDropOverlay');
-    const nameSearchInput = document.getElementById('nameSearchInput');
-    const partyCodeSearchInput = document.getElementById('partyCodeSearchInput');
-
-    // Verify button exists
-    if (!uploadBtn) {
-      console.error('Upload button not found in DOM');
-      alert('Upload button not found. Please check the page structure.');
-    }
-
-    // 3) State
-    const uploadQueue = [];
-    let isUploading = false;
-    const loadedImageKeys = new Set();
-    let products = [];
-
-    // 4) Debounce utility
-    function debounce(func, wait) {
-      let timeout;
-      return function (...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
-      };
-    }
-
-    // 5) UI helpers
-    function previewImage(files) {
-      if (!files || !files.length) {
-        console.error('No image files provided for preview');
-        return;
-      }
-      preview.innerHTML = '';
-      Array.from(files).forEach(file => {
-        if (!file.type.startsWith('image/')) {
-          console.error('Invalid image file:', file);
-          return;
-        }
-        const url = URL.createObjectURL(file);
-        const imgContainer = document.createElement('div');
-        imgContainer.innerHTML = `
-          <img src="${url}" alt="preview" class="mx-auto w-full rounded-lg object-contain mb-2" style="max-height: 120px;" />
-          <div class="text-xs text-gray-500 truncate">${file.name}</div>
-        `;
-        preview.appendChild(imgContainer);
-      });
-    }
-    function previewVideo(file) {
-      if (!file || !file.type.startsWith('video/')) {
-        console.error('Invalid video file:', file);
-        return;
-      }
-      const url = URL.createObjectURL(file);
-      videoPreview.innerHTML = `
-        <video src="${url}" controls class="mx-auto w-full rounded-lg" style="max-height: 240px;"></video>
-        <div class="text-xs text-gray-500 mt-1 truncate">${file.name}</div>
-      `;
-    }
-
-    // 6) Lazy load images
-    function setupLazyLoading() {
-      const observer = new IntersectionObserver((entries, obs) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const img = entry.target;
-            img.src = img.dataset.src;
-            img.classList.add('loaded');
-            img.removeAttribute('data-src');
-            obs.unobserve(img);
-          }
-        });
-      }, { rootMargin: '100px' });
-
-      const images = galleryGrid.querySelectorAll('img[data-src]');
-      images.forEach(img => observer.observe(img));
-    }
-
-    // 7) Drag & Drop and Click-to-Upload
-    function setupDropZone(zone, input, previewFn) {
-      zone.addEventListener('click', () => {
-        try {
-          input.click();
-          console.log('Drop zone clicked, triggering file input');
-        } catch (err) {
-          console.error('Failed to trigger file input:', err);
-          alert('Failed to open file picker. Please try again or use drag-and-drop.');
-        }
-      });
-
-      zone.addEventListener('dragenter', (e) => {
-        e.preventDefault();
-        zone.classList.add('active');
-        globalDropOverlay.classList.remove('active');
-      });
-      zone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        zone.classList.add('active');
-      });
-      zone.addEventListener('dragleave', (e) => {
-        e.preventDefault();
-        if (!zone.contains(e.relatedTarget)) {
-          zone.classList.remove('active');
-        }
-      });
-      zone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        zone.classList.remove('active');
-        globalDropOverlay.classList.remove('active');
-        const files = e.dataTransfer.files;
-        if (files.length) {
-          input.files = files;
-          previewFn(files);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-      });
-    }
-
-    setupDropZone(imageDropZone, imageInput, previewImage);
-    setupDropZone(videoDropZone, videoInput, previewVideo);
-
-    window.addEventListener('dragenter', (e) => {
-      e.preventDefault();
-      if (!imageDropZone.contains(e.target) && !videoDropZone.contains(e.target)) {
-        globalDropOverlay.classList.add('active');
-      }
-    });
-    window.addEventListener('dragover', (e) => {
-      e.preventDefault();
-    });
-    window.addEventListener('dragleave', (e) => {
-      e.preventDefault();
-      if (!e.relatedTarget || e.relatedTarget === document.documentElement || e.relatedTarget === document.body) {
-        globalDropOverlay.classList.remove('active');
-      }
-    });
-    window.addEventListener('drop', (e) => {
-      e.preventDefault();
-      globalDropOverlay.classList.remove('active');
-      if (!imageDropZone.contains(e.target) && !videoDropZone.contains(e.target)) {
-        const files = e.dataTransfer.files;
-        if (files.length) {
-          const validImages = Array.from(files).filter(file => file.type.startsWith('image/'));
-          const validVideos = Array.from(files).filter(file => file.type.startsWith('video/'));
-          if (validImages.length) {
-            const dataTransfer = new DataTransfer();
-            validImages.forEach(file => dataTransfer.items.add(file));
-            imageInput.files = dataTransfer.files;
-            previewImage(imageInput.files);
-          }
-          if (validVideos.length) {
-            const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(validVideos[0]); // Only take the first video
-            videoInput.files = dataTransfer.files;
-            previewVideo(videoInput.files[0]);
-          }
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-      }
-    });
-
-    imageInput.addEventListener('change', () => {
-      if (imageInput.files.length) {
-        console.log('Images selected:', Array.from(imageInput.files).map(f => f.name));
-        previewImage(imageInput.files);
-      }
-    });
-    videoInput.addEventListener('change', () => {
-      if (videoInput.files.length) {
-        console.log('Video selected:', videoInput.files[0].name);
-        previewVideo(videoInput.files[0]);
-      }
-    });
-
-    // 8) Upload flow
-    uploadBtn.addEventListener('click', () => {
-      console.log('Upload button clicked');
-      uploadImage();
-    });
-
-    async function uploadImage() {
-      try {
-        console.log('Starting upload process');
-        const files = imageInput.files && Array.from(imageInput.files);
-        const name = document.getElementById('nameInput').value.trim();
-        const priceInput = parseFloat(document.getElementById('priceInput').value.trim());
-        const partyCode = document.getElementById('partyCodeInput').value.trim();
-        const videourlInputEl = document.getElementById('videourlInput');
-
-        // Detailed validation
-        if (!files || files.length === 0) {
-          console.error('No image files selected');
-          alert('Please select at least one image file.');
-          return;
-        }
-        if (!name) {
-          console.error('Product name is empty');
-          alert('Please enter a product name.');
-          return;
-        }
-        if (!partyCode) {
-          console.error('Party code is empty');
-          alert('Please enter a party code.');
-          return;
-        }
-        if (isNaN(priceInput) || priceInput <= 0) {
-          console.error('Invalid price:', priceInput);
-          alert('Please enter a valid price greater than 0.');
-          return;
-        }
-
-        // Divide price by 2 before uploading
-        const price = priceInput / 2;
-        console.log('Price after division:', price);
-
-        let finalVideoURL = (videourlInputEl.value || '').trim();
-        if (videoInput.files && videoInput.files[0]) {
-          const videoFile = videoInput.files[0];
-          const now = new Date().toISOString();
-          const videoStorageRef = storage.ref(`${now}_${sanitizePath(name)}_${videoFile.name}`);
-
-          const videoStatus = document.createElement('div');
-          videoStatus.className = 'mb-2 text-sm text-blue-600';
-          videoStatus.textContent = 'Uploading video...';
-          videoPreview.appendChild(videoStatus);
-
-          try {
-            console.log('Uploading video:', videoFile.name);
-            await videoStorageRef.put(videoFile);
-            finalVideoURL = await videoStorageRef.getDownloadURL();
-            videourlInputEl.value = finalVideoURL;
-            videoStatus.textContent = 'Video uploaded.';
-            console.log('Video uploaded, URL:', finalVideoURL);
-          } catch (err) {
-            console.error('Video upload failed:', err);
-            videoStatus.textContent = 'Video upload failed.';
-            alert('Video upload failed. You can still upload the product with a manually entered video URL or try again.');
-          }
-        }
-
-        // Create progress containers for each image
-        const progressContainers = files.map(async (file, index) => {
-          const thumbDataURL = await fileToDataURL(file);
-          const progressContainer = document.createElement('div');
-          progressContainer.className = 'p-3 bg-gray-100 rounded';
-          progressContainer.innerHTML = `
-            <div class="flex items-center">
-              <img src="${thumbDataURL}" alt="thumbnail" class="w-12 h-12 object-cover rounded mr-4" />
-              <div class="flex-grow">
-                <div class="flex justify-between items-center mb-1">
-                  <span class="text-sm font-medium text-gray-800 truncate w-48" title="${file.name}">${file.name}</span>
-                  <span class="status text-sm text-blue-600 font-semibold">Uploading...</span>
+    <div class="player-container">
+        <div class="video-player" id="player1">
+            <iframe id="youtube-player1" width="100%" height="315" 
+                src="https://www.youtube.com/embed?enablejsapi=1&playsinline=1&disablekb=1" 
+                frameborder="0" 
+                allowfullscreen
+                allow="autoplay">
+            </iframe>
+            <div class="tempo-controls">
+                <label>BPM: <span id="tempo1-value">120</span></label>
+                <input type="range" id="tempo1" min="60" max="180" step="1" value="120" class="tempo-slider">
+                <div class="beat-loop">
+                    <label>Beat Loop:</label>
+                    <div class="beat-buttons">
+                        <button class="beat-btn" data-beats="1" onclick="toggleBeatLoop(1, 1)">1</button>
+                        <button class="beat-btn" data-beats="2" onclick="toggleBeatLoop(1, 2)">2</button>
+                        <button class="beat-btn" data-beats="3" onclick="toggleBeatLoop(1, 3)">3</button>
+                    </div>
                 </div>
-                <div class="bg-gray-300 rounded-full h-2.5">
-                  <div class="progress-bar bg-blue-600 h-2.5 rounded-full w-0 transition-all duration-300"></div>
+                <div class="seek-container">
+                    <label>Seek: <span id="time-display1">0:00 / 0:00</span></label>
+                    <input type="range" id="seek1" min="0" max="100" value="0" class="seek-slider">
                 </div>
-              </div>
             </div>
-          `;
-          progressList.prepend(progressContainer);
-          return { file, progressContainer };
-        });
+        </div>
+        <div class="video-player" id="player2">
+            <iframe id="youtube-player2" width="100%" height="315" 
+                src="https://www.youtube.com/embed?enablejsapi=1&playsinline=1&disablekb=1" 
+                frameborder="0" 
+                allowfullscreen
+                allow="autoplay">
+            </iframe>
+            <div class="tempo-controls">
+                <label>BPM: <span id="tempo2-value">120</span></label>
+                <input type="range" id="tempo2" min="60" max="180" step="1" value="120" class="tempo-slider">
+                <div class="beat-loop">
+                    <label>Beat Loop:</label>
+                    <div class="beat-buttons">
+                        <button class="beat-btn" data-beats="1" onclick="toggleBeatLoop(2, 1)">1</button>
+                        <button class="beat-btn" data-beats="2" onclick="toggleBeatLoop(2, 2)">2</button>
+                        <button class="beat-btn" data-beats="3" onclick="toggleBeatLoop(2, 3)">3</button>
+                    </div>
+                </div>
+                <div class="seek-container">
+                    <label>Seek: <span id="time-display2">0:00 / 0:00</span></label>
+                    <input type="range" id="seek2" min="0" max="100" value="0" class="seek-slider">
+                </div>
+            </div>
+        </div>
+    </div>
 
-        const resolvedProgressContainers = await Promise.all(progressContainers);
+    <div class="balance-control">
+        <input type="range" id="balance-slider" class="balance-slider" min="0" max="100" value="50">
+    </div>
 
-        uploadQueue.push({
-          files,
-          name,
-          price,
-          partyCode,
-          videourl: finalVideoURL || '',
-          progressContainers: resolvedProgressContainers
-        });
-        console.log('Added to upload queue:', { name, price, partyCode, videourl: finalVideoURL, imageCount: files.length });
+    <div class="volume-percentage" id="volume-percentage">Center (0%)</div>
 
-        // Clear inputs except partyCodeInput
-        imageInput.value = '';
-        videoInput.value = '';
-        document.getElementById('nameInput').value = '';
-        document.getElementById('priceInput').value = '';
-        document.getElementById('videourlInput').value = '';
-        preview.innerHTML = '';
-        videoPreview.innerHTML = '';
+    <div class="current-track-info">
+        <h2>Current Track</h2>
+        <p id="current-track-deck1">Deck 1: <span id="current-track-title1">None</span></p>
+        <p id="current-track-deck2">Deck 2: <span id="current-track-title2">None</span></p>
+    </div>
 
-        processUploadQueue();
-      } catch (err) {
-        console.error('Upload image failed:', err);
-        alert(`Failed to start upload: ${err.message || 'Unknown error'}. Please try again.`);
-      }
-    }
+    <div class="history-container">
+        <h2>Played History</h2>
+        <input type="text" id="history-search" placeholder="Search in history" onkeyup="filterHistory()">
+        <table id="history-list">
+            <p>Total Tracks Played: <span id="track-count">0</span></p>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
 
-    function sanitizePath(s) {
-      return s.replace(/[^\w\-]+/g, '_');
-    }
-    function fileToDataURL(fileToRead) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = e => resolve(e.target.result);
-        reader.onerror = err => reject(err);
-        reader.readAsDataURL(fileToRead);
-      });
-    }
+    <button id="backup-btn" onclick="backupHistory()">Backup History</button>
+    <input type="file" id="restore-input" style="display:none" onchange="restoreHistory(event)">
+    <button id="restore-btn" onclick="document.getElementById('restore-input').click()">Restore History</button>
 
-    async function processUploadQueue() {
-      if (isUploading) {
-        console.log('Upload in progress, queue length:', uploadQueue.length);
-        return;
-      }
-      if (uploadQueue.length === 0) {
-        console.log('Upload queue empty');
-        return;
-      }
+    <script>
+        const apiKeys = [
+            'AIzaSyDjTV_vmRsN6bWbW2gyusMHMW_gZtpLI1A',
+            'AIzaSyDX2n08WCf5Ol1nffaqJU_aJp_BODlw1H4',
+        ];
 
-      isUploading = true;
-      const item = uploadQueue.shift();
-      console.log('Processing upload:', item.name);
+        let currentApiKeyIndex = 0; 
+        let apiKey = apiKeys[currentApiKeyIndex]; 
 
-      const { files, name, price, partyCode, videourl, progressContainers } = item;
+        function switchApiKey() {
+            currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length;
+            apiKey = apiKeys[currentApiKeyIndex];
+            alert(`API Key switched to: ${apiKey}`);
+        }
 
-      try {
-        const imageUrls = await Promise.all(files.map(async (file, index) => {
-          const progressBar = progressContainers[index].progressContainer.querySelector('.progress-bar');
-          const statusEl = progressContainers[index].progressContainer.querySelector('.status');
-          const now = new Date().toISOString();
-          const storageRef = storage.ref().child(`${now}_${sanitizePath(name)}_${file.name}`);
+        function loadYouTubeAPI() {
+            const script = document.createElement('script');
+            script.src = "https://www.youtube.com/iframe_api";
+            document.body.appendChild(script);
+        }
 
-          return new Promise((resolve, reject) => {
-            const task = storageRef.put(file);
-            task.on('state_changed',
-              (snap) => {
-                const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
-                progressBar.style.width = pct + '%';
-                statusEl.textContent = `Uploading... ${pct}%`;
-                console.log(`Upload progress for ${file.name}: ${pct}%`);
-              },
-              (err) => {
-                console.error(`Storage upload error for ${file.name}:`, err);
-                reject(err);
-              },
-              async () => {
-                try {
-                  const imageURL = await storageRef.getDownloadURL();
-                  statusEl.textContent = 'Finalizing...';
-                  console.log(`Image uploaded, URL: ${imageURL}`);
-                  resolve(imageURL);
-                } catch (e) {
-                  console.error(`Failed to get download URL for ${file.name}:`, e);
-                  reject(e);
+        let player1, player2;
+
+        function onYouTubeIframeAPIReady() {
+            player1 = new YT.Player('youtube-player1', {
+                events: {
+                    'onReady': onPlayer1Ready,
+                    'onStateChange': onPlayer1StateChange
                 }
-              }
-            );
-          });
-        }));
-
-        const data = {
-          name,
-          price,
-          partyCode,
-          imageUrls,
-          videourl: videourl || '',
-          outOfStock: false,
-          date: new Date().toISOString()
-        };
-        const ref = database.ref().push();
-        await ref.set(data);
-        console.log('Database entry created:', data);
-
-        progressContainers.forEach(({ progressContainer }) => {
-          const statusEl = progressContainer.querySelector('.status');
-          const progressBar = progressContainer.querySelector('.progress-bar');
-          statusEl.textContent = 'Done';
-          progressBar.style.width = '100%';
-          setTimeout(() => progressContainer.remove(), 1200);
-        });
-
-        alert('Product uploaded successfully.');
-      } catch (err) {
-        console.error('Image upload failed:', err.message || err);
-        progressContainers.forEach(({ progressContainer }) => {
-          const statusEl = progressContainer.querySelector('.status');
-          const progressBar = progressContainer.querySelector('.progress-bar');
-          statusEl.textContent = `Failed: ${err.message || 'Unknown error'}`;
-          progressBar.classList.remove('bg-blue-600');
-          progressBar.classList.add('bg-red-500');
-        });
-        alert(`Image upload failed: ${err.message || 'Unknown error'}. Please check your Firebase permissions or network connection and try again.`);
-      } finally {
-        isUploading = false;
-        if (uploadQueue.length > 0) {
-          console.log('Processing next item in queue');
-          processUploadQueue();
-        }
-      }
-    }
-
-    // 9) Render cards
-    function renderCard(key, data) {
-      const container = document.createElement('div');
-      container.className = 'bg-white rounded-xl shadow overflow-hidden';
-      container.dataset.key = key;
-
-      // Handle both single image (url) and multiple images (imageUrls)
-      const imageUrls = data.imageUrls || (data.url ? [data.url] : []);
-      const imageHtml = imageUrls.length > 0
-        ? `
-          <div class="carousel" id="carousel-${key}">
-            <div class="carousel-inner" style="transform: translateX(0);">
-              ${imageUrls.map(url => `
-                <div class="carousel-item">
-                  <img data-src="${url}" alt="${escapeHtml(data.name)}" class="w-full h-48 object-cover" loading="lazy">
-                </div>
-              `).join('')}
-            </div>
-            ${imageUrls.length > 1 ? `
-              <div class="carousel-control prev" onclick="moveCarousel('${key}', -1)">&lt;</div>
-              <div class="carousel-control next" onclick="moveCarousel('${key}', 1)">&gt;</div>
-            ` : ''}
-          </div>
-        `
-        : '<div class="w-full h-48 bg-gray-200 flex items-center justify-center">No images</div>';
-
-      container.innerHTML = `
-        ${imageHtml}
-        <div class="p-4">
-          <h3 class="font-semibold text-lg mb-2 editable-field truncate-2" onclick="makeEditable(this, '${key}', 'name')" title="Click to edit name">
-            ${escapeHtml(data.name)}
-          </h3>
-
-          <p class="text-gray-600 mb-1 editable-field" onclick="makeEditable(this, '${key}', 'price')" title="Click to edit price">
-            Price: ${Number(data.price).toFixed(2)}
-          </p>
-          <p class="text-gray-600 mb-2 editable-field" onclick="makeEditable(this, '${key}', 'partyCode')" title="Click to edit party code">
-            Party Code: ${escapeHtml(data.partyCode || '')}
-          </p>
-
-          <div class="mt-2" id="videoRow-${key}">
-            <p class="text-gray-600 mb-2 editable-field" onclick="makeEditableVideo(this, '${key}', 'videourl')" title="Click to edit video URL">
-              Video URL: ${escapeHtml(data.videourl || 'No video')}
-            </p>
-            ${
-              data.videourl
-                ? `<a href="${data.videourl}" target="_blank" class="text-blue-600 hover:underline text-sm">Watch video</a>`
-                : ''
-            }
-          </div>
-
-          <div class="flex justify-between items-center mt-3">
-            <p class="text-gray-600 status-display-${key}">Status: ${data.outOfStock ? 'Out of Stock' : 'Available'}</p>
-            <button onclick="toggleStockStatus('${key}', ${!!data.outOfStock})"
-              class="text-white py-1 px-3 rounded-full text-sm font-semibold ${data.outOfStock ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}">
-              ${data.outOfStock ? 'Mark Available' : 'Mark Out of Stock'}
-            </button>
-          </div>
-
-          <div class="flex justify-between items-center mt-2">
-            <p class="text-sm text-gray-500 uploaded-date-${key}">Uploaded: ${data.date || new Date().toISOString()}</p>
-            <button onclick="updateUploadDate('${key}')" class="text-white py-1 px-3 rounded-full text-xs font-semibold bg-blue-500 hover:bg-blue-600">
-              Update Date
-            </button>
-          </div>
-
-          <div class="flex flex-wrap gap-2 items-center mt-4">
-            <button onclick="replaceImage('${key}', '${encodeURIComponent(JSON.stringify(imageUrls))}')"
-              class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-3 rounded text-sm">
-              Replace Images
-            </button>
-            <button onclick="replaceVideo('${key}', '${encodeURIComponent(data.videourl || '')}')"
-              class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-3 rounded text-sm">
-              Replace Video
-            </button>
-            ${
-              data.videourl
-                ? `<button onclick="removeVideo('${key}', '${encodeURIComponent(data.videourl || '')}')"
-                    class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-3 rounded text-sm">
-                    Remove Video
-                  </button>`
-                : ''
-            }
-            <button onclick="shareToWhatsApp('${key}', '${encodeURIComponent(data.name)}', '${encodeURIComponent(JSON.stringify(imageUrls))}')"
-              class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-3 rounded text-sm">
-              Share to WhatsApp
-            </button>
-            <button onclick="confirmDelete('${key}')"
-              class="ml-auto bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-              Delete
-            </button>
-          </div>
-        </div>
-      `;
-      return container;
-    }
-
-    // Carousel navigation
-    window.moveCarousel = function(key, direction) {
-      const carousel = document.getElementById(`carousel-${key}`);
-      const inner = carousel.querySelector('.carousel-inner');
-      const items = inner.querySelectorAll('.carousel-item');
-      let currentIndex = parseInt(inner.dataset.index || '0', 10);
-      currentIndex = (currentIndex + direction + items.length) % items.length;
-      inner.style.transform = `translateX(-${currentIndex * 100}%)`;
-      inner.dataset.index = currentIndex;
-    };
-
-    function escapeHtml(str) {
-      return String(str || '').replace(/[&<>"']/g, s => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-      }[s]));
-    }
-
-    // WhatsApp sharing
-    window.shareToWhatsApp = function(key, encodedName, encodedImageUrls) {
-      const name = decodeURIComponent(encodedName);
-      const imageUrls = JSON.parse(decodeURIComponent(encodedImageUrls));
-      const message = `Check out this product: ${name}\n${imageUrls.join('\n')}`;
-      const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
-      window.open(whatsappUrl, '_blank');
-    };
-
-    // 10) Optimized Realtime listeners with batch rendering
-    function batchRenderGallery(nameQuery = '', partyCodeQuery = '') {
-      const fragment = document.createDocumentFragment();
-      const nameLower = nameQuery.toLowerCase().trim();
-      const partyCodeLower = partyCodeQuery.toLowerCase().trim();
-
-      const filteredProducts = products.filter(({ data }) => {
-        const nameMatch = !nameLower || (data.name && data.name.toLowerCase().includes(nameLower));
-        const partyCodeMatch = !partyCodeLower || (data.partyCode && data.partyCode.toLowerCase() === partyCodeLower);
-        return nameMatch && partyCodeMatch;
-      });
-
-      filteredProducts.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
-
-      // Batch render only a limited number of items to save bandwidth
-      const batchSize = 20;
-      const batch = filteredProducts.slice(0, batchSize);
-      batch.forEach(({ key, data }) => {
-        const card = renderCard(key, data);
-        fragment.appendChild(card);
-      });
-
-      galleryGrid.innerHTML = '';
-      galleryGrid.appendChild(fragment);
-      console.log('Gallery rendered, products:', batch.length);
-      setupLazyLoading();
-
-      // Load more on scroll
-      let isLoadingMore = false;
-      let lastIndex = batchSize;
-      window.removeEventListener('scroll', window.scrollHandler); // Remove any existing listener
-      window.scrollHandler = () => {
-        if (isLoadingMore || lastIndex >= filteredProducts.length) return;
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
-          isLoadingMore = true;
-          const nextBatch = filteredProducts.slice(lastIndex, lastIndex + batchSize);
-          const nextFragment = document.createDocumentFragment();
-          nextBatch.forEach(({ key, data }) => {
-            const card = renderCard(key, data);
-            nextFragment.appendChild(card);
-          });
-          galleryGrid.appendChild(nextFragment);
-          lastIndex += batchSize;
-          setupLazyLoading();
-          isLoadingMore = false;
-          console.log('Loaded more products, total:', lastIndex);
-        }
-      };
-      window.addEventListener('scroll', window.scrollHandler);
-    }
-
-    database.ref().on('value', (snapshot) => {
-      products = [];
-      loadedImageKeys.clear();
-      snapshot.forEach(childSnapshot => {
-        const key = childSnapshot.key;
-        const data = childSnapshot.val() || {};
-        products.push({ key, data });
-        loadedImageKeys.add(key);
-      });
-      console.log('Database updated, products:', products.length);
-      batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
-    });
-
-    database.ref().on('child_changed', (snapshot) => {
-      const key = snapshot.key;
-      const updatedData = snapshot.val() || {};
-      const index = products.findIndex(p => p.key === key);
-      if (index !== -1) {
-        products[index].data = updatedData;
-      } else {
-        products.push({ key, data: updatedData });
-        loadedImageKeys.add(key);
-      }
-      console.log('Child changed:', key);
-      batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
-    });
-
-    database.ref().on('child_removed', (snapshot) => {
-      const key = snapshot.key;
-      products = products.filter(p => p.key !== key);
-      loadedImageKeys.delete(key);
-      console.log('Child removed:', key);
-      batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
-    });
-
-    // 11) Search functionality with debounce
-    const debouncedSearch = debounce(() => {
-      batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
-    }, 300);
-
-    nameSearchInput.addEventListener('input', debouncedSearch);
-    partyCodeSearchInput.addEventListener('input', debouncedSearch);
-
-    // 12) Optimized Inline editing
-    window.makeEditable = function(el, key, field) {
-      const isPrice = field === 'price';
-      const isPartyCode = field === 'partyCode';
-      // Remove prefixes for display in input
-      const prev = el.textContent
-        .replace(/^Price:\s*/i, '')
-        .replace(/^Party Code:\s*/i, '')
-        .trim();
-      const input = document.createElement('input');
-      input.type = isPrice ? 'number' : 'text';
-      if (isPrice) input.step = '0.01';
-      input.value = prev;
-      input.className = 'w-full border border-gray-300 rounded px-2 py-1';
-      el.replaceWith(input);
-      input.focus();
-      input.select();
-
-      function commit() {
-        let value = input.value.trim();
-        if (isPrice) {
-          value = parseFloat(value || '0') || 0;
-          // Divide price by 2 before updating
-          value = value / 2;
-        }
-        if (!value && isPrice) {
-          alert('Price cannot be empty or zero.');
-          input.replaceWith(el);
-          return;
-        }
-        if (!value && isPartyCode) {
-          alert('Party code cannot be empty.');
-          input.replaceWith(el);
-          return;
-        }
-        if (!value && field === 'name') {
-          alert('Product name cannot be empty.');
-          input.replaceWith(el);
-          return;
-        }
-
-        const updateObj = {};
-        updateObj[field] = value;
-
-        // Update only the specific field in the DOM to avoid full re-render
-        database.ref(key).update(updateObj).then(() => {
-          const newEl = document.createElement(field === 'name' ? 'h3' : 'p');
-          if (field === 'name') {
-            newEl.className = 'font-semibold text-lg mb-2 editable-field truncate-2';
-            newEl.title = 'Click to edit name';
-            newEl.setAttribute('onclick', `makeEditable(this, '${key}', 'name')`);
-            newEl.textContent = escapeHtml(value);
-          } else if (isPrice) {
-            newEl.className = 'text-gray-600 mb-1 editable-field';
-            newEl.title = 'Click to edit price';
-            newEl.setAttribute('onclick', `makeEditable(this, '${key}', 'price')`);
-            newEl.textContent = `Price: ${Number(value).toFixed(2)}`;
-          } else {
-            newEl.className = 'text-gray-600 mb-2 editable-field';
-            newEl.title = 'Click to edit party code';
-            newEl.setAttribute('onclick', `makeEditable(this, '${key}', 'partyCode')`);
-            newEl.textContent = `Party Code: ${escapeHtml(value)}`;
-          }
-          input.replaceWith(newEl);
-        }).catch(err => {
-          console.error('Update failed:', err);
-          alert('Failed to update. Please try again.');
-          input.replaceWith(el);
-        });
-      }
-
-      input.addEventListener('blur', commit);
-      input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') commit();
-        if (e.key === 'Escape') input.replaceWith(el);
-      });
-    };
-
-    // 13) Video URL editing
-    window.makeEditableVideo = function(el, key, field) {
-      const prev = el.textContent.replace(/^Video URL:\s*/i, '').trim();
-      const input = document.createElement('input');
-      input.type = 'url';
-      input.value = prev === 'No video' ? '' : prev;
-      input.className = 'w-full border border-gray-300 rounded px-2 py-1';
-      el.replaceWith(input);
-      input.focus();
-      input.select();
-
-      function commit() {
-        const value = input.value.trim();
-        const updateObj = { videourl: value || '' };
-
-        database.ref(key).update(updateObj).then(() => {
-          const newEl = document.createElement('p');
-          newEl.className = 'text-gray-600 mb-2 editable-field';
-          newEl.title = 'Click to edit video URL';
-          newEl.setAttribute('onclick', `makeEditableVideo(this, '${key}', 'videourl')`);
-          newEl.textContent = `Video URL: ${escapeHtml(value || 'No video')}`;
-          input.replaceWith(newEl);
-        }).catch(err => {
-          console.error('Update video URL failed:', err);
-          alert('Failed to update video URL. Please try again.');
-          input.replaceWith(el);
-        });
-      }
-
-      input.addEventListener('blur', commit);
-      input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') commit();
-        if (e.key === 'Escape') input.replaceWith(el);
-      });
-    };
-
-    // 14) Stock toggle, update date
-    window.toggleStockStatus = function(key, current) {
-      database.ref(key).update({ outOfStock: !current }).catch(err => {
-        console.error('Toggle stock failed:', err);
-        alert('Failed to toggle stock status.');
-      });
-    };
-    window.updateUploadDate = function(key) {
-      database.ref(key).update({ date: new Date().toISOString() }).catch(err => {
-        console.error('Update date failed:', err);
-        alert('Failed to update upload date.');
-      });
-    };
-
-    // 15) Delete product
-    window.confirmDelete = function(key) {
-      if (confirm('Are you sure you want to delete this product? This will also remove its associated images and video from storage.')) {
-        deleteProduct(key);
-      }
-    };
-
-    function isFirebaseStorageUrl(url) {
-      if (!url) return false;
-      return url.startsWith('https://firebasestorage.googleapis.com') ||
-             (typeof firebaseConfig?.storageBucket === 'string' && url.includes(firebaseConfig.storageBucket));
-    }
-
-    async function deleteProduct(key) {
-      const deleteButton = document.querySelector(`[data-key="${key}"] button[onclick*="confirmDelete"]`);
-      if (deleteButton) {
-        deleteButton.disabled = true;
-        deleteButton.textContent = 'Deleting...';
-      }
-
-      try {
-        const snapshot = await database.ref(key).once('value');
-        if (!snapshot.exists()) {
-          throw new Error('Product not found in database');
-        }
-        const data = snapshot.val() || {};
-        const imageUrls = data.imageUrls || (data.url ? [data.url] : []);
-        const videoUrl = data.videourl;
-
-        const deletedElement = document.querySelector(`[data-key="${key}"]`);
-        if (deletedElement) {
-          deletedElement.style.opacity = '0.5';
-          deletedElement.style.pointerEvents = 'none';
-        }
-        products = products.filter(p => p.key !== key);
-        loadedImageKeys.delete(key);
-        batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
-
-        const deletions = [];
-        imageUrls.forEach(url => {
-          if (url && isFirebaseStorageUrl(url)) {
-            deletions.push(
-              storage.refFromURL(url).delete().catch(err => {
-                console.warn(`Unable to delete image from storage for ${key}:`, err);
-              })
-            );
-          }
-        });
-        if (videoUrl && isFirebaseStorageUrl(videoUrl)) {
-          deletions.push(
-            storage.refFromURL(videoUrl).delete().catch(err => {
-              console.warn(`Unable to delete video from storage for ${key}:`, err);
-            })
-          );
-        }
-
-        await Promise.allSettled(deletions);
-        await database.ref(key).remove();
-
-        alert('Product deleted successfully.');
-      } catch (err) {
-        console.error('Failed to delete product:', err);
-        alert(`Failed to delete product: ${err.message || 'Unknown error'}. Please check your Firebase permissions and try again.`);
-        batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
-      } finally {
-        if (deleteButton) {
-          deleteButton.disabled = false;
-          deleteButton.textContent = 'Delete';
-        }
-      }
-    }
-
-    // 16) Replace images
-    window.replaceImage = function(key, currentImageUrlsEncoded) {
-      const currentImageUrls = JSON.parse(decodeURIComponent(currentImageUrlsEncoded || '[]'));
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      input.multiple = true;
-      input.onchange = async () => {
-        const files = Array.from(input.files);
-        if (!files.length) return;
-
-        const progressContainers = files.map(async (file, index) => {
-          const thumbDataURL = await fileToDataURL(file);
-          const progressContainer = document.createElement('div');
-          progressContainer.className = 'p-3 bg-gray-100 rounded';
-          progressContainer.innerHTML = `
-            <div class="flex items-center">
-              <img src="${thumbDataURL}" alt="thumbnail" class="w-12 h-12 object-cover rounded mr-4" />
-              <div class="flex-grow">
-                <div class="flex justify-between items-center mb-1">
-                  <span class="text-sm font-medium text-gray-800 truncate w-48" title="${file.name}">${file.name}</span>
-                  <span class="status text-sm text-blue-600 font-semibold">Uploading...</span>
-                </div>
-                <div class="bg-gray-300 rounded-full h-2.5">
-                  <div class="progress-bar bg-blue-600 h-2.5 rounded-full w-0 transition-all duration-300"></div>
-                </div>
-              </div>
-            </div>
-          `;
-          progressList.prepend(progressContainer);
-          return { file, progressContainer };
-        });
-
-        const resolvedProgressContainers = await Promise.all(progressContainers);
-
-        try {
-          const newImageUrls = await Promise.all(resolvedProgressContainers.map(async ({ file, progressContainer }, index) => {
-            const progressBar = progressContainer.querySelector('.progress-bar');
-            const statusEl = progressContainer.querySelector('.status');
-            const now = new Date().toISOString();
-            const storageRefNew = storage.ref().child(`${now}_REPLACE_${file.name}`);
-
-            return new Promise((resolve, reject) => {
-              const task = storageRefNew.put(file);
-              task.on('state_changed',
-                (snap) => {
-                  const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
-                  progressBar.style.width = pct + '%';
-                  statusEl.textContent = `Uploading... ${pct}%`;
-                },
-                (err) => reject(err),
-                async () => {
-                  const newUrl = await storageRefNew.getDownloadURL();
-                  statusEl.textContent = 'Done';
-                  progressBar.style.width = '100%';
-                  setTimeout(() => progressContainer.remove(), 1200);
-                  resolve(newUrl);
-                }
-              );
             });
-          }));
 
-          await database.ref(key).update({ imageUrls: newImageUrls, url: null });
-
-          // Delete old images
-          currentImageUrls.forEach(url => {
-            if (url && isFirebaseStorageUrl(url)) {
-              storage.refFromURL(url).delete().catch(err => {
-                console.warn('Old image delete failed:', err);
-              });
-            }
-          });
-
-          alert('Images replaced successfully.');
-        } catch (err) {
-          console.error('Replace images failed:', err);
-          resolvedProgressContainers.forEach(({ progressContainer }) => {
-            const statusEl = progressContainer.querySelector('.status');
-            const progressBar = progressContainer.querySelector('.progress-bar');
-            statusEl.textContent = `Failed: ${err.message || 'Unknown error'}`;
-            progressBar.classList.remove('bg-blue-600');
-            progressBar.classList.add('bg-red-500');
-          });
-          alert('Failed to replace images.');
+            player2 = new YT.Player('youtube-player2', {
+                events: {
+                    'onReady': onPlayer2Ready,
+                    'onStateChange': onPlayer2StateChange
+                }
+            });
         }
-      };
-      input.click();
-    };
 
-    // 17) Replace video
-    window.replaceVideo = function(key, currentVideoUrlEncoded) {
-      const currentVideoUrl = decodeURIComponent(currentVideoUrlEncoded || '');
-      const choice = prompt('Enter a new video URL or click OK to upload a video file:', currentVideoUrl || '');
-      
-      if (choice === null) return; // User cancelled
+        function openNotesModal() {
+            document.getElementById('notes-modal').style.display = 'block';
+            loadNotes();
+        }
 
-      if (choice.trim() === '') {
-        // Clear video
-        database.ref(key).update({ videourl: '' }).then(() => {
-          alert('Video removed successfully.');
-        }).catch(err => {
-          console.error('Remove video failed:', err);
-          alert('Failed to remove video.');
-        });
-        return;
-      }
+        function closeNotesModal() {
+            document.getElementById('notes-modal').style.display = 'none';
+        }
 
-      if (choice.trim().startsWith('http')) {
-        // Update with new URL
-        database.ref(key).update({ videourl: choice.trim() }).then(() => {
-          alert('Video URL updated successfully.');
-        }).catch(err => {
-          console.error('Update video URL failed:', err);
-          alert('Failed to update video URL.');
-        });
-      } else {
-        // Upload new video file
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'video/*';
-        input.onchange = async () => {
-          const file = input.files[0];
-          if (!file) return;
-          const now = new Date().toISOString();
-          const storageRefNew = storage.ref().child(`${now}_REPLACE_${file.name}`);
+        function saveNotes() {
+            const notes = document.getElementById('notes-textarea').value;
+            localStorage.setItem('djNotes', notes);
+            closeNotesModal();
+        }
 
-          try {
-            await storageRefNew.put(file);
-            const newUrl = await storageRefNew.getDownloadURL();
-            await database.ref(key).update({ videourl: newUrl });
+        function loadNotes() {
+            const savedNotes = localStorage.getItem('djNotes') || '';
+            document.getElementById('notes-textarea').value = savedNotes;
+        }
 
-            if (currentVideoUrl && isFirebaseStorageUrl(currentVideoUrl)) {
-              storage.refFromURL(currentVideoUrl).delete().catch(err => {
-                console.warn('Old video delete failed:', err);
-              });
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function updateSeekBar(deckNumber, player, seekSlider, timeDisplay) {
+            if (player && player.getCurrentTime && player.getDuration) {
+                const currentTime = player.getCurrentTime();
+                const duration = player.getDuration();
+                if (duration > 0) {
+                    seekSlider.max = duration;
+                    seekSlider.value = currentTime;
+                    timeDisplay.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+                }
+            }
+        }
+
+        function initSeekControl(deckNumber) {
+            const seekSlider = document.getElementById(`seek${deckNumber}`);
+            const timeDisplay = document.getElementById(`time-display${deckNumber}`);
+            const player = deckNumber === 1 ? player1 : player2;
+
+            seekSlider.addEventListener('input', () => {
+                const seekTime = parseFloat(seekSlider.value);
+                if (player && player.seekTo) {
+                    player.seekTo(seekTime, true);
+                    if (window['loopActive' + deckNumber]) {
+                        window['loopStartTime' + deckNumber] = seekTime;
+                    }
+                    updateSeekBar(deckNumber, player, seekSlider, timeDisplay);
+                }
+            });
+
+            setInterval(() => {
+                updateSeekBar(deckNumber, player, seekSlider, timeDisplay);
+            }, 1000);
+        }
+
+        function onPlayer1Ready(event) {
+            player1.setVolume(50);
+            initTempoControl(1);
+            initSeekControl(1);
+        }
+
+        function onPlayer2Ready(event) {
+            player2.setVolume(50);
+            initTempoControl(2);
+            initSeekControl(2);
+        }
+
+        function toggleBeatLoop(deckNumber, beats) {
+            const player = deckNumber === 1 ? player1 : player2;
+            const button = document.querySelector(`#player${deckNumber} .beat-btn[data-beats="${beats}"]`);
+            
+            if (button.classList.contains('active')) {
+                button.classList.remove('active');
+                window['loopActive' + deckNumber] = false;
+                window['loopBeats' + deckNumber] = 0;
+                
+                if (window['loopInterval' + deckNumber]) {
+                    clearInterval(window['loopInterval' + deckNumber]);
+                    window['loopInterval' + deckNumber] = null;
+                }
+                console.log(`Beat loop turned OFF for deck ${deckNumber}`);
+                return;
+            }
+            
+            if (window['loopInterval' + deckNumber]) {
+                clearInterval(window['loopInterval' + deckNumber]);
+            }
+            
+            document.querySelectorAll(`#player${deckNumber} .beat-btn`).forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            button.classList.add('active');
+            
+            if (player && player.getPlayerState) {
+                if (player.getPlayerState() === YT.PlayerState.PLAYING) {
+                    startLoop(deckNumber, beats);
+                } else {
+                    window['loopBeats' + deckNumber] = beats;
+                }
+            }
+        }
+
+        function startLoop(deckNumber, beats) {
+            const player = deckNumber === 1 ? player1 : player2;
+            
+            if (window['loopInterval' + deckNumber]) {
+                clearInterval(window['loopInterval' + deckNumber]);
+            }
+            
+            window['loopStartTime' + deckNumber] = player.getCurrentTime();
+            window['loopActive' + deckNumber] = true;
+            
+            // Calculate loop duration adjusted for playback rate
+            const playbackRate = player.getPlaybackRate() || 1;
+            const referenceBPM = window[`referenceBPM${deckNumber}`] || 120;
+            const adjustedBPM = referenceBPM * playbackRate;
+            const secondsPerBeat = 60 / adjustedBPM;
+            const loopDuration = beats * secondsPerBeat * 4; // 4 beats per bar
+            const bufferTime = 0.05; // 50ms buffer to preempt loop end
+
+            console.log(`Starting loop for deck ${deckNumber}: ${beats} beats, duration: ${loopDuration.toFixed(2)}s`);
+
+            window['loopInterval' + deckNumber] = setInterval(() => {
+                if (player && player.getPlayerState && player.getPlayerState() === YT.PlayerState.PLAYING) {
+                    const currentTime = player.getCurrentTime();
+                    const endTime = window['loopStartTime' + deckNumber] + loopDuration;
+
+                    // Seek slightly before the loop end to avoid gaps
+                    if (currentTime >= endTime - bufferTime) {
+                        player.seekTo(window['loopStartTime' + deckNumber], true);
+                        console.log(`Loop reset to ${window['loopStartTime' + deckNumber].toFixed(2)}s`);
+                        // Update seek bar to reflect the loop reset
+                        const seekSlider = document.getElementById(`seek${deckNumber}`);
+                        const timeDisplay = document.getElementById(`time-display${deckNumber}`);
+                        updateSeekBar(deckNumber, player, seekSlider, timeDisplay);
+                    }
+                }
+            }, 10); // Check every 10ms for smoother looping
+        }
+
+        function onPlayer1StateChange(event) {
+            handlePlayerStateChange(1, event);
+        }
+
+        function onPlayer2StateChange(event) {
+            handlePlayerStateChange(2, event);
+        }
+
+        function handlePlayerStateChange(deckNumber, event) {
+            const player = deckNumber === 1 ? player1 : player2;
+            
+            if (event.data === YT.PlayerState.PLAYING) {
+                const beats = window['loopBeats' + deckNumber];
+                if (beats > 0) {
+                    startLoop(deckNumber, beats);
+                    
+                    document.querySelectorAll(`.video-player:nth-child(${deckNumber}) .beat-btn`).forEach(btn => {
+                        if (parseInt(btn.getAttribute('data-beats')) === beats) {
+                            btn.classList.add('active');
+                        } else {
+                            btn.classList.remove('active');
+                        }
+                    });
+                }
+            }
+            
+            if (event.data === YT.PlayerState.ENDED || event.data === YT.PlayerState.PAUSED) {
+                if (window['loopInterval' + deckNumber]) {
+                    clearInterval(window['loopInterval' + deckNumber]);
+                    window['loopInterval' + deckNumber] = null;
+                }
+                window['loopActive' + deckNumber] = false;
+            }
+        }
+
+        function initTempoControl(deckNumber) {
+            const tempoSlider = document.getElementById(`tempo${deckNumber}`);
+            const tempoValue = document.getElementById(`tempo${deckNumber}-value`);
+            const player = deckNumber === 1 ? player1 : player2;
+            let currentBPM = 120;
+            let targetBPM = 120;
+            let tempoInterval = null;
+            
+            window[`referenceBPM${deckNumber}`] = 120;
+        
+            tempoSlider.addEventListener('input', () => {
+                targetBPM = parseInt(tempoSlider.value);
+                tempoValue.textContent = targetBPM;
+                
+                const targetRate = targetBPM / window[`referenceBPM${deckNumber}`];
+                
+                if (tempoInterval) {
+                    clearInterval(tempoInterval);
+                }
+                
+                tempoInterval = setInterval(() => {
+                    if (Math.abs(currentBPM - targetBPM) < 1) {
+                        currentBPM = targetBPM;
+                        const exactRate = currentBPM / window[`referenceBPM${deckNumber}`];
+                        
+                        if (player && typeof player.setPlaybackRate === 'function') {
+                            player.setPlaybackRate(exactRate);
+                            // Restart loop if active to adjust for new playback rate
+                            if (window['loopActive' + deckNumber]) {
+                                startLoop(deckNumber, window['loopBeats' + deckNumber]);
+                            }
+                        }
+                        clearInterval(tempoInterval);
+                        tempoInterval = null;
+                        return;
+                    }
+                    
+                    if (currentBPM < targetBPM) {
+                        currentBPM += 1;
+                    } else {
+                        currentBPM -= 1;
+                    }
+                    
+                    const newRate = currentBPM / window[`referenceBPM${deckNumber}`];
+                    
+                    if (player && typeof player.setPlaybackRate === 'function') {
+                        player.setPlaybackRate(newRate);
+                        // Restart loop if active to adjust for new playback rate
+                        if (window['loopActive' + deckNumber]) {
+                            startLoop(deckNumber, window['loopBeats' + deckNumber]);
+                        }
+                        console.log(`Deck ${deckNumber} BPM: ${currentBPM} (rate: ${newRate.toFixed(2)}x)`);
+                    }
+                }, 50);
+            });
+            
+            window[`setReferenceBPM${deckNumber}`] = function(bpm) {
+                window[`referenceBPM${deckNumber}`] = bpm;
+                if (player && typeof player.setPlaybackRate === 'function') {
+                    const newRate = targetBPM / bpm;
+                    player.setPlaybackRate(newRate);
+                    // Restart loop if active to adjust for new playback rate
+                    if (window['loopActive' + deckNumber]) {
+                        startLoop(deckNumber, window['loopBeats' + deckNumber]);
+                    }
+                }
+            };
+        }
+
+        function searchYouTubeForDeck(deck) {
+            const query = document.getElementById(`search-${deck}`).value;
+            if (query.trim() === '') {
+                alert('Please enter a search term.');
+                return;
             }
 
-            alert('Video replaced successfully.');
-          } catch (err) {
-            console.error('Replace video failed:', err);
-            alert('Failed to replace video.');
-          }
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=50&key=${apiKey}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error && data.error.code === 403) {
+                        alert('Quota exceeded for the current API key. Switching to a new API key...');
+                        switchApiKey();
+                        searchYouTubeForDeck(deck); 
+                    } else {
+                        const dropdown = document.getElementById(`custom-dropdown${deck === 'deck1' ? 1 : 2}`);
+                        dropdown.innerHTML = '';
+                        dropdown.style.display = 'block';
+
+                        if (data.items.length > 0) {
+                            data.items.forEach(video => {
+                                const dropdownItem = document.createElement('div');
+                                dropdownItem.className = 'dropdown-item';
+                                dropdownItem.onclick = () => {
+                                    const selectedVideoId = video.id.videoId;
+                                    const trackTitle = video.snippet.title;
+
+                                    if (deck === 'deck1') {
+                                        player1.loadVideoById(selectedVideoId);
+                                        document.getElementById('current-track-title1').textContent = trackTitle;
+                                    } else {
+                                        player2.loadVideoById(selectedVideoId);
+                                        document.getElementById('current-track-title2').textContent = trackTitle;
+                                    }
+
+                                    dropdown.style.display = 'none';
+                                    addToHistory(trackTitle, selectedVideoId);
+                                    saveHistoryToLocalStorage();
+                                };
+
+                                dropdownItem.innerHTML = `
+                                    <img src="${video.snippet.thumbnails.default.url}" alt="${video.snippet.title} thumbnail">
+                                    <span class="title">${video.snippet.title}</span>
+                                `;
+                                dropdown.appendChild(dropdownItem);
+                            });
+                        }
+                    }
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        function addToHistory(title, videoId) {
+            const historyList = document.getElementById('history-list').getElementsByTagName('tbody')[0];
+            const historyItem = document.createElement('tr');
+            
+            historyItem.innerHTML = `
+                <td contenteditable="true" class="track-title">${title}</td>
+                <td>
+                    <div class="buttons-container">
+                        <button onclick="replayTrack('player1', '${videoId}')">Play on Deck 1</button>
+                        <button onclick="replayTrack('player2', '${videoId}')">Play on Deck 2</button>
+                    </div>
+                    <button class="edit-btn" onclick="editTrackTitle(this)">Edit Title</button>
+                    <button class="delete-btn" onclick="deleteTrack(this)">Delete</button>
+                </td>
+            `;
+            historyItem.setAttribute('data-video-id', videoId);
+
+            historyList.insertBefore(historyItem, historyList.firstChild);
+            document.getElementById('track-count').textContent = historyList.children.length;
+        }
+
+        function replayTrack(playerId, videoId) {
+            const player = playerId === 'player1' ? player1 : player2;
+
+            if (player) {
+                player.loadVideoById(videoId);
+                const historyItems = document.querySelectorAll('#history-list tbody tr');
+                let trackTitle = 'Unknown Track';
+
+                historyItems.forEach(item => {
+                    if (item.getAttribute('data-video-id') === videoId) {
+                        trackTitle = item.querySelector('.track-title').textContent;
+                    }
+                });
+
+                if (playerId === 'player1') {
+                    document.getElementById('current-track-title1').textContent = trackTitle;
+                } else {
+                    document.getElementById('current-track-title2').textContent = trackTitle;
+                }
+            }
+        }
+
+        function editTrackTitle(button) {
+            const trackTitle = button.closest('tr').querySelector('.track-title');
+            trackTitle.contentEditable = true;
+            trackTitle.focus();
+            button.textContent = "Save Title";
+            button.setAttribute('onclick', 'saveTrackTitle(this)');
+        }
+
+        function saveTrackTitle(button) {
+            const trackTitle = button.closest('tr').querySelector('.track-title');
+            trackTitle.contentEditable = false;
+            button.textContent = "Edit Title";
+            button.setAttribute('onclick', 'editTrackTitle(this)');
+            saveHistoryToLocalStorage();
+        }
+
+        function deleteTrack(button) {
+            const historyItem = button.closest('tr');
+            historyItem.remove();
+            saveHistoryToLocalStorage();
+            document.getElementById('track-count').textContent = document.getElementById('history-list').getElementsByTagName('tbody')[0].children.length;
+        }
+
+        function saveHistoryToLocalStorage() {
+            const historyItems = document.querySelectorAll('#history-list tbody tr');
+            const historyData = [];
+            historyItems.forEach(item => {
+                const title = item.querySelector('.track-title').textContent;
+                const videoId = item.getAttribute('data-video-id');
+                historyData.push({ title, videoId });
+            });
+            localStorage.setItem('playedHistory', JSON.stringify(historyData));
+        }
+
+        function loadHistoryFromLocalStorage() {
+            const savedHistory = JSON.parse(localStorage.getItem('playedHistory')) || [];
+            document.getElementById('track-count').textContent = savedHistory.length;
+            savedHistory.reverse().forEach(track => {
+                addToHistory(track.title, track.videoId);
+            });
+        }
+
+        function backupHistory() {
+            const historyData = JSON.parse(localStorage.getItem('playedHistory')) || [];
+            const blob = new Blob([JSON.stringify(historyData, null, 2)], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'played-history.json';
+            link.click();
+        }
+
+        function restoreHistory(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const historyData = JSON.parse(e.target.result);
+                if (Array.isArray(historyData)) {
+                    document.getElementById('history-list').getElementsByTagName('tbody')[0].innerHTML = '';
+                    historyData.reverse().forEach(track => {
+                        addToHistory(track.title, track.videoId);
+                    });
+                    localStorage.setItem('playedHistory', JSON.stringify(historyData));
+                    document.getElementById('track-count').textContent = historyData.length;
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function initBalanceControl() {
+            const balanceSlider = document.getElementById('balance-slider');
+            const volumePercentage = document.getElementById('volume-percentage');
+
+            balanceSlider.addEventListener('input', () => {
+                const balance = balanceSlider.value;
+                const percentage = balance < 50 ? (50 - balance) : (balance - 50);
+                volumePercentage.textContent = `${percentage}%`;
+                if (player1 && player2) {
+                    player1.setVolume(100 - balance);
+                    player2.setVolume(balance);
+                }
+            });
+        }
+
+        function filterHistory() {
+            const query = document.getElementById('history-search').value.toLowerCase();
+            const rows = document.querySelectorAll('#history-list tbody tr');
+            rows.forEach(row => {
+                const title = row.querySelector('.track-title').textContent.toLowerCase();
+                if (title.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('click', (event) => {
+            const dropdown1 = document.getElementById('custom-dropdown1');
+            const dropdown2 = document.getElementById('custom-dropdown2');
+            const searchDeck1 = document.getElementById('search-deck1');
+            const searchDeck2 = document.getElementById('search-deck2');
+
+            const clickedInsideDropdown1 = dropdown1.contains(event.target);
+            const clickedInsideDropdown2 = dropdown2.contains(event.target);
+            const clickedOnSearchDeck1 = searchDeck1.contains(event.target);
+            const clickedOnSearchDeck2 = searchDeck2.contains(event.target);
+
+            if (!clickedInsideDropdown1 && !clickedOnSearchDeck1) {
+                dropdown1.style.display = 'none';
+            }
+            if (!clickedInsideDropdown2 && !clickedOnSearchDeck2) {
+                dropdown2.style.display = 'none';
+            }
+        });
+
+        window.onload = () => {
+            loadYouTubeAPI();
+            initBalanceControl();
+            loadHistoryFromLocalStorage();
+            loadNotes();
         };
-        input.click();
-      }
-    };
-
-    // 18) Remove video
-    window.removeVideo = async function(key, currentVideoUrlEncoded) {
-      console.log('removeVideo called with key:', key, 'and encoded URL:', currentVideoUrlEncoded);
-      const currentVideoUrl = decodeURIComponent(currentVideoUrlEncoded || '');
-      if (!currentVideoUrl) {
-        console.warn('No video URL provided for removal');
-        alert('No video to remove.');
-        return;
-      }
-
-      const confirmRemoval = confirm('Are you sure you want to remove this video? This will delete the video from storage if it is hosted on Firebase.');
-      if (!confirmRemoval) {
-        console.log('Video removal cancelled by user');
-        return;
-      }
-
-      const cardElement = document.querySelector(`[data-key="${key}"]`);
-      const removeButton = document.querySelector(`[data-key="${key}"] button[onclick*="removeVideo"]`);
-      if (cardElement) {
-        cardElement.style.opacity = '0.5';
-        cardElement.style.pointerEvents = 'none';
-      }
-      if (removeButton) {
-        removeButton.disabled = true;
-        removeButton.textContent = 'Removing...';
-      }
-
-      try {
-        // Verify product exists
-        const snapshot = await database.ref(key).once('value');
-        if (!snapshot.exists()) {
-          throw new Error('Product not found in database');
-        }
-        console.log('Product found in database for key:', key);
-
-        // Delete video from storage if it's a Firebase URL
-        if (isFirebaseStorageUrl(currentVideoUrl)) {
-          console.log('Attempting to delete video from Firebase storage:', currentVideoUrl);
-          try {
-            await storage.refFromURL(currentVideoUrl).delete();
-            console.log('Video deleted from storage successfully');
-          } catch (err) {
-            console.warn('Failed to delete video from storage:', err.message || err);
-            // Continue to clear videourl even if storage deletion fails
-          }
-        } else {
-          console.log('Video URL is not a Firebase storage URL, skipping storage deletion:', currentVideoUrl);
-        }
-
-        // Update database to clear videourl
-        console.log('Updating database to clear videourl for key:', key);
-        await database.ref(key).update({ videourl: '' });
-        console.log('Database updated, videourl cleared');
-
-        // Force UI update in case listener fails
-        const index = products.findIndex(p => p.key === key);
-        if (index !== -1) {
-          products[index].data.videourl = '';
-        }
-        batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
-
-        alert('Video removed successfully.');
-      } catch (err) {
-        console.error('Remove video failed:', err);
-        let errorMessage = err.message || 'Unknown error';
-        if (err.code === 'storage/unauthorized') {
-          errorMessage = 'Permission denied. Check Firebase Storage rules.';
-        } else if (err.code === 'storage/object-not-found') {
-          errorMessage = 'Video file not found in storage. Clearing URL anyway.';
-          // Attempt to clear videourl even if storage deletion fails
-          try {
-            await database.ref(key).update({ videourl: '' });
-            console.log('Database updated, videourl cleared after storage error');
-            alert('Video file not found in storage, but URL cleared successfully.');
-          } catch (dbErr) {
-            console.error('Database update failed after storage error:', dbErr);
-            alert(`Failed to clear video URL: ${dbErr.message || 'Unknown error'}.`);
-          }
-        }
-        if (err.message !== 'Product not found in database') {
-          alert(`Failed to remove video: ${errorMessage}. Please check your Firebase permissions and try again.`);
-        }
-      } finally {
-        if (cardElement) {
-          cardElement.style.opacity = '1';
-          cardElement.style.pointerEvents = 'auto';
-        }
-        if (removeButton) {
-          removeButton.disabled = false;
-          removeButton.textContent = 'Remove Video';
-        }
-      }
-    };
-  </script>
+    </script>
 </body>
 </html>
