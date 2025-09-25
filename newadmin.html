@@ -509,7 +509,6 @@
             }
           );
         });
-        alert('Product uploaded successfully.');
       } catch (err) {
         console.error('Image upload failed:', err.message || err);
         statusEl.textContent = `Failed: ${err.message || 'Unknown error'}`;
@@ -975,7 +974,7 @@
 
             if (currentVideoUrl && isFirebaseStorageUrl(currentVideoUrl)) {
               storage.refFromURL(currentVideoUrl).delete().catch(err => {
-                console.warn('Old video delete failed:', err);
+              console.warn('Old video delete failed:', err);
               });
             }
 
