@@ -489,11 +489,43 @@
         width: 100%;
       }
     }
+
+    /* Fixed Your Order Button */
+    .fixed-order-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1070;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      box-shadow: var(--card-shadow);
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .fixed-order-button:hover {
+      background-color: #2e7d32;
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 767.98px) {
+      .fixed-order-button {
+        bottom: 10px;
+        right: 10px;
+        padding: 6px 10px;
+        font-size: 11px;
+      }
+    }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 </head>
 <body ng-controller="imagesController as vm">
-  <div id="login-container" style="background-image: url(https://hunkaammy.github.io/mywebsite/NEWWEBSITE/loginpg.jpeg);">
+  <div id="login-container" style="background-image: ur[](https://hunkaammy.github.io/mywebsite/NEWWEBSITE/loginpg.jpeg);">
     <div id="inside">
       <h2 class="mb-4">HINDUSTAN TOYS</h2>
       <input type="text" id="name" placeholder="Enter your shop name" class="form-control mb-2" autocomplete="off">
@@ -531,6 +563,11 @@
         </div>
       </div>
     </div>
+
+    <!-- Fixed Your Order Button -->
+    <button class="fixed-order-button" ng-if="dynamicField2Value" ng-click="openOrderModal()">
+      <i class="fas fa-shopping-cart me-1"></i>Your Order
+    </button>
 
     <div class="search-results-container p-3" ng-if="isSearching">
         <h2 class="page-title">Search Results for "{{ searchQuery }}"</h2>
@@ -1045,6 +1082,16 @@
           }
         }, 0);
 
+        $scope.openOrderModal = function() {
+          try {
+            var orderModalEl = document.getElementById('myModal');
+            var orderModal = bootstrap.Modal.getInstance(orderModalEl) || new bootstrap.Modal(orderModalEl);
+            orderModal.show();
+          } catch (e) {
+            console.error("Open Order Modal Error:", e);
+          }
+        };
+
         $scope.onSearchChange = function() {
           try {
             if ($scope.searchQuery && $scope.searchQuery.length > 0) {
@@ -1401,5 +1448,3 @@
   </script>
 </body>
 </html>
-
-
