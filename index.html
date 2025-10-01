@@ -993,8 +993,9 @@
 
         var submitApp = firebase.apps.find(app => app.name === 'submitApp') || firebase.initializeApp(submitConfig, 'submitApp');
         var submitDb = submitApp.database().ref();
-        
-        fetchDb.once('value').then(function(snapshot) {
+
+        // Real-time listener for products
+        var productsListener = fetchDb.on('value', function(snapshot) {
           const allData = [];
           snapshot.forEach(function(childSnapshot) {
             var item = childSnapshot.val();
@@ -1018,7 +1019,7 @@
             $scope.isLoadingNewlyArrived = false;
             $scope.updateDisplayedProducts();
           });
-        }).catch(function(error) {
+        }, function(error) {
           console.error("Error loading products:", error);
           $scope.$applyAsync(function() {
             $scope.isLoading = false;
@@ -1392,6 +1393,8 @@
 
         $scope.logout = function() {
           try {
+            // Unsubscribe from real-time listener on logout
+            fetchDb.off('value', productsListener);
             localStorage.clear();
             $window.location.reload();
           } catch (e) {
