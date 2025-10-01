@@ -565,7 +565,7 @@
     </div>
 
     <!-- Fixed Your Order Button -->
-    <button class="fixed-order-button" ng-if="dynamicField2Value" ng-click="openOrderModal()">
+    <button class="fixed-order-button" ng-if="dynamicField2Value && !isOrderModalOpen && !isEnlargedImageOpen" ng-click="openOrderModal()">
       <i class="fas fa-shopping-cart me-1"></i>Your Order
     </button>
 
@@ -970,6 +970,8 @@
         $scope.sortOrder = 'default';
         $scope.dynamicField2Value = localStorage.getItem('name') || '';
         $scope.priceVisible = localStorage.getItem('priceVisible') !== 'false';
+        $scope.isOrderModalOpen = false;
+        $scope.isEnlargedImageOpen = false;
         
         $scope.isLoading = true;
         $scope.isLoadingCategories = true;
@@ -1274,6 +1276,8 @@
               overlay.style.display = 'flex';
               overlay.querySelector('img').src = src || '';
               isEnlargedImageOpen = true;
+              $scope.isEnlargedImageOpen = true;
+              $scope.$applyAsync();
               history.pushState({ state: 'enlargedImage', fromProductModal: !!fromProductModal }, null, location.href);
             }
           } catch (e) {
@@ -1287,6 +1291,8 @@
             if (overlay) {
               overlay.style.display = 'none';
               isEnlargedImageOpen = false;
+              $scope.isEnlargedImageOpen = false;
+              $scope.$applyAsync();
               var productModalEl = document.getElementById('productModal');
               var productModal = bootstrap.Modal.getInstance(productModalEl);
               if (productModal && productModalEl.classList.contains('show')) {
@@ -1434,6 +1440,20 @@
                     document.body.appendChild(backdrop);
                   }
                 }
+              });
+            }
+
+            var orderModalEl = document.getElementById('myModal');
+            if (orderModalEl) {
+              orderModalEl.addEventListener('show.bs.modal', function() {
+                $scope.$applyAsync(function() {
+                  $scope.isOrderModalOpen = true;
+                });
+              });
+              orderModalEl.addEventListener('hide.bs.modal', function() {
+                $scope.$applyAsync(function() {
+                  $scope.isOrderModalOpen = false;
+                });
               });
             }
           } catch (e) {
