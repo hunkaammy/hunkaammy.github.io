@@ -17,6 +17,7 @@
             height: 100%;
             margin: 0;
             padding: 0;
+            -webkit-text-size-adjust: 100%;
         }
 
         body {
@@ -30,6 +31,12 @@
             position: relative;
             margin: 0 !important;
             padding: 0 !important;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
         body::before {
@@ -380,6 +387,8 @@
             position: relative;
             overflow: hidden;
             box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
+            touch-action: manipulation;
+            -webkit-overflow-scrolling: touch;
         }
 
         .player-container {
@@ -400,6 +409,14 @@
         #youtube-player1, #youtube-player2 {
             width: 100%;
             height: 100%;
+        }
+
+        #youtube-player1 iframe, #youtube-player2 iframe {
+            width: 100% !important;
+            height: 100% !important;
+            border: none;
+            display: block;
+            pointer-events: auto;
         }
 
         .controls {
@@ -625,7 +642,7 @@
         /* Tablet specific adjustments */
         @media (min-width: 769px) and (max-width: 1024px) {
             .sidebar {
-                width: 260px;
+                width: 280px;
                 padding: 12px;
             }
 
@@ -1005,6 +1022,16 @@
         let repeatMode = 'off'; // 'off', 'one', 'all'
         let shuffleMode = false;
         let isMuted = false;
+
+        // Disable double-tap zoom on video player
+        let lastTouchEnd = 0;
+        document.querySelector('.video-player').addEventListener('touchend', function (event) {
+            let now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
 
         function loadYouTubeAPI() {
             const tag = document.createElement('script');
