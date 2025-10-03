@@ -13,6 +13,12 @@
             box-sizing: border-box;
         }
 
+        html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
@@ -22,6 +28,8 @@
             display: flex;
             flex-direction: column;
             position: relative;
+            margin: 0 !important;
+            padding: 0 !important;
         }
 
         body::before {
@@ -46,7 +54,7 @@
             background: rgba(0, 0, 0, 0.15);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            padding: 15px 30px;
+            padding: 15px;
             display: flex;
             align-items: center;
             gap: 20px;
@@ -138,7 +146,7 @@
             background: rgba(0, 0, 0, 0.25);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            padding: 25px;
+            padding: 15px;
             overflow-y: auto;
             border-right: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
@@ -260,7 +268,7 @@
         }
 
         .current-track {
-            padding: 25px;
+            padding: 15px;
             background: rgba(0, 0, 0, 0.15);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -304,7 +312,7 @@
         }
 
         .progress-section {
-            padding: 0 25px 20px;
+            padding: 0 15px 15px;
             background: rgba(0, 0, 0, 0.15);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -351,7 +359,6 @@
         .video-player {
             flex: 1;
             position: relative;
-            border-radius: 0 0 20px 20px;
             overflow: hidden;
             box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.3);
         }
@@ -364,7 +371,6 @@
             height: 100%;
             opacity: 1;
             transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            border-radius: 0 0 20px 20px;
         }
 
         .player-container.hidden {
@@ -375,11 +381,10 @@
         #youtube-player1, #youtube-player2 {
             width: 100%;
             height: 100%;
-            border-radius: 0 0 20px 20px;
         }
 
         .controls {
-            padding: 25px;
+            padding: 15px;
             background: rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -594,7 +599,7 @@
             }
 
             .controls {
-                padding: 20px;
+                padding: 15px;
                 gap: 10px;
             }
 
@@ -620,7 +625,7 @@
             .sidebar {
                 width: 100%;
                 height: 220px;
-                padding: 20px;
+                padding: 15px;
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
                 border-right: none;
@@ -628,7 +633,7 @@
             }
 
             .header {
-                padding: 12px 20px;
+                padding: 12px;
             }
 
             .logo {
@@ -637,7 +642,7 @@
 
             .controls {
                 justify-content: space-between;
-                padding: 15px 20px;
+                padding: 15px;
                 gap: 10px;
                 flex-wrap: wrap;
             }
@@ -721,7 +726,11 @@
             }
 
             .progress-section {
-                padding: 0 20px 15px;
+                padding: 0 15px 15px;
+            }
+
+            .current-track {
+                padding: 15px;
             }
         }
 
@@ -762,7 +771,7 @@
             }
 
             .current-track {
-                padding: 20px;
+                padding: 12px;
                 gap: 15px;
             }
 
