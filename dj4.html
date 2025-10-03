@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Modern YouTube Music Player</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -146,8 +146,10 @@
             -webkit-backdrop-filter: blur(20px);
             padding: 15px;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             border-right: 1px solid rgba(255, 255, 255, 0.05);
             box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
         }
 
         .sidebar h3 {
@@ -171,6 +173,7 @@
             border: 1px solid rgba(255, 255, 255, 0.03);
             position: relative;
             overflow: hidden;
+            min-height: 70px;
         }
 
         .playlist-item::before {
@@ -212,10 +215,12 @@
             margin-right: 15px;
             object-fit: cover;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            flex-shrink: 0;
         }
 
         .playlist-info {
             flex: 1;
+            min-width: 0;
         }
 
         .playlist-title {
@@ -231,6 +236,9 @@
             font-size: 13px;
             color: rgba(255, 255, 255, 0.6);
             font-weight: 300;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .delete-btn {
@@ -248,6 +256,7 @@
             transition: all 0.3s ease;
             margin-left: auto;
             opacity: 0.7;
+            flex-shrink: 0;
         }
 
         .delete-btn:hover,
@@ -290,10 +299,16 @@
             object-fit: cover;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
             transition: transform 0.3s ease;
+            flex-shrink: 0;
         }
 
         .current-track:hover .current-thumbnail {
             transform: scale(1.05);
+        }
+
+        .current-info {
+            flex: 1;
+            min-width: 0;
         }
 
         .current-info h2 {
@@ -301,12 +316,18 @@
             font-weight: 600;
             margin-bottom: 6px;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .current-info p {
             color: rgba(255, 255, 255, 0.8);
             font-size: 15px;
             font-weight: 400;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .progress-section {
@@ -526,6 +547,7 @@
             -webkit-backdrop-filter: blur(20px);
             max-height: 350px;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             display: none;
             z-index: 20;
             border-radius: 0 0 20px 20px;
@@ -541,6 +563,7 @@
             align-items: center;
             gap: 12px;
             transition: all 0.3s ease;
+            min-height: 60px;
         }
 
         .search-result-item:hover,
@@ -556,6 +579,12 @@
             border-radius: 8px;
             object-fit: cover;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            flex-shrink: 0;
+        }
+
+        .search-result-info {
+            flex: 1;
+            min-width: 0;
         }
 
         .search-result-info h4 {
@@ -571,6 +600,9 @@
             font-size: 13px;
             color: rgba(255, 255, 255, 0.6);
             font-weight: 300;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         /* Empty state for playlist */
@@ -590,31 +622,73 @@
             font-size: 14px;
         }
 
-        /* Tablet and Mobile Responsiveness */
-        @media (max-width: 1024px) {
+        /* Tablet specific adjustments */
+        @media (min-width: 769px) and (max-width: 1024px) {
             .sidebar {
-                width: 280px;
+                width: 260px;
+                padding: 12px;
+            }
+
+            .playlist-item {
+                padding: 12px;
+                margin-bottom: 10px;
+            }
+
+            .playlist-item img {
+                width: 50px;
+                height: 50px;
+            }
+
+            .playlist-title {
+                font-size: 14px;
+            }
+
+            .playlist-duration {
+                font-size: 12px;
+            }
+
+            .delete-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 16px;
+            }
+
+            .header {
+                padding: 12px;
+                gap: 15px;
+            }
+
+            .logo {
+                font-size: 26px;
             }
 
             .controls {
-                padding: 15px;
-                gap: 10px;
+                padding: 12px;
+                gap: 12px;
             }
 
-            .volume-container {
-                gap: 8px;
+            .playback-controls {
+                gap: 12px;
+            }
+
+            .control-btn {
+                width: 52px;
+                height: 52px;
+                font-size: 20px;
+            }
+
+            .play-btn {
+                width: 62px;
+                height: 62px;
+                font-size: 24px;
             }
 
             .slider-container {
-                min-width: 120px;
-            }
-
-            .volume-slider,
-            .crossfade-slider {
-                flex: 1;
+                min-width: 130px;
             }
         }
 
+        /* Mobile Responsiveness */
         @media (max-width: 768px) {
             .main-content {
                 flex-direction: column;
@@ -622,18 +696,18 @@
 
             .sidebar {
                 width: 100%;
-                height: 220px;
+                height: 250px;
                 padding: 15px;
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
                 border-right: none;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-                min-height: 220px; /* Ensure consistent height */
+                min-height: 250px;
             }
 
             .header {
                 padding: 12px;
-                gap: 12px; /* Reduce gap for smaller screens */
+                gap: 12px;
             }
 
             .logo {
@@ -645,7 +719,7 @@
                 padding: 12px 15px;
                 gap: 10px;
                 flex-wrap: wrap;
-                min-height: 70px; /* Ensure touch-friendly height */
+                min-height: 70px;
             }
 
             .playback-controls {
@@ -656,7 +730,7 @@
                 width: 50px;
                 height: 50px;
                 font-size: 20px;
-                min-width: 50px; /* Touch target minimum */
+                min-width: 50px;
                 min-height: 50px;
             }
 
@@ -707,12 +781,13 @@
             .volume-slider,
             .crossfade-slider {
                 flex: 1;
-                min-height: 6px; /* Ensure slider height for touch */
+                min-height: 6px;
             }
 
             .playlist-item {
                 padding: 12px;
-                gap: 12px; /* Better spacing */
+                gap: 12px;
+                min-height: 70px;
             }
 
             .playlist-item img {
@@ -738,7 +813,7 @@
 
             .search-input {
                 padding: 12px 44px 12px 16px;
-                font-size: 16px; /* Prevents zoom on iOS */
+                font-size: 16px;
             }
 
             .progress-section {
@@ -751,13 +826,13 @@
             }
 
             .search-results {
-                max-height: 50vh; /* Relative to viewport for mobile */
+                max-height: 50vh;
                 border-radius: 0 0 15px 15px;
             }
 
             .search-result-item {
                 padding: 16px;
-                min-height: 60px; /* Touch-friendly */
+                min-height: 60px;
             }
         }
 
@@ -802,7 +877,7 @@
             .volume-slider,
             .crossfade-slider {
                 width: 100px;
-                min-height: 8px; /* Slightly thicker for touch */
+                min-height: 8px;
             }
 
             .current-track {
@@ -831,7 +906,18 @@
             }
 
             .sidebar {
-                height: 200px; /* Slightly reduced for very small screens */
+                height: 220px;
+                padding: 12px;
+            }
+
+            .playlist-item {
+                padding: 10px;
+                min-height: 65px;
+            }
+
+            .playlist-item img {
+                width: 45px;
+                height: 45px;
             }
         }
     </style>
