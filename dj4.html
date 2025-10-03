@@ -118,9 +118,11 @@
             box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
         }
 
-        .search-btn:hover {
+        .search-btn:hover,
+        .search-btn:focus-visible {
             transform: translateY(-50%) scale(1.1);
             box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+            outline: none;
         }
 
         .main-content {
@@ -186,6 +188,11 @@
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
         }
 
+        .playlist-item:focus-within {
+            outline: 2px solid #ff6b6b;
+            outline-offset: 2px;
+        }
+
         .playlist-item.active {
             background: linear-gradient(45deg, rgba(255, 107, 107, 0.3), rgba(255, 217, 61, 0.3));
             border-color: #ff6b6b;
@@ -218,6 +225,31 @@
             font-size: 13px;
             color: rgba(255, 255, 255, 0.7);
             font-weight: 300;
+        }
+
+        .delete-btn {
+            background: rgba(255, 0, 0, 0.5);
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            margin-left: auto;
+            opacity: 0.7;
+        }
+
+        .delete-btn:hover,
+        .delete-btn:focus-visible {
+            background: #ff0000;
+            transform: scale(1.1);
+            opacity: 1;
+            outline: none;
         }
 
         .player-section {
@@ -323,10 +355,12 @@
             justify-content: center;
         }
 
-        .control-btn:hover {
+        .control-btn:hover,
+        .control-btn:focus-visible {
             background: rgba(255, 255, 255, 0.2);
             transform: scale(1.1);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            outline: none;
         }
 
         .play-btn {
@@ -337,10 +371,12 @@
             box-shadow: 0 6px 25px rgba(255, 107, 107, 0.4);
         }
 
-        .play-btn:hover {
+        .play-btn:hover,
+        .play-btn:focus-visible {
             background: linear-gradient(45deg, #ff5252, #ffc107);
             transform: scale(1.15);
             box-shadow: 0 8px 30px rgba(255, 107, 107, 0.5);
+            outline: none;
         }
 
         .volume-container {
@@ -364,6 +400,12 @@
             cursor: pointer;
             appearance: none;
             transition: background 0.3s ease;
+            -webkit-appearance: none;
+        }
+
+        .volume-slider:focus {
+            outline: 2px solid #ff6b6b;
+            outline-offset: 2px;
         }
 
         .volume-slider:hover {
@@ -411,9 +453,11 @@
             transition: all 0.3s ease;
         }
 
-        .search-result-item:hover {
+        .search-result-item:hover,
+        .search-result-item:focus {
             background: rgba(255, 107, 107, 0.1);
             transform: translateX(5px);
+            outline: none;
         }
 
         .search-result-thumbnail {
@@ -439,6 +483,27 @@
             font-weight: 300;
         }
 
+        /* Tablet and Mobile Responsiveness */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 280px;
+            }
+
+            .controls {
+                padding: 20px;
+                gap: 10px;
+            }
+
+            .volume-container {
+                gap: 8px;
+            }
+
+            .volume-slider,
+            .crossfade-slider {
+                width: 100px;
+            }
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 flex-direction: column;
@@ -448,6 +513,8 @@
                 width: 100%;
                 height: 220px;
                 padding: 20px;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
             }
 
             .header {
@@ -461,19 +528,79 @@
             .controls {
                 justify-content: space-between;
                 padding: 15px 20px;
+                gap: 10px;
+            }
+
+            .control-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+
+            .play-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
             }
 
             .volume-container {
                 gap: 8px;
+                flex: 1;
+                justify-content: flex-end;
             }
 
-            .volume-slider {
-                width: 80px;
+            .volume-container .control-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
             }
 
+            .volume-slider,
             .crossfade-slider {
                 width: 80px;
-                margin-left: 10px;
+            }
+
+            .playlist-item {
+                padding: 12px;
+            }
+
+            .playlist-item img {
+                width: 45px;
+                height: 45px;
+            }
+
+            .delete-btn {
+                width: 25px;
+                height: 25px;
+                font-size: 16px;
+            }
+
+            .search-btn {
+                width: 40px;
+                height: 40px;
+            }
+
+            .search-input {
+                padding: 12px 45px 12px 16px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .controls {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .volume-container {
+                order: -1;
+                width: 100%;
+                justify-content: center;
+            }
+
+            .volume-slider,
+            .crossfade-slider {
+                width: 60px;
             }
         }
     </style>
@@ -483,7 +610,7 @@
         <div class="logo">MusicFlow</div>
         <div class="search-container">
             <input type="text" class="search-input" id="searchInput" placeholder="Search for songs..." oninput="handleSearchInput()">
-            <button class="search-btn" onclick="searchVideos()">🔍</button>
+            <button class="search-btn" onclick="searchVideos()" aria-label="Search">🔍</button>
             <div class="search-results" id="searchResults"></div>
         </div>
     </div>
@@ -510,13 +637,13 @@
                 </div>
             </div>
             <div class="controls">
-                <button class="control-btn" onclick="previousTrack()">⏮</button>
-                <button class="control-btn play-btn" id="playPauseBtn" onclick="togglePlay()">▶</button>
-                <button class="control-btn" onclick="nextTrack()">⏭</button>
+                <button class="control-btn" onclick="previousTrack()" aria-label="Previous Track">⏮</button>
+                <button class="control-btn play-btn" id="playPauseBtn" onclick="togglePlay()" aria-label="Play/Pause">▶</button>
+                <button class="control-btn" onclick="nextTrack()" aria-label="Next Track">⏭</button>
                 <div class="volume-container">
-                    <button class="control-btn">🔊</button>
-                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="50">
-                    <input type="range" class="volume-slider crossfade-slider" id="crossfadeSlider" min="0" max="100" value="0" title="Crossfade">
+                    <button class="control-btn" aria-label="Volume">🔊</button>
+                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="50" aria-label="Volume">
+                    <input type="range" class="volume-slider crossfade-slider" id="crossfadeSlider" min="0" max="100" value="0" title="Crossfade" aria-label="Crossfade">
                 </div>
             </div>
         </div>
@@ -611,8 +738,10 @@
             const playPauseBtn = document.getElementById('playPauseBtn');
             if (event.data === YT.PlayerState.PLAYING) {
                 playPauseBtn.innerHTML = '⏸';
+                playPauseBtn.setAttribute('aria-label', 'Pause');
             } else if (event.data === YT.PlayerState.PAUSED) {
                 playPauseBtn.innerHTML = '▶';
+                playPauseBtn.setAttribute('aria-label', 'Play');
             }
             // Avoid auto-next during manual transitions to prevent conflicts
             if (event.data === YT.PlayerState.ENDED && currentIndex < playlist.length - 1 && !fadeInterval) {
@@ -667,11 +796,9 @@
                         const video = item.video;
                         const div = document.createElement('div');
                         div.className = 'search-result-item';
-                        div.onclick = () => {
-                            addToPlaylist(video.videoId, video.title, video.thumbnails[0]?.url || '');
-                            resultsDiv.style.display = 'none';
-                            document.getElementById('searchInput').value = '';
-                        };
+                        div.tabIndex = 0;
+                        div.onclick = () => selectSearchResult(video);
+                        div.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') selectSearchResult(video); };
                         div.innerHTML = `
                             <img class="search-result-thumbnail" src="${video.thumbnails[0]?.url || ''}" alt="Thumbnail">
                             <div class="search-result-info">
@@ -687,6 +814,12 @@
             }
         }
 
+        function selectSearchResult(video) {
+            addToPlaylist(video.videoId, video.title, video.thumbnails[0]?.url || '');
+            document.getElementById('searchResults').style.display = 'none';
+            document.getElementById('searchInput').value = '';
+        }
+
         function addToPlaylist(videoId, title, thumbnail) {
             const song = { videoId, title, thumbnail };
             playlist.unshift(song);
@@ -694,6 +827,29 @@
             loadPlaylist();
             // For search plays, always use transition if something is playing
             playSong(song, currentIndex !== -1);
+        }
+
+        function deleteFromPlaylist(index) {
+            if (confirm('Delete this song from playlist?')) {
+                const deletedSong = playlist[index];
+                playlist.splice(index, 1);
+                savePlaylist();
+                loadPlaylist();
+
+                // Handle current index
+                if (index === currentIndex) {
+                    if (activePlayer) {
+                        activePlayer.stopVideo();
+                    }
+                    currentIndex = -1;
+                    document.getElementById('currentTitle').textContent = 'No song playing';
+                    document.getElementById('currentArtist').textContent = 'Select a song to start';
+                    document.getElementById('currentThumbnail').src = '';
+                    document.getElementById('playPauseBtn').innerHTML = '▶';
+                } else if (index < currentIndex) {
+                    currentIndex--;
+                }
+            }
         }
 
         function playSong(song, isTransition = false) {
@@ -725,11 +881,16 @@
                     activePlayer.seekTo(seekTime, true);
                     activePlayer.playVideo();
                 }, 300);
-                document.getElementById('currentTitle').textContent = song.title;
-                document.getElementById('currentThumbnail').src = song.thumbnail || '';
+                updateCurrentUI(song);
                 currentIndex = playlist.findIndex(s => s.videoId === song.videoId);
                 updatePlaylistHighlight();
             }
+        }
+
+        function updateCurrentUI(song) {
+            document.getElementById('currentTitle').textContent = song.title;
+            document.getElementById('currentThumbnail').src = song.thumbnail || '';
+            document.getElementById('currentArtist').textContent = ''; // Can be enhanced if artist data available
         }
 
         function startVolumeFade(active, inactive, song) {
@@ -757,8 +918,7 @@
                     // Switch players with a smooth opacity transition
                     switchPlayer(inactive, active);
                     // Update UI
-                    document.getElementById('currentTitle').textContent = song.title;
-                    document.getElementById('currentThumbnail').src = song.thumbnail || '';
+                    updateCurrentUI(song);
                     currentIndex = playlist.findIndex(s => s.videoId === song.videoId);
                     updatePlaylistHighlight();
                     // Stop old player
@@ -802,9 +962,16 @@
             playlist.forEach((song, index) => {
                 const div = document.createElement('div');
                 div.className = `playlist-item ${index === currentIndex ? 'active' : ''}`;
+                div.tabIndex = 0;
                 div.onclick = (e) => {
-                    e.stopPropagation();
+                    if (e.target.classList.contains('delete-btn')) return;
                     playAtIndex(index);
+                };
+                div.onkeydown = (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        if (e.target.querySelector('.delete-btn')) return;
+                        playAtIndex(index);
+                    }
                 };
                 div.innerHTML = `
                     <img src="${song.thumbnail || ''}" alt="Thumbnail">
@@ -812,6 +979,7 @@
                         <div class="playlist-title">${song.title}</div>
                         <div class="playlist-duration">Song ${index + 1}</div>
                     </div>
+                    <button class="delete-btn" onclick="deleteFromPlaylist(${index})" aria-label="Delete song">×</button>
                 `;
                 playlistDiv.appendChild(div);
             });
@@ -849,8 +1017,17 @@
             }
         });
 
-        // Load API
+        // Keyboard support for play/pause
+        document.addEventListener('keydown', (e) => {
+            if (e.key === ' ' && e.target === document.body) {
+                e.preventDefault();
+                togglePlay();
+            }
+        });
+
+        // Load API and initial playlist
         loadYouTubeAPI();
+        loadPlaylist();
     </script>
 </body>
 </html>
