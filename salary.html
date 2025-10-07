@@ -1,0 +1,1349 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Staff Attendance (Firebase Realtime Database)</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      color: #111;
+      --primary: #007bff;
+      --success: #28a745;
+      --warning: #ffc107;
+      --danger: #dc3545;
+      --light: #f8f9fa;
+      --dark: #343a40;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --border-radius: 8px;
+      --transition: all 0.2s ease-in-out;
+    }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+    }
+    h1 {
+      font-size: 24px;
+      margin: 0 0 16px;
+      background: linear-gradient(135deg, var(--primary), #0056b3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .wrap {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
+    }
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--dark);
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+      transition: var(--transition);
+      box-sizing: border-box;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+    button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    button:hover {
+      background: #0056b3;
+      transform: translateY(-1px);
+    }
+    .staff-list {
+      margin-top: 16px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .staff-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      border-radius: var(--border-radius);
+      border: 1px solid #eee;
+      margin-bottom: 12px;
+      background: #fafbfc;
+      transition: var(--transition);
+    }
+    .staff-item:hover {
+      background: #f0f4f8;
+      border-color: var(--primary);
+    }
+    .staff-item .meta {
+      font-size: 13px;
+    }
+    .controls {
+      display: flex;
+      gap: 8px;
+    }
+    .small {
+      width: auto;
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 4px;
+    }
+    .attendance-grid {
+      overflow: auto;
+      max-height: 80vh;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background: white;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #eee;
+      text-align: center;
+      min-width: 60px;
+      transition: var(--transition);
+    }
+    th.sticky {
+      position: sticky;
+      left: 0;
+      background: linear-gradient(to bottom, #fff, #f8f9fa);
+      z-index: 2;
+      font-weight: 600;
+      color: var(--dark);
+    }
+    td.namecol {
+      position: sticky;
+      left: 0;
+      background: linear-gradient(to bottom, #fff, #f8f9fa);
+      text-align: left;
+      min-width: 220px;
+      font-weight: 500;
+    }
+    .status-btn {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 50px;
+      border: 1px solid;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+      transition: var(--transition);
+      min-width: 40px;
+    }
+    .status-btn:hover {
+      transform: scale(1.05);
+    }
+    .P {
+      background: #d4edda;
+      border-color: #c3e6cb;
+      color: #155724;
+    }
+    .H {
+      background: #fff3cd;
+      border-color: #ffeaa7;
+      color: #856404;
+    }
+    .A {
+      background: #f8d7da;
+      border-color: #f5c6cb;
+      color: #721c24;
+    }
+    .legend {
+      display: flex;
+      gap: 12px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--dark);
+    }
+    .muted {
+      color: #6c757d;
+      font-size: 13px;
+    }
+    footer {
+      margin-top: 16px;
+      font-size: 12px;
+      color: #868e96;
+      line-height: 1.5;
+      padding-top: 12px;
+      border-top: 1px solid #dee2e6;
+    }
+    .salary-section {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid #dee2e6;
+      background: var(--light);
+      border-radius: var(--border-radius);
+      padding: 16px;
+    }
+    .salary-inputs {
+      display: flex;
+      gap: 12px;
+      align-items: end;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .salary-inputs > div {
+      flex: 1;
+      min-width: 150px;
+    }
+    .salary-inputs input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+    }
+    .due-info {
+      font-weight: bold;
+      color: var(--primary);
+      font-size: 16px;
+    }
+    .paid-info {
+      font-weight: bold;
+      color: var(--success);
+      font-size: 16px;
+    }
+    .balance-info {
+      font-weight: bold;
+      font-size: 16px;
+    }
+    .positive {
+      color: var(--success);
+    }
+    .negative {
+      color: var(--danger);
+    }
+    .ledger-table {
+      width: 100%;
+      margin-top: 12px;
+    }
+    .ledger-table th, .ledger-table td {
+      padding: 8px;
+      text-align: right;
+      border: 1px solid #eee;
+    }
+    .ledger-table th {
+      text-align: left;
+    }
+    .ledger-table .total {
+      font-weight: bold;
+      background: var(--light);
+    }
+    .tab-controls {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .tab-btn {
+      padding: 8px 16px;
+      border: 1px solid #ddd;
+      background: #fff;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: var(--transition);
+      font-weight: 500;
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .tab-btn:hover {
+      background: #e9ecef;
+    }
+    .month-section {
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #dee2e6;
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+    .month-section .attendance-line,
+    .month-section .financial-line {
+      display: flex;
+      gap: 20px;
+      font-size: 14px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .payments-list {
+      margin-top: 12px;
+    }
+    .payments-list h5 {
+      font-size: 13px;
+      margin: 0 0 8px;
+      color: var(--dark);
+    }
+    .payments-list ul {
+      font-size: 13px;
+      margin: 0;
+      padding-left: 20px;
+      list-style-type: none;
+    }
+    .payments-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      margin-bottom: 4px;
+    }
+    .payments-list .payment-meta {
+      flex: 1;
+      font-weight: 500;
+    }
+    .payments-list .payment-actions {
+      display: flex;
+      gap: 4px;
+    }
+    .payments-list .payment-actions .small {
+      background: #f8f9fa;
+      border-color: #dee2e6;
+      color: var(--dark);
+    }
+    .payments-list .payment-actions .edit-payment-btn {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+    .payments-list .payment-actions .delete-payment-btn {
+      background: var(--danger);
+      border-color: var(--danger);
+      color: white;
+    }
+    .total-section {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid #dee2e6;
+      background: #e9ecef;
+      border-radius: var(--border-radius);
+      padding: 16px;
+    }
+    .total-section h4 {
+      margin: 0 0 12px;
+      font-size: 16px;
+      color: var(--dark);
+    }
+    .total-section .attendance-line,
+    .total-section .financial-line {
+      display: flex;
+      gap: 20px;
+      font-size: 14px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    #historyManager {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      background: var(--light);
+    }
+    .history-entry {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .history-entry input {
+      flex: 1;
+      padding: 6px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 12px;
+      min-width: 120px;
+    }
+    .icon-btn {
+      background: none;
+      border: none;
+      color: var(--primary);
+      cursor: pointer;
+      font-size: 14px;
+      margin-left: 4px;
+      transition: var(--transition);
+    }
+    .icon-btn:hover {
+      color: #0056b3;
+      transform: scale(1.1);
+    }
+    @media (max-width: 880px) {
+      .wrap {
+        grid-template-columns: 1fr;
+      }
+      th, td {
+        min-width: 50px;
+        padding: 8px 4px;
+        font-size: 12px;
+      }
+      .salary-inputs {
+        flex-direction: column;
+      }
+      .salary-inputs > div {
+        min-width: auto;
+      }
+      .month-section .attendance-line,
+      .month-section .financial-line {
+        flex-direction: column;
+        gap: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1><i class="fas fa-users"></i> Staff Attendance (Firebase Realtime Database)</h1>
+  <div class="wrap">
+    <div class="card">
+      <strong><i class="fas fa-user-plus"></i> 1) Add Staff (one-time)</strong>
+      <label for="name">Name</label>
+      <input id="name" placeholder="e.g. Chandni" />
+      <label for="mobile">Mobile</label>
+      <input id="mobile" placeholder="e.g. 9876543210" />
+      <label for="salary">Daily Salary</label>
+      <input id="salary" placeholder="e.g. 500" />
+      <label for="salaryEffectiveDate">Salary Effective Date (for changes)</label>
+      <input id="salaryEffectiveDate" type="date" style="display:none;" />
+      <label for="joiningDate">Joining Date</label>
+      <input id="joiningDate" type="date" />
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button id="addStaff"><i class="fas fa-save"></i> Add / Save</button>
+        <button id="clearAll" class="small"><i class="fas fa-trash"></i> Clear All</button>
+      </div>
+
+      <div class="staff-list" id="staffList"></div>
+
+      <hr style="margin:16px 0"/>
+      <strong><i class="fas fa-cogs"></i> Controls</strong>
+      <label for="selectStaff">Choose staff</label>
+      <select id="selectStaff"></select>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <select id="selMonth" aria-label="Month"></select>
+        <select id="selYear" aria-label="Year"></select>
+      </div>
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <button id="gotoToday" class="small"><i class="fas fa-calendar-day"></i> Go to Today</button>
+        <button id="exportJSON" class="small"><i class="fas fa-download"></i> Export JSON</button>
+      </div>
+
+      <div class="legend">
+        <span><em class="status-btn P"></em> <i class="fas fa-check-circle"></i> Present</span>
+        <span><em class="status-btn H"></em> <i class="fas fa-clock"></i> Half-day</span>
+        <span><em class="status-btn A"></em> <i class="fas fa-times-circle"></i> Absent</span>
+      </div>
+
+      <button id="manageHistory" class="small" style="display:none;margin-top:8px;"><i class="fas fa-history"></i> Manage Salary History</button>
+
+      <div id="historyManager">
+        <div id="historyList"></div>
+        <button id="addHistoryEntry" class="small"><i class="fas fa-plus"></i> Add Entry</button>
+      </div>
+
+      <footer class="muted">Attendance defaults to <strong>Present</strong> for each date up to today when you view a staff member for a month. You can change any date to Half-day or Absent. Data is saved in Firebase Realtime Database.</footer>
+    </div>
+
+    <div class="card attendance-grid">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <h2 style="margin:0;font-size:18px"><i class="fas fa-table"></i> Attendance Table</h2>
+        <div id="currentInfo" class="muted"></div>
+      </div>
+      <div id="tableWrap"></div>
+
+      <div class="salary-section" id="salarySection" style="display:none">
+        <h3 style="margin:0 0 12px;font-size:16px"><i class="fas fa-rupee-sign"></i> Salary for this Month</h3>
+        <div class="salary-inputs">
+          <div style="flex:0.8">
+            <label for="paymentDate" style="font-size:12px;margin:0;display:block;">Payment Date</label>
+            <input id="paymentDate" type="date" />
+          </div>
+          <div style="flex:1">
+            <label for="paidAmount" style="font-size:12px;margin:0;display:block;">Paid Amount</label>
+            <input id="paidAmount" type="number" placeholder="0" step="0.01" />
+          </div>
+          <div style="flex:1.2">
+            <label for="paymentDesc" style="font-size:12px;margin:0;display:block;">Description</label>
+            <input id="paymentDesc" placeholder="e.g. Full salary" />
+          </div>
+          <button id="recordPayment" class="small"><i class="fas fa-plus-circle"></i> Record Payment</button>
+        </div>
+        <div id="monthlyInfo"></div>
+      </div>
+
+      <div class="tab-controls" id="tabControls" style="display:none">
+        <button class="tab-btn active" data-tab="current"><i class="fas fa-calendar-month"></i> Current Month</button>
+        <button class="tab-btn" data-tab="ledger"><i class="fas fa-book"></i> Full Ledger</button>
+      </div>
+
+      <div id="ledgerWrap"></div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script>
+    // --- Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBPc51z-pGrtKwtB5dKTMPei-fVRg4ePME",
+      authDomain: "pagdi-6f8ce.firebaseapp.com",
+      databaseURL: "https://pagdi-6f8ce-default-rtdb.firebaseio.com",
+      projectId: "pagdi-6f8ce",
+      storageBucket: "pagdi-6f8ce.appspot.com",
+      messagingSenderId: "746289566527",
+      appId: "1:746289566527:web:4c32c4fec73bb7e898798a",
+      measurementId: "G-CXW0QZRHFG"
+    };
+
+    // --- Storage keys (FIXED: Use '/' separators for valid Firebase paths)
+    const KEY_STAFF = 'attendance/staffList';
+    const KEY_ATT = 'attendance/records';
+    const KEY_PAYMENTS = 'attendance/payments';
+
+    // --- Firebase helpers
+    let db;
+    async function initFirebase() {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      db = firebase.database();
+    }
+
+    async function loadFromDB(path, fallback) {
+      try {
+        const snapshot = await db.ref(path).once('value');
+        return snapshot.val() || fallback;
+      } catch (e) {
+        console.error('Error loading from DB:', e);
+        return fallback;
+      }
+    }
+
+    function saveToDB(path, val) {
+      db.ref(path).set(val).catch(e => console.error('Error saving to DB:', e));
+    }
+
+    async function removeFromDB(path) {
+      try {
+        await db.ref(path).remove();
+      } catch (e) {
+        console.error('Error removing from DB:', e);
+      }
+    }
+
+    async function saveAll() {
+      saveToDB(KEY_STAFF, staffList);
+      saveToDB(KEY_ATT, records);
+      saveToDB(KEY_PAYMENTS, payments);
+    }
+
+    // --- Helpers
+    function uid(){return 's_'+Math.random().toString(36).slice(2,9)}
+    function formatDate(str) { return str ? new Date(str).toLocaleDateString('en-GB') : 'N/A'; }
+    function setTodayDate(inputEl) {
+      const today = new Date();
+      const y = today.getFullYear();
+      const m = String(today.getMonth() + 1).padStart(2, '0');
+      const d = String(today.getDate()).padStart(2, '0');
+      inputEl.value = `${y}-${m}-${d}`;
+    }
+
+    // --- Data (initialized in initApp)
+    let staffList = [];
+    let records = {};
+    let payments = {};
+
+    // --- Get salary effective on a specific date
+    function getSalaryOnDate(staffId, dateStr) {
+      const staff = staffList.find(s => s.id === staffId);
+      if (!staff) return 0;
+      if (!staff.salaryHistory) return parseFloat(staff?.salary) || 0;
+      const fromDates = Object.keys(staff.salaryHistory).sort((a, b) => b.localeCompare(a)); // descending
+      for (let fd of fromDates) {
+        if (fd <= dateStr) {
+          return staff.salaryHistory[fd];
+        }
+      }
+      return 0;
+    }
+
+    // --- Get opening balance up to the previous month
+    function getOpeningBalance(staffId, targetYear, targetMonth) {
+      const staff = staffList.find(s => s.id === staffId);
+      if (!staff) return 0;
+      const joiningDate = staff.joiningDate || '';
+      const joiningDt = joiningDate ? new Date(joiningDate) : new Date(1970, 0, 1);
+      const joiningYear = joiningDt.getFullYear();
+      const joiningMonth = joiningDt.getMonth();
+      if (targetYear < joiningYear || (targetYear === joiningYear && targetMonth <= joiningMonth)) {
+        return 0;
+      }
+      let y = joiningYear;
+      let mm = joiningMonth;
+      let totalGross = 0;
+      let totalPaid = 0;
+      while (y < targetYear || (y === targetYear && mm < targetMonth)) {
+        totalGross += calculateDue(staffId, y, mm);
+        const ymKey = `${y}-${String(mm + 1).padStart(2, '0')}`;
+        if (payments[staffId] && payments[staffId][ymKey]) {
+          totalPaid += payments[staffId][ymKey].payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+        }
+        mm++;
+        if (mm > 11) {
+          mm = 0;
+          y++;
+        }
+      }
+      return totalGross - totalPaid;
+    }
+
+    // --- Calculate attendance counts for a month
+    function calculateAttendanceCounts(staffId, year, month) {
+      const staff = staffList.find(s => s.id === staffId);
+      if(!staff) return {present:0, half:0, absent:0};
+      const joiningDate = staff.joiningDate || '';
+      const joiningDt = joiningDate ? new Date(joiningDate) : new Date(1970, 0, 1);
+      const monthEnd = new Date(year, month + 1, 0);
+      if(monthEnd < joiningDt) return {present:0, half:0, absent:0};
+      let startDay = 1;
+      if(joiningDt.getFullYear() === year && joiningDt.getMonth() === month) {
+        startDay = joiningDt.getDate();
+      }
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      let numP = 0, numH = 0, numA = 0;
+      const now = new Date();
+      const todayKey = ymd(now);
+      for(let d = startDay; d <= daysInMonth; d++) {
+        const dt = new Date(year, month, d);
+        const key = ymd(dt);
+        if(key > todayKey) continue;
+        let status = records[staffId]?.[key] || 'P';
+        if(status === 'P') numP++;
+        else if(status === 'H') numH++;
+        else numA++;
+      }
+      return {present: numP, half: numH, absent: numA};
+    }
+
+    // --- DOM
+    const nameEl=document.getElementById('name');
+    const mobileEl=document.getElementById('mobile');
+    const salaryEl=document.getElementById('salary');
+    const salaryEffectiveDateEl=document.getElementById('salaryEffectiveDate');
+    const joiningDateEl=document.getElementById('joiningDate');
+    const addBtn=document.getElementById('addStaff');
+    const staffListWrap=document.getElementById('staffList');
+    const selectStaff=document.getElementById('selectStaff');
+    const selMonth=document.getElementById('selMonth');
+    const selYear=document.getElementById('selYear');
+    const tableWrap=document.getElementById('tableWrap');
+    const gotoToday=document.getElementById('gotoToday');
+    const currentInfo=document.getElementById('currentInfo');
+    const exportJSON=document.getElementById('exportJSON');
+    const clearAll=document.getElementById('clearAll');
+    const salarySection=document.getElementById('salarySection');
+    const paymentDateEl=document.getElementById('paymentDate');
+    const paidAmountEl=document.getElementById('paidAmount');
+    const paymentDescEl=document.getElementById('paymentDesc');
+    const recordPaymentBtn=document.getElementById('recordPayment');
+    const monthlyInfo=document.getElementById('monthlyInfo');
+    const tabControls=document.getElementById('tabControls');
+    const ledgerWrap=document.getElementById('ledgerWrap');
+    const manageHistory=document.getElementById('manageHistory');
+    const historyManager=document.getElementById('historyManager');
+    const historyList=document.getElementById('historyList');
+    const addHistoryEntry=document.getElementById('addHistoryEntry');
+
+    // --- Init month/year selects
+    function initMonthYear(){
+      const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+      months.forEach((m,i)=>{const o=document.createElement('option');o.value=i;o.textContent=m;selMonth.appendChild(o)});
+      const yearNow=new Date().getFullYear();
+      for(let y=yearNow-3;y<=yearNow+1;y++){const o=document.createElement('option');o.value=y;o.textContent=y;selYear.appendChild(o)}
+    }
+
+    // --- Render staff list and select
+    function renderStaff(){
+      // select
+      selectStaff.innerHTML='';
+      const blankOption=document.createElement('option');blankOption.value='';blankOption.textContent='-- Select staff --';selectStaff.appendChild(blankOption);
+      staffList.forEach(s=>{
+        const o=document.createElement('option');o.value=s.id;o.textContent=s.name + ' — ' + s.mobile;selectStaff.appendChild(o);
+      });
+
+      // list view
+      staffListWrap.innerHTML='';
+      staffList.forEach(s=>{
+        const div=document.createElement('div');div.className='staff-item';
+        const meta=document.createElement('div');meta.className='meta';meta.innerHTML=`<strong>${s.name}</strong><div style="font-size:12px;color:#666">${s.mobile} • ₹${s.salary}/day • Joined: ${formatDate(s.joiningDate)}</div>`;
+        const ctrl=document.createElement('div');ctrl.className='controls';
+        const edit=document.createElement('button');edit.innerHTML='<i class="fas fa-edit"></i> Edit';edit.className='small';
+        const del=document.createElement('button');del.innerHTML='<i class="fas fa-trash"></i> Delete';del.className='small';
+        edit.onclick=()=>{nameEl.value=s.name;mobileEl.value=s.mobile;salaryEl.value=s.salary;joiningDateEl.value=s.joiningDate||'';salaryEffectiveDateEl.style.display='block';salaryEffectiveDateEl.value=ymd(new Date());addBtn.dataset.edit=s.id;addBtn.textContent='Update'};
+        del.onclick=()=>{if(confirm('Delete staff '+s.name+'?')){staffList=staffList.filter(x=>x.id!==s.id);delete records[s.id];delete payments[s.id];saveAll();renderStaff();renderTable();}}
+        ctrl.appendChild(edit);ctrl.appendChild(del);
+        div.appendChild(meta);div.appendChild(ctrl);staffListWrap.appendChild(div);
+      });
+    }
+
+    addBtn.addEventListener('click', ()=>{
+      const name=nameEl.value.trim();const mobile=mobileEl.value.trim();const salaryStr=salaryEl.value.trim();const joiningDate=joiningDateEl.value;
+      if(!name){alert('Enter name');return}
+      const editing=addBtn.dataset.edit;
+      const newSalary = parseFloat(salaryStr) || 0;
+      let newStaffId;
+      if(editing){
+        const oldStaff = staffList.find(s=>s.id===editing);
+        if(oldStaff){
+          const oldSalary = parseFloat(oldStaff.salary) || 0;
+          oldStaff.name=name;
+          oldStaff.mobile=mobile;
+          oldStaff.salary = newSalary;
+          oldStaff.joiningDate=joiningDate||'';
+          if (newSalary !== oldSalary) {
+            const changeDate = salaryEffectiveDateEl.value || ymd(new Date());
+            if (!oldStaff.salaryHistory) oldStaff.salaryHistory = {};
+            oldStaff.salaryHistory[changeDate] = newSalary;
+          }
+          newStaffId = editing;
+        }
+        delete addBtn.dataset.edit;addBtn.textContent='Add / Save';
+        salaryEffectiveDateEl.style.display='none';
+        salaryEffectiveDateEl.value='';
+      } else {
+        const fromDate = joiningDate || ymd(new Date());
+        const newStaff={id:uid(),name,mobile,salary:newSalary,joiningDate:joiningDate||'',salaryHistory: { [fromDate]: newSalary }};
+        staffList.push(newStaff);
+        newStaffId = newStaff.id;
+        salaryEffectiveDateEl.style.display='none';
+      }
+      nameEl.value=mobileEl.value=salaryEl.value=joiningDateEl.value='';saveAll();renderStaff();
+      selectStaff.value = newStaffId;
+      const activeTab = tabControls.querySelector('.active')?.dataset.tab || 'current';
+      renderTable(activeTab);
+    });
+
+    clearAll.addEventListener('click', async ()=>{if(confirm('Clear ALL data (staff + attendance + payments)?')){await removeFromDB(KEY_STAFF);await removeFromDB(KEY_ATT);await removeFromDB(KEY_PAYMENTS);staffList=[];records={};payments={};renderStaff();renderTable();}})
+
+    // --- Utility: format date YYYY-MM-DD
+    function ymd(d){const y=d.getFullYear();const m=String(d.getMonth()+1).padStart(2,'0');const day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`}
+
+    // --- Utility: format month YYYY-MM
+    function ymm(d){const y=d.getFullYear();const m=String(d.getMonth()+1).padStart(2,'0');return `${y}-${m}`}
+
+    // --- Calculate due for a month (daily rate * worked days) - now with historical rates
+    function calculateDue(staffId, year, month) {
+      const staff = staffList.find(s => s.id === staffId);
+      if(!staff) return 0;
+      const joiningDate = staff.joiningDate || '';
+      const joiningDt = joiningDate ? new Date(joiningDate) : new Date(1970, 0, 1);
+      const monthEnd = new Date(year, month + 1, 0);
+      if(monthEnd < joiningDt) return 0;
+      let startDay = 1;
+      if(joiningDt.getFullYear() === year && joiningDt.getMonth() === month) {
+        startDay = joiningDt.getDate();
+      }
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      let totalDue = 0;
+      const now = new Date();
+      const todayKey = ymd(now);
+      for(let d = startDay; d <= daysInMonth; d++) {
+        const dt = new Date(year, month, d);
+        const key = ymd(dt);
+        let status = 'A';
+        if(key <= todayKey) {
+          status = records[staffId]?.[key] || 'P';
+        }
+        const daily = getSalaryOnDate(staffId, key);
+        if(status === 'P') totalDue += daily;
+        else if(status === 'H') totalDue += 0.5 * daily;
+      }
+      return totalDue;
+    }
+
+    // --- Migrate old payment structure if needed
+    function migratePaymentsForMonth(staffId, ym) {
+      if (!payments[staffId] || !payments[staffId][ym]) return;
+      const monthData = payments[staffId][ym];
+      if (monthData.paid > 0 && (!monthData.payments || monthData.payments.length === 0)) {
+        monthData.payments = [{ amount: monthData.paid, date: monthData.date_paid || ymd(new Date()), description: '' }];
+        delete monthData.paid;
+        delete monthData.date_paid;
+        saveAll();
+      }
+    }
+
+    // --- Build table for chosen staff and month/year
+    function renderTable(activeTab = 'current') {
+      const staffId=selectStaff.value;
+      const month=parseInt(selMonth.value,10);
+      const year=parseInt(selYear.value,10);
+      if(!Number.isFinite(month) || !Number.isFinite(year) || !staffId){tableWrap.innerHTML='<div class="muted">Select a staff and month/year to view attendance.</div>';currentInfo.textContent='';salarySection.style.display='none';tabControls.style.display='none';ledgerWrap.innerHTML='';return}
+      const staff=staffList.find(s=>s.id===staffId);
+      if(!staff){tableWrap.innerHTML='<div class="muted">Staff not found.</div>';return}
+      const joiningDate = staff.joiningDate || '';
+      const joiningDt = joiningDate ? new Date(joiningDate) : new Date(1970, 0, 1);
+      const monthEnd = new Date(year, month + 1, 0);
+      if(monthEnd < joiningDt){tableWrap.innerHTML='<div class="muted">Before joining date.</div>';currentInfo.textContent='';salarySection.style.display='none';tabControls.style.display='none';ledgerWrap.innerHTML='';return}
+      const monthStartKey = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+      const now = new Date();
+      const todayKey = ymd(now);
+      if(monthStartKey > todayKey){tableWrap.innerHTML='<div class="muted">Future month - no attendance yet.</div>';currentInfo.textContent='';salarySection.style.display='none';tabControls.style.display='none';ledgerWrap.innerHTML='';return}
+      let startDay = 1;
+      if(joiningDt.getFullYear() === year && joiningDt.getMonth() === month) {
+        startDay = joiningDt.getDate();
+      }
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      let lastDay;
+      if(ymd(monthEnd) < ymd(now)){
+        lastDay = daysInMonth;
+      }else{
+        lastDay = now.getDate();
+      }
+      lastDay = Math.min(lastDay, daysInMonth);
+
+      // ensure record exists for this staff
+      if(!records[staffId]) records[staffId] = {};
+      // auto-fill dates up to lastDay as Present if not already set and past/today
+      for(let d=startDay; d<=lastDay; d++){
+        const dt = new Date(year, month, d);
+        const key = ymd(dt);
+        if(key <= todayKey && !records[staffId][key]) records[staffId][key] = 'P';
+      }
+      saveAll();
+
+      // build table
+      let html = '<table><thead><tr>';
+      html += '<th class="sticky">Name</th>';
+      for(let d=startDay; d<=lastDay; d++){
+        const dt = new Date(year, month, d);
+        const dayName = dt.toLocaleDateString('en-US', {weekday: 'short'});
+        html += `<th>${d} ${dayName}</th>`;
+      }
+      html += '</tr></thead><tbody>';
+
+      const salaryHistoryHtml = Object.entries(staff.salaryHistory || {}).sort(([a],[b])=>a.localeCompare(b)).map(([d,s])=>`${formatDate(d)}: ₹${s}`).join('<br>');
+      html += `<tr><td class="namecol">${staff.name}<div style="font-size:12px;color:#666">${staff.mobile} • ₹${staff.salary}/day • Joined: ${formatDate(staff.joiningDate)}</div><div style="font-size:11px;color:#888;white-space:pre-line">Salary History:<br>${salaryHistoryHtml}</div></td>`;
+      for(let d=startDay; d<=lastDay; d++){
+        const dt = new Date(year, month, d);
+        const key = ymd(dt);
+        const st = records[staffId][key] || 'P';
+        const dailySalary = getSalaryOnDate(staffId, key);
+        let earnings = 0;
+        if (st === 'P') earnings = dailySalary;
+        else if (st === 'H') earnings = 0.5 * dailySalary;
+        else if (st === 'A') earnings = 0;
+        html += `<td><button class="status-btn ${st}" data-date="${key}" title="Earnings: ₹${earnings.toFixed(2)}">${st}</button></td>`;
+      }
+      html += '</tr>';
+      html += '</tbody></table>';
+      tableWrap.innerHTML = html;
+      currentInfo.textContent = `${staff.name} — ${selMonth.options[selMonth.selectedIndex].text} ${year}`;
+
+      // attach clicks to toggle statuses
+      tableWrap.querySelectorAll('.status-btn').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const date = btn.dataset.date;
+          const cur = records[staffId][date] || 'P';
+          const next = cur === 'P' ? 'H' : (cur === 'H' ? 'A' : 'P');
+          records[staffId][date] = next;
+          const daily = getSalaryOnDate(staffId, date);
+          const newEarnings = next === 'P' ? daily : (next === 'H' ? 0.5 * daily : 0);
+          saveAll();
+          btn.classList.remove('P','H','A');btn.classList.add(next);btn.textContent = next;
+          btn.title = `Earnings: ₹${newEarnings.toFixed(2)}`;
+          // Recalculate due after change
+          renderSalarySection();
+          const activeTab = tabControls.querySelector('.active')?.dataset.tab || 'current';
+          if (activeTab === 'ledger') renderLedger();
+        });
+        // right click to set Absent quickly
+        btn.addEventListener('contextmenu', (e)=>{e.preventDefault();const date=btn.dataset.date;records[staffId][date]='A';const daily = getSalaryOnDate(staffId, date);const newEarnings = 0;saveAll();btn.classList.remove('P','H','A');btn.classList.add('A');btn.textContent='A';btn.title = `Earnings: ₹${newEarnings.toFixed(2)}`; renderSalarySection(); const activeTab = tabControls.querySelector('.active')?.dataset.tab || 'current'; if (activeTab === 'ledger') renderLedger();});
+      });
+
+      // Show salary section and tabs
+      salarySection.style.display = 'block';
+      tabControls.style.display = 'flex';
+      setTodayDate(paymentDateEl);
+      renderSalarySection();
+      if(activeTab === 'ledger') renderLedger();
+      else renderCurrentMonth();
+    }
+
+    // --- Render salary section (current month)
+    function renderSalarySection() {
+      const staffId = selectStaff.value;
+      const month = parseInt(selMonth.value, 10);
+      const year = parseInt(selYear.value, 10);
+      const ym = `${year}-${String(month + 1).padStart(2, '0')}`;
+      const opening = getOpeningBalance(staffId, year, month);
+      const grossDue = calculateDue(staffId, year, month);
+      if(!payments[staffId]) payments[staffId] = {};
+      if(!payments[staffId][ym]) {
+        payments[staffId][ym] = {due: grossDue, payments: []};
+      } else {
+        payments[staffId][ym].due = grossDue;
+      }
+      migratePaymentsForMonth(staffId, ym);
+      const monthPayments = payments[staffId][ym].payments || [];
+      monthPayments.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      const paid = monthPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+      const balance = opening + grossDue - paid;
+
+      let infoHtml = `
+        <div class="${opening >= 0 ? 'positive' : 'negative'} balance-info">Opening: ₹${opening.toFixed(2)}</div>
+        <div class="due-info">Gross Due: ₹${grossDue.toFixed(2)}</div>
+        <div class="paid-info">Paid: ₹${paid.toFixed(2)}</div>
+        <div class="${balance >= 0 ? 'positive' : 'negative'} balance-info">Balance: ₹${balance.toFixed(2)}</div>
+      `;
+      if (monthPayments.length > 0) {
+        infoHtml += `
+          <div class="payments-list">
+            <h5>Payments:</h5>
+            <ul>
+              ${monthPayments.map((p, idx) => `<li><span class="payment-meta">${formatDate(p.date)}: ₹${p.amount.toFixed(2)} ${p.description ? `- ${p.description}` : ''}</span><div class="payment-actions"><button class="small edit-payment-btn" data-ym="${ym}" data-idx="${idx}"><i class="fas fa-edit"></i> Edit</button><button class="small delete-payment-btn" data-ym="${ym}" data-idx="${idx}"><i class="fas fa-trash"></i> Delete</button></div></li>`).join('')}
+            </ul>
+          </div>
+        `;
+      } else {
+        infoHtml += `<div class="muted" style="font-size:12px;margin-top:8px;">No payments yet</div>`;
+      }
+      monthlyInfo.innerHTML = infoHtml;
+      saveAll();
+
+      const isUpdate = recordPaymentBtn.dataset.mode === 'update';
+      if (isUpdate) {
+        const editYm = recordPaymentBtn.dataset.ym;
+        const idx = parseInt(recordPaymentBtn.dataset.idx);
+        if (payments[staffId] && payments[staffId][editYm] && payments[staffId][editYm].payments[idx]) {
+          const p = payments[staffId][editYm].payments[idx];
+          paymentDateEl.value = p.date;
+          paidAmountEl.value = p.amount;
+          paymentDescEl.value = p.description;
+        }
+      } else {
+        paidAmountEl.value = '';
+        paymentDescEl.value = '';
+        setTodayDate(paymentDateEl);
+      }
+    }
+
+    // --- Salary History Management
+    function renderHistoryManager() {
+      const staffId = selectStaff.value;
+      if (!staffId) return;
+      const staff = staffList.find(s => s.id === staffId);
+      if (!staff) return;
+      historyList.innerHTML = '';
+      const entries = Object.entries(staff.salaryHistory || {}).sort(([a], [b]) => a.localeCompare(b));
+      entries.forEach(([date, sal], idx) => {
+        const div = document.createElement('div');
+        div.className = 'history-entry';
+        const dateInput = document.createElement('input');
+        dateInput.type = 'date';
+        dateInput.value = date;
+        const salInput = document.createElement('input');
+        salInput.type = 'number';
+        salInput.value = sal;
+        salInput.step = '0.01';
+        const updateBtn = document.createElement('button');
+        updateBtn.innerHTML = '<i class="fas fa-save"></i> Update';
+        updateBtn.className = 'small';
+        updateBtn.onclick = () => updateHistoryEntry(staffId, idx, dateInput.value, parseFloat(salInput.value));
+        const delBtn = document.createElement('button');
+        delBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';
+        delBtn.className = 'small';
+        delBtn.onclick = () => deleteHistoryEntry(staffId, idx);
+        div.append(dateInput, salInput, updateBtn, delBtn);
+        historyList.appendChild(div);
+      });
+    }
+
+    function updateHistoryEntry(staffId, idx, newDate, newSal) {
+      if (isNaN(newSal)) {
+        alert('Invalid salary');
+        return;
+      }
+      const staff = staffList.find(s => s.id === staffId);
+      const entries = Object.entries(staff.salaryHistory).sort(([a], [b]) => a.localeCompare(b));
+      const oldDate = entries[idx][0];
+      delete staff.salaryHistory[oldDate];
+      staff.salaryHistory[newDate] = newSal;
+      // Update current salary to the latest
+      const sortedDates = Object.keys(staff.salaryHistory).sort((a, b) => b.localeCompare(a));
+      staff.salary = staff.salaryHistory[sortedDates[0]];
+      saveAll();
+      renderHistoryManager();
+      const activeTab = tabControls.querySelector('.active')?.dataset.tab || 'current';
+      renderTable(activeTab);
+    }
+
+    function deleteHistoryEntry(staffId, idx) {
+      if (confirm('Delete this salary entry?')) {
+        const staff = staffList.find(s => s.id === staffId);
+        const entries = Object.entries(staff.salaryHistory).sort(([a], [b]) => a.localeCompare(b));
+        const oldDate = entries[idx][0];
+        delete staff.salaryHistory[oldDate];
+        if (Object.keys(staff.salaryHistory).length === 0) {
+          const fromDate = staff.joiningDate || ymd(new Date(1970, 0, 1));
+          staff.salaryHistory[fromDate] = parseFloat(staff.salary) || 0;
+        } else {
+          const sortedDates = Object.keys(staff.salaryHistory).sort((a, b) => b.localeCompare(a));
+          staff.salary = staff.salaryHistory[sortedDates[0]];
+        }
+        saveAll();
+        renderHistoryManager();
+        const activeTab = tabControls.querySelector('.active')?.dataset.tab || 'current';
+        renderTable(activeTab);
+      }
+    }
+
+    addHistoryEntry.addEventListener('click', () => {
+      const staffId = selectStaff.value;
+      if (!staffId) return;
+      const newDate = prompt('Enter effective date (YYYY-MM-DD):');
+      if (!newDate) return;
+      const newSalStr = prompt('Enter salary:');
+      const newSal = parseFloat(newSalStr);
+      if (isNaN(newSal)) {
+        alert('Invalid salary');
+        return;
+      }
+      const staff = staffList.find(s => s.id === staffId);
+      staff.salaryHistory[newDate] = newSal;
+      staff.salary = newSal;
+      saveAll();
+      renderHistoryManager();
+      const activeTab = tabControls.querySelector('.active')?.dataset.tab || 'current';
+      renderTable(activeTab);
+    });
+
+    manageHistory.addEventListener('click', () => {
+      const display = historyManager.style.display === 'none' ? 'block' : 'none';
+      historyManager.style.display = display;
+      if (display === 'block') {
+        renderHistoryManager();
+      }
+    });
+
+    // --- Event delegation for edit/delete payments
+    document.addEventListener('click', (e) => {
+      const staffId = selectStaff.value;
+      if (!staffId) return;
+      if (e.target.classList.contains('edit-payment-btn')) {
+        const ym = e.target.dataset.ym;
+        const idx = parseInt(e.target.dataset.idx);
+        const p = payments[staffId][ym].payments[idx];
+        paymentDateEl.value = p.date;
+        paidAmountEl.value = p.amount;
+        paymentDescEl.value = p.description;
+        recordPaymentBtn.innerHTML = '<i class="fas fa-save"></i> Update Payment';
+        recordPaymentBtn.dataset.mode = 'update';
+        recordPaymentBtn.dataset.ym = ym;
+        recordPaymentBtn.dataset.idx = idx;
+        // Switch to this month for editing
+        const [yStr, mStr] = ym.split('-');
+        const y = parseInt(yStr);
+        const m = parseInt(mStr) - 1;
+        selMonth.value = m;
+        selYear.value = y;
+        renderTable('current');
+      } else if (e.target.classList.contains('delete-payment-btn')) {
+        const ym = e.target.dataset.ym;
+        const idx = parseInt(e.target.dataset.idx);
+        if (confirm('Delete this payment?')) {
+          payments[staffId][ym].payments.splice(idx, 1);
+          if (payments[staffId][ym].payments.length === 0) {
+            delete payments[staffId][ym];
+          }
+          saveAll();
+          renderSalarySection();
+          const activeTab = tabControls.querySelector('.active')?.dataset.tab || 'current';
+          if (activeTab === 'ledger') renderLedger();
+        }
+      }
+    });
+
+    // --- Record payment
+    recordPaymentBtn.addEventListener('click', () => {
+      const staffId = selectStaff.value;
+      if (!staffId) return;
+      const amount = parseFloat(paidAmountEl.value) || 0;
+      const desc = paymentDescEl.value.trim() || '';
+      const dateStr = paymentDateEl.value;
+      if (amount <= 0) { alert('Enter a valid amount'); return; }
+      if (!dateStr) { alert('Select a payment date'); return; }
+      const paymentDate = new Date(dateStr);
+      if (isNaN(paymentDate.getTime())) { alert('Invalid payment date'); return; }
+      const payYear = paymentDate.getFullYear();
+      const payMonth = paymentDate.getMonth();
+      let ym_to_use;
+      const isUpdate = recordPaymentBtn.dataset.mode === 'update';
+      if (isUpdate) {
+        ym_to_use = recordPaymentBtn.dataset.ym;
+        const idx = parseInt(recordPaymentBtn.dataset.idx);
+        // If date changed, potentially move to new month
+        const newYm = `${payYear}-${String(payMonth + 1).padStart(2, '0')}`;
+        if (newYm !== ym_to_use) {
+          // Move the payment to new bucket
+          const payment = payments[staffId][ym_to_use].payments.splice(idx, 1)[0];
+          payment.date = ymd(paymentDate);
+          payment.description = desc;
+          payment.amount = amount;
+          if (!payments[staffId][newYm]) {
+            payments[staffId][newYm] = { due: calculateDue(staffId, payYear, payMonth), payments: [] };
+          }
+          payments[staffId][newYm].payments.push(payment);
+          if (payments[staffId][ym_to_use].payments.length === 0) {
+            delete payments[staffId][ym_to_use];
+          }
+          ym_to_use = newYm;
+        } else {
+          payments[staffId][ym_to_use].payments[idx] = {
+            amount,
+            date: ymd(paymentDate),
+            description: desc
+          };
+        }
+      } else {
+        ym_to_use = `${payYear}-${String(payMonth + 1).padStart(2, '0')}`;
+        if (!payments[staffId]) payments[staffId] = {};
+        if (!payments[staffId][ym_to_use]) {
+          payments[staffId][ym_to_use] = { due: calculateDue(staffId, payYear, payMonth), payments: [] };
+        }
+        payments[staffId][ym_to_use].payments.push({
+          amount,
+          date: ymd(paymentDate),
+          description: desc
+        });
+        // Switch view to the payment's month
+        selMonth.value = payMonth;
+        selYear.value = payYear;
+        renderTable('current');
+        return; // Since renderTable calls renderSalarySection
+      }
+      saveAll();
+      // Reset form
+      recordPaymentBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Record Payment';
+      delete recordPaymentBtn.dataset.mode;
+      delete recordPaymentBtn.dataset.ym;
+      delete recordPaymentBtn.dataset.idx;
+      paidAmountEl.value = '';
+      paymentDescEl.value = '';
+      setTodayDate(paymentDateEl);
+      renderSalarySection();
+      const activeTab = tabControls.querySelector('.active')?.dataset.tab || 'current';
+      if (activeTab === 'ledger') renderLedger();
+    });
+
+    // --- Render current month (already in renderSalarySection)
+
+    // --- Render full ledger
+    function renderLedger() {
+      const staffId = selectStaff.value;
+      if(!staffId) return;
+      const staff = staffList.find(s => s.id === staffId);
+      const joiningDate = staff.joiningDate || '';
+      const joiningDt = joiningDate ? new Date(joiningDate) : new Date(1970, 0, 1);
+      const nowDt = new Date();
+      let y = joiningDt.getFullYear();
+      let m = joiningDt.getMonth();
+      const monthsList = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      const monthSections = [];
+      const currentYear = nowDt.getFullYear();
+      const currentMonth = nowDt.getMonth();
+      let totalPresent = 0, totalHalf = 0, totalAbsent = 0;
+      let runningBalance = 0;
+      let totalGross = 0;
+      let totalPaid = 0;
+      while(y < currentYear || (y === currentYear && m <= currentMonth)) {
+        const ym = `${y}-${String(m + 1).padStart(2, '0')}`;
+        const opening = runningBalance;
+        const grossDue = calculateDue(staffId, y, m);
+        totalGross += grossDue;
+        const counts = calculateAttendanceCounts(staffId, y, m);
+        totalPresent += counts.present;
+        totalHalf += counts.half;
+        totalAbsent += counts.absent;
+        if(!payments[staffId]) payments[staffId] = {};
+        if(!payments[staffId][ym]) {
+          payments[staffId][ym] = {due: grossDue, payments: []};
+        } else {
+          payments[staffId][ym].due = grossDue;
+        }
+        migratePaymentsForMonth(staffId, ym);
+        const monthPayments = payments[staffId][ym].payments || [];
+        monthPayments.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        const paid = monthPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+        totalPaid += paid;
+        const closing = opening + grossDue - paid;
+        runningBalance = closing;
+        const monthName = monthsList[m];
+        monthSections.push({ym, year: y, month: m, opening, grossDue, paid, closing, monthName, payments: monthPayments, ...counts});
+        m++;
+        if(m > 11) { m = 0; y++; }
+      }
+      const totalBalance = totalGross - totalPaid;
+      let html = '<div class="ledger-sections">';
+      monthSections.forEach(({year, month, opening, grossDue, paid, closing, monthName, payments, ym, present, half, absent}) => {
+        html += `
+          <div class="month-section">
+            <h4><i class="fas fa-calendar-alt"></i> ${monthName} ${year}</h4>
+            <div class="attendance-line">
+              <span><strong>Present:</strong> ${present}</span>
+              <span><strong>Half:</strong> ${half}</span>
+              <span><strong>Absent:</strong> ${absent}</span>
+            </div>
+            <div class="financial-line">
+              <span><strong>Opening:</strong> <span class="${opening >= 0 ? 'positive' : 'negative'}">₹${opening.toFixed(2)}</span></span>
+              <span><strong>Gross Due:</strong> <span class="due-info">₹${grossDue.toFixed(2)}</span></span>
+            </div>
+            <div class="financial-line">
+              <span><strong>Paid:</strong> <span class="paid-info">₹${paid.toFixed(2)}</span></span>
+              <span><strong>Closing:</strong> <span class="${closing >= 0 ? 'positive' : 'negative'}">₹${closing.toFixed(2)}</span></span>
+            </div>
+            <div class="payments-list">
+              <h5>Payments:</h5>
+              <ul>
+                ${payments.map((p, idx) => `<li><span class="payment-meta">${formatDate(p.date)}: ₹${p.amount.toFixed(2)} ${p.description ? `- ${p.description}` : ''}</span><div class="payment-actions"><button class="small edit-payment-btn" data-ym="${ym}" data-idx="${idx}"><i class="fas fa-edit"></i> Edit</button><button class="small delete-payment-btn" data-ym="${ym}" data-idx="${idx}"><i class="fas fa-trash"></i> Delete</button></div></li>`).join('') || '<li>No payments</li>'}
+              </ul>
+            </div>
+          </div>
+        `;
+      });
+      html += `
+        <div class="total-section">
+          <h4><i class="fas fa-chart-line"></i> Total</h4>
+          <div class="attendance-line">
+            <span><strong>Total Present:</strong> ${totalPresent}</span>
+            <span><strong>Total Half:</strong> ${totalHalf}</span>
+            <span><strong>Total Absent:</strong> ${totalAbsent}</span>
+          </div>
+          <div class="financial-line">
+            <span><strong>Total Gross Due:</strong> <span class="due-info">₹${totalGross.toFixed(2)}</span></span>
+            <span><strong>Total Paid:</strong> <span class="paid-info">₹${totalPaid.toFixed(2)}</span></span>
+          </div>
+          <div class="financial-line">
+            <span><strong>Total Balance:</strong> <span class="${totalBalance >= 0 ? 'positive' : 'negative'}">₹${totalBalance.toFixed(2)}</span></span>
+          </div>
+        </div>
+      `;
+      html += '</div>';
+      ledgerWrap.innerHTML = html;
+      saveAll();
+    }
+
+    function renderCurrentMonth() {
+      ledgerWrap.innerHTML = ''; // Hide ledger for current tab
+    }
+
+    // --- Tab switching
+    tabControls.addEventListener('click', (e) => {
+      if(e.target.classList.contains('tab-btn')) {
+        tabControls.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        e.target.classList.add('active');
+        const tab = e.target.dataset.tab;
+        if(tab === 'ledger') renderLedger();
+        else renderCurrentMonth();
+      }
+    });
+
+    // --- On select changes
+    selectStaff.addEventListener('change', () => { 
+      const staffId = selectStaff.value;
+      manageHistory.style.display = staffId ? 'block' : 'none';
+      renderTable(tabControls.querySelector('.active')?.dataset.tab || 'current'); 
+    });
+    selMonth.addEventListener('change', () => { renderTable(tabControls.querySelector('.active')?.dataset.tab || 'current'); });
+    selYear.addEventListener('change', () => { renderTable(tabControls.querySelector('.active')?.dataset.tab || 'current'); });
+
+    gotoToday.addEventListener('click', ()=>{
+      const now=new Date();selMonth.value=now.getMonth();selYear.value=now.getFullYear();renderTable();
+    });
+
+    exportJSON.addEventListener('click', ()=>{
+      const data={staffList,records,payments};
+      const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');a.href=url;a.download='attendance_export.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+    });
+
+    // --- App initialization
+    async function initApp() {
+      await initFirebase();
+      staffList = await loadFromDB(KEY_STAFF, []);
+      records = await loadFromDB(KEY_ATT, {});
+      payments = await loadFromDB(KEY_PAYMENTS, {});
+      // --- Initialize salary history for existing staff
+      staffList.forEach(staff => {
+        if (!staff.salaryHistory) {
+          const fromDate = staff.joiningDate || ymd(new Date(1970, 0, 1));
+          staff.salaryHistory = { [fromDate]: parseFloat(staff.salary) || 0 };
+        }
+      });
+      saveToDB(KEY_STAFF, staffList);
+      initMonthYear();
+      // set default month/year to current
+      const now=new Date();selMonth.value=now.getMonth();selYear.value=now.getFullYear();
+      setTodayDate(paymentDateEl);
+      renderStaff();
+      renderTable();
+
+      // Pre-populate with example staff if none exist (optional — comment out if unwanted)
+      if(staffList.length===0){
+        // uncomment below lines if you want sample data on first load
+        // staffList.push({id:uid(),name:'Chandni',mobile:'9876543210',salary:'500',joiningDate:'2025-01-01'});
+        // saveToDB(KEY_STAFF, staffList);
+        // renderStaff();
+      }
+
+      // When the page loads, ensure that for currently selected staff and month, today's date is auto-marked present.
+      if(selectStaff.value) renderTable();
+    }
+
+    // --- init
+    initApp();
+
+  </script>
+</body>
+</html>
