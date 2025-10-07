@@ -410,25 +410,212 @@
       color: #0056b3;
       transform: scale(1.1);
     }
-    @media (max-width: 880px) {
+    @media (max-width: 1024px) {
       .wrap {
         grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .card {
+        padding: 16px;
+      }
+      .staff-list {
+        max-height: 250px;
       }
       th, td {
-        min-width: 50px;
-        padding: 8px 4px;
+        padding: 10px 6px;
+        min-width: 55px;
+      }
+      td.namecol {
+        min-width: 180px;
+      }
+      .status-btn {
+        padding: 6px 10px;
+        font-size: 11px;
+        min-width: 35px;
+      }
+      .salary-inputs {
+        gap: 10px;
+      }
+      .salary-inputs > div {
+        min-width: 140px;
+      }
+      .tab-controls {
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .tab-btn {
+        padding: 6px 12px;
+        font-size: 13px;
+      }
+      .month-section .attendance-line,
+      .month-section .financial-line {
+        gap: 16px;
+      }
+      .payments-list li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .payments-list .payment-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+    }
+    @media (max-width: 768px) {
+      body {
+        padding: 12px;
+      }
+      h1 {
+        font-size: 20px;
+        margin-bottom: 12px;
+      }
+      .wrap {
+        gap: 12px;
+      }
+      .card {
+        padding: 12px;
+      }
+      label {
+        font-size: 13px;
+        margin: 10px 0 4px;
+      }
+      input, select, button {
+        padding: 12px;
+        font-size: 16px; /* Touch-friendly */
+      }
+      .small {
+        padding: 8px 14px;
+        font-size: 14px;
+      }
+      .staff-list {
+        max-height: 200px;
+      }
+      .staff-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 10px;
+      }
+      .staff-item .meta {
+        width: 100%;
+      }
+      .controls {
+        width: 100%;
+        justify-content: flex-end;
+      }
+      .legend {
+        gap: 10px;
+      }
+      .legend span {
         font-size: 12px;
+      }
+      th, td {
+        padding: 8px 4px;
+        min-width: 50px;
+        font-size: 13px;
+      }
+      td.namecol {
+        min-width: 100%;
+        font-size: 14px;
+      }
+      .status-btn {
+        padding: 8px 12px;
+        font-size: 14px;
+        min-width: 45px;
+      }
+      .attendance-grid {
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
       }
       .salary-inputs {
         flex-direction: column;
+        gap: 8px;
       }
       .salary-inputs > div {
         min-width: auto;
+      }
+      .due-info, .paid-info, .balance-info {
+        font-size: 14px;
+      }
+      .tab-controls {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+      .tab-btn {
+        padding: 8px 12px;
+        font-size: 14px;
+        flex: 1;
+        min-width: 120px;
+      }
+      .month-section {
+        padding: 12px;
       }
       .month-section .attendance-line,
       .month-section .financial-line {
         flex-direction: column;
         gap: 4px;
+        font-size: 13px;
+      }
+      .total-section .attendance-line,
+      .total-section .financial-line {
+        flex-direction: column;
+        gap: 4px;
+      }
+      .payments-list li {
+        padding: 12px;
+      }
+      .history-entry {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .history-entry input {
+        min-width: auto;
+      }
+      footer {
+        font-size: 11px;
+      }
+    }
+    @media (max-width: 480px) {
+      body {
+        padding: 8px;
+      }
+      h1 {
+        font-size: 18px;
+      }
+      .card {
+        padding: 10px;
+      }
+      .staff-list {
+        max-height: 180px;
+      }
+      th, td {
+        padding: 6px 2px;
+        min-width: 45px;
+        font-size: 12px;
+      }
+      td.namecol {
+        min-width: 80%;
+      }
+      .status-btn {
+        padding: 6px 8px;
+        font-size: 12px;
+        min-width: 40px;
+      }
+      .tab-btn {
+        padding: 10px 8px;
+        font-size: 13px;
+      }
+      .month-section, .total-section, .salary-section {
+        padding: 10px;
+      }
+      .payments-list .payment-actions {
+        flex-direction: column;
+        gap: 4px;
+        width: 100%;
+      }
+      .payments-list .payment-actions .small {
+        width: 100%;
+        justify-content: center;
       }
     }
   </style>
