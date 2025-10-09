@@ -40,6 +40,11 @@
       max-width: 1400px;
       margin: 0 auto;
     }
+    .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
     .card {
       background: #fff;
       padding: 20px;
@@ -641,69 +646,72 @@
       </div>
 
       <div class="staff-list" id="staffList"></div>
-
-      <hr style="margin:16px 0"/>
-      <strong><i class="fas fa-cogs"></i> Controls</strong>
-      <label for="selectStaff">Choose staff</label>
-      <select id="selectStaff"></select>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <select id="selMonth" aria-label="Month"></select>
-        <select id="selYear" aria-label="Year"></select>
-      </div>
-      <div style="margin-top:8px;display:flex;gap:8px">
-        <button id="gotoToday" class="small"><i class="fas fa-calendar-day"></i> Go to Today</button>
-        <button id="exportJSON" class="small"><i class="fas fa-download"></i> Export JSON</button>
-      </div>
-
-      <div class="legend">
-        <span><em class="status-btn P"></em> <i class="fas fa-check-circle"></i> Present</span>
-        <span><em class="status-btn H"></em> <i class="fas fa-clock"></i> Half-day</span>
-        <span><em class="status-btn A"></em> <i class="fas fa-times-circle"></i> Absent</span>
-      </div>
-
-      <button id="manageHistory" class="small" style="display:none;margin-top:8px;"><i class="fas fa-history"></i> Manage Salary History</button>
-
-      <div id="historyManager">
-        <div id="historyList"></div>
-        <button id="addHistoryEntry" class="small"><i class="fas fa-plus"></i> Add Entry</button>
-      </div>
-
-      <footer class="muted">Attendance defaults to <strong>Present</strong> for each date up to today when you view a staff member for a month. You can change any date to Half-day or Absent. Data is saved in Firebase Realtime Database.</footer>
     </div>
 
-    <div class="card attendance-grid">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-        <h2 style="margin:0;font-size:18px"><i class="fas fa-table"></i> Attendance Table</h2>
-        <div id="currentInfo" class="muted"></div>
-      </div>
-      <div id="tableWrap"></div>
-
-      <div class="salary-section" id="salarySection" style="display:none">
-        <h3 style="margin:0 0 12px;font-size:16px"><i class="fas fa-rupee-sign"></i> Salary for this Month</h3>
-        <div class="salary-inputs">
-          <div style="flex:0.8">
-            <label for="paymentDate" style="font-size:12px;margin:0;display:block;">Payment Date</label>
-            <input id="paymentDate" type="date" />
-          </div>
-          <div style="flex:1">
-            <label for="paidAmount" style="font-size:12px;margin:0;display:block;">Paid Amount</label>
-            <input id="paidAmount" type="number" placeholder="0" step="0.01" />
-          </div>
-          <div style="flex:1.2">
-            <label for="paymentDesc" style="font-size:12px;margin:0;display:block;">Description</label>
-            <input id="paymentDesc" placeholder="e.g. Full salary" />
-          </div>
-          <button id="recordPayment" class="small"><i class="fas fa-plus-circle"></i> Record Payment</button>
+    <div class="right-column">
+      <div class="card">
+        <strong><i class="fas fa-cogs"></i> Controls</strong>
+        <label for="selectStaff">Choose staff</label>
+        <select id="selectStaff"></select>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <select id="selMonth" aria-label="Month"></select>
+          <select id="selYear" aria-label="Year"></select>
         </div>
-        <div id="monthlyInfo"></div>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button id="gotoToday" class="small"><i class="fas fa-calendar-day"></i> Go to Today</button>
+          <button id="exportJSON" class="small"><i class="fas fa-download"></i> Export JSON</button>
+        </div>
+
+        <div class="legend">
+          <span><em class="status-btn P"></em> <i class="fas fa-check-circle"></i> Present</span>
+          <span><em class="status-btn H"></em> <i class="fas fa-clock"></i> Half-day</span>
+          <span><em class="status-btn A"></em> <i class="fas fa-times-circle"></i> Absent</span>
+        </div>
+
+        <button id="manageHistory" class="small" style="display:none;margin-top:8px;"><i class="fas fa-history"></i> Manage Salary History</button>
+
+        <div id="historyManager">
+          <div id="historyList"></div>
+          <button id="addHistoryEntry" class="small"><i class="fas fa-plus"></i> Add Entry</button>
+        </div>
+
+        <footer class="muted">Attendance defaults to <strong>Present</strong> for each date up to today when you view a staff member for a month. You can change any date to Half-day or Absent. Data is saved in Firebase Realtime Database.</footer>
       </div>
 
-      <div class="tab-controls" id="tabControls" style="display:none">
-        <button class="tab-btn active" data-tab="current"><i class="fas fa-calendar-month"></i> Current Month</button>
-        <button class="tab-btn" data-tab="ledger"><i class="fas fa-book"></i> Full Ledger</button>
-      </div>
+      <div class="card attendance-grid">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+          <h2 style="margin:0;font-size:18px"><i class="fas fa-table"></i> Attendance Table</h2>
+          <div id="currentInfo" class="muted"></div>
+        </div>
+        <div id="tableWrap"></div>
 
-      <div id="ledgerWrap"></div>
+        <div class="salary-section" id="salarySection" style="display:none">
+          <h3 style="margin:0 0 12px;font-size:16px"><i class="fas fa-rupee-sign"></i> Salary for this Month</h3>
+          <div class="salary-inputs">
+            <div style="flex:0.8">
+              <label for="paymentDate" style="font-size:12px;margin:0;display:block;">Payment Date</label>
+              <input id="paymentDate" type="date" />
+            </div>
+            <div style="flex:1">
+              <label for="paidAmount" style="font-size:12px;margin:0;display:block;">Paid Amount</label>
+              <input id="paidAmount" type="number" placeholder="0" step="0.01" />
+            </div>
+            <div style="flex:1.2">
+              <label for="paymentDesc" style="font-size:12px;margin:0;display:block;">Description</label>
+              <input id="paymentDesc" placeholder="e.g. Full salary" />
+            </div>
+            <button id="recordPayment" class="small"><i class="fas fa-plus-circle"></i> Record Payment</button>
+          </div>
+          <div id="monthlyInfo"></div>
+        </div>
+
+        <div class="tab-controls" id="tabControls" style="display:none">
+          <button class="tab-btn active" data-tab="current"><i class="fas fa-calendar-month"></i> Current Month</button>
+          <button class="tab-btn" data-tab="ledger"><i class="fas fa-book"></i> Full Ledger</button>
+        </div>
+
+        <div id="ledgerWrap"></div>
+      </div>
     </div>
   </div>
 
@@ -1542,3 +1550,5 @@
   </script>
 </body>
 </html>
+
+IMPROVE UI FOR SMALL DEVICES  LIKE MOBILE FOR EASY CONTROL
