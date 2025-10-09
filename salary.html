@@ -1,4 +1,3 @@
-```html
 <!doctype html>
 <html lang="en">
 <head>
@@ -496,6 +495,11 @@
       margin-bottom: 8px;
       flex-wrap: wrap;
     }
+	
+	.none {
+      display: none;
+	  }
+	  
     .history-entry input {
       flex: 1;
       padding: 6px;
@@ -791,8 +795,7 @@
           <button id="addHistoryEntry" class="small"><i class="fas fa-plus"></i> Add Entry</button>
         </div>
 
-        <footer class="muted">Attendance defaults to <strong>Present</strong> for each date up to today when you view a staff member for a month. You can change any date to Half-day or Absent. Data is saved in Firebase Realtime Database.</footer>
-      </div>
+         </div>
 
       <div class="card attendance-grid">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
@@ -819,11 +822,11 @@
             </div>
             <button id="recordPayment" class="small"><i class="fas fa-plus-circle"></i> Record Payment</button>
           </div>
-          <div id="monthlyInfo"></div>
+          <div class="none" id="monthlyInfo"></div>
         </div>
 
         <div class="tab-controls" id="tabControls" style="display:none">
-          <button class="tab-btn active" data-tab="current"><i class="fas fa-calendar-month"></i> Current Month</button>
+         
           <button class="tab-btn" data-tab="ledger"><i class="fas fa-book"></i> Full Ledger</button>
         </div>
 
@@ -1072,7 +1075,7 @@
       }
       nameEl.value=mobileEl.value=salaryEl.value=joiningDateEl.value='';saveAll();renderStaff();
       selectStaff.value = newStaffId;
-      const activeTab = tabControls.querySelector('.active')?.dataset.tab || 'current';
+      const activeTab = newStaffId ? 'ledger' : 'current';
       renderCalendar(activeTab);
     });
 
@@ -1196,17 +1199,13 @@
       const firstDayWeekday = monthStart.getDay(); // 0 = Sunday
       const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       let html = '<div class="calendar-container">';
-      html += '<div class="calendar-header">';
-      html += `<div>${staff.name} - ${selMonth.options[selMonth.selectedIndex].text} ${year}</div>`;
-      html += `<div class="muted" style="font-size:12px;">${staff.mobile} • ₹${staff.salary}/day</div>`;
+      
+      
+     
       html += '</div>';
 
-      // Weekday headers
-      html += '<div class="calendar-weekdays">';
-      weekdays.forEach(day => {
-        html += `<div class="weekday-header">${day}</div>`;
-      });
-      html += '</div>';
+
+      
 
       // Staff info row (spans all columns)
       html += '<div class="staff-info">';
@@ -1214,7 +1213,8 @@
       html += `<div><strong>${staff.name}</strong></div>`;
       html += `<div class="meta">Mobile: ${staff.mobile} • Salary: ₹${staff.salary}/day • Joined: ${formatDate(staff.joiningDate)}</div>`;
       if (salaryHistoryHtml) {
-        html += `<div class="salary-history">Salary History:<br>${salaryHistoryHtml}</div>`;
+        html += `<div class="salary-history">Salary History:<br>${salaryHistoryHtml} </div>`;
+		html += `<div>${selMonth.options[selMonth.selectedIndex].text} ${year}</div>`;
       }
       html += '</div>';
 
@@ -1282,7 +1282,7 @@
           btn.title = `Earnings: ₹${newEarnings.toFixed(2)}`;
           // Recalculate due after change
           renderSalarySection();
-          const activeTab = tabControls.querySelector('.active')?.dataset.tab || 'current';
+          const activeTab = selectStaff.value ? 'ledger' : 'current';
           if (activeTab === 'ledger') renderLedger();
         });
         // right click to set Absent quickly
@@ -1298,7 +1298,7 @@
           btn.textContent = 'A';
           btn.title = `Earnings: ₹${newEarnings.toFixed(2)}`;
           renderSalarySection();
-          const activeTab = tabControls.querySelector('.active')?.dataset.tab || 'current';
+          const activeTab = selectStaff.value ? 'ledger' : 'current';
           if (activeTab === 'ledger') renderLedger();
         });
       });
@@ -1306,6 +1306,9 @@
       // Show salary section and tabs
       salarySection.style.display = 'block';
       tabControls.style.display = 'flex';
+      if (activeTab === 'ledger') {
+        tabControls.style.display = 'none';
+      }
       setTodayDate(paymentDateEl);
       renderSalarySection();
       if (activeTab === 'ledger') renderLedger();
@@ -1418,7 +1421,7 @@
       staff.salary = staff.salaryHistory[sortedDates[0]];
       saveAll();
       renderHistoryManager();
-      const activeTab = tabControls.querySelector('.active')?.dataset.tab || 'current';
+      const activeTab = selectStaff.value ? 'ledger' : 'current';
       renderCalendar(activeTab);
     }
 
@@ -1437,7 +1440,7 @@
         }
         saveAll();
         renderHistoryManager();
-        const activeTab = tabControls.querySelector('.active')?.dataset.tab || 'current';
+        const activeTab = selectStaff.value ? 'ledger' : 'current';
         renderCalendar(activeTab);
       }
     }
@@ -1458,7 +1461,7 @@
       staff.salary = newSal;
       saveAll();
       renderHistoryManager();
-      const activeTab = tabControls.querySelector('.active')?.dataset.tab || 'current';
+      const activeTab = selectStaff.value ? 'ledger' : 'current';
       renderCalendar(activeTab);
     });
 
@@ -1491,7 +1494,7 @@
         const m = parseInt(mStr) - 1;
         selMonth.value = m;
         selYear.value = y;
-        renderCalendar('current');
+        renderCalendar('ledger');
       } else if (e.target.classList.contains('delete-payment-btn')) {
         const ym = e.target.dataset.ym;
         const idx = parseInt(e.target.dataset.idx);
@@ -1502,7 +1505,7 @@
           }
           saveAll();
           renderSalarySection();
-          const activeTab = tabControls.querySelector('.active')?.dataset.tab || 'current';
+          const activeTab = selectStaff.value ? 'ledger' : 'current';
           if (activeTab === 'ledger') renderLedger();
         }
       }
@@ -1563,7 +1566,7 @@
         // Switch view to the payment's month
         selMonth.value = payMonth;
         selYear.value = payYear;
-        renderCalendar('current');
+        renderCalendar('ledger');
         return; // Since renderCalendar calls renderSalarySection
       }
       saveAll();
@@ -1576,7 +1579,7 @@
       paymentDescEl.value = '';
       setTodayDate(paymentDateEl);
       renderSalarySection();
-      const activeTab = tabControls.querySelector('.active')?.dataset.tab || 'current';
+      const activeTab = selectStaff.value ? 'ledger' : 'current';
       if (activeTab === 'ledger') renderLedger();
     });
 
@@ -1697,20 +1700,25 @@
       const staffId = selectStaff.value;
       manageHistory.style.display = staffId ? 'block' : 'none';
       if(staffId){
-        // Activate ledger tab
-        tabControls.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        const ledgerBtn = tabControls.querySelector('[data-tab="ledger"]');
-        if(ledgerBtn) ledgerBtn.classList.add('active');
+        tabControls.style.display = 'none';
         renderCalendar('ledger'); 
       } else {
         renderCalendar();
       }
     });
-    selMonth.addEventListener('change', () => { renderCalendar(tabControls.querySelector('.active')?.dataset.tab || 'current'); });
-    selYear.addEventListener('change', () => { renderCalendar(tabControls.querySelector('.active')?.dataset.tab || 'current'); });
+    selMonth.addEventListener('change', () => { 
+      const activeTab = selectStaff.value ? 'ledger' : 'current';
+      renderCalendar(activeTab); 
+    });
+    selYear.addEventListener('change', () => { 
+      const activeTab = selectStaff.value ? 'ledger' : 'current';
+      renderCalendar(activeTab); 
+    });
 
     gotoToday.addEventListener('click', ()=>{
-      const now=new Date();selMonth.value=now.getMonth();selYear.value=now.getFullYear();renderCalendar();
+      const now=new Date();selMonth.value=now.getMonth();selYear.value=now.getFullYear();
+      const activeTab = selectStaff.value ? 'ledger' : 'current';
+      renderCalendar(activeTab);
     });
 
     exportJSON.addEventListener('click', ()=>{
@@ -1759,4 +1767,3 @@
   </script>
 </body>
 </html>
-```
