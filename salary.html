@@ -495,11 +495,6 @@
       margin-bottom: 8px;
       flex-wrap: wrap;
     }
-	
-	.none {
-      display: none;
-	  }
-	  
     .history-entry input {
       flex: 1;
       padding: 6px;
@@ -801,6 +796,10 @@
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
           <h2 style="margin:0;font-size:18px"><i class="fas fa-calendar"></i> Attendance Calendar</h2>
           <div id="currentInfo" class="muted"></div>
+          <div style="display:flex;gap:8px">
+            <button id="prevMonth" class="small"><i class="fas fa-chevron-left"></i> Prev</button>
+            <button id="nextMonth" class="small"><i class="fas fa-chevron-right"></i> Next</button>
+          </div>
         </div>
         <div id="calendarWrap"></div>
         <div id="tableWrap"></div>
@@ -822,7 +821,7 @@
             </div>
             <button id="recordPayment" class="small"><i class="fas fa-plus-circle"></i> Record Payment</button>
           </div>
-          <div class="none" id="monthlyInfo"></div>
+          <div id="monthlyInfo"></div>
         </div>
 
         <div class="tab-controls" id="tabControls" style="display:none">
@@ -1009,6 +1008,8 @@
     const historyManager=document.getElementById('historyManager');
     const historyList=document.getElementById('historyList');
     const addHistoryEntry=document.getElementById('addHistoryEntry');
+    const prevMonth=document.getElementById('prevMonth');
+    const nextMonth=document.getElementById('nextMonth');
 
     // --- Init month/year selects
     function initMonthYear(){
@@ -1726,6 +1727,36 @@
       const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
       const url=URL.createObjectURL(blob);
       const a=document.createElement('a');a.href=url;a.download='attendance_export.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+    });
+
+    prevMonth.addEventListener('click', () => {
+      let month = parseInt(selMonth.value, 10);
+      let year = parseInt(selYear.value, 10);
+      if (month > 0) {
+        month--;
+      } else {
+        month = 11;
+        year--;
+      }
+      selMonth.value = month;
+      selYear.value = year;
+      const activeTab = selectStaff.value ? 'ledger' : 'current';
+      renderCalendar(activeTab);
+    });
+
+    nextMonth.addEventListener('click', () => {
+      let month = parseInt(selMonth.value, 10);
+      let year = parseInt(selYear.value, 10);
+      if (month < 11) {
+        month++;
+      } else {
+        month = 0;
+        year++;
+      }
+      selMonth.value = month;
+      selYear.value = year;
+      const activeTab = selectStaff.value ? 'ledger' : 'current';
+      renderCalendar(activeTab);
     });
 
     // --- App initialization
