@@ -516,6 +516,45 @@
       color: #0056b3;
       transform: scale(1.1);
     }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+	
+	 .none {
+      display: none;
+	  }
+	
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 20px;
+      border: none;
+      border-radius: var(--border-radius);
+      width: 80%;
+      max-width: 800px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close:hover {
+      color: black;
+    }
     @media (max-width: 1024px) {
       .wrap {
         grid-template-columns: 1fr;
@@ -686,6 +725,10 @@
       footer {
         font-size: 11px;
       }
+      .modal-content {
+        width: 95%;
+        margin: 10% auto;
+      }
     }
     @media (max-width: 480px) {
       body {
@@ -737,30 +780,19 @@
         padding: 8px 12px;
         font-size: 14px;
       }
+      .modal-content {
+        margin: 5% auto;
+        padding: 15px;
+      }
     }
   </style>
 </head>
 <body>
-  <h1><i class="fas fa-users"></i> Staff Attendance (Firebase Realtime Database)</h1>
+  
   <div class="wrap">
     <div class="card">
-      <strong><i class="fas fa-user-plus"></i> 1) Add Staff (one-time)</strong>
-      <label for="name">Name</label>
-      <input id="name" placeholder="e.g. Chandni" />
-      <label for="mobile">Mobile</label>
-      <input id="mobile" placeholder="e.g. 9876543210" />
-      <label for="salary">Daily Salary</label>
-      <input id="salary" placeholder="e.g. 500" />
-      <label for="salaryEffectiveDate">Salary Effective Date (for changes)</label>
-      <input id="salaryEffectiveDate" type="date" style="display:none;" />
-      <label for="joiningDate">Joining Date</label>
-      <input id="joiningDate" type="date" />
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <button id="addStaff"><i class="fas fa-save"></i> Add / Save</button>
-        <button id="clearAll" class="small"><i class="fas fa-trash"></i> Clear All</button>
-      </div>
 
-      <div class="staff-list" id="staffList"></div>
+ <button id="openStaffModal" class="small"><i class="fas fa-user-cog"></i> Manage Staff</button>
     </div>
 
     <div class="right-column">
@@ -821,7 +853,7 @@
             </div>
             <button id="recordPayment" class="small"><i class="fas fa-plus-circle"></i> Record Payment</button>
           </div>
-          <div id="monthlyInfo"></div>
+          <div class="none" id="monthlyInfo"></div>
         </div>
 
         <div class="tab-controls" id="tabControls" style="display:none">
@@ -831,6 +863,28 @@
 
         <div id="ledgerWrap"></div>
       </div>
+    </div>
+  </div>
+
+  <div id="staffModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="modalTitle">Add Staff</h2>
+      <label for="name">Name</label>
+      <input id="name" placeholder="e.g. Chandni" />
+      <label for="mobile">Mobile</label>
+      <input id="mobile" placeholder="e.g. 9876543210" />
+      <label for="salary">Daily Salary</label>
+      <input id="salary" placeholder="e.g. 500" />
+      <label for="salaryEffectiveDate">Salary Effective Date (for changes)</label>
+      <input id="salaryEffectiveDate" type="date" style="display:none;" />
+      <label for="joiningDate">Joining Date</label>
+      <input id="joiningDate" type="date" />
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button id="addStaff"><i class="fas fa-save"></i> Add / Save</button>
+        <button id="cancelAdd" class="small">Cancel</button>
+      </div>
+      <div class="staff-list" id="staffList"></div>
     </div>
   </div>
 
@@ -995,7 +1049,6 @@
     const gotoToday=document.getElementById('gotoToday');
     const currentInfo=document.getElementById('currentInfo');
     const exportJSON=document.getElementById('exportJSON');
-    const clearAll=document.getElementById('clearAll');
     const salarySection=document.getElementById('salarySection');
     const paymentDateEl=document.getElementById('paymentDate');
     const paidAmountEl=document.getElementById('paidAmount');
@@ -1010,6 +1063,11 @@
     const addHistoryEntry=document.getElementById('addHistoryEntry');
     const prevMonth=document.getElementById('prevMonth');
     const nextMonth=document.getElementById('nextMonth');
+    const modal = document.getElementById('staffModal');
+    const openStaffModal = document.getElementById('openStaffModal');
+    const closeSpan = document.querySelector('.close');
+    const cancelAdd = document.getElementById('cancelAdd');
+    const modalTitle = document.getElementById('modalTitle');
 
     // --- Init month/year selects
     function initMonthYear(){
@@ -1036,7 +1094,7 @@
         const ctrl=document.createElement('div');ctrl.className='controls';
         const edit=document.createElement('button');edit.innerHTML='<i class="fas fa-edit"></i>';edit.className='small';edit.title=`Edit ${s.name}`;
         const del=document.createElement('button');del.innerHTML='<i class="fas fa-trash"></i>';del.className='small';del.title=`Delete ${s.name}`;
-        edit.onclick=()=>{nameEl.value=s.name;mobileEl.value=s.mobile;salaryEl.value=s.salary;joiningDateEl.value=s.joiningDate||'';salaryEffectiveDateEl.style.display='block';salaryEffectiveDateEl.value=ymd(new Date());addBtn.dataset.edit=s.id;addBtn.textContent='Update'};
+        edit.onclick=()=>{nameEl.value=s.name;mobileEl.value=s.mobile;salaryEl.value=s.salary;joiningDateEl.value=s.joiningDate||'';salaryEffectiveDateEl.style.display='block';salaryEffectiveDateEl.value=ymd(new Date());addBtn.dataset.edit=s.id;addBtn.textContent='Update';modalTitle.textContent='Edit Staff';modal.style.display='block';};
         del.onclick=()=>{if(confirm('Delete staff '+s.name+'?')){staffList=staffList.filter(x=>x.id!==s.id);delete records[s.id];delete payments[s.id];saveAll();renderStaff();renderCalendar();}}
         ctrl.appendChild(edit);ctrl.appendChild(del);
         div.appendChild(meta);div.appendChild(ctrl);staffListWrap.appendChild(div);
@@ -1078,9 +1136,8 @@
       selectStaff.value = newStaffId;
       const activeTab = newStaffId ? 'ledger' : 'current';
       renderCalendar(activeTab);
+      modal.style.display = 'none';
     });
-
-    clearAll.addEventListener('click', async ()=>{if(confirm('Clear ALL data (staff + attendance + payments)?')){await removeFromDB(KEY_STAFF);await removeFromDB(KEY_ATT);await removeFromDB(KEY_PAYMENTS);staffList=[];records={};payments={};renderStaff();renderCalendar();}})
 
     // --- Utility: format date YYYY-MM-DD
     function ymd(d){const y=d.getFullYear();const m=String(d.getMonth()+1).padStart(2,'0');const day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`}
@@ -1757,6 +1814,34 @@
       selYear.value = year;
       const activeTab = selectStaff.value ? 'ledger' : 'current';
       renderCalendar(activeTab);
+    });
+
+    openStaffModal.addEventListener('click', () => {
+      nameEl.value = '';
+      mobileEl.value = '';
+      salaryEl.value = '';
+      joiningDateEl.value = '';
+      salaryEffectiveDateEl.style.display = 'none';
+      salaryEffectiveDateEl.value = '';
+      addBtn.textContent = 'Add / Save';
+      delete addBtn.dataset.edit;
+      modalTitle.textContent = 'Add Staff';
+      modal.style.display = 'block';
+      renderStaff();
+    });
+
+    closeSpan.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+
+    cancelAdd.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (event) => {
+      if (event.target === modal) {
+        modal.style.display = 'none';
+      }
     });
 
     // --- App initialization
