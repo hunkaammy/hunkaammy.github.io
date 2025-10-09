@@ -124,7 +124,122 @@
     }
     .attendance-grid {
       overflow: auto;
-    
+    }
+    .calendar-container {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+    }
+    .calendar-header {
+      background: linear-gradient(to bottom, #fff, #f8f9fa);
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      color: var(--dark);
+      border-bottom: 1px solid #eee;
+    }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 1px;
+      background: #eee;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .calendar-day {
+      background: #fff;
+      padding: 8px;
+      text-align: center;
+      min-height: 60px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+    }
+    .calendar-day.other-month {
+      background: #f8f9fa;
+      color: #adb5bd;
+    }
+    .calendar-day-header {
+      font-weight: 600;
+      font-size: 12px;
+      margin-bottom: 4px;
+      line-height: 1;
+    }
+    .calendar-day-weekday {
+      font-size: 10px;
+      color: #6c757d;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .calendar-status {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 50px;
+      border: 1px solid;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 11px;
+      transition: var(--transition);
+      min-width: 30px;
+      margin-top: auto;
+    }
+    .calendar-status:hover {
+      transform: scale(1.05);
+    }
+    .P {
+      background: #d4edda;
+      border-color: #c3e6cb;
+      color: #155724;
+    }
+    .H {
+      background: #fff3cd;
+      border-color: #ffeaa7;
+      color: #856404;
+    }
+    .A {
+      background: #f8d7da;
+      border-color: #f5c6cb;
+      color: #721c24;
+    }
+    .calendar-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 1px;
+      background: #dee2e6;
+      margin-bottom: 1px;
+    }
+    .weekday-header {
+      background: #495057;
+      color: white;
+      padding: 8px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+    .staff-info {
+      grid-column: 1 / -1;
+      background: linear-gradient(to bottom, #fff, #f8f9fa);
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+      font-weight: 500;
+    }
+    .staff-info .meta {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+    .staff-info .salary-history {
+      font-size: 11px;
+      color: #888;
+      white-space: pre-line;
+      margin-top: 8px;
     }
     table {
       border-collapse: collapse;
@@ -133,6 +248,7 @@
       border-radius: var(--border-radius);
       overflow: hidden;
       box-shadow: var(--shadow);
+      display: none; /* Hide original table */
     }
     th, td {
       padding: 12px;
@@ -170,21 +286,6 @@
     }
     .status-btn:hover {
       transform: scale(1.05);
-    }
-    .P {
-      background: #d4edda;
-      border-color: #c3e6cb;
-      color: #155724;
-    }
-    .H {
-      background: #fff3cd;
-      border-color: #ffeaa7;
-      color: #856404;
-    }
-    .A {
-      background: #f8d7da;
-      border-color: #f5c6cb;
-      color: #721c24;
     }
     .legend {
       display: flex;
@@ -426,17 +527,17 @@
       .staff-list {
         max-height: 250px;
       }
-      th, td {
-        padding: 10px 6px;
-        min-width: 55px;
+      .calendar-grid {
+        max-width: 100%;
       }
-      td.namecol {
-        min-width: 180px;
+      .calendar-day {
+        padding: 6px;
+        min-height: 50px;
       }
-      .status-btn {
-        padding: 6px 10px;
-        font-size: 11px;
-        min-width: 35px;
+      .calendar-status {
+        padding: 3px 6px;
+        font-size: 10px;
+        min-width: 25px;
       }
       .salary-inputs {
         gap: 10px;
@@ -489,8 +590,8 @@
         font-size: 16px; /* Touch-friendly */
       }
       .small {
-        padding: 8px 14px;
-        font-size: 14px;
+        padding: 10px 16px;
+        font-size: 16px;
       }
       .staff-list {
         max-height: 200px;
@@ -514,19 +615,21 @@
       .legend span {
         font-size: 12px;
       }
-      th, td {
-        padding: 8px 4px;
-        min-width: 50px;
-        font-size: 13px;
+      .calendar-grid {
+        max-width: 100%;
+        gap: 0.5px;
       }
-      td.namecol {
-        min-width: 100%;
-        font-size: 14px;
+      .calendar-day {
+        padding: 6px;
+        min-height: 45px;
       }
-      .status-btn {
-        padding: 8px 12px;
-        font-size: 14px;
-        min-width: 45px;
+      .calendar-day-header {
+        font-size: 11px;
+      }
+      .calendar-status {
+        padding: 4px 8px;
+        font-size: 12px;
+        min-width: 30px;
       }
       .attendance-grid {
         -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
@@ -547,8 +650,8 @@
         gap: 4px;
       }
       .tab-btn {
-        padding: 8px 12px;
-        font-size: 14px;
+        padding: 10px 12px;
+        font-size: 16px;
         flex: 1;
         min-width: 120px;
       }
@@ -593,22 +696,24 @@
       .staff-list {
         max-height: 180px;
       }
-      th, td {
-        padding: 6px 2px;
-        min-width: 45px;
-        font-size: 12px;
+      .calendar-grid {
+        gap: 0.5px;
       }
-      td.namecol {
-        min-width: 80%;
+      .calendar-day {
+        padding: 4px;
+        min-height: 40px;
       }
-      .status-btn {
-        padding: 6px 8px;
-        font-size: 12px;
-        min-width: 40px;
+      .calendar-day-header {
+        font-size: 10px;
+      }
+      .calendar-status {
+        padding: 3px 6px;
+        font-size: 11px;
+        min-width: 25px;
       }
       .tab-btn {
-        padding: 10px 8px;
-        font-size: 13px;
+        padding: 12px 10px;
+        font-size: 16px;
       }
       .month-section, .total-section, .salary-section {
         padding: 10px;
@@ -621,6 +726,12 @@
       .payments-list .payment-actions .small {
         width: 100%;
         justify-content: center;
+        padding: 12px 16px;
+        font-size: 16px;
+      }
+      .small {
+        padding: 12px 16px;
+        font-size: 16px;
       }
     }
   </style>
@@ -680,9 +791,10 @@
 
       <div class="card attendance-grid">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-          <h2 style="margin:0;font-size:18px"><i class="fas fa-table"></i> Attendance Table</h2>
+          <h2 style="margin:0;font-size:18px"><i class="fas fa-calendar"></i> Attendance Calendar</h2>
           <div id="currentInfo" class="muted"></div>
         </div>
+        <div id="calendarWrap"></div>
         <div id="tableWrap"></div>
 
         <div class="salary-section" id="salarySection" style="display:none">
@@ -871,6 +983,7 @@
     const selectStaff=document.getElementById('selectStaff');
     const selMonth=document.getElementById('selMonth');
     const selYear=document.getElementById('selYear');
+    const calendarWrap=document.getElementById('calendarWrap');
     const tableWrap=document.getElementById('tableWrap');
     const gotoToday=document.getElementById('gotoToday');
     const currentInfo=document.getElementById('currentInfo');
@@ -912,10 +1025,10 @@
         const div=document.createElement('div');div.className='staff-item';
         const meta=document.createElement('div');meta.className='meta';meta.innerHTML=`<strong>${s.name}</strong><div style="font-size:12px;color:#666">${s.mobile} • ₹${s.salary}/day • Joined: ${formatDate(s.joiningDate)}</div>`;
         const ctrl=document.createElement('div');ctrl.className='controls';
-        const edit=document.createElement('button');edit.innerHTML='<i class="fas fa-edit"></i> Edit';edit.className='small';
-        const del=document.createElement('button');del.innerHTML='<i class="fas fa-trash"></i> Delete';del.className='small';
+        const edit=document.createElement('button');edit.innerHTML='<i class="fas fa-edit"></i>';edit.className='small';edit.title=`Edit ${s.name}`;
+        const del=document.createElement('button');del.innerHTML='<i class="fas fa-trash"></i>';del.className='small';del.title=`Delete ${s.name}`;
         edit.onclick=()=>{nameEl.value=s.name;mobileEl.value=s.mobile;salaryEl.value=s.salary;joiningDateEl.value=s.joiningDate||'';salaryEffectiveDateEl.style.display='block';salaryEffectiveDateEl.value=ymd(new Date());addBtn.dataset.edit=s.id;addBtn.textContent='Update'};
-        del.onclick=()=>{if(confirm('Delete staff '+s.name+'?')){staffList=staffList.filter(x=>x.id!==s.id);delete records[s.id];delete payments[s.id];saveAll();renderStaff();renderTable();}}
+        del.onclick=()=>{if(confirm('Delete staff '+s.name+'?')){staffList=staffList.filter(x=>x.id!==s.id);delete records[s.id];delete payments[s.id];saveAll();renderStaff();renderCalendar();}}
         ctrl.appendChild(edit);ctrl.appendChild(del);
         div.appendChild(meta);div.appendChild(ctrl);staffListWrap.appendChild(div);
       });
@@ -955,10 +1068,10 @@
       nameEl.value=mobileEl.value=salaryEl.value=joiningDateEl.value='';saveAll();renderStaff();
       selectStaff.value = newStaffId;
       const activeTab = tabControls.querySelector('.active')?.dataset.tab || 'current';
-      renderTable(activeTab);
+      renderCalendar(activeTab);
     });
 
-    clearAll.addEventListener('click', async ()=>{if(confirm('Clear ALL data (staff + attendance + payments)?')){await removeFromDB(KEY_STAFF);await removeFromDB(KEY_ATT);await removeFromDB(KEY_PAYMENTS);staffList=[];records={};payments={};renderStaff();renderTable();}})
+    clearAll.addEventListener('click', async ()=>{if(confirm('Clear ALL data (staff + attendance + payments)?')){await removeFromDB(KEY_STAFF);await removeFromDB(KEY_ATT);await removeFromDB(KEY_PAYMENTS);staffList=[];records={};payments={};renderStaff();renderCalendar();}})
 
     // --- Utility: format date YYYY-MM-DD
     function ymd(d){const y=d.getFullYear();const m=String(d.getMonth()+1).padStart(2,'0');const day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`}
@@ -1008,76 +1121,149 @@
       }
     }
 
-    // --- Build table for chosen staff and month/year
-    function renderTable(activeTab = 'current') {
-      const staffId=selectStaff.value;
-      const month=parseInt(selMonth.value,10);
-      const year=parseInt(selYear.value,10);
-      if(!Number.isFinite(month) || !Number.isFinite(year) || !staffId){tableWrap.innerHTML='<div class="muted">Select a staff and month/year to view attendance.</div>';currentInfo.textContent='';salarySection.style.display='none';tabControls.style.display='none';ledgerWrap.innerHTML='';return}
-      const staff=staffList.find(s=>s.id===staffId);
-      if(!staff){tableWrap.innerHTML='<div class="muted">Staff not found.</div>';return}
+    // --- Build calendar for chosen staff and month/year
+    function renderCalendar(activeTab = 'current') {
+      const staffId = selectStaff.value;
+      const month = parseInt(selMonth.value, 10);
+      const year = parseInt(selYear.value, 10);
+      if (!Number.isFinite(month) || !Number.isFinite(year) || !staffId) {
+        calendarWrap.innerHTML = '<div class="muted">Select a staff and month/year to view attendance.</div>';
+        currentInfo.textContent = '';
+        salarySection.style.display = 'none';
+        tabControls.style.display = 'none';
+        ledgerWrap.innerHTML = '';
+        tableWrap.innerHTML = '';
+        return;
+      }
+      const staff = staffList.find(s => s.id === staffId);
+      if (!staff) {
+        calendarWrap.innerHTML = '<div class="muted">Staff not found.</div>';
+        return;
+      }
       const joiningDate = staff.joiningDate || '';
       const joiningDt = joiningDate ? new Date(joiningDate) : new Date(1970, 0, 1);
+      const monthStart = new Date(year, month, 1);
       const monthEnd = new Date(year, month + 1, 0);
-      if(monthEnd < joiningDt){tableWrap.innerHTML='<div class="muted">Before joining date.</div>';currentInfo.textContent='';salarySection.style.display='none';tabControls.style.display='none';ledgerWrap.innerHTML='';return}
-      const monthStartKey = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+      if (monthEnd < joiningDt) {
+        calendarWrap.innerHTML = '<div class="muted">Before joining date.</div>';
+        currentInfo.textContent = '';
+        salarySection.style.display = 'none';
+        tabControls.style.display = 'none';
+        ledgerWrap.innerHTML = '';
+        tableWrap.innerHTML = '';
+        return;
+      }
       const now = new Date();
       const todayKey = ymd(now);
-      if(monthStartKey > todayKey){tableWrap.innerHTML='<div class="muted">Future month - no attendance yet.</div>';currentInfo.textContent='';salarySection.style.display='none';tabControls.style.display='none';ledgerWrap.innerHTML='';return}
+      if (ymd(monthStart) > todayKey) {
+        calendarWrap.innerHTML = '<div class="muted">Future month - no attendance yet.</div>';
+        currentInfo.textContent = '';
+        salarySection.style.display = 'none';
+        tabControls.style.display = 'none';
+        ledgerWrap.innerHTML = '';
+        tableWrap.innerHTML = '';
+        return;
+      }
       let startDay = 1;
-      if(joiningDt.getFullYear() === year && joiningDt.getMonth() === month) {
+      if (joiningDt.getFullYear() === year && joiningDt.getMonth() === month) {
         startDay = joiningDt.getDate();
       }
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const daysInMonth = monthEnd.getDate();
       let lastDay;
-      if(ymd(monthEnd) < ymd(now)){
+      if (ymd(monthEnd) < todayKey) {
         lastDay = daysInMonth;
-      }else{
+      } else {
         lastDay = now.getDate();
       }
       lastDay = Math.min(lastDay, daysInMonth);
 
       // ensure record exists for this staff
-      if(!records[staffId]) records[staffId] = {};
+      if (!records[staffId]) records[staffId] = {};
       // auto-fill dates up to lastDay as Present if not already set and past/today
-      for(let d=startDay; d<=lastDay; d++){
+      for (let d = startDay; d <= lastDay; d++) {
         const dt = new Date(year, month, d);
         const key = ymd(dt);
-        if(key <= todayKey && !records[staffId][key]) records[staffId][key] = 'P';
+        if (key <= todayKey && !records[staffId][key]) records[staffId][key] = 'P';
       }
       saveAll();
 
-      // build table
-      let html = '<table><thead><tr>';
-      html += '<th class="sticky">Name</th>';
-      for(let d=startDay; d<=lastDay; d++){
-        const dt = new Date(year, month, d);
-        const dayName = dt.toLocaleDateString('en-US', {weekday: 'short'});
-        html += `<th>${d} ${dayName}</th>`;
-      }
-      html += '</tr></thead><tbody>';
+      // Build calendar
+      const firstDayWeekday = monthStart.getDay(); // 0 = Sunday
+      const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      let html = '<div class="calendar-container">';
+      html += '<div class="calendar-header">';
+      html += `<div>${staff.name} - ${selMonth.options[selMonth.selectedIndex].text} ${year}</div>`;
+      html += `<div class="muted" style="font-size:12px;">${staff.mobile} • ₹${staff.salary}/day</div>`;
+      html += '</div>';
 
-      const salaryHistoryHtml = Object.entries(staff.salaryHistory || {}).sort(([a],[b])=>a.localeCompare(b)).map(([d,s])=>`${formatDate(d)}: ₹${s}`).join('<br>');
-      html += `<tr><td class="namecol">${staff.name}<div style="font-size:12px;color:#666">${staff.mobile} • ₹${staff.salary}/day • Joined: ${formatDate(staff.joiningDate)}</div><div style="font-size:11px;color:#888;white-space:pre-line">Salary History:<br>${salaryHistoryHtml}</div></td>`;
-      for(let d=startDay; d<=lastDay; d++){
-        const dt = new Date(year, month, d);
+      // Weekday headers
+      html += '<div class="calendar-weekdays">';
+      weekdays.forEach(day => {
+        html += `<div class="weekday-header">${day}</div>`;
+      });
+      html += '</div>';
+
+      // Staff info row (spans all columns)
+      html += '<div class="staff-info">';
+      const salaryHistoryHtml = Object.entries(staff.salaryHistory || {}).sort(([a], [b]) => a.localeCompare(b)).map(([d, s]) => `${formatDate(d)}: ₹${s}`).join('<br>');
+      html += `<div><strong>${staff.name}</strong></div>`;
+      html += `<div class="meta">Mobile: ${staff.mobile} • Salary: ₹${staff.salary}/day • Joined: ${formatDate(staff.joiningDate)}</div>`;
+      if (salaryHistoryHtml) {
+        html += `<div class="salary-history">Salary History:<br>${salaryHistoryHtml}</div>`;
+      }
+      html += '</div>';
+
+      // Calendar grid
+      html += '<div class="calendar-grid">';
+      let dayCounter = 1;
+      let isOtherMonth = false;
+
+      // Empty cells for days before month start
+      for (let i = 0; i < firstDayWeekday; i++) {
+        html += '<div class="calendar-day other-month"></div>';
+      }
+
+      // Days of the month
+      for (let i = firstDayWeekday; i < 42; i++) { // Up to 6 weeks
+        if (dayCounter > daysInMonth) break;
+        const dt = new Date(year, month, dayCounter);
         const key = ymd(dt);
-        const st = records[staffId][key] || 'P';
+        const isPastOrToday = key <= todayKey;
+        const st = isPastOrToday ? (records[staffId][key] || 'P') : '';
         const dailySalary = getSalaryOnDate(staffId, key);
         let earnings = 0;
         if (st === 'P') earnings = dailySalary;
         else if (st === 'H') earnings = 0.5 * dailySalary;
         else if (st === 'A') earnings = 0;
-        html += `<td><button class="status-btn ${st}" data-date="${key}" title="Earnings: ₹${earnings.toFixed(2)}">${st}</button></td>`;
+
+        html += `<div class="calendar-day${dayCounter < startDay ? ' other-month' : ''}">`;
+        html += `<div class="calendar-day-weekday">${weekdays[i % 7]}</div>`;
+        html += `<div class="calendar-day-header">${dayCounter}</div>`;
+        if (dayCounter >= startDay && isPastOrToday) {
+          html += `<button class="calendar-status ${st}" data-date="${key}" title="Earnings: ₹${earnings.toFixed(2)}">${st}</button>`;
+        } else if (!isPastOrToday) {
+          html += '<div class="muted" style="font-size:10px;">Future</div>';
+        } else {
+          html += '<div class="muted" style="font-size:10px;">Pre-join</div>';
+        }
+        html += '</div>';
+        dayCounter++;
       }
-      html += '</tr>';
-      html += '</tbody></table>';
-      tableWrap.innerHTML = html;
-      currentInfo.textContent = `${staff.name} — ${selMonth.options[selMonth.selectedIndex].text} ${year}`;
+
+      // Fill remaining cells with next month if needed
+      while (dayCounter <= 42) {
+        html += '<div class="calendar-day other-month"></div>';
+        dayCounter++;
+      }
+
+      html += '</div>';
+      html += '</div>';
+      calendarWrap.innerHTML = html;
+      currentInfo.textContent = '';
 
       // attach clicks to toggle statuses
-      tableWrap.querySelectorAll('.status-btn').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
+      calendarWrap.querySelectorAll('.calendar-status').forEach(btn => {
+        btn.addEventListener('click', () => {
           const date = btn.dataset.date;
           const cur = records[staffId][date] || 'P';
           const next = cur === 'P' ? 'H' : (cur === 'H' ? 'A' : 'P');
@@ -1085,7 +1271,9 @@
           const daily = getSalaryOnDate(staffId, date);
           const newEarnings = next === 'P' ? daily : (next === 'H' ? 0.5 * daily : 0);
           saveAll();
-          btn.classList.remove('P','H','A');btn.classList.add(next);btn.textContent = next;
+          btn.classList.remove('P', 'H', 'A');
+          btn.classList.add(next);
+          btn.textContent = next;
           btn.title = `Earnings: ₹${newEarnings.toFixed(2)}`;
           // Recalculate due after change
           renderSalarySection();
@@ -1093,7 +1281,21 @@
           if (activeTab === 'ledger') renderLedger();
         });
         // right click to set Absent quickly
-        btn.addEventListener('contextmenu', (e)=>{e.preventDefault();const date=btn.dataset.date;records[staffId][date]='A';const daily = getSalaryOnDate(staffId, date);const newEarnings = 0;saveAll();btn.classList.remove('P','H','A');btn.classList.add('A');btn.textContent='A';btn.title = `Earnings: ₹${newEarnings.toFixed(2)}`; renderSalarySection(); const activeTab = tabControls.querySelector('.active')?.dataset.tab || 'current'; if (activeTab === 'ledger') renderLedger();});
+        btn.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          const date = btn.dataset.date;
+          records[staffId][date] = 'A';
+          const daily = getSalaryOnDate(staffId, date);
+          const newEarnings = 0;
+          saveAll();
+          btn.classList.remove('P', 'H', 'A');
+          btn.classList.add('A');
+          btn.textContent = 'A';
+          btn.title = `Earnings: ₹${newEarnings.toFixed(2)}`;
+          renderSalarySection();
+          const activeTab = tabControls.querySelector('.active')?.dataset.tab || 'current';
+          if (activeTab === 'ledger') renderLedger();
+        });
       });
 
       // Show salary section and tabs
@@ -1101,7 +1303,7 @@
       tabControls.style.display = 'flex';
       setTodayDate(paymentDateEl);
       renderSalarySection();
-      if(activeTab === 'ledger') renderLedger();
+      if (activeTab === 'ledger') renderLedger();
       else renderCurrentMonth();
     }
 
@@ -1136,7 +1338,7 @@
           <div class="payments-list">
             <h5>Payments:</h5>
             <ul>
-              ${monthPayments.map((p, idx) => `<li><span class="payment-meta">${formatDate(p.date)}: ₹${p.amount.toFixed(2)} ${p.description ? `- ${p.description}` : ''}</span><div class="payment-actions"><button class="small edit-payment-btn" data-ym="${ym}" data-idx="${idx}"><i class="fas fa-edit"></i> Edit</button><button class="small delete-payment-btn" data-ym="${ym}" data-idx="${idx}"><i class="fas fa-trash"></i> Delete</button></div></li>`).join('')}
+              ${monthPayments.map((p, idx) => `<li><span class="payment-meta">${formatDate(p.date)}: ₹${p.amount.toFixed(2)} ${p.description ? `- ${p.description}` : ''}</span><div class="payment-actions"><button class="small edit-payment-btn" data-ym="${ym}" data-idx="${idx}" title="Edit payment"><i class="fas fa-edit"></i></button><button class="small delete-payment-btn" data-ym="${ym}" data-idx="${idx}" title="Delete payment"><i class="fas fa-trash"></i></button></div></li>`).join('')}
             </ul>
           </div>
         `;
@@ -1182,12 +1384,14 @@
         salInput.value = sal;
         salInput.step = '0.01';
         const updateBtn = document.createElement('button');
-        updateBtn.innerHTML = '<i class="fas fa-save"></i> Update';
+        updateBtn.innerHTML = '<i class="fas fa-save"></i>';
         updateBtn.className = 'small';
+        updateBtn.title = 'Update entry';
         updateBtn.onclick = () => updateHistoryEntry(staffId, idx, dateInput.value, parseFloat(salInput.value));
         const delBtn = document.createElement('button');
-        delBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';
+        delBtn.innerHTML = '<i class="fas fa-trash"></i>';
         delBtn.className = 'small';
+        delBtn.title = 'Delete entry';
         delBtn.onclick = () => deleteHistoryEntry(staffId, idx);
         div.append(dateInput, salInput, updateBtn, delBtn);
         historyList.appendChild(div);
@@ -1210,7 +1414,7 @@
       saveAll();
       renderHistoryManager();
       const activeTab = tabControls.querySelector('.active')?.dataset.tab || 'current';
-      renderTable(activeTab);
+      renderCalendar(activeTab);
     }
 
     function deleteHistoryEntry(staffId, idx) {
@@ -1229,7 +1433,7 @@
         saveAll();
         renderHistoryManager();
         const activeTab = tabControls.querySelector('.active')?.dataset.tab || 'current';
-        renderTable(activeTab);
+        renderCalendar(activeTab);
       }
     }
 
@@ -1250,7 +1454,7 @@
       saveAll();
       renderHistoryManager();
       const activeTab = tabControls.querySelector('.active')?.dataset.tab || 'current';
-      renderTable(activeTab);
+      renderCalendar(activeTab);
     });
 
     manageHistory.addEventListener('click', () => {
@@ -1282,7 +1486,7 @@
         const m = parseInt(mStr) - 1;
         selMonth.value = m;
         selYear.value = y;
-        renderTable('current');
+        renderCalendar('current');
       } else if (e.target.classList.contains('delete-payment-btn')) {
         const ym = e.target.dataset.ym;
         const idx = parseInt(e.target.dataset.idx);
@@ -1354,8 +1558,8 @@
         // Switch view to the payment's month
         selMonth.value = payMonth;
         selYear.value = payYear;
-        renderTable('current');
-        return; // Since renderTable calls renderSalarySection
+        renderCalendar('current');
+        return; // Since renderCalendar calls renderSalarySection
       }
       saveAll();
       // Reset form
@@ -1440,7 +1644,7 @@
             <div class="payments-list">
               <h5>Payments:</h5>
               <ul>
-                ${payments.map((p, idx) => `<li><span class="payment-meta">${formatDate(p.date)}: ₹${p.amount.toFixed(2)} ${p.description ? `- ${p.description}` : ''}</span><div class="payment-actions"><button class="small edit-payment-btn" data-ym="${ym}" data-idx="${idx}"><i class="fas fa-edit"></i> Edit</button><button class="small delete-payment-btn" data-ym="${ym}" data-idx="${idx}"><i class="fas fa-trash"></i> Delete</button></div></li>`).join('') || '<li>No payments</li>'}
+                ${payments.map((p, idx) => `<li><span class="payment-meta">${formatDate(p.date)}: ₹${p.amount.toFixed(2)} ${p.description ? `- ${p.description}` : ''}</span><div class="payment-actions"><button class="small edit-payment-btn" data-ym="${ym}" data-idx="${idx}" title="Edit payment"><i class="fas fa-edit"></i></button><button class="small delete-payment-btn" data-ym="${ym}" data-idx="${idx}" title="Delete payment"><i class="fas fa-trash"></i></button></div></li>`).join('') || '<li>No payments</li>'}
               </ul>
             </div>
           </div>
@@ -1492,16 +1696,16 @@
         tabControls.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         const ledgerBtn = tabControls.querySelector('[data-tab="ledger"]');
         if(ledgerBtn) ledgerBtn.classList.add('active');
-        renderTable('ledger'); 
+        renderCalendar('ledger'); 
       } else {
-        renderTable();
+        renderCalendar();
       }
     });
-    selMonth.addEventListener('change', () => { renderTable(tabControls.querySelector('.active')?.dataset.tab || 'current'); });
-    selYear.addEventListener('change', () => { renderTable(tabControls.querySelector('.active')?.dataset.tab || 'current'); });
+    selMonth.addEventListener('change', () => { renderCalendar(tabControls.querySelector('.active')?.dataset.tab || 'current'); });
+    selYear.addEventListener('change', () => { renderCalendar(tabControls.querySelector('.active')?.dataset.tab || 'current'); });
 
     gotoToday.addEventListener('click', ()=>{
-      const now=new Date();selMonth.value=now.getMonth();selYear.value=now.getFullYear();renderTable();
+      const now=new Date();selMonth.value=now.getMonth();selYear.value=now.getFullYear();renderCalendar();
     });
 
     exportJSON.addEventListener('click', ()=>{
@@ -1530,7 +1734,7 @@
       const now=new Date();selMonth.value=now.getMonth();selYear.value=now.getFullYear();
       setTodayDate(paymentDateEl);
       renderStaff();
-      renderTable();
+      renderCalendar();
 
       // Pre-populate with example staff if none exist (optional — comment out if unwanted)
       if(staffList.length===0){
@@ -1541,7 +1745,7 @@
       }
 
       // When the page loads, ensure that for currently selected staff and month, today's date is auto-marked present.
-      if(selectStaff.value) renderTable();
+      if(selectStaff.value) renderCalendar();
     }
 
     // --- init
@@ -1550,5 +1754,3 @@
   </script>
 </body>
 </html>
-
-IMPROVE UI FOR SMALL DEVICES  LIKE MOBILE FOR EASY CONTROL
