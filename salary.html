@@ -1479,7 +1479,15 @@
     selectStaff.addEventListener('change', () => { 
       const staffId = selectStaff.value;
       manageHistory.style.display = staffId ? 'block' : 'none';
-      renderTable(tabControls.querySelector('.active')?.dataset.tab || 'current'); 
+      if(staffId){
+        // Activate ledger tab
+        tabControls.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        const ledgerBtn = tabControls.querySelector('[data-tab="ledger"]');
+        if(ledgerBtn) ledgerBtn.classList.add('active');
+        renderTable('ledger'); 
+      } else {
+        renderTable();
+      }
     });
     selMonth.addEventListener('change', () => { renderTable(tabControls.querySelector('.active')?.dataset.tab || 'current'); });
     selYear.addEventListener('change', () => { renderTable(tabControls.querySelector('.active')?.dataset.tab || 'current'); });
