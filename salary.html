@@ -853,11 +853,11 @@
             </div>
             <button id="recordPayment" class="small"><i class="fas fa-plus-circle"></i> Record Payment</button>
           </div>
-          <div class="none" id="monthlyInfo"></div>
+          <div id="monthlyInfo"></div>
         </div>
 
         <div class="tab-controls" id="tabControls" style="display:none">
-         
+          <button class="tab-btn active" data-tab="current"><i class="fas fa-calendar"></i> Attendance</button>
           <button class="tab-btn" data-tab="ledger"><i class="fas fa-book"></i> Full Ledger</button>
         </div>
 
@@ -960,6 +960,7 @@
     let staffList = [];
     let records = {};
     let payments = {};
+    let currentTab = 'current';
 
     // --- Get salary effective on a specific date
     function getSalaryOnDate(staffId, dateStr) {
@@ -1095,7 +1096,7 @@
         const edit=document.createElement('button');edit.innerHTML='<i class="fas fa-edit"></i>';edit.className='small';edit.title=`Edit ${s.name}`;
         const del=document.createElement('button');del.innerHTML='<i class="fas fa-trash"></i>';del.className='small';del.title=`Delete ${s.name}`;
         edit.onclick=()=>{nameEl.value=s.name;mobileEl.value=s.mobile;salaryEl.value=s.salary;joiningDateEl.value=s.joiningDate||'';salaryEffectiveDateEl.style.display='block';salaryEffectiveDateEl.value=ymd(new Date());addBtn.dataset.edit=s.id;addBtn.textContent='Update';modalTitle.textContent='Edit Staff';modal.style.display='block';};
-        del.onclick=()=>{if(confirm('Delete staff '+s.name+'?')){staffList=staffList.filter(x=>x.id!==s.id);delete records[s.id];delete payments[s.id];saveAll();renderStaff();renderCalendar();}}
+        del.onclick=()=>{if(confirm('Delete staff '+s.name+'?')){staffList=staffList.filter(x=>x.id!==s.id);delete records[s.id];delete payments[s.id];saveAll();renderStaff();renderCalendar(currentTab);}}
         ctrl.appendChild(edit);ctrl.appendChild(del);
         div.appendChild(meta);div.appendChild(ctrl);staffListWrap.appendChild(div);
       });
@@ -1134,8 +1135,7 @@
       }
       nameEl.value=mobileEl.value=salaryEl.value=joiningDateEl.value='';saveAll();renderStaff();
       selectStaff.value = newStaffId;
-      const activeTab = newStaffId ? 'ledger' : 'current';
-      renderCalendar(activeTab);
+      renderCalendar('current');
       modal.style.display = 'none';
     });
 
@@ -1188,7 +1188,7 @@
     }
 
     // --- Build calendar for chosen staff and month/year
-    function renderCalendar(activeTab = 'current') {
+    function renderCalendar(activeTab = currentTab) {
       const staffId = selectStaff.value;
       const month = parseInt(selMonth.value, 10);
       const year = parseInt(selYear.value, 10);
@@ -1198,6 +1198,7 @@
         salarySection.style.display = 'none';
         tabControls.style.display = 'none';
         ledgerWrap.innerHTML = '';
+        ledgerWrap.style.display = 'none';
         tableWrap.innerHTML = '';
         return;
       }
@@ -1216,6 +1217,7 @@
         salarySection.style.display = 'none';
         tabControls.style.display = 'none';
         ledgerWrap.innerHTML = '';
+        ledgerWrap.style.display = 'none';
         tableWrap.innerHTML = '';
         return;
       }
@@ -1227,6 +1229,7 @@
         salarySection.style.display = 'none';
         tabControls.style.display = 'none';
         ledgerWrap.innerHTML = '';
+        ledgerWrap.style.display = 'none';
         tableWrap.innerHTML = '';
         return;
       }
@@ -1253,26 +1256,29 @@
       }
       saveAll();
 
+      if (activeTab === 'ledger') {
+        renderLedger();
+        calendarWrap.style.display = 'none';
+        ledgerWrap.style.display = 'block';
+        tabControls.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector('[data-tab="ledger"]').classList.add('active');
+        currentTab = 'ledger';
+        return;
+      }
+
       // Build calendar
       const firstDayWeekday = monthStart.getDay(); // 0 = Sunday
       const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       let html = '<div class="calendar-container">';
       
-      
-     
-      html += '</div>';
-
-
-      
-
       // Staff info row (spans all columns)
       html += '<div class="staff-info">';
       const salaryHistoryHtml = Object.entries(staff.salaryHistory || {}).sort(([a], [b]) => a.localeCompare(b)).map(([d, s]) => `${formatDate(d)}: ₹${s}`).join('<br>');
       html += `<div><strong>${staff.name}</strong></div>`;
       html += `<div class="meta">Mobile: ${staff.mobile} • Salary: ₹${staff.salary}/day • Joined: ${formatDate(staff.joiningDate)}</div>`;
+      html += `<div>${selMonth.options[selMonth.selectedIndex].text} ${year}</div>`;
       if (salaryHistoryHtml) {
-        html += `<div class="salary-history">Salary History:<br>${salaryHistoryHtml} </div>`;
-		html += `<div>${selMonth.options[selMonth.selectedIndex].text} ${year}</div>`;
+        html += `<div class="salary-history">Salary History:<br>${salaryHistoryHtml}</div>`;
       }
       html += '</div>';
 
@@ -1340,8 +1346,7 @@
           btn.title = `Earnings: ₹${newEarnings.toFixed(2)}`;
           // Recalculate due after change
           renderSalarySection();
-          const activeTab = selectStaff.value ? 'ledger' : 'current';
-          if (activeTab === 'ledger') renderLedger();
+          if (currentTab === 'ledger') renderLedger();
         });
         // right click to set Absent quickly
         btn.addEventListener('contextmenu', (e) => {
@@ -1356,21 +1361,20 @@
           btn.textContent = 'A';
           btn.title = `Earnings: ₹${newEarnings.toFixed(2)}`;
           renderSalarySection();
-          const activeTab = selectStaff.value ? 'ledger' : 'current';
-          if (activeTab === 'ledger') renderLedger();
+          if (currentTab === 'ledger') renderLedger();
         });
       });
 
       // Show salary section and tabs
       salarySection.style.display = 'block';
       tabControls.style.display = 'flex';
-      if (activeTab === 'ledger') {
-        tabControls.style.display = 'none';
-      }
+      calendarWrap.style.display = 'block';
+      ledgerWrap.style.display = 'none';
+      tabControls.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`[data-tab="${activeTab}"]`).classList.add('active');
+      currentTab = activeTab;
       setTodayDate(paymentDateEl);
       renderSalarySection();
-      if (activeTab === 'ledger') renderLedger();
-      else renderCurrentMonth();
     }
 
     // --- Render salary section (current month)
@@ -1479,8 +1483,7 @@
       staff.salary = staff.salaryHistory[sortedDates[0]];
       saveAll();
       renderHistoryManager();
-      const activeTab = selectStaff.value ? 'ledger' : 'current';
-      renderCalendar(activeTab);
+      renderCalendar(currentTab);
     }
 
     function deleteHistoryEntry(staffId, idx) {
@@ -1498,8 +1501,7 @@
         }
         saveAll();
         renderHistoryManager();
-        const activeTab = selectStaff.value ? 'ledger' : 'current';
-        renderCalendar(activeTab);
+        renderCalendar(currentTab);
       }
     }
 
@@ -1519,8 +1521,7 @@
       staff.salary = newSal;
       saveAll();
       renderHistoryManager();
-      const activeTab = selectStaff.value ? 'ledger' : 'current';
-      renderCalendar(activeTab);
+      renderCalendar(currentTab);
     });
 
     manageHistory.addEventListener('click', () => {
@@ -1552,7 +1553,8 @@
         const m = parseInt(mStr) - 1;
         selMonth.value = m;
         selYear.value = y;
-        renderCalendar('ledger');
+        renderSalarySection();
+        renderCalendar(currentTab);
       } else if (e.target.classList.contains('delete-payment-btn')) {
         const ym = e.target.dataset.ym;
         const idx = parseInt(e.target.dataset.idx);
@@ -1562,9 +1564,7 @@
             delete payments[staffId][ym];
           }
           saveAll();
-          renderSalarySection();
-          const activeTab = selectStaff.value ? 'ledger' : 'current';
-          if (activeTab === 'ledger') renderLedger();
+          renderCalendar(currentTab);
         }
       }
     });
@@ -1624,7 +1624,7 @@
         // Switch view to the payment's month
         selMonth.value = payMonth;
         selYear.value = payYear;
-        renderCalendar('ledger');
+        renderCalendar(currentTab);
         return; // Since renderCalendar calls renderSalarySection
       }
       saveAll();
@@ -1637,11 +1637,8 @@
       paymentDescEl.value = '';
       setTodayDate(paymentDateEl);
       renderSalarySection();
-      const activeTab = selectStaff.value ? 'ledger' : 'current';
-      if (activeTab === 'ledger') renderLedger();
+      if (currentTab === 'ledger') renderLedger();
     });
-
-    // --- Render current month (already in renderSalarySection)
 
     // --- Render full ledger
     function renderLedger() {
@@ -1738,18 +1735,12 @@
       saveAll();
     }
 
-    function renderCurrentMonth() {
-      ledgerWrap.innerHTML = ''; // Hide ledger for current tab
-    }
-
     // --- Tab switching
     tabControls.addEventListener('click', (e) => {
       if(e.target.classList.contains('tab-btn')) {
-        tabControls.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        e.target.classList.add('active');
         const tab = e.target.dataset.tab;
-        if(tab === 'ledger') renderLedger();
-        else renderCurrentMonth();
+        currentTab = tab;
+        renderCalendar(tab);
       }
     });
 
@@ -1758,25 +1749,22 @@
       const staffId = selectStaff.value;
       manageHistory.style.display = staffId ? 'block' : 'none';
       if(staffId){
-        tabControls.style.display = 'none';
-        renderCalendar('ledger'); 
+        currentTab = 'current';
+        renderCalendar(currentTab);
       } else {
         renderCalendar();
       }
     });
     selMonth.addEventListener('change', () => { 
-      const activeTab = selectStaff.value ? 'ledger' : 'current';
-      renderCalendar(activeTab); 
+      renderCalendar(currentTab); 
     });
     selYear.addEventListener('change', () => { 
-      const activeTab = selectStaff.value ? 'ledger' : 'current';
-      renderCalendar(activeTab); 
+      renderCalendar(currentTab); 
     });
 
     gotoToday.addEventListener('click', ()=>{
       const now=new Date();selMonth.value=now.getMonth();selYear.value=now.getFullYear();
-      const activeTab = selectStaff.value ? 'ledger' : 'current';
-      renderCalendar(activeTab);
+      renderCalendar(currentTab);
     });
 
     exportJSON.addEventListener('click', ()=>{
@@ -1797,8 +1785,7 @@
       }
       selMonth.value = month;
       selYear.value = year;
-      const activeTab = selectStaff.value ? 'ledger' : 'current';
-      renderCalendar(activeTab);
+      renderCalendar(currentTab);
     });
 
     nextMonth.addEventListener('click', () => {
@@ -1812,8 +1799,7 @@
       }
       selMonth.value = month;
       selYear.value = year;
-      const activeTab = selectStaff.value ? 'ledger' : 'current';
-      renderCalendar(activeTab);
+      renderCalendar(currentTab);
     });
 
     openStaffModal.addEventListener('click', () => {
