@@ -735,7 +735,7 @@
                     <div class="icon"></div>
                     <div class="text"></div>
                 </div>
-                <div class="category-card" ng-if="!isLoadingCategories" ng-repeat="category in categories" ng-click="setTab(category.filter, category.id)">
+                <div class="category-card" ng-if="!isLoadingCategories && category.productCount > 0" ng-repeat="category in categories" ng-click="setTab(category.filter, category.id)">
                     <img ng-src="{{category.imageUrl}}" alt="{{category.name}}" loading="lazy">
                     <span>{{category.name}}</span>
                     <small class="text-muted mt-1" ng-if="category.productCount > 0">({{category.productCount}})</small>
