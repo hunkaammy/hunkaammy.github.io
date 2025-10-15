@@ -735,7 +735,7 @@
                     <div class="icon"></div>
                     <div class="text"></div>
                 </div>
-                <div class="category-card" ng-if="!isLoadingCategories && category.productCount > 0" ng-repeat="category in categories" ng-click="setTab(category.filter, category.id)">
+                <div class="category-card" ng-if="!isLoadingCategories && category.productCount > 0" ng-repeat="category in categories" ng-click="dataReady ? setTab(category.filter, category.id) : null" ng-style="!dataReady ? {'pointer-events': 'none', 'opacity': 0.5} : {}">
                     <img ng-src="{{category.imageUrl}}" alt="{{category.name}}" loading="lazy">
                     <span>{{category.name}}</span>
                     <small class="text-muted mt-1" ng-if="category.productCount > 0">({{category.productCount}})</small>
@@ -1098,6 +1098,7 @@
         $scope.hasMoreProducts = false;
         $scope.isLoadingMore = false;
         $scope.filteredProducts = []; // Store full filtered list
+        $scope.dataReady = false; // New flag for data readiness
 
         var fetchConfig = { databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com" };
         var submitConfig = { databaseURL: "https://notes-12519-default-rtdb.firebaseio.com" };
@@ -1123,17 +1124,12 @@
           $scope.productCache.all = allData; // Cache full list
 
           $scope.$applyAsync(function() {
-            angular.forEach($scope.categories, function(category) {
-              if (category.filter === '') {
-                category.productCount = vm.images.length;
-              } else {
-                category.productCount = $filter('filter')(vm.images, { name: category.filter }).length;
-              }
-            });
+            $scope.refreshCategoryCounts();
             $scope.newlyArrivedProducts = $filter('orderBy')(vm.images, '-date').slice(0, 20); // Limit to 20 for faster render
             $scope.isLoading = false;
             $scope.isLoadingCategories = false;
             $scope.isLoadingNewlyArrived = false;
+            $scope.dataReady = true; // Set data ready here
             $scope.updateDisplayedProducts();
           });
 
@@ -1147,11 +1143,7 @@
               $scope.$applyAsync(function() {
                 // Update caches incrementally
                 $scope.updateNewlyArrivedIncremental(item);
-                angular.forEach($scope.categories, function(category) {
-                  if (category.filter === '' || item.name.includes(category.filter)) {
-                    category.productCount++;
-                  }
-                });
+                $scope.refreshCategoryCounts();
                 // Update displayed if open
                 if ($scope.isProductModalOpen) {
                   $scope.updateFilteredProducts();
@@ -1170,11 +1162,7 @@
                 $scope.productCache.all.splice(index, 1);
                 $scope.$applyAsync(function() {
                   $scope.updateNewlyArrivedIncremental(null, item.$id);
-                  angular.forEach($scope.categories, function(category) {
-                    if (category.filter === '' || item.name.includes(category.filter)) {
-                      category.productCount--;
-                    }
-                  });
+                  $scope.refreshCategoryCounts();
                   if ($scope.isProductModalOpen) {
                     $scope.updateFilteredProducts();
                   }
@@ -1184,6 +1172,7 @@
                 $scope.productCache.all[index] = item;
                 $scope.$applyAsync(function() {
                   $scope.updateNewlyArrivedIncremental(item);
+                  $scope.refreshCategoryCounts();
                   if ($scope.isProductModalOpen) {
                     $scope.updateFilteredProducts();
                   }
@@ -1200,11 +1189,7 @@
               $scope.productCache.all.splice(index, 1);
               $scope.$applyAsync(function() {
                 $scope.updateNewlyArrivedIncremental(null, itemId);
-                angular.forEach($scope.categories, function(category) {
-                  if (category.filter === '' || removedItem.name.includes(category.filter)) {
-                    category.productCount--;
-                  }
-                });
+                $scope.refreshCategoryCounts();
                 if ($scope.isProductModalOpen) {
                   $scope.updateFilteredProducts();
                 }
@@ -1225,8 +1210,9 @@
             $scope.isLoading = false;
             $scope.isLoadingNewlyArrived = false;
             $scope.isLoadingCategories = false;
+            $scope.dataReady = false;
           });
-          alert('Failed to load products. Please check your network and try again.');
+          alert('Failed to load products: ' + error.message + '. Please refresh.');
         });
         
         $scope.allOrders = $firebaseArray(submitDb);
@@ -1274,6 +1260,16 @@
           { id: 33, name: 'GODOWN-2', filter: 'G2', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' }
           
         ];
+        
+        $scope.refreshCategoryCounts = function() {
+          angular.forEach($scope.categories, function(category) {
+            if (category.filter === '') {
+              category.productCount = vm.images.length;
+            } else {
+              category.productCount = $filter('filter')(vm.images, { name: category.filter }).length;
+            }
+          });
+        };
         
         var productModal = null;
         var videoModal = null;
@@ -1324,6 +1320,10 @@
         
         $scope.setTab = function(filter, tabId) {
           try {
+            if (!$scope.dataReady || $scope.isLoadingCategories) {
+              alert('Products are still loading. Please wait a moment and try again.');
+              return;
+            }
             $scope.searchQuery = '';
             $scope.isSearching = false;
             $scope.productNameFilter = filter;
