@@ -615,7 +615,7 @@
   <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"></noscript>
 </head>
 <body ng-controller="imagesController as vm">
-  <div id="login-container" style="background-image: ur[](https://hunkaammy.github.io/mywebsite/NEWWEBSITE/loginpg.jpeg);">
+  <div id="login-container" style="background-image: ur ;">
     <div id="inside">
       <h2 class="mb-4">HINDUSTAN TOYS</h2>
       <input type="text" id="name" placeholder="Enter your shop name" class="form-control mb-2" autocomplete="off">
@@ -1328,6 +1328,7 @@
             $scope.isSearching = false;
             $scope.productNameFilter = filter;
             $scope.activeCategoryName = $scope.categories.find(c => c.id === tabId)?.name || 'Products';
+            $scope.updateFilteredProducts();
             $scope.loadMoreOffset = 50;
             $scope.updateDisplayedProducts();
             $scope.isProductModalOpen = true;
