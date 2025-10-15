@@ -215,7 +215,6 @@
       max-height: 95%;
       border-radius: 8px;
       object-fit: contain;
-      transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
 
     .nav-arrows {
@@ -257,40 +256,6 @@
 
     .nav-btn:hover {
       background: rgba(0,0,0,0.8);
-    }
-
-    .enlarged-qty-container {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.7);
-      color: white;
-      padding: 10px;
-      border-radius: 8px;
-      text-align: center;
-      min-width: 200px;
-      backdrop-filter: blur(10px);
-    }
-
-    .enlarged-product-name {
-      font-size: 14px;
-      margin-bottom: 5px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .enlarged-price {
-      font-size: 12px;
-      margin-top: 5px;
-    }
-
-    .enlarged-qty-container .qtyclass {
-      height: 28px;
-      width: 45px;
-      font-size: 11px;
-      margin: 0 auto;
     }
 
     @keyframes skeleton-pulse {
@@ -792,18 +757,11 @@
     </div>
   </div>
   
-  <div id="enlarged-image-overlay" class="enlarged-image-overlay" ng-click="closeEnlargedImage($event)"> 
+  <div id="enlarged-image-overlay" class="enlarged-image-overlay" ng-click="closeEnlargedImage()"> 
     <img class="enlarged-image-content" id="enlarged-image" src="" ng-click="$event.stopPropagation()"> 
     <div class="nav-arrows" ng-if="currentImageIndex > -1" ng-click="$event.stopPropagation()">
       <button class="nav-btn prev" ng-click="navigateImage(-1); $event.stopPropagation()"><i class="fas fa-chevron-left"></i></button>
       <button class="nav-btn next" ng-click="navigateImage(1); $event.stopPropagation()"><i class="fas fa-chevron-right"></i></button>
-    </div>
-    <div class="enlarged-qty-container" ng-if="currentProduct" ng-click="$event.stopPropagation()">
-      <div class="enlarged-product-name">{{currentProduct.name}}</div>
-      <div class="qty-input-wrapper">
-        <input type="number" class="qtyclass" placeholder="Qty" ng-model="currentProduct.field3" ng-change="submitData(currentProduct)" ng-model-options="{ debounce: 800 }" ng-click="$event.stopPropagation()">
-      </div>
-      <div ng-if="priceVisible" class="enlarged-price"><b>{{currentProduct.price | currency:"₹":0 }}</b></div>
     </div>
   </div>
   
@@ -1059,8 +1017,8 @@
         $scope.priceVisible = localStorage.getItem('priceVisible') !== 'false';
         $scope.isOrderModalOpen = false;
         $scope.isEnlargedImageOpen = false;
-        $scope.swipeThreshold = 30;
-        $scope.currentProduct = null;
+        $scope.touchStartX = 0;
+        $scope.touchEndX = 0;
         
         $scope.isLoading = true;
         $scope.isLoadingCategories = true;
@@ -1369,83 +1327,42 @@
               if (list && product) {
                 $scope.currentProductList = list;
                 $scope.currentImageIndex = list.findIndex(p => p.url === src);
-                $scope.currentProduct = product;
               } else {
                 $scope.currentProductList = [];
                 $scope.currentImageIndex = -1;
-                $scope.currentProduct = null;
               }
               overlay.style.display = 'flex';
               const img = overlay.querySelector('img');
               img.src = src || '';
-              img.style.transform = 'translateX(0px)';
               isEnlargedImageOpen = true;
               $scope.isEnlargedImageOpen = true;
               $scope.$applyAsync();
 
-              // Swipe handlers
-              let startX = 0;
-              const slideWidth = window.innerWidth;
-
+              // Add swipe listeners to img
               const handleTouchStart = (e) => {
-                startX = e.touches[0].clientX;
-                img.style.transition = 'none';
+                $scope.touchStartX = e.changedTouches[0].screenX;
                 $scope.$applyAsync();
               };
-
-              const handleTouchMove = (e) => {
-                if (!startX) return;
-                e.preventDefault();
-                const deltaX = e.touches[0].clientX - startX;
-                img.style.transform = `translateX(${deltaX}px)`;
-              };
-
               const handleTouchEnd = (e) => {
-                const deltaX = e.changedTouches[0].clientX - startX;
-                const absDelta = Math.abs(deltaX);
-                img.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-
-                if (absDelta > $scope.swipeThreshold && $scope.currentProductList && $scope.currentImageIndex > -1) {
-                  let direction, slideTo;
-                  if (deltaX < 0) { // Swipe left - next
-                    direction = 1;
-                    slideTo = -slideWidth;
-                  } else { // Swipe right - prev
-                    direction = -1;
-                    slideTo = slideWidth;
-                  }
-
-                  const newIndex = $scope.currentImageIndex + direction;
-                  if (newIndex >= 0 && newIndex < $scope.currentProductList.length) {
-                    img.style.transform = `translateX(${slideTo}px)`;
-
-                    const onTransitionEnd = () => {
-                      img.removeEventListener('transitionend', onTransitionEnd);
-                      $scope.currentImageIndex = newIndex;
-                      img.src = $scope.currentProductList[newIndex].url;
-                      $scope.currentProduct = $scope.currentProductList[newIndex];
-                      img.style.transform = 'translateX(0px)';
-                      $scope.$applyAsync();
-                    };
-                    img.addEventListener('transitionend', onTransitionEnd);
-                    return;
+                $scope.touchEndX = e.changedTouches[0].screenX;
+                const diff = $scope.touchStartX - $scope.touchEndX;
+                const minSwipeDistance = 50;
+                if (Math.abs(diff) > minSwipeDistance && $scope.currentProductList && $scope.currentImageIndex > -1) {
+                  if (diff > 0) {
+                    // Swipe left - next image
+                    $scope.navigateImage(1);
+                  } else {
+                    // Swipe right - previous image
+                    $scope.navigateImage(-1);
                   }
                 }
-                // Snap back
-                img.style.transform = 'translateX(0px)';
-                startX = 0;
+                $scope.$applyAsync();
               };
-
-              img.addEventListener('touchstart', handleTouchStart, { passive: false });
-              img.addEventListener('touchmove', handleTouchMove, { passive: false });
-              img.addEventListener('touchend', handleTouchEnd, { passive: false });
-
-              // Store handlers for cleanup
-              img._swipeHandlers = {
-                start: handleTouchStart,
-                move: handleTouchMove,
-                end: handleTouchEnd
-              };
+              img.addEventListener('touchstart', handleTouchStart, { passive: true });
+              img.addEventListener('touchend', handleTouchEnd, { passive: true });
+              // Store references to remove later
+              img._swipeStart = handleTouchStart;
+              img._swipeEnd = handleTouchEnd;
 
               history.pushState({ state: 'enlargedImage', fromProductModal: !!fromProductModal }, null, location.href);
             }
@@ -1461,7 +1378,6 @@
             if (newIndex < 0 || newIndex >= $scope.currentProductList.length) return;
             $scope.currentImageIndex = newIndex;
             var newSrc = $scope.currentProductList[newIndex].url;
-            $scope.currentProduct = $scope.currentProductList[newIndex];
             document.getElementById('enlarged-image').src = newSrc;
             $scope.$applyAsync();
           } catch (e) {
@@ -1469,7 +1385,7 @@
           }
         };
 
-        $scope.closeEnlargedImage = function($event) {
+        $scope.closeEnlargedImage = function() {
           try {
             const overlay = document.getElementById('enlarged-image-overlay');
             if (overlay) {
@@ -1478,16 +1394,17 @@
               $scope.isEnlargedImageOpen = false;
               $scope.currentImageIndex = -1;
               $scope.currentProductList = [];
-              $scope.currentProduct = null;
+              $scope.touchStartX = 0;
+              $scope.touchEndX = 0;
               $scope.$applyAsync();
+              // Remove swipe listeners
               const img = document.getElementById('enlarged-image');
-              if (img._swipeHandlers) {
-                img.removeEventListener('touchstart', img._swipeHandlers.start);
-                img.removeEventListener('touchmove', img._swipeHandlers.move);
-                img.removeEventListener('touchend', img._swipeHandlers.end);
-                delete img._swipeHandlers;
+              if (img._swipeStart) {
+                img.removeEventListener('touchstart', img._swipeStart);
+                img.removeEventListener('touchend', img._swipeEnd);
+                delete img._swipeStart;
+                delete img._swipeEnd;
               }
-              img.style.transform = 'translateX(0px)';
               var productModalEl = document.getElementById('productModal');
               var productModal = bootstrap.Modal.getInstance(productModalEl);
               if (productModal && productModalEl.classList.contains('show')) {
