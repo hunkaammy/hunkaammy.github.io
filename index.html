@@ -127,6 +127,8 @@
 
     .modal-body {
       background-color: var(--light-gray);
+      
+      overflow-y: auto;
     }
 
     .product-grid {
@@ -562,8 +564,20 @@
         font-size: 11px;
       }
     }
+
+    /* Performance: Preload critical resources */
+    .preload-critical {
+      display: none;
+    }
+
+    .loading-more {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+    }
   </style>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"></noscript>
 </head>
 <body ng-controller="imagesController as vm">
   <div id="login-container" style="background-image: ur[](https://hunkaammy.github.io/mywebsite/NEWWEBSITE/loginpg.jpeg);">
@@ -582,7 +596,7 @@
             <input type="text" 
                    ng-model="searchQuery" 
                    ng-change="onSearchChange()" 
-                   ng-model-options="{ debounce: 400 }"
+                   ng-model-options="{ debounce: 300 }"
                    placeholder="Search all products..." 
                    class="form-control">
             <span class="input-group-text"><i class="fas fa-search"></i></span>
@@ -625,14 +639,14 @@
 
         <div ng-if="!isLoadingSearchResults">
             <div class="product-grid">
-                 <div class="card" ng-repeat="product in searchResults">
+                 <div class="card" ng-repeat="product in searchResults track by product.$id">
                     <img ng-src="{{product.url}}" alt="{{product.name}}" ng-click="showEnlargedImage(product.url, undefined, product, searchResults)" loading="lazy">
                     <div class="containers">
                       <span class="saved-feedback" ng-if="product.justSaved">Saved!</span>
                       <h4 ng-if="priceVisible"><b>{{product.price | currency:"₹":0 }}</b></h4>
                       <p>{{product.name}}</p>
                       <p ng-if="product.videourl"><a href="#" class="watch-video" ng-click="showVideoModal($event, product.videourl, false)">Watch Video</a></p>
-                      <input type="number" class="qtyclass" placeholder="Qty" ng-model="product.field3" ng-change="submitData(product)" ng-model-options="{ debounce: 800 }">
+                      <input type="number" class="qtyclass" placeholder="Qty" ng-model="product.field3" ng-change="submitData(product)" ng-model-options="{ debounce: 1000 }">
                     </div>
                 </div>
             </div>
@@ -665,7 +679,7 @@
                             <h4 ng-if="priceVisible"><b>{{product.price | currency:"₹":0 }}</b></h4>
                             <p>{{product.name}}</p>
                             <p ng-if="product.videourl"><a href="#" class="watch-video" ng-click="showVideoModal($event, product.videourl, false)">Watch Video</a></p>
-                            <input type="number" class="qtyclass" placeholder="Qty" ng-model="product.field3" ng-change="submitData(product)" ng-model-options="{ debounce: 800 }">
+                            <input type="number" class="qtyclass" placeholder="Qty" ng-model="product.field3" ng-change="submitData(product)" ng-model-options="{ debounce: 1000 }">
                         </div>
                     </div>
                 </div>
@@ -687,7 +701,7 @@
                     <div class="text"></div>
                 </div>
                 <div class="category-card" ng-if="!isLoadingCategories" ng-repeat="category in categories" ng-click="setTab(category.filter, category.id)">
-                    <img ng-src="{{category.imageUrl}}" alt="{{category.name}}">
+                    <img ng-src="{{category.imageUrl}}" alt="{{category.name}}" loading="lazy">
                     <span>{{category.name}}</span>
                     <small class="text-muted mt-1" ng-if="category.productCount > 0">({{category.productCount}})</small>
                 </div>
@@ -713,10 +727,17 @@
         </div>
         <div class="modal-body">
           <div ng-if="isLoading" class="product-grid">
+            <div class="card skeleton-card" ng-repeat="i in [1,2,3,4,5,6,7,8]">
+              <div class="skeleton-image"></div>
+              <div class="containers">
+                <div class="skeleton-line short"></div>
+                <div class="skeleton-line"></div>
+              </div>
             </div>
+          </div>
           <div ng-if="!isLoading">
             <div class="product-grid">
-              <div class="card" ng-repeat="image in displayedProducts" ng-hide="image.markedForRemoval">
+              <div class="card" ng-repeat="image in displayedProducts track by image.$id" ng-hide="image.markedForRemoval">
                 <img ng-src="{{image.url}}" alt="{{image.name}}" ng-click="showEnlargedImage(image.url, true, image, displayedProducts)" loading="lazy">
                 <button ng-if="dynamicField2Value === 'sammyadmin'" class="btn btn-danger btn-sm mt-2 mx-2" ng-click="markOutOfStock(image)">
                   Mark Out of Stock
@@ -726,9 +747,12 @@
                   <h4 ng-if="priceVisible"><b>{{image.price | currency:"₹":0 }}</b></h4>
                   <p>{{image.name}}</p>
                   <p ng-if="image.videourl"><a href="#" class="watch-video" ng-click="showVideoModal($event, image.videourl, true)">Watch Video</a></p>
-                  <input type="number" class="qtyclass" placeholder="Qty" ng-model="image.field3" ng-change="submitData(image)" ng-model-options="{ debounce: 800 }">
+                  <input type="number" class="qtyclass" placeholder="Qty" ng-model="image.field3" ng-change="submitData(image)" ng-model-options="{ debounce: 1000 }">
                 </div>
               </div>
+            </div>
+            <div ng-if="hasMoreProducts && !isLoading" class="loading-more">
+              <i class="fas fa-spinner fa-spin"></i> Loading more...
             </div>
             <div ng-if="!isLoading && displayedProducts.length === 0" class="text-center p-5">
               <p class="text-muted">No products found.</p>
@@ -747,7 +771,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" ng-click="closeVideoModal()"></button>
         </div>
         <div class="modal-body">
-          <video controls autoplay id="videoPlayer">
+          <video controls autoplay id="videoPlayer" preload="metadata">
             <source ng-src="{{currentVideoUrl}}" type="video/mp4">
             Your browser does not support the video tag.
           </video>
@@ -774,9 +798,9 @@
         </div>
         <div class="modal-body">
           <ul class="list-group">
-            <li class="list-group-item d-flex justify-content-between align-items-center" ng-repeat="item in allOrders | filter:{field2: dynamicField2Value}:true | orderBy:'-serverTimestamp'">
+            <li class="list-group-item d-flex justify-content-between align-items-center" ng-repeat="item in allOrders | filter:{field2: dynamicField2Value}:true | orderBy:'-serverTimestamp' track by item.$id">
               <div class="d-flex align-items-center">
-                <img ng-src="{{item.field1}}" class="order-item-img">
+                <img ng-src="{{item.field1}}" class="order-item-img" loading="lazy">
                 <div>
                   <div class="fw-bold">{{item.productName}}</div>
                   <small class="text-muted" ng-if="priceVisible">{{item.productPrice | currency:"₹":0 }}</small>
@@ -806,12 +830,13 @@
     </div>
   </div>
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Load scripts in order: AngularJS first, then Firebase v3 (compatible with AngularFire 2.3), then AngularFire, then jQuery/Bootstrap async -->
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase-database.js"></script>
   <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js" async></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" async></script>
 
   <script>
     // Global flag to track if enlarged image is open
@@ -1033,6 +1058,11 @@
         $scope.isProductModalOpen = false;
         $scope.currentImageIndex = -1;
         $scope.currentProductList = [];
+        $scope.productCache = {}; // Cache for filtered products
+        $scope.loadMoreOffset = 50;
+        $scope.hasMoreProducts = false;
+        $scope.isLoadingMore = false;
+        $scope.filteredProducts = []; // Store full filtered list
 
         var fetchConfig = { databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com" };
         var submitConfig = { databaseURL: "https://notes-12519-default-rtdb.firebaseio.com" };
@@ -1043,16 +1073,19 @@
         var submitApp = firebase.apps.find(app => app.name === 'submitApp') || firebase.initializeApp(submitConfig, 'submitApp');
         var submitDb = submitApp.database().ref();
 
-        // Real-time listener for products
-        var productsListener = fetchDb.on('value', function(snapshot) {
+        // Optimized real-time listener: Use once() for initial load, then child_added for updates
+        fetchDb.once('value', function(snapshot) {
           const allData = [];
           snapshot.forEach(function(childSnapshot) {
             var item = childSnapshot.val();
             item.$id = childSnapshot.key;
-            allData.push(item);
+            if (!item.outOfStock) {
+              allData.push(item);
+            }
           });
 
-          vm.images = allData.filter(item => !item.outOfStock);
+          vm.images = allData;
+          $scope.productCache.all = allData; // Cache full list
 
           $scope.$applyAsync(function() {
             angular.forEach($scope.categories, function(category) {
@@ -1062,12 +1095,95 @@
                 category.productCount = $filter('filter')(vm.images, { name: category.filter }).length;
               }
             });
-            $scope.newlyArrivedProducts = $filter('orderBy')(vm.images, '-date').slice(0, 50);
+            $scope.newlyArrivedProducts = $filter('orderBy')(vm.images, '-date').slice(0, 20); // Limit to 20 for faster render
             $scope.isLoading = false;
             $scope.isLoadingCategories = false;
             $scope.isLoadingNewlyArrived = false;
             $scope.updateDisplayedProducts();
           });
+
+          // Set up incremental listener after initial load
+          var childAddedListener = fetchDb.on('child_added', function(childSnapshot) {
+            var item = childSnapshot.val();
+            item.$id = childSnapshot.key;
+            if (!item.outOfStock && vm.images.findIndex(i => i.$id === item.$id) === -1) {
+              vm.images.push(item);
+              $scope.productCache.all.push(item);
+              $scope.$applyAsync(function() {
+                // Update caches incrementally
+                $scope.updateNewlyArrivedIncremental(item);
+                angular.forEach($scope.categories, function(category) {
+                  if (category.filter === '' || item.name.includes(category.filter)) {
+                    category.productCount++;
+                  }
+                });
+                // Update displayed if open
+                if ($scope.isProductModalOpen) {
+                  $scope.updateFilteredProducts();
+                }
+              });
+            }
+          });
+
+          var childChangedListener = fetchDb.on('child_changed', function(childSnapshot) {
+            var item = childSnapshot.val();
+            item.$id = childSnapshot.key;
+            var index = vm.images.findIndex(i => i.$id === item.$id);
+            if (index > -1) {
+              if (item.outOfStock) {
+                vm.images.splice(index, 1);
+                $scope.productCache.all.splice(index, 1);
+                $scope.$applyAsync(function() {
+                  $scope.updateNewlyArrivedIncremental(null, item.$id);
+                  angular.forEach($scope.categories, function(category) {
+                    if (category.filter === '' || item.name.includes(category.filter)) {
+                      category.productCount--;
+                    }
+                  });
+                  if ($scope.isProductModalOpen) {
+                    $scope.updateFilteredProducts();
+                  }
+                });
+              } else {
+                vm.images[index] = item;
+                $scope.productCache.all[index] = item;
+                $scope.$applyAsync(function() {
+                  $scope.updateNewlyArrivedIncremental(item);
+                  if ($scope.isProductModalOpen) {
+                    $scope.updateFilteredProducts();
+                  }
+                });
+              }
+            }
+          });
+
+          var childRemovedListener = fetchDb.on('child_removed', function(childSnapshot) {
+            var itemId = childSnapshot.key;
+            var index = vm.images.findIndex(i => i.$id === itemId);
+            if (index > -1) {
+              var removedItem = vm.images.splice(index, 1)[0];
+              $scope.productCache.all.splice(index, 1);
+              $scope.$applyAsync(function() {
+                $scope.updateNewlyArrivedIncremental(null, itemId);
+                angular.forEach($scope.categories, function(category) {
+                  if (category.filter === '' || removedItem.name.includes(category.filter)) {
+                    category.productCount--;
+                  }
+                });
+                if ($scope.isProductModalOpen) {
+                  $scope.updateFilteredProducts();
+                }
+              });
+            }
+          });
+
+          // Store listeners for cleanup
+          $scope.$on('$destroy', function() {
+            fetchDb.off('child_added', childAddedListener);
+            fetchDb.off('child_changed', childChangedListener);
+            fetchDb.off('child_removed', childRemovedListener);
+          });
+
         }, function(error) {
           console.error("Error loading products:", error);
           $scope.$applyAsync(function() {
@@ -1126,6 +1242,7 @@
         
         var productModal = null;
         var videoModal = null;
+        var scrollListener = null;
         $timeout(function() {
           try {
             productModal = new bootstrap.Modal(document.getElementById('productModal'));
@@ -1153,9 +1270,11 @@
               history.pushState({ state: 'search' }, null, location.href);
 
               $timeout(function() {
-                $scope.searchResults = $filter('filter')(vm.images, { name: $scope.searchQuery }) || [];
+                // Use cached data for faster search
+                var cached = $scope.productCache.all || vm.images;
+                $scope.searchResults = $filter('filter')(cached, { name: $scope.searchQuery }) || [];
                 $scope.isLoadingSearchResults = false;
-              }, 100);
+              }, 50); // Reduced delay for faster feedback
             } else {
               $scope.isSearching = false;
               $scope.searchResults = [];
@@ -1174,6 +1293,7 @@
             $scope.isSearching = false;
             $scope.productNameFilter = filter;
             $scope.activeCategoryName = $scope.categories.find(c => c.id === tabId)?.name || 'Products';
+            $scope.loadMoreOffset = 50;
             $scope.updateDisplayedProducts();
             $scope.isProductModalOpen = true;
             history.pushState({ state: 'productModal' }, null, location.href);
@@ -1476,36 +1596,78 @@
           }
         };
 
-        $scope.updateDisplayedProducts = function() {
+        $scope.updateFilteredProducts = function() {
           try {
-            if ($scope.isLoading || !$scope.dynamicField2Value) return;
-
-            let filteredImages = vm.images;
+            let filteredImages = $scope.productCache.all || vm.images;
             if ($scope.productNameFilter) {
-              filteredImages = $filter('filter')(vm.images, { name: $scope.productNameFilter }) || [];
+              filteredImages = $filter('filter')(filteredImages, { name: $scope.productNameFilter }) || [];
             }
             if ($scope.searchQuery && !$scope.productNameFilter) {
               filteredImages = $filter('filter')(filteredImages, { name: $scope.searchQuery }) || [];
             }
+            $scope.filteredProducts = filteredImages;
+            $scope.updateDisplayedProducts();
+          } catch (e) {
+            console.error("Update Filtered Products Error:", e);
+          }
+        };
+
+        $scope.updateDisplayedProducts = function() {
+          try {
+            if ($scope.isLoading || !$scope.dynamicField2Value) return;
+
+            if ($scope.filteredProducts.length === 0) {
+              $scope.updateFilteredProducts();
+            }
+
+            let sortedImages = $scope.filteredProducts;
 
             if ($scope.sortOrder === 'price') {
-              filteredImages = $filter('orderBy')(filteredImages, 'price');
+              sortedImages = $filter('orderBy')(sortedImages, 'price');
             } else if ($scope.sortOrder === '-price') {
-              filteredImages = $filter('orderBy')(filteredImages, '-price');
+              sortedImages = $filter('orderBy')(sortedImages, '-price');
             } else {
-              filteredImages = $filter('orderBy')(filteredImages, '-date');
+              sortedImages = $filter('orderBy')(sortedImages, '-date');
             }
             
-            $scope.displayedProducts = filteredImages;
+            $scope.displayedProducts = sortedImages.slice(0, $scope.loadMoreOffset);
+            $scope.hasMoreProducts = sortedImages.length > $scope.loadMoreOffset;
+            $scope.isLoadingMore = false;
           } catch (e) {
             console.error("Update Displayed Products Error:", e);
+          }
+        };
+
+        $scope.loadMoreProducts = function() {
+          if ($scope.isLoadingMore || !$scope.hasMoreProducts) return;
+          $scope.isLoadingMore = true;
+          $scope.loadMoreOffset += 50;
+          $timeout(function() {
+            $scope.updateDisplayedProducts();
+          }, 300); // Simulate loading delay
+        };
+
+        // Incremental update for newly arrived
+        $scope.updateNewlyArrivedIncremental = function(newItem, removedId) {
+          if (newItem) {
+            // Check if it belongs in top 20
+            var tempList = $filter('orderBy')($scope.productCache.all, '-date');
+            var top20 = tempList.slice(0, 20);
+            $scope.newlyArrivedProducts = top20;
+          } else if (removedId) {
+            // Recompute if removed was in top
+            var index = $scope.newlyArrivedProducts.findIndex(p => p.$id === removedId);
+            if (index > -1) {
+              var tempList = $filter('orderBy')($scope.productCache.all, '-date');
+              $scope.newlyArrivedProducts = tempList.slice(0, 20);
+            }
           }
         };
 
         $scope.logout = function() {
           try {
             // Unsubscribe from real-time listener on logout
-            fetchDb.off('value', productsListener);
+            fetchDb.off();
             localStorage.clear();
             $window.location.reload();
           } catch (e) {
@@ -1521,12 +1683,26 @@
               productModalEl.addEventListener('show.bs.modal', function() {
                 $scope.$applyAsync(function() {
                   $scope.isProductModalOpen = true;
+                  // Add scroll listener
+                  var modalBody = productModalEl.querySelector('.modal-body');
+                  scrollListener = function() {
+                    if (modalBody.scrollTop + modalBody.clientHeight >= modalBody.scrollHeight - 10) {
+                      $scope.$applyAsync($scope.loadMoreProducts);
+                    }
+                  };
+                  modalBody.addEventListener('scroll', scrollListener);
                 });
               });
               productModalEl.addEventListener('hide.bs.modal', function() {
                 $scope.$applyAsync(function() {
                   $scope.isProductModalOpen = false;
+                  // Remove scroll listener
+                  var modalBody = productModalEl.querySelector('.modal-body');
+                  if (scrollListener && modalBody) {
+                    modalBody.removeEventListener('scroll', scrollListener);
+                  }
                   history.pushState({ state: 'home' }, null, location.href);
+                  $scope.loadMoreOffset = 50;
                 });
               });
             }
