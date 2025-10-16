@@ -728,24 +728,18 @@
                 <button class="view-all-button" ng-click="setTab('', 0)">View All</button>
             </div>
         </div>
-      <div class="section-container" ng-style="isLoadingCategories ? {'pointer-events': 'none', 'opacity': 0.6} : {}">
+      <div class="section-container">
             <h2 class="page-title">Browse Categories</h2>
-            <div ng-if="isLoadingCategories" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.7); z-index: 5; display: flex; align-items: center; justify-content: center;">
-              <p>Loading categories... <i class="fas fa-spinner fa-spin"></i></p>
-            </div>
             <div class="category-grid-container">
                 <div class="skeleton-category-card" ng-if="isLoadingCategories" ng-repeat="i in [1,2,3,4,5,6]">
                     <div class="icon"></div>
                     <div class="text"></div>
                 </div>
-                <div class="category-card" ng-if="!isLoadingCategories && category.productCount > 0" ng-repeat="category in categories" ng-click="dataReady ? setTab(category.filter, category.id) : null" ng-style="!dataReady ? {'pointer-events': 'none', 'opacity': 0.5, 'border': '2px solid red'} : {}">
+                <div class="category-card" ng-if="!isLoadingCategories" ng-repeat="category in categories" ng-click="setTab(category.filter, category.id)">
                     <img ng-src="{{category.imageUrl}}" alt="{{category.name}}" loading="lazy">
                     <span>{{category.name}}</span>
                     <small class="text-muted mt-1" ng-if="category.productCount > 0">({{category.productCount}})</small>
                 </div>
-            </div>
-            <div ng-if="!isLoadingCategories && categories.filter(c => c.productCount > 0).length === 0" class="text-center p-3">
-              <p class="text-muted">No categories available. Check connection.</p>
             </div>
         </div>
     </div>
@@ -1104,8 +1098,6 @@
         $scope.hasMoreProducts = false;
         $scope.isLoadingMore = false;
         $scope.filteredProducts = []; // Store full filtered list
-        $scope.dataReady = false; // New flag for data readiness
-        $scope.loadRetryCount = 0;
 
         var fetchConfig = { databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com" };
         var submitConfig = { databaseURL: "https://notes-12519-default-rtdb.firebaseio.com" };
@@ -1116,119 +1108,126 @@
         var submitApp = firebase.apps.find(app => app.name === 'submitApp') || firebase.initializeApp(submitConfig, 'submitApp');
         var submitDb = submitApp.database().ref();
 
-        // Recursive load function for retry
-        function loadData() {
-          fetchDb.once('value', function(snapshot) {
-            const allData = [];
-            snapshot.forEach(function(childSnapshot) {
-              var item = childSnapshot.val();
-              item.$id = childSnapshot.key;
-              if (!item.outOfStock) {
-                allData.push(item);
+        // Optimized real-time listener: Use once() for initial load, then child_added for updates
+        fetchDb.once('value', function(snapshot) {
+          const allData = [];
+          snapshot.forEach(function(childSnapshot) {
+            var item = childSnapshot.val();
+            item.$id = childSnapshot.key;
+            if (!item.outOfStock) {
+              allData.push(item);
+            }
+          });
+
+          vm.images = allData;
+          $scope.productCache.all = allData; // Cache full list
+
+          $scope.$applyAsync(function() {
+            angular.forEach($scope.categories, function(category) {
+              if (category.filter === '') {
+                category.productCount = vm.images.length;
+              } else {
+                category.productCount = $filter('filter')(vm.images, { name: category.filter }).length;
               }
             });
+            $scope.newlyArrivedProducts = $filter('orderBy')(vm.images, '-date').slice(0, 20); // Limit to 20 for faster render
+            $scope.isLoading = false;
+            $scope.isLoadingCategories = false;
+            $scope.isLoadingNewlyArrived = false;
+            $scope.updateDisplayedProducts();
+          });
 
-            vm.images = allData;
-            $scope.productCache.all = allData.slice();
-
-            $scope.$applyAsync(function() {
-              $scope.refreshCategoryCounts();
-              $scope.newlyArrivedProducts = $filter('orderBy')(vm.images, '-date').slice(0, 20);
-              $scope.isLoading = false;
-              $scope.isLoadingCategories = false;
-              $scope.isLoadingNewlyArrived = false;
-              $scope.dataReady = true;
-              $scope.updateDisplayedProducts();
-              console.log('Data fully loaded and ready. Images:', vm.images.length);
-              $scope.loadRetryCount = 0; // Reset on success
-            });
-
-            var childAddedListener = fetchDb.on('child_added', function(childSnapshot) {
-              var item = childSnapshot.val();
-              item.$id = childSnapshot.key;
-              if (!item.outOfStock && vm.images.findIndex(i => i.$id === item.$id) === -1) {
-                vm.images.push(item);
-                $scope.productCache.all.push(item);
-                $scope.$applyAsync(function() {
-                  $scope.updateNewlyArrivedIncremental(item);
-                  $scope.refreshCategoryCounts();
-                  if ($scope.isProductModalOpen) {
-                    $scope.updateFilteredProducts();
+          // Set up incremental listener after initial load
+          var childAddedListener = fetchDb.on('child_added', function(childSnapshot) {
+            var item = childSnapshot.val();
+            item.$id = childSnapshot.key;
+            if (!item.outOfStock && vm.images.findIndex(i => i.$id === item.$id) === -1) {
+              vm.images.push(item);
+              $scope.productCache.all.push(item);
+              $scope.$applyAsync(function() {
+                // Update caches incrementally
+                $scope.updateNewlyArrivedIncremental(item);
+                angular.forEach($scope.categories, function(category) {
+                  if (category.filter === '' || item.name.includes(category.filter)) {
+                    category.productCount++;
                   }
                 });
-              }
-            });
-
-            var childChangedListener = fetchDb.on('child_changed', function(childSnapshot) {
-              var item = childSnapshot.val();
-              item.$id = childSnapshot.key;
-              var index = vm.images.findIndex(i => i.$id === item.$id);
-              if (index > -1) {
-                if (item.outOfStock) {
-                  vm.images.splice(index, 1);
-                  $scope.productCache.all.splice(index, 1);
-                  $scope.$applyAsync(function() {
-                    $scope.updateNewlyArrivedIncremental(null, item.$id);
-                    $scope.refreshCategoryCounts();
-                    if ($scope.isProductModalOpen) {
-                      $scope.updateFilteredProducts();
-                    }
-                  });
-                } else {
-                  vm.images[index] = item;
-                  $scope.productCache.all[index] = item;
-                  $scope.$applyAsync(function() {
-                    $scope.updateNewlyArrivedIncremental(item);
-                    $scope.refreshCategoryCounts();
-                    if ($scope.isProductModalOpen) {
-                      $scope.updateFilteredProducts();
-                    }
-                  });
+                // Update displayed if open
+                if ($scope.isProductModalOpen) {
+                  $scope.updateFilteredProducts();
                 }
-              }
-            });
+              });
+            }
+          });
 
-            var childRemovedListener = fetchDb.on('child_removed', function(childSnapshot) {
-              var itemId = childSnapshot.key;
-              var index = vm.images.findIndex(i => i.$id === itemId);
-              if (index > -1) {
+          var childChangedListener = fetchDb.on('child_changed', function(childSnapshot) {
+            var item = childSnapshot.val();
+            item.$id = childSnapshot.key;
+            var index = vm.images.findIndex(i => i.$id === item.$id);
+            if (index > -1) {
+              if (item.outOfStock) {
                 vm.images.splice(index, 1);
                 $scope.productCache.all.splice(index, 1);
                 $scope.$applyAsync(function() {
-                  $scope.updateNewlyArrivedIncremental(null, itemId);
-                  $scope.refreshCategoryCounts();
+                  $scope.updateNewlyArrivedIncremental(null, item.$id);
+                  angular.forEach($scope.categories, function(category) {
+                    if (category.filter === '' || item.name.includes(category.filter)) {
+                      category.productCount--;
+                    }
+                  });
+                  if ($scope.isProductModalOpen) {
+                    $scope.updateFilteredProducts();
+                  }
+                });
+              } else {
+                vm.images[index] = item;
+                $scope.productCache.all[index] = item;
+                $scope.$applyAsync(function() {
+                  $scope.updateNewlyArrivedIncremental(item);
                   if ($scope.isProductModalOpen) {
                     $scope.updateFilteredProducts();
                   }
                 });
               }
-            });
-
-            $scope.$on('$destroy', function() {
-              fetchDb.off('child_added', childAddedListener);
-              fetchDb.off('child_changed', childChangedListener);
-              fetchDb.off('child_removed', childRemovedListener);
-            });
-
-          }, function(error) {
-            console.error("Firebase load error:", error);
-            $scope.$applyAsync(function() {
-              $scope.isLoading = false;
-              $scope.isLoadingCategories = false;
-              $scope.isLoadingNewlyArrived = false;
-              $scope.dataReady = false;
-            });
-            if ($scope.loadRetryCount < 3) {
-              $scope.loadRetryCount++;
-              alert('Load failed (attempt ' + $scope.loadRetryCount + '). Retrying...');
-              $timeout(loadData, 2000);
-            } else {
-              alert('Failed to load data: ' + error.message + '. Check internet or refresh.');
             }
           });
-        }
 
-        loadData();
+          var childRemovedListener = fetchDb.on('child_removed', function(childSnapshot) {
+            var itemId = childSnapshot.key;
+            var index = vm.images.findIndex(i => i.$id === itemId);
+            if (index > -1) {
+              var removedItem = vm.images.splice(index, 1)[0];
+              $scope.productCache.all.splice(index, 1);
+              $scope.$applyAsync(function() {
+                $scope.updateNewlyArrivedIncremental(null, itemId);
+                angular.forEach($scope.categories, function(category) {
+                  if (category.filter === '' || removedItem.name.includes(category.filter)) {
+                    category.productCount--;
+                  }
+                });
+                if ($scope.isProductModalOpen) {
+                  $scope.updateFilteredProducts();
+                }
+              });
+            }
+          });
+
+          // Store listeners for cleanup
+          $scope.$on('$destroy', function() {
+            fetchDb.off('child_added', childAddedListener);
+            fetchDb.off('child_changed', childChangedListener);
+            fetchDb.off('child_removed', childRemovedListener);
+          });
+
+        }, function(error) {
+          console.error("Error loading products:", error);
+          $scope.$applyAsync(function() {
+            $scope.isLoading = false;
+            $scope.isLoadingNewlyArrived = false;
+            $scope.isLoadingCategories = false;
+          });
+          alert('Failed to load products. Please check your network and try again.');
+        });
         
         $scope.allOrders = $firebaseArray(submitDb);
         
@@ -1276,19 +1275,6 @@
           
         ];
         
-        $scope.refreshCategoryCounts = function() {
-          console.log('Refreshing counts with images:', vm.images.length);
-          angular.forEach($scope.categories, function(category) {
-            if (category.filter === '') {
-              category.productCount = vm.images.length;
-            } else {
-              var filtered = $filter('filter')(vm.images, { name: category.filter });
-              category.productCount = filtered ? filtered.length : 0;
-            }
-          });
-          if (!$scope.$$phase) $scope.$digest();
-        };
-        
         var productModal = null;
         var videoModal = null;
         var scrollListener = null;
@@ -1319,10 +1305,11 @@
               history.pushState({ state: 'search' }, null, location.href);
 
               $timeout(function() {
+                // Use cached data for faster search
                 var cached = $scope.productCache.all || vm.images;
                 $scope.searchResults = $filter('filter')(cached, { name: $scope.searchQuery }) || [];
                 $scope.isLoadingSearchResults = false;
-              }, 50);
+              }, 50); // Reduced delay for faster feedback
             } else {
               $scope.isSearching = false;
               $scope.searchResults = [];
@@ -1337,24 +1324,19 @@
         
         $scope.setTab = function(filter, tabId) {
           try {
-            if (!$scope.dataReady || $scope.isLoadingCategories || vm.images.length === 0) {
-              console.warn('Click blocked: Data not ready', {dataReady: $scope.dataReady, images: vm.images.length});
-              alert('Products still loading. Wait a sec and tap again!');
-              return;
+            if ($scope.isLoadingCategories) {
+              return; // Prevent opening if still loading
             }
-            $timeout(function() {
-              $scope.searchQuery = '';
-              $scope.isSearching = false;
-              $scope.productNameFilter = filter;
-              $scope.activeCategoryName = $scope.categories.find(c => c.id === tabId)?.name || 'Products';
-              $scope.updateFilteredProducts();
-              $scope.loadMoreOffset = 50;
-              $scope.updateDisplayedProducts();
-              console.log('Modal opening with products:', $scope.displayedProducts.length);
-              $scope.isProductModalOpen = true;
-              history.pushState({ state: 'productModal' }, null, location.href);
-              if (productModal) productModal.show();
-            }, 300);
+            $scope.searchQuery = '';
+            $scope.isSearching = false;
+            $scope.productNameFilter = filter;
+            $scope.activeCategoryName = $scope.categories.find(c => c.id === tabId)?.name || 'Products';
+            $scope.updateFilteredProducts();
+            $scope.loadMoreOffset = 50;
+            $scope.updateDisplayedProducts();
+            $scope.isProductModalOpen = true;
+            history.pushState({ state: 'productModal' }, null, location.href);
+            if (productModal) productModal.show();
           } catch (e) {
             console.error("Set Tab Error:", e);
           }
@@ -1515,6 +1497,7 @@
               $scope.isEnlargedImageOpen = true;
               $scope.$applyAsync();
 
+              // Add swipe listeners to img
               const handleTouchStart = (e) => {
                 $scope.touchStartX = e.changedTouches[0].screenX;
                 $scope.$applyAsync();
@@ -1525,8 +1508,10 @@
                 const minSwipeDistance = 50;
                 if (Math.abs(diff) > minSwipeDistance && $scope.currentProductList && $scope.currentImageIndex > -1) {
                   if (diff > 0) {
+                    // Swipe left - next image
                     $scope.navigateImage(1);
                   } else {
+                    // Swipe right - previous image
                     $scope.navigateImage(-1);
                   }
                 }
@@ -1534,6 +1519,7 @@
               };
               img.addEventListener('touchstart', handleTouchStart, { passive: true });
               img.addEventListener('touchend', handleTouchEnd, { passive: true });
+              // Store references to remove later
               img._swipeStart = handleTouchStart;
               img._swipeEnd = handleTouchEnd;
 
@@ -1570,6 +1556,7 @@
               $scope.touchStartX = 0;
               $scope.touchEndX = 0;
               $scope.$applyAsync();
+              // Remove swipe listeners
               const img = document.getElementById('enlarged-image');
               if (img._swipeStart) {
                 img.removeEventListener('touchstart', img._swipeStart);
@@ -1696,15 +1683,18 @@
           $scope.loadMoreOffset += 50;
           $timeout(function() {
             $scope.updateDisplayedProducts();
-          }, 300);
+          }, 300); // Simulate loading delay
         };
 
+        // Incremental update for newly arrived
         $scope.updateNewlyArrivedIncremental = function(newItem, removedId) {
           if (newItem) {
+            // Check if it belongs in top 20
             var tempList = $filter('orderBy')($scope.productCache.all, '-date');
             var top20 = tempList.slice(0, 20);
             $scope.newlyArrivedProducts = top20;
           } else if (removedId) {
+            // Recompute if removed was in top
             var index = $scope.newlyArrivedProducts.findIndex(p => p.$id === removedId);
             if (index > -1) {
               var tempList = $filter('orderBy')($scope.productCache.all, '-date');
@@ -1715,6 +1705,7 @@
 
         $scope.logout = function() {
           try {
+            // Unsubscribe from real-time listener on logout
             fetchDb.off();
             localStorage.clear();
             $window.location.reload();
@@ -1723,6 +1714,7 @@
           }
         };
 
+        // Modal event listeners
         $timeout(function() {
           try {
             var productModalEl = document.getElementById('productModal');
@@ -1730,6 +1722,7 @@
               productModalEl.addEventListener('show.bs.modal', function() {
                 $scope.$applyAsync(function() {
                   $scope.isProductModalOpen = true;
+                  // Add scroll listener
                   var modalBody = productModalEl.querySelector('.modal-body');
                   scrollListener = function() {
                     if (modalBody.scrollTop + modalBody.clientHeight >= modalBody.scrollHeight - 10) {
@@ -1742,6 +1735,7 @@
               productModalEl.addEventListener('hide.bs.modal', function() {
                 $scope.$applyAsync(function() {
                   $scope.isProductModalOpen = false;
+                  // Remove scroll listener
                   var modalBody = productModalEl.querySelector('.modal-body');
                   if (scrollListener && modalBody) {
                     modalBody.removeEventListener('scroll', scrollListener);
