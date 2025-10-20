@@ -1178,15 +1178,22 @@
       return totalDue;
     }
 
-    // --- Migrate old payment structure if needed
+    // --- Migrate old payment structure if needed (UPDATED to always ensure .payments is an array)
     function migratePaymentsForMonth(staffId, ym) {
       if (!payments[staffId] || !payments[staffId][ym]) return;
       const monthData = payments[staffId][ym];
-      if (monthData.paid > 0 && (!monthData.payments || monthData.payments.length === 0)) {
-        monthData.payments = [{ amount: monthData.paid, date: monthData.date_paid || ymd(new Date()), description: '' }];
-        delete monthData.paid;
-        delete monthData.date_paid;
-        saveAll();
+      if (!Array.isArray(monthData.payments)) {
+        if (monthData.paid > 0) {
+          monthData.payments = [{
+            amount: monthData.paid,
+            date: monthData.date_paid || ymd(new Date()),
+            description: ''
+          }];
+          delete monthData.paid;
+          delete monthData.date_paid;
+        } else {
+          monthData.payments = [];
+        }
       }
     }
 
@@ -1572,7 +1579,7 @@
       }
     });
 
-    // --- Record payment
+    // --- Record payment (UPDATED to ensure .payments is always an array before push/assign)
     recordPaymentBtn.addEventListener('click', () => {
       const staffId = selectStaff.value;
       if (!staffId) return;
@@ -1601,12 +1608,14 @@
           if (!payments[staffId][newYm]) {
             payments[staffId][newYm] = { due: calculateDue(staffId, payYear, payMonth), payments: [] };
           }
+          migratePaymentsForMonth(staffId, newYm);
           payments[staffId][newYm].payments.push(payment);
           if (payments[staffId][ym_to_use].payments.length === 0) {
             delete payments[staffId][ym_to_use];
           }
           ym_to_use = newYm;
         } else {
+          migratePaymentsForMonth(staffId, ym_to_use);
           payments[staffId][ym_to_use].payments[idx] = {
             amount,
             date: ymd(paymentDate),
@@ -1619,6 +1628,7 @@
         if (!payments[staffId][ym_to_use]) {
           payments[staffId][ym_to_use] = { due: calculateDue(staffId, payYear, payMonth), payments: [] };
         }
+        migratePaymentsForMonth(staffId, ym_to_use);
         payments[staffId][ym_to_use].payments.push({
           amount,
           date: ymd(paymentDate),
