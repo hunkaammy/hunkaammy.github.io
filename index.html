@@ -521,6 +521,309 @@
         font-size: 11px;
       }
     }
+
+    /* New Layout Styles */
+    .main-content-layout {
+      display: flex;
+      gap: 20px;
+      
+      max-width: 768px;
+      margin: 0 auto;
+      min-height: calc(100vh - 70px);
+    }
+
+    .sidebar-container {
+      flex-shrink: 0;
+      width: 180px;
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      padding: 20px 12px;
+      position: sticky;
+      top: 80px;
+      align-self: flex-start;
+      max-height: calc(100vh - 110px);
+      overflow-y: auto;
+    }
+
+    .sidebar-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 20px;
+      padding: 0 10px;
+      color: var(--dark-gray);
+    }
+
+    .vertical-tabs {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      gap: 8px;
+      border: 2px solid transparent;
+      text-align: center;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      position: relative;
+    }
+
+    .tab-item:hover {
+      background: linear-gradient(135deg, #f0f4f8 0%, #e8eff5 100%);
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 4px 12px rgba(56, 142, 60, 0.15);
+      border-color: rgba(56, 142, 60, 0.2);
+    }
+
+    .tab-item.active {
+      background: linear-gradient(135deg, var(--primary-color) 0%, #2e7d32 100%);
+      color: white;
+      border-color: var(--primary-color);
+      box-shadow: 0 6px 16px rgba(56, 142, 60, 0.3);
+      transform: scale(1.03);
+    }
+
+    .tab-item.active .tab-text {
+      color: white;
+      font-weight: 600;
+    }
+
+    .tab-item.active .tab-count {
+      color: rgba(255, 255, 255, 0.95);
+      font-weight: 500;
+    }
+
+    .tab-icon-img {
+      width: 32px;
+      height: 32px;
+      object-fit: cover;
+      border-radius: 8px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .tab-item:hover .tab-icon-img {
+      transform: scale(1.1);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .tab-item.active .tab-icon-img {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .tab-text {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--dark-gray);
+      word-break: break-word;
+      text-align: center;
+      line-height: 1.3;
+      width: 100%;
+      transition: color 0.3s ease;
+    }
+
+    .tab-count {
+      font-size: 9px;
+      color: var(--dark-gray);
+      opacity: 0.8;
+      font-weight: 500;
+      margin-top: -2px;
+    }
+
+    .tab-loading {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .skeleton-tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 10px;
+    }
+
+    .skeleton-tab .tab-icon {
+      width: 24px;
+      height: 24px;
+      background-color: #e0e0e0;
+      border-radius: 4px;
+      animation: skeleton-pulse 1.5s infinite ease-in-out;
+    }
+
+    .skeleton-tab .tab-text {
+      height: 12px;
+      width: 60%;
+      background-color: #e0e0e0;
+      border-radius: 4px;
+      animation: skeleton-pulse 1.5s infinite ease-in-out;
+    }
+
+    .products-container {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .products-header {
+      background-color: #fff;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .products-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--dark-gray);
+    }
+
+    .products-content {
+      background-color: #fff;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+    }
+
+    @media (max-width: 767.98px) {
+      .main-content-layout {
+        flex-direction: row;
+        gap: 10px;
+        padding: 0px 5px 20px;
+      }
+
+      .sidebar-container {
+        width: 95px;
+        flex-shrink: 0;
+        padding: 12px 8px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        position: sticky;
+        top: 0px;
+        align-self: flex-start;
+        max-height: calc(100vh - 70px);
+        overflow-y: auto;
+      }
+
+      .sidebar-title {
+        font-size: 13px;
+        margin-bottom: 12px;
+      }
+
+      .vertical-tabs {
+        gap: 8px;
+      }
+
+      .tab-item {
+        padding: 10px 6px;
+        gap: 6px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+      }
+
+      .tab-icon-img {
+        width: 30px;
+        height: 30px;
+        margin-bottom: 0;
+        border-radius: 6px;
+      }
+
+      .tab-text {
+        font-size: 9px;
+        line-height: 1.2;
+        text-align: center;
+        word-break: break-word;
+        display: block;
+        font-weight: 500;
+      }
+
+      .tab-count {
+        display: none;
+      }
+
+      .tab-item:hover {
+        box-shadow: 0 4px 10px rgba(56, 142, 60, 0.12);
+      }
+
+      .tab-item.active {
+        box-shadow: 0 6px 16px rgba(56, 142, 60, 0.3);
+      }
+
+      .products-container {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .products-header {
+        padding: 10px;
+        margin-bottom: 10px;
+      }
+
+      .products-title {
+        font-size: 16px;
+      }
+
+      .products-content {
+        padding: 10px;
+      }
+
+      .product-grid {
+        gap: 8px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .sidebar-container {
+        width: 65px;
+        padding: 10px 5px;
+      }
+
+      .sidebar-title {
+        font-size: 10px;
+        writing-mode: vertical-rl;
+        text-orientation: upright;
+        margin: 0;
+        padding: 0;
+      }
+
+      .tab-item {
+        padding: 8px 4px;
+        border-radius: 8px;
+      }
+
+      .tab-icon-img {
+        width: 26px;
+        height: 26px;
+        border-radius: 6px;
+      }
+
+      .tab-text {
+        font-size: 8px;
+        line-height: 1.1;
+        font-weight: 500;
+      }
+
+      .vertical-tabs {
+        gap: 6px;
+      }
+    }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 </head>
@@ -601,54 +904,68 @@
         </div>
     </div>
     
-    <div ng-if="!isSearching">
-        <div class="section-container">
-            <h2 class="page-title">Newly Arrived</h2>
-            <div class="manual-slideshow-container">
-                <div class="manual-slideshow-scroll-wrapper" ng-if="isLoadingNewlyArrived">
-                    <div class="card skeleton-card" ng-repeat="i in [1,2,3,4,5]">
+    <div ng-if="!isSearching" class="main-content-layout">
+        <div class="sidebar-container">
+      
+            <div class="vertical-tabs">
+                <div class="tab-loading" ng-if="isLoadingCategories">
+                    <div class="skeleton-tab" ng-repeat="i in [1,2,3,4,5,6,7,8]">
+                        <div class="tab-icon"></div>
+                        <div class="tab-text"></div>
+                    </div>
+                </div>
+                <div class="tab-item" 
+                     ng-if="!isLoadingCategories"
+                     ng-class="{'active': activeTabId === category.id}"
+                     ng-click="selectCategory(category.filter, category.id)"
+                     ng-repeat="category in categories">
+                    <img ng-src="{{category.imageUrl}}" alt="{{category.name}}" class="tab-icon-img">
+                    <span class="tab-text">{{category.name}}</span>
+                    <small class="tab-count" ng-if="category.productCount > 0">({{category.productCount}})</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="products-container">
+            <div class="products-header">
+                
+                <select ng-model="sortOrder" ng-change="updateDisplayedProducts()" class="form-select form-select-sm">
+                    <option value="default">Sort: Newest</option>
+                    <option value="price">Sort: Price Low</option>
+                    <option value="-price">Sort: Price High</option>
+                </select>
+            </div>
+            
+            <div class="products-content">
+                <div ng-if="isLoading" class="product-grid">
+                    <div class="card skeleton-card" ng-repeat="i in [1,2,3,4,5,6]">
                         <div class="skeleton-image"></div>
                         <div class="containers">
                             <div class="skeleton-line short"></div>
                             <div class="skeleton-line"></div>
-                            <div class="skeleton-line short"></div>
                         </div>
                     </div>
-                </div>
-
-                <div class="manual-slideshow-scroll-wrapper" ng-if="!isLoadingNewlyArrived && newlyArrivedProducts.length > 0">
-                    <div class="card" ng-repeat="product in newlyArrivedProducts track by product.$id">
-                        <img ng-src="{{product.url}}" alt="{{product.name}}" ng-click="showEnlargedImage(product.url)" loading="lazy">
-                        <div class="containers">
-                            <span class="saved-feedback" ng-if="product.justSaved">Saved!</span>
-                            <h4 ng-if="priceVisible"><b>{{product.price | currency:"₹":0 }}</b></h4>
-                            <p>{{product.name}}</p>
-                            <p ng-if="product.videourl"><a href="#" class="watch-video" ng-click="showVideoModal($event, product.videourl, false)">Watch Video</a></p>
-                            <input type="number" class="qtyclass" placeholder="Qty" ng-model="product.field3" ng-change="submitData(product)" ng-model-options="{ debounce: 800 }">
-                        </div>
-                    </div>
-                </div>
-                <div ng-if="!isLoadingNewlyArrived && newlyArrivedProducts.length === 0" class="text-center p-5 w-100">
-                    <p class="text-muted">No newly arrived products.</p>
                 </div>
                 
-                <div class="manual-slideshow-controls"></div>
-            </div>
-            <div class="view-all-container">
-                <button class="view-all-button" ng-click="setTab('', 0)">View All</button>
-            </div>
-        </div>
-      <div class="section-container">
-            <h2 class="page-title">Browse Categories</h2>
-            <div class="category-grid-container">
-                <div class="skeleton-category-card" ng-if="isLoadingCategories" ng-repeat="i in [1,2,3,4,5,6]">
-                    <div class="icon"></div>
-                    <div class="text"></div>
-                </div>
-                <div class="category-card" ng-if="!isLoadingCategories" ng-repeat="category in categories" ng-click="setTab(category.filter, category.id)">
-                    <img ng-src="{{category.imageUrl}}" alt="{{category.name}}">
-                    <span>{{category.name}}</span>
-                    <small class="text-muted mt-1" ng-if="category.productCount > 0">({{category.productCount}})</small>
+                <div ng-if="!isLoading">
+                    <div class="product-grid">
+                        <div class="card" ng-repeat="product in displayedProducts" ng-hide="product.markedForRemoval">
+                            <img ng-src="{{product.url}}" alt="{{product.name}}" ng-click="showEnlargedImage(product.url, false)" loading="lazy">
+                            <button ng-if="dynamicField2Value === 'sammyadmin'" class="btn btn-danger btn-sm mt-2 mx-2" ng-click="markOutOfStock(product)">
+                                Mark Out of Stock
+                            </button>
+                            <div class="containers">
+                                <span class="saved-feedback" ng-if="product.justSaved">Saved!</span>
+                                <h4 ng-if="priceVisible"><b>{{product.price | currency:"₹":0 }}</b></h4>
+                                <p>{{product.name}}</p>
+                                <p ng-if="product.videourl"><a href="#" class="watch-video" ng-click="showVideoModal($event, product.videourl, false)">Watch Video</a></p>
+                                <input type="number" class="qtyclass" placeholder="Qty" ng-model="product.field3" ng-change="submitData(product)" ng-model-options="{ debounce: 800 }">
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-if="displayedProducts.length === 0" class="text-center p-5">
+                        <p class="text-muted">No products found.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -975,8 +1292,6 @@
         
         $scope.isLoading = true;
         $scope.isLoadingCategories = true;
-        $scope.isLoadingNewlyArrived = true;
-        $scope.newlyArrivedProducts = [];
         
         $scope.isSearching = false;
         $scope.searchResults = [];
@@ -1013,23 +1328,26 @@
                 category.productCount = $filter('filter')(vm.images, { name: category.filter }).length;
               }
             });
-            $scope.newlyArrivedProducts = $filter('orderBy')(vm.images, '-date').slice(0, 50);
             $scope.isLoading = false;
             $scope.isLoadingCategories = false;
-            $scope.isLoadingNewlyArrived = false;
-            $scope.updateDisplayedProducts();
+            // Select first category by default
+            if (!$scope.activeTabId && $scope.activeTabId !== 0) {
+              $scope.activeTabId = 0;
+            }
+            $scope.selectCategory($scope.categories.find(c => c.id === $scope.activeTabId)?.filter || '', $scope.activeTabId);
           });
         }, function(error) {
           console.error("Error loading products:", error);
           $scope.$applyAsync(function() {
             $scope.isLoading = false;
-            $scope.isLoadingNewlyArrived = false;
             $scope.isLoadingCategories = false;
           });
           alert('Failed to load products. Please check your network and try again.');
         });
         
         $scope.allOrders = $firebaseArray(submitDb);
+        $scope.activeTabId = 0;
+        $scope.activeCategoryName = 'ALL PRODUCTS';
         
         $scope.categories = [
           { id: 0, name: 'ALL PRODUCTS', filter: '', imageUrl: 'https://www.hindustantoys.in/images/all.jpeg' },
@@ -1119,6 +1437,22 @@
           }
         };
         
+        $scope.selectCategory = function(filter, tabId) {
+          try {
+            $scope.searchQuery = '';
+            $scope.isSearching = false;
+            $scope.productNameFilter = filter;
+            $scope.activeCategoryName = $scope.categories.find(c => c.id === tabId)?.name || 'Products';
+            $scope.activeTabId = tabId;
+            $scope.updateDisplayedProducts();
+            $timeout(function() {
+              window.scrollTo(0, 0);
+            }, 0);
+          } catch (e) {
+            console.error("Select Category Error:", e);
+          }
+        };
+
         $scope.setTab = function(filter, tabId) {
           try {
             $scope.searchQuery = '';
@@ -1212,9 +1546,6 @@
               $timeout(function() {
                 const masterIndex = vm.images.findIndex(i => i.$id === image.$id);
                 if (masterIndex > -1) vm.images.splice(masterIndex, 1);
-                
-                const newlyArrivedIndex = $scope.newlyArrivedProducts.findIndex(p => p.$id === image.$id);
-                if (newlyArrivedIndex > -1) $scope.newlyArrivedProducts.splice(newlyArrivedIndex, 1);
 
                 const displayIndex = $scope.displayedProducts.findIndex(p => p.$id === image.$id);
                 if (displayIndex > -1) $scope.displayedProducts.splice(displayIndex, 1);
@@ -1472,6 +1803,3 @@
   </script>
 </body>
 </html>
-
-
-
