@@ -806,6 +806,7 @@
             const tr = document.createElement('tr');
             tr.setAttribute('data-video-id', videoId);
             tr.setAttribute('data-firebase-key', key);
+            tr.setAttribute('data-category', category);
             const cats = djCategories;
             let selected = category === 'Uncategorized' ? 'Uncategorized' : category;
             let optionsHtml = '<option value="Uncategorized"' + (category === 'Uncategorized' ? ' selected' : '') + '>Uncategorized</option>';
@@ -903,7 +904,12 @@
                 select.value = val;
             }
             if (key) {
-                database.ref(`playedHistory/${key}/category`).set(val);
+                database.ref(`playedHistory/${key}/category`).set(val)
+                    .then(() => {
+                        console.log(`Category "${val}" saved for key ${key}`);
+                        tr.setAttribute('data-category', val);
+                    })
+                    .catch(err => console.error('Firebase save error:', err));
             }
             filterHistory();
         }
@@ -911,17 +917,14 @@
             const selects = document.querySelectorAll('.track-category-select');
             selects.forEach(s => {
                 const tr = s.closest('tr');
-                const key = tr.getAttribute('data-firebase-key');
-                const videoId = tr.getAttribute('data-video-id');
-                const title = tr.querySelector('.track-title').textContent;
-                const curr = s.value;
-                let html = '<option value="Uncategorized">Uncategorized</option>';
+                const actualCategory = tr.getAttribute('data-category') || 'Uncategorized';
+                let html = '<option value="Uncategorized"' + (actualCategory === 'Uncategorized' ? ' selected' : '') + '>Uncategorized</option>';
                 djCategories.forEach(c => {
-                    html += `<option value="${c}" ${c === curr ? 'selected' : ''}>${c}</option>`;
+                    html += `<option value="${c}" ${c === actualCategory ? 'selected' : ''}>${c}</option>`;
                 });
                 html += '<option value="__new__">+ Add New Category</option>';
                 s.innerHTML = html;
-                s.value = curr;
+                s.value = actualCategory;
             });
         }
         function addNewCategoryGlobal() {
