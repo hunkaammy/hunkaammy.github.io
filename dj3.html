@@ -1013,26 +1013,14 @@
         function initBalanceControl() {
             const balanceSlider = document.getElementById('balance-slider');
             const volumePercentage = document.getElementById('volume-percentage');
-            let lastBalance = 50;
-
             balanceSlider.addEventListener('input', () => {
-                const balance = parseInt(balanceSlider.value);
-                if (balance === lastBalance) return;
-                lastBalance = balance;
-
-                // Exponential curve for natural fade (0-100 -> 0-1 normalized)
-                const curve = balance / 100;
-                const expCurve = Math.pow(curve, 2); // Quadratic for emphasis on ends
-                const deck1Vol = Math.round(100 * (1 - expCurve));
-                const deck2Vol = Math.round(100 * expCurve);
-
-                if (player1) player1.setVolume(deck1Vol);
-                if (player2) player2.setVolume(deck2Vol);
-
-                const percentage = Math.abs(balance - 50) * 2;
-                const direction = balance < 50 ? 'Left' : balance > 50 ? 'Right' : 'Center';
-                volumePercentage.textContent = `${direction} (${percentage}%)`;
-                volumePercentage.style.color = balance < 50 ? '#ff6b6b' : balance > 50 ? '#4ecdc4' : '#f0f0f0';
+                const balance = balanceSlider.value;
+                const percentage = balance < 50 ? (50 - balance) : (balance - 50);
+                volumePercentage.textContent = `${percentage}%`;
+                if (player1 && player2) {
+                    player1.setVolume(100 - balance);
+                    player2.setVolume(balance);
+                }
             });
         }
         function filterHistory() {
