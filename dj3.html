@@ -181,11 +181,11 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
-       
+      
         .beat-btn:hover {
             background-color: #444444;
         }
-       
+      
         .beat-btn.active {
             background-color: #ff5500;
             box-shadow: 0 0 10px rgba(255, 85, 0, 0.7);
@@ -339,12 +339,12 @@
             border: none;
             border-radius: 5px;
         }
-       
+      
         .beat-buttons {
             display: flex;
             gap: 5px;
         }
-       
+      
         .beat-btn {
             flex: 1;
             padding: 5px 10px;
@@ -355,11 +355,11 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
-       
+      
         .beat-btn:hover {
             background-color: #2980b9;
         }
-       
+      
         .beat-btn.active {
             background-color: #e74c3c;
         }
@@ -461,6 +461,13 @@
             margin-bottom: 3px;
             font-size: 14px;
             word-break: break-word;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+        }
+        .ai-message li:hover {
+            background-color: rgba(255, 255, 255, 0.1);
         }
     </style>
 </head>
@@ -643,7 +650,7 @@
             if (!message) return;
             addMessage('You', message);
             input.value = '';
-            const fullPrompt = `You are a DJ song recommender specializing in Bollywood/Hindi tracks. Based on the query "${message}", suggest 5-10 unique songs. Respond ONLY with a numbered list, each on a new line, like:\n1. "Song Title - Artist"\n2. "Another Song - Artist"\nNo other text.`;
+            const fullPrompt = `You are a DJ song recommender specializing in Bollywood/Hindi tracks. Based on the query "${message}", suggest 5-10 unique songs. Respond ONLY with a numbered list, each on a new line, like:\n1. "Song Title - Artist (Movie/Album)"\n2. "Another Song - Artist (Another Movie)"\nNo other text.`;
             chatHistory.push({ role: 'user', parts: [{ text: fullPrompt }] });
             try {
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
@@ -684,7 +691,9 @@
                     const ol = document.createElement('ol');
                     listItems.forEach(line => {
                         const li = document.createElement('li');
-                        li.textContent = line.replace(/^\d+\.\s*/, '');
+                        const cleanText = line.replace(/^\d+\.\s*/, '');
+                        li.textContent = cleanText;
+                        li.onclick = () => handleSongClick(cleanText);
                         ol.appendChild(li);
                     });
                     div.appendChild(ol);
@@ -704,6 +713,14 @@
             messages.appendChild(div);
             messages.scrollTop = messages.scrollHeight;
         }
+        async function handleSongClick(songInfo) {
+            const deck = prompt('Play on Deck 1 or Deck 2? (Enter 1 or 2)');
+            if (!deck || (deck !== '1' && deck !== '2')) return;
+            const deckName = deck === '1' ? 'deck1' : 'deck2';
+            const searchInput = document.getElementById(`search-${deckName}`);
+            searchInput.value = songInfo;
+            await searchYouTubeForDeck(deckName, 0, true, songInfo); // Auto-load first result on selected deck
+        }
         function saveNotes() {
             const notes = document.getElementById('notes-textarea').value;
             database.ref('djNotes').set(notes);
@@ -720,12 +737,12 @@
         function toggleBeatLoop(deckNumber, beats) {
             const player = deckNumber === 1 ? player1 : player2;
             const button = document.querySelector(`#player${deckNumber} .beat-btn[data-beats="${beats}"]`);
-           
+          
             if (button.classList.contains('active')) {
                 button.classList.remove('active');
                 window['loopActive' + deckNumber] = false;
                 window['loopBeats' + deckNumber] = 0;
-               
+              
                 if (window['loopInterval' + deckNumber]) {
                     clearInterval(window['loopInterval' + deckNumber]);
                     window['loopInterval' + deckNumber] = null;
@@ -733,18 +750,18 @@
                 console.log(`Beat loop turned OFF for deck ${deckNumber}`);
                 return;
             }
-           
+          
             if (window['loopInterval' + deckNumber]) {
                 clearInterval(window['loopInterval' + deckNumber]);
                 window['loopInterval' + deckNumber] = null;
             }
-           
+          
             document.querySelectorAll(`#player${deckNumber} .beat-btn`).forEach(btn => {
                 btn.classList.remove('active');
             });
-           
+          
             button.classList.add('active');
-           
+          
             if (player && player.getPlayerState) {
                 if (player.getPlayerState() === YT.PlayerState.PLAYING) {
                     startLoop(deckNumber, beats);
@@ -753,24 +770,24 @@
                 }
             }
         }
-       
+      
         function startLoop(deckNumber, beats) {
             const player = deckNumber === 1 ? player1 : player2;
-           
+          
             if (window['loopInterval' + deckNumber]) {
                 clearInterval(window['loopInterval' + deckNumber]);
             }
-           
+          
             window['loopStartTime' + deckNumber] = player.getCurrentTime();
             window['loopActive' + deckNumber] = true;
-           
+          
             const loopDuration = beats * 2;
             console.log(`Starting simple loop for deck ${deckNumber}: ${beats} beats`);
             window['loopInterval' + deckNumber] = setInterval(() => {
                 if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
                     const currentTime = player.getCurrentTime();
                     const endTime = window['loopStartTime' + deckNumber] + loopDuration;
-                   
+                  
                     if (currentTime >= endTime) {
                         player.seekTo(window['loopStartTime' + deckNumber], true);
                         console.log(`Loop reset to ${window['loopStartTime' + deckNumber]}`);
@@ -786,12 +803,12 @@
         }
         function handlePlayerStateChange(deckNumber, event) {
             const player = deckNumber === 1 ? player1 : player2;
-           
+          
             if (event.data === YT.PlayerState.PLAYING) {
                 const beats = window['loopBeats' + deckNumber];
                 if (beats > 0) {
                     startLoop(deckNumber, beats);
-                   
+                  
                     document.querySelectorAll(`.video-player:nth-child(${deckNumber}) .beat-btn`).forEach(btn => {
                         if (parseInt(btn.getAttribute('data-beats')) === beats) {
                             btn.classList.add('active');
@@ -801,7 +818,7 @@
                     });
                 }
             }
-           
+          
             if (event.data === YT.PlayerState.ENDED || event.data === YT.PlayerState.PAUSED) {
                 if (window['loopInterval' + deckNumber]) {
                     clearInterval(window['loopInterval' + deckNumber]);
@@ -817,24 +834,24 @@
             let currentBPM = 120;
             let targetBPM = 120;
             let tempoInterval = null;
-           
+          
             window[`referenceBPM${deckNumber}`] = 120;
-       
+      
             tempoSlider.addEventListener('input', () => {
                 targetBPM = parseInt(tempoSlider.value);
                 tempoValue.textContent = targetBPM;
-               
+              
                 const targetRate = targetBPM / window[`referenceBPM${deckNumber}`];
-               
+              
                 if (tempoInterval) {
                     clearInterval(tempoInterval);
                 }
-               
+              
                 tempoInterval = setInterval(() => {
                     if (Math.abs(currentBPM - targetBPM) < 1) {
                         currentBPM = targetBPM;
                         const exactRate = currentBPM / window[`referenceBPM${deckNumber}`];
-                       
+                      
                         if (player && typeof player.setPlaybackRate === 'function') {
                             player.setPlaybackRate(exactRate);
                         }
@@ -842,22 +859,22 @@
                         tempoInterval = null;
                         return;
                     }
-                   
+                  
                     if (currentBPM < targetBPM) {
                         currentBPM += 1;
                     } else {
                         currentBPM -= 1;
                     }
-                   
+                  
                     const newRate = currentBPM / window[`referenceBPM${deckNumber}`];
-                   
+                  
                     if (player && typeof player.setPlaybackRate === 'function') {
                         player.setPlaybackRate(newRate);
                         console.log(`Deck ${deckNumber} BPM: ${currentBPM} (rate: ${newRate.toFixed(2)}x)`);
                     }
                 }, 50);
             });
-           
+          
             window[`setReferenceBPM${deckNumber}`] = function(bpm) {
                 window[`referenceBPM${deckNumber}`] = bpm;
                 if (player && typeof player.setPlaybackRate === 'function') {
@@ -870,7 +887,7 @@
             '13452c8109msh7750057c5193b47p1c47c0jsn5d53a80bb998',
             'd85300e47amsh5ad671c2832cec6p1b7953jsnab9c3a237b6e'
         ];
-        function searchYouTubeForDeck(deck, apiKeyIndex = 0) {
+        async function searchYouTubeForDeck(deck, apiKeyIndex = 0, autoLoad = false, songInfo = null) {
             const query = document.getElementById(`search-${deck}`).value;
             if (query.trim() === '') {
                 alert('Please enter a search term.');
@@ -887,7 +904,7 @@
                 .then(response => {
                     if (response.status === 429 && apiKeyIndex < API_KEYS.length - 1) {
                         console.log(`API key ${apiKeyIndex + 1} quota exceeded, trying next key...`);
-                        return searchYouTubeForDeck(deck, apiKeyIndex + 1);
+                        return searchYouTubeForDeck(deck, apiKeyIndex + 1, autoLoad, songInfo);
                     }
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
@@ -897,8 +914,20 @@
                 .then(data => {
                     const dropdown = document.getElementById(`custom-dropdown${deck === 'deck1' ? 1 : 2}`);
                     dropdown.innerHTML = '';
-                    dropdown.style.display = 'block';
                     if (data.contents && data.contents.length > 0) {
+                        const firstVideo = data.contents[0].video;
+                        if (autoLoad && firstVideo) {
+                            const selectedVideoId = firstVideo.videoId;
+                            const trackTitle = firstVideo.title;
+                            const player = deck === 'deck1' ? player1 : player2;
+                            const titleElement = deck === 'deck1' ? document.getElementById('current-track-title1') : document.getElementById('current-track-title2');
+                            player.loadVideoById(selectedVideoId);
+                            titleElement.textContent = trackTitle;
+                            addNewTrackToHistory(trackTitle, selectedVideoId, 'Uncategorized');
+                            dropdown.style.display = 'none';
+                            return;
+                        }
+                        dropdown.style.display = 'block';
                         data.contents.slice(0, 30).forEach(item => {
                             if (item.video) {
                                 const video = item.video;
@@ -932,7 +961,7 @@
                     console.error('Error fetching data:', error);
                     if (error.message.includes('429') && apiKeyIndex < API_KEYS.length - 1) {
                         console.log(`Retrying with API key ${apiKeyIndex + 2}...`);
-                        searchYouTubeForDeck(deck, apiKeyIndex + 1);
+                        searchYouTubeForDeck(deck, apiKeyIndex + 1, autoLoad, songInfo);
                     } else {
                         alert('Error fetching search results. Both API keys may be exhausted or another error occurred. Please try again later.');
                     }
