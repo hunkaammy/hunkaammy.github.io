@@ -703,15 +703,6 @@
       box-shadow: var(--card-shadow);
     }
 
-    .online-section {
-      background: #fff;
-      padding: 15px;
-      border-radius: 12px;
-      box-shadow: var(--card-shadow);
-      margin: 10px auto;
-      max-width: 768px;
-    }
-
     @media (max-width: 767.98px) {
       .main-content-layout {
         flex-direction: row;
@@ -874,16 +865,6 @@
           <input class="form-check-input" type="checkbox" role="switch" id="priceToggle" ng-model="priceVisible" ng-change="togglePriceVisibility()">
         </div>
       </div>
-    </div>
-
-    <div ng-if="dynamicField2Value === 'sammyadmin'" class="online-section mb-3">
-      <h5 class="mb-2"><i class="fas fa-users me-2"></i>Online Customers ({{onlineUsers.length}})</h5>
-      <div ng-if="onlineUsers.length === 0" class="text-muted small">No customers online.</div>
-      <ul class="list-unstyled small" ng-if="onlineUsers.length > 0">
-        <li ng-repeat="user in onlineUsers | orderBy:'-timestamp'" class="py-1 border-bottom">
-          {{user.name}} <small class="text-muted">({{user.mobile}})</small>
-        </li>
-      </ul>
     </div>
 
     <!-- Fixed Your Order Button -->
@@ -1202,15 +1183,12 @@
         authDomain: "shop-reminder-3ce10.firebaseapp.com",
         databaseURL: "https://shop-reminder-3ce10-default-rtdb.firebaseio.com",
       };
-      var submitConfig = { databaseURL: "https://notes-12519-default-rtdb.firebaseio.com" };
       var blockedNumbers = ['7000913701', '9846434664' , '8269731362', '9876543210', '9123456789', '8987854256', '9039199794', '9166220046', '8269731352', '6263821242', '6616495946', '6266242180', '9109390639', '9658695825', '8576911011'];
       var blockedPageUrl = 'https://www.hindustantoys.in/mywebsite/NEWWEBSITE/blocked.html';
 
       try {
         var loginApp = firebase.apps.find(app => app.name === 'loginApp') || firebase.initializeApp(loginConfig, 'loginApp');
         var loginDb = loginApp.database();
-        var submitApp = firebase.apps.find(app => app.name === 'submitApp') || firebase.initializeApp(submitConfig, 'submitApp');
-        var submitDb = submitApp.database().ref();
 
         window.validateLogin = function() {
           try {
@@ -1228,13 +1206,6 @@
               alert('Please enter valid details.');
               return;
             }
-
-            var onlineRef = submitDb.child('online').child(mobile);
-            onlineRef.onDisconnect().remove();
-            onlineRef.set({ 
-              name: name, 
-              timestamp: firebase.database.ServerValue.TIMESTAMP 
-            });
 
             loginDb.ref('users').push({ 
               name: name, 
@@ -1284,13 +1255,6 @@
               document.getElementById('name').value = name;
               document.getElementById('mobile').value = mobile;
 
-              var onlineRef = submitDb.child('online').child(mobile);
-              onlineRef.onDisconnect().remove();
-              onlineRef.set({ 
-                name: name, 
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-              });
-
               loginDb.ref('users').push({ 
                 name: name, 
                 mobile: mobile, 
@@ -1325,8 +1289,6 @@
         $scope.priceVisible = localStorage.getItem('priceVisible') !== 'false';
         $scope.isOrderModalOpen = false;
         $scope.isEnlargedImageOpen = false;
-        $scope.onlineUsers = [];
-        var onlineUnsubscribe = null;
         
         $scope.isLoading = true;
         $scope.isLoadingCategories = true;
@@ -1346,29 +1308,6 @@
 
         var submitApp = firebase.apps.find(app => app.name === 'submitApp') || firebase.initializeApp(submitConfig, 'submitApp');
         var submitDb = submitApp.database().ref();
-
-        $scope.$watch('dynamicField2Value', function(newVal, oldVal) {
-          if (newVal === 'sammyadmin' && oldVal !== 'sammyadmin') {
-            $scope.onlineUsers = [];
-            var onlineRef = submitDb.child('online');
-            if (onlineUnsubscribe) {
-              onlineUnsubscribe();
-            }
-            onlineUnsubscribe = onlineRef.on('value', function(snapshot) {
-              var users = [];
-              snapshot.forEach(function(childSnapshot) {
-                var user = childSnapshot.val();
-                user.mobile = childSnapshot.key;
-                if (user.name !== 'sammyadmin') {
-                  users.push(user);
-                }
-              });
-              $scope.$apply(function() {
-                $scope.onlineUsers = users;
-              });
-            });
-          }
-        });
 
         // Real-time listener for products
         var productsListener = fetchDb.on('value', function(snapshot) {
@@ -1415,6 +1354,8 @@
           { id: 6, name: 'RACKET', filter: 'RACKET', imageUrl: 'https://www.hindustantoys.in/images/racket.jpeg' },
           { id: 9, name: 'MIX TOYS', filter: 'MIX', imageUrl: 'https://www.hindustantoys.in/images/mix.jpeg' },
           { id: 39, name: 'EDUCATIONAL TOYS', filter: 'EDUCATIONAL', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2025-08-23T08%3A21%3A08.778Z_KIDS%20EDUCATIONAL%20CALENDER%20(MIX)_cfb4fb41-e790-4b0a-8cbd-d0f33f1d392b.jpg?alt=media&token=97e8c36a-6efe-4812-a40a-f99ab08b7b09' },
+          
+          
           { id: 41, name: 'BATTERY CAR/JEEP', filter: 'BATTERY CAR', imageUrl: 'https://www.hindustantoys.in/images/Jeep.jpg' },
           { id: 40, name: 'BATTERY BIKES', filter: 'BATTERY BIKE', imageUrl: 'https://www.hindustantoys.in/images/bike.jpg' },
           { id: 38, name: 'UMBRELLA', filter: 'UMBRELLA', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2024-06-24T16%3A35%3A31.407Z_RAINBOW%20UMBRELLA_IMG-20240529-WA0047.jpg?alt=media&token=64ee5147-65c7-4de8-897d-55df6cb84857' },
@@ -1426,6 +1367,7 @@
           { id: 13, name: 'BATTERY OPERATED', filter: 'BATTERY', imageUrl: 'https://www.hindustantoys.in/images/battery.jpeg' },
           { id: 34, name: 'VALENTINES/TEDDY', filter: 'TEDDY', imageUrl: 'https://www.hindustantoys.in/images/TEDDY.jpg' },
           { id: 31, name: 'KITCHEN SETS', filter: 'KITCHEN', imageUrl: 'https://www.hindustantoys.in/images/KITCHEN.jpg' },
+          { id: 6, name: 'RACKET', filter: 'RACKET', imageUrl: 'https://www.hindustantoys.in/images/racket.jpeg' },
           { id: 7, name: 'REMOTE CAR', filter: 'REMOTE', imageUrl: 'https://www.hindustantoys.in/images/remote.jpeg' },
           { id: 11, name: 'MAGIC RIDDER', filter: 'RIDDER', imageUrl: 'https://www.hindustantoys.in/images/ridder.jpeg' },
           { id: 25, name: 'HIGH QUALITY', filter: 'HIGH QUALITY', imageUrl: 'https://www.hindustantoys.in/images/high.jpeg' },
@@ -1689,4 +1631,175 @@
               if (productModal && productModalEl.classList.contains('show')) {
                 history.pushState({ state: 'productModal' }, null, location.href);
               } else {
-                history.pushState({ state: 'home' }, null,
+                history.pushState({ state: 'home' }, null, location.href);
+              }
+            }
+          } catch (e) {
+            console.error("Close Enlarged Image Error:", e);
+          }
+        };
+        
+        $scope.showVideoModal = function(event, videourl, fromProductModal) {
+          try {
+            if (event) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+            $scope.videoError = '';
+            if (videourl) {
+              $scope.currentVideoUrl = $sce.trustAsResourceUrl(videourl);
+              history.pushState({ state: 'videoModal', fromProductModal: fromProductModal }, null, location.href);
+              if (videoModal) videoModal.show();
+              
+              $timeout(function() {
+                var videoElement = document.getElementById('videoPlayer');
+                if (videoElement) {
+                  videoElement.load();
+                  videoElement.onerror = function() {
+                    $scope.$applyAsync(function() {
+                      $scope.videoError = 'Error loading video. Please check the URL or try again later.';
+                      console.error('Video playback error:', videourl);
+                    });
+                  };
+                  videoElement.onloadeddata = function() {
+                    console.log('Video loaded successfully:', videourl);
+                  };
+                }
+              }, 0);
+            } else {
+              $scope.videoError = 'No video URL provided.';
+              console.error('No video URL provided');
+            }
+          } catch (e) {
+            console.error("Show Video Modal Error:", e);
+          }
+        };
+
+        $scope.closeVideoModal = function() {
+          try {
+            var videoElement = document.getElementById('videoPlayer');
+            if (videoElement) {
+              videoElement.pause();
+              videoElement.currentTime = 0;
+            }
+            if (videoModal) videoModal.hide();
+            $scope.currentVideoUrl = '';
+            $scope.videoError = '';
+            var productModalEl = document.getElementById('productModal');
+            var productModal = bootstrap.Modal.getInstance(productModalEl);
+            if (productModal && productModalEl.classList.contains('show')) {
+              history.pushState({ state: 'productModal' }, null, location.href);
+            } else {
+              history.pushState({ state: 'home' }, null, location.href);
+            }
+          } catch (e) {
+            console.error("Close Video Modal Error:", e);
+          }
+        };
+
+        $scope.updateDisplayedProducts = function() {
+          try {
+            if ($scope.isLoading || !$scope.dynamicField2Value) return;
+
+            let filteredImages = vm.images;
+            if ($scope.productNameFilter) {
+              filteredImages = $filter('filter')(vm.images, { name: $scope.productNameFilter }) || [];
+            }
+            if ($scope.searchQuery && !$scope.productNameFilter) {
+              filteredImages = $filter('filter')(filteredImages, { name: $scope.searchQuery }) || [];
+            }
+
+            if ($scope.sortOrder === 'price') {
+              filteredImages = $filter('orderBy')(filteredImages, 'price');
+            } else if ($scope.sortOrder === '-price') {
+              filteredImages = $filter('orderBy')(filteredImages, '-price');
+            } else {
+              filteredImages = $filter('orderBy')(filteredImages, '-date');
+            }
+            
+            $scope.displayedProducts = filteredImages;
+          } catch (e) {
+            console.error("Update Displayed Products Error:", e);
+          }
+        };
+
+        $scope.logout = function() {
+          try {
+            // Unsubscribe from real-time listener on logout
+            fetchDb.off('value', productsListener);
+            localStorage.clear();
+            $window.location.reload();
+          } catch (e) {
+            console.error("Logout Error:", e);
+          }
+        };
+
+        // Modal event listeners
+        $timeout(function() {
+          try {
+            var productModalEl = document.getElementById('productModal');
+            if (productModalEl) {
+              productModalEl.addEventListener('show.bs.modal', function() {
+                $scope.$applyAsync(function() {
+                  $scope.isProductModalOpen = true;
+                });
+              });
+              productModalEl.addEventListener('hide.bs.modal', function() {
+                $scope.$applyAsync(function() {
+                  $scope.isProductModalOpen = false;
+                  history.pushState({ state: 'home' }, null, location.href);
+                });
+              });
+            }
+
+            var videoModalEl = document.getElementById('videoModal');
+            if (videoModalEl) {
+              videoModalEl.addEventListener('show.bs.modal', function() {
+                var productModalEl = document.getElementById('productModal');
+                if ($scope.isProductModalOpen && productModalEl.classList.contains('show')) {
+                  document.body.classList.add('modal-open');
+                  var backdrop = document.querySelector('.modal-backdrop');
+                  if (backdrop) {
+                    backdrop.style.display = 'block';
+                  }
+                }
+              });
+              videoModalEl.addEventListener('hide.bs.modal', function() {
+                var productModalEl = document.getElementById('productModal');
+                if ($scope.isProductModalOpen && productModalEl.classList.contains('show')) {
+                  productModalEl.style.display = 'block';
+                  document.body.classList.add('modal-open');
+                  if (!document.querySelector('.modal-backdrop')) {
+                    var backdrop = document.createElement('div');
+                    backdrop.className = 'modal-backdrop fade show';
+                    document.body.appendChild(backdrop);
+                  }
+                }
+              });
+            }
+
+            var orderModalEl = document.getElementById('myModal');
+            if (orderModalEl) {
+              orderModalEl.addEventListener('show.bs.modal', function() {
+                $scope.$applyAsync(function() {
+                  $scope.isOrderModalOpen = true;
+                });
+              });
+              orderModalEl.addEventListener('hide.bs.modal', function() {
+                $scope.$applyAsync(function() {
+                  $scope.isOrderModalOpen = false;
+                });
+              });
+            }
+          } catch (e) {
+            console.error("Modal Event Listener Error:", e);
+          }
+        }, 0);
+      } catch (e) {
+        console.error("Controller Initialization Error:", e);
+        alert('Application initialization failed. Please refresh the page.');
+      }
+    }]);
+  </script>
+</body>
+</html>
