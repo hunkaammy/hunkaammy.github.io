@@ -650,7 +650,7 @@
             if (!message) return;
             addMessage('You', message);
             input.value = '';
-            const fullPrompt = `You are a DJ song recommender specializing in Bollywood/Hindi tracks and DJ mixes. Based on the query "${message}", suggest 5-10 unique songs or DJ mixes. Include DJ name if it's a mix, singer, and movie/album. Respond ONLY with a numbered list, each on a new line, like:\n1. "Song Title - DJ Name or Singer (Movie/Album)"\n2. "Another Song - Artist (Another Movie)"\nNo other text.`;
+            const fullPrompt = `You are a DJ song recommender specializing in Bollywood/Hindi tracks and DJ mixes. Based on the query "${message}", suggest 5-10 unique songs or DJ mixes. Include DJ name if it's a mix, singer, and movie/album. Respond ONLY with a numbered list, each on a new line, like:\n1. Song Title - DJ Name or Singer (Movie/Album)\n2. "Another Song - Artist (Another Movie)"\nNo other text.`;
             chatHistory.push({ role: 'user', parts: [{ text: fullPrompt }] });
             try {
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
