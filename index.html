@@ -777,21 +777,10 @@
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" role="switch" id="priceToggle" ng-model="priceVisible" ng-change="togglePriceVisibility()">
         </div>
-        <!-- GENDER + AGE FILTERS -->
-        <div class="ms-3 d-flex align-items-center" style="gap:8px;">
-          <select class="form-select form-select-sm" ng-model="filterGender" ng-change="updateDisplayedProducts()" style="min-width:110px;">
-            <option value="">Gender: Any</option>
-            <option value="boy">Boy</option>
-            <option value="girl">Girl</option>
-          </select>
-          <input type="number" class="form-control form-control-sm" ng-model="filterMinAge" ng-change="updateDisplayedProducts()" placeholder="Min age" style="width:80px;" min="0">
-          <input type="number" class="form-control form-control-sm" ng-model="filterMaxAge" ng-change="updateDisplayedProducts()" placeholder="Max age" style="width:80px;" min="0">
-          <!-- Debug helper: include products that have no age info -->
-          <div class="form-check ms-2">
-            <input class="form-check-input" type="checkbox" id="includeNoAge" ng-model="includeNoAge" ng-change="updateDisplayedProducts()">
-            <label class="form-check-label small" for="includeNoAge">Show no-age products</label>
-          </div>
-        </div>
+        <!-- Settings Icon -->
+        <button class="btn btn-light btn-sm ms-3" data-bs-toggle="modal" data-bs-target="#settingsModal">
+          <i class="fas fa-cog"></i>
+        </button>
       </div>
     </div>
     <!-- Fixed Your Order Button -->
@@ -951,6 +940,37 @@
             Your browser does not support the video tag.
           </video>
           <p class="video-error" ng-if="videoError">{{videoError}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal fade" id="settingsModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Filters</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="d-flex align-items-center" style="gap:8px;">
+            <select class="form-select form-select-sm" ng-model="filterGender" ng-change="updateDisplayedProducts()" style="min-width:110px;">
+              <option value="">Gender: Any</option>
+              <option value="boy">Boy</option>
+              <option value="girl">Girl</option>
+            </select>
+            <input type="number" class="form-control form-control-sm" ng-model="filterMinAge" ng-change="updateDisplayedProducts()" placeholder="Min age" style="width:80px;" min="0">
+            <input type="number" class="form-control form-control-sm" ng-model="filterMaxAge" ng-change="updateDisplayedProducts()" placeholder="Max age" style="width:80px;" min="0">
+            <!-- Debug helper: include products that have no age info -->
+            <div class="form-check ms-2">
+              <input class="form-check-input" type="checkbox" id="includeNoAge" ng-model="includeNoAge" ng-change="updateDisplayedProducts()">
+              <label class="form-check-label small" for="includeNoAge">Show no-age products</label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
