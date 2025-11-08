@@ -14,9 +14,11 @@
       --dark-gray: #333;
       --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
+
     html, body {
   overscroll-behavior: none;
 }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       font-size: 14px;
@@ -30,16 +32,18 @@
       -ms-user-select: none;
       user-select: none;
     }
-   
+    
     [ng-cloak] {
         display: none !important;
     }
+
     /* Constrain content width to tablet-like size on all devices */
     #content, #login-container {
       max-width: 768px;
       margin: 0 auto;
       box-sizing: border-box;
     }
+
     #login-container {
       background-size: cover;
       background-position: center;
@@ -49,6 +53,7 @@
       align-items: center;
       padding: 20px;
     }
+
     #inside {
       background-color: rgba(255, 255, 255, 0.95);
       padding: 30px;
@@ -58,6 +63,7 @@
       width: 100%;
       max-width: 360px;
     }
+
     .navbar {
       background-color: #fff;
       padding: 8px 15px;
@@ -70,22 +76,25 @@
       left: 50%;
       transform: translateX(-50%);
     }
+
     .page-title {
       font-size: 18px;
       font-weight: 600;
     }
-   
+    
     .section-container {
       background-color: #fff;
       border-radius: 12px;
       box-shadow: var(--card-shadow);
       padding: 2px;
     }
+
     .category-grid-container {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
       gap: 12px;
     }
+
     .category-card {
       background-color: #fff;
       border-radius: 12px;
@@ -100,10 +109,12 @@
       justify-content: center;
       height: 110px;
     }
+
     .category-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
     }
+
     .category-card img {
       width: 48px;
       height: 48px;
@@ -111,19 +122,23 @@
       margin-bottom: 8px;
       border-radius: 8px;
     }
+
     .category-card span {
       font-size: 11px;
       font-weight: 500;
       color: #555;
     }
+
     .modal-body {
       background-color: var(--light-gray);
     }
+
     .product-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 12px;
     }
+
     .card {
       box-shadow: var(--card-shadow);
       width: 100%;
@@ -133,12 +148,13 @@
       overflow: hidden;
       padding-bottom: 8px;
     }
+
     .card img {
       width: 100%;
       object-fit: contain;
       cursor: pointer;
     }
-   
+    
     .containers {
       padding: 8px;
       position: relative;
@@ -160,6 +176,7 @@
       color: var(--secondary-color);
       cursor: pointer;
     }
+
     .qtyclass {
       height: 32px;
       width: 50px;
@@ -169,6 +186,7 @@
       border: 1px solid #ced4da;
       text-align: center;
     }
+
     .saved-feedback {
       color: var(--primary-color);
       font-size: 10px;
@@ -182,7 +200,7 @@
       from { opacity: 1; }
       to { opacity: 0; }
     }
-   
+    
     .enlarged-image-overlay {
       position: fixed;
       top: 0;
@@ -202,6 +220,7 @@
       border-radius: 8px;
       object-fit: contain;
     }
+
     @keyframes skeleton-pulse {
       0% { background-color: #e0e0e0; }
       50% { background-color: #f0f0f0; }
@@ -226,6 +245,7 @@
     .skeleton-line.short {
       width: 60%;
     }
+
     .skeleton-category-card {
       background-color: #e0e0e0;
       border-radius: 12px;
@@ -252,6 +272,7 @@
       background-color: #c0c0c0;
       border-radius: 4px;
     }
+
     .order-item-img {
       width: 50px;
       height: 50px;
@@ -269,9 +290,11 @@
       font-weight: bold;
       font-size: 16px;
     }
+
     .manual-slideshow-container {
       position: relative;
     }
+
     .manual-slideshow-scroll-wrapper {
       display: flex;
       flex-wrap: nowrap;
@@ -286,11 +309,13 @@
     .manual-slideshow-scroll-wrapper::-webkit-scrollbar {
       display: none;
     }
+
     .manual-slideshow-scroll-wrapper .card {
       flex-shrink: 0;
       width: 150px;
       scroll-snap-align: start;
     }
+
     .manual-slideshow-scroll-wrapper .card img {
       object-fit: cover;
     }
@@ -312,13 +337,16 @@
       width: 45px;
       font-size: 11px;
     }
+
     .manual-slideshow-controls {
       display: none;
     }
+
     .view-all-container {
       text-align: right;
       padding: 0 12px 12px;
     }
+
     .view-all-button {
       display: inline-block;
       color: BLACK;
@@ -329,6 +357,7 @@
       cursor: pointer;
       transition: background-color 0.2s ease;
     }
+
     .video-modal-content {
       max-width: 90%;
       max-height: 90vh;
@@ -337,11 +366,13 @@
       flex-direction: column;
       align-items: center;
     }
+
     .video-modal-content video {
       width: 100%;
       max-height: 70vh;
       border-radius: 8px;
     }
+
     .video-modal-content .download-btn {
       margin-top: 10px;
       padding: 8px 16px;
@@ -352,27 +383,33 @@
       cursor: pointer;
       font-size: 14px;
     }
+
     .video-modal-content .download-btn:hover {
       background-color: #2e7d32;
     }
+
     .video-error {
       color: var(--danger-color);
       font-size: 12px;
       margin-top: 10px;
       text-align: center;
     }
+
     #videoModal {
       z-index: 1060;
     }
+
     .search-results-container {
       max-width: 768px;
       margin: 0 auto;
       box-sizing: border-box;
     }
+
     .modal-dialog {
       max-width: 768px;
       margin: 1.75rem auto;
     }
+
     /* Updated styles for fixed modal header */
     #productModal .modal-header {
       position: sticky;
@@ -386,6 +423,7 @@
       justify-content: space-between;
       flex-wrap: nowrap;
     }
+
     #productModal .modal-title {
       margin: 0;
       font-size: 18px;
@@ -395,23 +433,28 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+
     #productModal .sort-container {
       flex-shrink: 0;
       margin-left: 10px;
     }
+
     #productModal .form-select-sm {
       width: auto;
       min-width: 120px;
       font-size: 12px;
       padding: 4px 8px;
     }
+
     #productModal .btn-close {
       flex-shrink: 0;
       margin-left: 10px;
     }
+
     #productModal .modal-body {
       padding-top: 10px;
     }
+
     @media (min-width: 768px) {
       #productModal .modal-dialog,
       #myModal .modal-dialog {
@@ -423,6 +466,7 @@
         width: 100%;
       }
     }
+
     @media (max-width: 767.98px) {
       .modal-dialog {
         max-width: none;
@@ -449,6 +493,7 @@
         width: 100%;
       }
     }
+
     /* Fixed Your Order Button */
     .fixed-order-button {
       position: fixed;
@@ -466,10 +511,12 @@
       cursor: pointer;
       transition: background-color 0.2s ease, transform 0.2s ease;
     }
+
     .fixed-order-button:hover {
       background-color: #2e7d32;
       transform: scale(1.05);
     }
+
     @media (max-width: 767.98px) {
       .fixed-order-button {
         bottom: 10px;
@@ -478,15 +525,17 @@
         font-size: 11px;
       }
     }
+
     /* New Layout Styles */
     .main-content-layout {
       display: flex;
       gap: 20px;
-     
+      
       max-width: 768px;
       margin: 0 auto;
       min-height: calc(100vh - 70px);
     }
+
     .sidebar-container {
       flex-shrink: 0;
       width: 180px;
@@ -500,6 +549,7 @@
       max-height: calc(100vh - 110px);
       overflow-y: auto;
     }
+
     .sidebar-title {
       font-size: 16px;
       font-weight: 600;
@@ -507,11 +557,13 @@
       padding: 0 10px;
       color: var(--dark-gray);
     }
+
     .vertical-tabs {
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
+
     .tab-item {
       display: flex;
       flex-direction: column;
@@ -528,12 +580,14 @@
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
       position: relative;
     }
+
     .tab-item:hover {
       background: linear-gradient(135deg, #f0f4f8 0%, #e8eff5 100%);
       transform: translateY(-2px) scale(1.02);
       box-shadow: 0 4px 12px rgba(56, 142, 60, 0.15);
       border-color: rgba(56, 142, 60, 0.2);
     }
+
     .tab-item.active {
       background: linear-gradient(135deg, var(--primary-color) 0%, #2e7d32 100%);
       color: white;
@@ -541,14 +595,17 @@
       box-shadow: 0 6px 16px rgba(56, 142, 60, 0.3);
       transform: scale(1.03);
     }
+
     .tab-item.active .tab-text {
       color: white;
       font-weight: 600;
     }
+
     .tab-item.active .tab-count {
       color: rgba(255, 255, 255, 0.95);
       font-weight: 500;
     }
+
     .tab-icon-img {
       width: 32px;
       height: 32px;
@@ -558,14 +615,17 @@
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
       transition: all 0.3s ease;
     }
+
     .tab-item:hover .tab-icon-img {
       transform: scale(1.1);
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
     }
+
     .tab-item.active .tab-icon-img {
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       border: 2px solid rgba(255, 255, 255, 0.3);
     }
+
     .tab-text {
       font-size: 11px;
       font-weight: 500;
@@ -576,6 +636,7 @@
       width: 100%;
       transition: color 0.3s ease;
     }
+
     .tab-count {
       font-size: 9px;
       color: var(--dark-gray);
@@ -583,11 +644,13 @@
       font-weight: 500;
       margin-top: -2px;
     }
+
     .tab-loading {
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
+
     .skeleton-tab {
       display: flex;
       flex-direction: column;
@@ -595,6 +658,7 @@
       gap: 8px;
       padding: 10px;
     }
+
     .skeleton-tab .tab-icon {
       width: 24px;
       height: 24px;
@@ -602,6 +666,7 @@
       border-radius: 4px;
       animation: skeleton-pulse 1.5s infinite ease-in-out;
     }
+
     .skeleton-tab .tab-text {
       height: 12px;
       width: 60%;
@@ -609,10 +674,12 @@
       border-radius: 4px;
       animation: skeleton-pulse 1.5s infinite ease-in-out;
     }
+
     .products-container {
       flex: 1;
       min-width: 0;
     }
+
     .products-header {
       background-color: #fff;
       padding: 15px;
@@ -625,24 +692,28 @@
       flex-wrap: wrap;
       gap: 10px;
     }
+
     .products-title {
       margin: 0;
       font-size: 18px;
       font-weight: 600;
       color: var(--dark-gray);
     }
+
     .products-content {
       background-color: #fff;
       padding: 15px;
       border-radius: 12px;
       box-shadow: var(--card-shadow);
     }
+
     @media (max-width: 767.98px) {
       .main-content-layout {
         flex-direction: row;
         gap: 10px;
         padding: 0px 5px 20px;
       }
+
       .sidebar-container {
         width: 95px;
         flex-shrink: 0;
@@ -654,25 +725,30 @@
         max-height: calc(100vh - 70px);
         overflow-y: auto;
       }
+
       .sidebar-title {
         font-size: 13px;
         margin-bottom: 12px;
       }
+
       .vertical-tabs {
         gap: 8px;
       }
+
       .tab-item {
         padding: 10px 6px;
         gap: 6px;
         border-radius: 10px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
       }
+
       .tab-icon-img {
         width: 30px;
         height: 30px;
         margin-bottom: 0;
         border-radius: 6px;
       }
+
       .tab-text {
         font-size: 9px;
         line-height: 1.2;
@@ -681,38 +757,48 @@
         display: block;
         font-weight: 500;
       }
+
       .tab-count {
         display: none;
       }
+
       .tab-item:hover {
         box-shadow: 0 4px 10px rgba(56, 142, 60, 0.12);
       }
+
       .tab-item.active {
         box-shadow: 0 6px 16px rgba(56, 142, 60, 0.3);
       }
+
       .products-container {
         flex: 1;
         min-width: 0;
       }
+
       .products-header {
         padding: 10px;
         margin-bottom: 10px;
       }
+
       .products-title {
         font-size: 16px;
       }
+
       .products-content {
         padding: 10px;
       }
+
       .product-grid {
         gap: 8px;
       }
     }
+
     @media (max-width: 480px) {
       .sidebar-container {
         width: 65px;
         padding: 10px 5px;
       }
+
       .sidebar-title {
         font-size: 10px;
         writing-mode: vertical-rl;
@@ -720,20 +806,24 @@
         margin: 0;
         padding: 0;
       }
+
       .tab-item {
         padding: 8px 4px;
         border-radius: 8px;
       }
+
       .tab-icon-img {
         width: 26px;
         height: 26px;
         border-radius: 6px;
       }
+
       .tab-text {
         font-size: 8px;
         line-height: 1.1;
         font-weight: 500;
       }
+
       .vertical-tabs {
         gap: 6px;
       }
@@ -750,15 +840,16 @@
       <button class="btn btn-success w-100" onclick="validateLogin()">Login</button>
     </div>
   </div>
+
   <div id="content" style="display: none;">
     <div class="navbar">
       <div class="d-flex w-100 align-items-center">
         <div class="input-group input-group-sm me-2">
-            <input type="text"
-                   ng-model="searchQuery"
-                   ng-change="onSearchChange()"
+            <input type="text" 
+                   ng-model="searchQuery" 
+                   ng-change="onSearchChange()" 
                    ng-model-options="{ debounce: 400 }"
-                   placeholder="Search all products..."
+                   placeholder="Search all products..." 
                    class="form-control">
             <span class="input-group-text"><i class="fas fa-search"></i></span>
         </div>
@@ -772,24 +863,22 @@
             </ul>
         </div>
       </div>
-      <div class="d-flex w-100 justify-content-center align-items-center mt-1" style="gap:8px;">
+      <div class="d-flex w-100 justify-content-center align-items-center mt-1">
         <small class="text-muted me-3">Welcome, {{dynamicField2Value}}</small>
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" role="switch" id="priceToggle" ng-model="priceVisible" ng-change="togglePriceVisibility()">
         </div>
-        <!-- Settings Icon -->
-        <button class="btn btn-light btn-sm ms-3" data-bs-toggle="modal" data-bs-target="#settingsModal">
-          <i class="fas fa-cog"></i>
-        </button>
       </div>
     </div>
+
     <!-- Fixed Your Order Button -->
     <button class="fixed-order-button" ng-if="dynamicField2Value && !isOrderModalOpen && !isEnlargedImageOpen" ng-click="openOrderModal()">
       <i class="fas fa-shopping-cart me-1"></i>Your Order
     </button>
+
     <div class="search-results-container p-3" ng-if="isSearching">
         <h2 class="page-title">Search Results for "{{ searchQuery }}"</h2>
-       
+        
         <div ng-if="isLoadingSearchResults" class="product-grid">
             <div class="card skeleton-card" ng-repeat="i in [1,2,3,4]">
                 <div class="skeleton-image"></div>
@@ -799,6 +888,7 @@
                 </div>
             </div>
         </div>
+
         <div ng-if="!isLoadingSearchResults">
             <div class="product-grid">
                  <div class="card" ng-repeat="product in searchResults">
@@ -817,10 +907,10 @@
             </div>
         </div>
     </div>
-   
+    
     <div ng-if="!isSearching" class="main-content-layout">
         <div class="sidebar-container">
-     
+      
             <div class="vertical-tabs">
                 <div class="tab-loading" ng-if="isLoadingCategories">
                     <div class="skeleton-tab" ng-repeat="i in [1,2,3,4,5,6,7,8]">
@@ -828,7 +918,7 @@
                         <div class="tab-text"></div>
                     </div>
                 </div>
-                <div class="tab-item"
+                <div class="tab-item" 
                      ng-if="!isLoadingCategories"
                      ng-class="{'active': activeTabId === category.id}"
                      ng-click="selectCategory(category.filter, category.id)"
@@ -839,17 +929,17 @@
                 </div>
             </div>
         </div>
-       
+        
         <div class="products-container">
             <div class="products-header">
-               
+                
                 <select ng-model="sortOrder" ng-change="updateDisplayedProducts()" class="form-select form-select-sm">
                     <option value="default">Sort: Newest</option>
                     <option value="price">Sort: Price Low</option>
                     <option value="-price">Sort: Price High</option>
                 </select>
             </div>
-           
+            
             <div class="products-content">
                 <div ng-if="isLoading" class="product-grid">
                     <div class="card skeleton-card" ng-repeat="i in [1,2,3,4,5,6]">
@@ -860,7 +950,7 @@
                         </div>
                     </div>
                 </div>
-               
+                
                 <div ng-if="!isLoading">
                     <div class="product-grid">
                         <div class="card" ng-repeat="product in displayedProducts" ng-hide="product.markedForRemoval">
@@ -884,7 +974,9 @@
             </div>
         </div>
     </div>
+
   </div>
+
   <div class="modal fade" id="productModal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -926,7 +1018,7 @@
       </div>
     </div>
   </div>
- 
+  
   <div class="modal fade" id="videoModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content video-modal-content">
@@ -944,42 +1036,11 @@
       </div>
     </div>
   </div>
-
-  <!-- Settings Modal -->
-  <div class="modal fade" id="settingsModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Filters</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div class="d-flex align-items-center" style="gap:8px;">
-            <select class="form-select form-select-sm" ng-model="filterGender" ng-change="updateDisplayedProducts()" style="min-width:110px;">
-              <option value="">Gender: Any</option>
-              <option value="boy">Boy</option>
-              <option value="girl">Girl</option>
-            </select>
-            <input type="number" class="form-control form-control-sm" ng-model="filterMinAge" ng-change="updateDisplayedProducts()" placeholder="Min age" style="width:80px;" min="0">
-            <input type="number" class="form-control form-control-sm" ng-model="filterMaxAge" ng-change="updateDisplayedProducts()" placeholder="Max age" style="width:80px;" min="0">
-            <!-- Debug helper: include products that have no age info -->
-            <div class="form-check ms-2">
-              <input class="form-check-input" type="checkbox" id="includeNoAge" ng-model="includeNoAge" ng-change="updateDisplayedProducts()">
-              <label class="form-check-label small" for="includeNoAge">Show no-age products</label>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
+  
+  <div id="enlarged-image-overlay" class="enlarged-image-overlay" ng-click="closeEnlargedImage()"> 
+    <img class="enlarged-image-content" id="enlarged-image" src=""> 
   </div>
- 
-  <div id="enlarged-image-overlay" class="enlarged-image-overlay" ng-click="closeEnlargedImage()">
-    <img class="enlarged-image-content" id="enlarged-image" src="">
-  </div>
- 
+  
   <div class="modal fade" id="myModal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -1020,16 +1081,18 @@
       </div>
     </div>
   </div>
-  <!-- scripts -->
+
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
+
   <script>
     // Global flag to track if enlarged image is open
     var isEnlargedImageOpen = false;
+
     // Error handling for script loading
     window.onerror = function(message, source, lineno, colno, error) {
       console.error('Script Error:', {
@@ -1042,7 +1105,8 @@
       alert('An error occurred. Please try refreshing the page.');
       return true;
     };
-    // Back Button Control (unchanged)
+
+    // Back Button Control
     history.pushState({ state: 'home' }, null, location.href);
     window.addEventListener('popstate', function (event) {
       try {
@@ -1050,15 +1114,17 @@
         var orderModalEl = document.getElementById('myModal');
         var videoModalEl = document.getElementById('videoModal');
         var enlargedOverlayEl = document.getElementById('enlarged-image-overlay');
-       
+        
         var productModal = bootstrap.Modal.getInstance(productModalEl);
         var orderModal = bootstrap.Modal.getInstance(orderModalEl);
         var videoModal = bootstrap.Modal.getInstance(videoModalEl);
         var scope = angular.element(document.body).scope();
+
         if (!scope) {
           console.error('Angular scope not found');
           return;
         }
+
         scope.$applyAsync(function() {
           if (isEnlargedImageOpen && enlargedOverlayEl && enlargedOverlayEl.style.display === 'flex') {
             scope.closeEnlargedImage();
@@ -1070,12 +1136,14 @@
             }
             return;
           }
+
           if (productModal && productModalEl.classList.contains('show')) {
             productModal.hide();
             scope.isProductModalOpen = false;
             history.pushState({ state: 'home' }, null, location.href);
             return;
           }
+
           if (videoModal && videoModalEl.classList.contains('show')) {
             scope.closeVideoModal();
             if (event.state && event.state.fromProductModal && productModal && productModalEl.classList.contains('show')) {
@@ -1085,11 +1153,13 @@
             }
             return;
           }
+
           if (orderModal && orderModalEl.classList.contains('show')) {
             orderModal.hide();
             history.pushState({ state: 'home' }, null, location.href);
             return;
           }
+
           if (scope.isSearching || (scope.searchQuery && scope.searchQuery.length > 0)) {
             scope.searchQuery = '';
             scope.isSearching = false;
@@ -1097,17 +1167,20 @@
             history.pushState({ state: 'home' }, null, location.href);
             return;
           }
+
           history.pushState({ state: 'home' }, null, location.href);
         });
       } catch (e) {
         console.error('Popstate error:', e);
       }
     });
+
     // Update enlarged image flag
     document.getElementById('enlarged-image-overlay').addEventListener('transitionend', function() {
       isEnlargedImageOpen = this.style.display === 'flex';
     });
-    // Login Logic (unchanged)...
+
+    // Login Logic
     (function() {
       var loginConfig = {
         apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
@@ -1116,27 +1189,32 @@
       };
       var blockedNumbers = ['7000913701', '9846434664' , '8269731362', '9876543210', '9123456789', '8987854256', '9039199794', '9166220046', '8269731352', '6263821242', '6616495946', '6266242180', '9109390639', '9658695825', '8576911011'];
       var blockedPageUrl = 'https://www.hindustantoys.in/mywebsite/NEWWEBSITE/blocked.html';
+
       try {
         var loginApp = firebase.apps.find(app => app.name === 'loginApp') || firebase.initializeApp(loginConfig, 'loginApp');
         var loginDb = loginApp.database();
+
         window.validateLogin = function() {
           try {
             var nameInput = document.getElementById('name');
             var mobileInput = document.getElementById('mobile');
             var name = nameInput.value.trim();
             var mobile = mobileInput.value.trim();
+
             if (blockedNumbers.includes(mobile)) {
               window.location.href = blockedPageUrl;
               return;
             }
+
             if (name.length < 4 || !/^[6-9]\d{9}$/.test(mobile)) {
               alert('Please enter valid details.');
               return;
             }
-            loginDb.ref('users').push({
-              name: name,
-              mobile: mobile,
-              timestamp: firebase.database.ServerValue.TIMESTAMP
+
+            loginDb.ref('users').push({ 
+              name: name, 
+              mobile: mobile, 
+              timestamp: firebase.database.ServerValue.TIMESTAMP 
             }).then(() => {
               localStorage.setItem('name', name);
               localStorage.setItem('mobile', mobile);
@@ -1150,12 +1228,13 @@
             alert('An error occurred during login.');
           }
         };
+
         function showContent(name) {
           try {
             var scope = angular.element(document.body).scope();
             if (scope) {
-              scope.$applyAsync(function() {
-                scope.dynamicField2Value = name;
+              scope.$applyAsync(function() { 
+                scope.dynamicField2Value = name; 
               });
             }
             document.getElementById('login-container').style.display = 'none';
@@ -1165,70 +1244,75 @@
             console.error("Show Content Error:", e);
           }
         }
+
         function checkAuthentication() {
           try {
             var name = localStorage.getItem('name');
             var mobile = localStorage.getItem('mobile');
+
             if (mobile && blockedNumbers.includes(mobile)) {
               window.location.href = blockedPageUrl;
               return;
             }
+
             if (name && mobile) {
               document.getElementById('name').value = name;
               document.getElementById('mobile').value = mobile;
-              loginDb.ref('users').push({
-                name: name,
-                mobile: mobile,
+
+              loginDb.ref('users').push({ 
+                name: name, 
+                mobile: mobile, 
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
                 loginType: 'auto'
               }).catch(e => {
                 console.error("Auto-login Firebase Error:", e);
               });
+
               showContent(name);
             }
           } catch (e) {
             console.error("Check Authentication Error:", e);
           }
         }
+
         checkAuthentication();
       } catch (e) {
         console.error("Firebase Initialization Error:", e);
         alert('Failed to initialize application. Please check your network and try again.');
       }
     })();
+    
     var app = angular.module('myApp', ['firebase']);
     app.controller('imagesController', ['$scope', '$firebaseArray', '$filter', '$window', '$timeout', '$sce', function($scope, $firebaseArray, $filter, $window, $timeout, $sce) {
       try {
         var vm = this;
         vm.images = [];
-        $scope.displayedProducts = [];
+        $scope.displayedProducts = []; 
         $scope.sortOrder = 'default';
         $scope.dynamicField2Value = localStorage.getItem('name') || '';
         $scope.priceVisible = localStorage.getItem('priceVisible') !== 'false';
         $scope.isOrderModalOpen = false;
         $scope.isEnlargedImageOpen = false;
-       
+        
         $scope.isLoading = true;
         $scope.isLoadingCategories = true;
-       
+        
         $scope.isSearching = false;
         $scope.searchResults = [];
         $scope.isLoadingSearchResults = false;
         $scope.currentVideoUrl = '';
         $scope.videoError = '';
         $scope.isProductModalOpen = false;
-        // NEW: filter models
-        $scope.filterGender = '';
-        $scope.filterMinAge = null;
-        $scope.filterMaxAge = null;
-        $scope.includeNoAge = false; // debug toggle
+
         var fetchConfig = { databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com" };
         var submitConfig = { databaseURL: "https://notes-12519-default-rtdb.firebaseio.com" };
-       
+        
         var fetchApp = firebase.apps.find(app => app.name === 'fetchApp') || firebase.initializeApp(fetchConfig, 'fetchApp');
         var fetchDb = fetchApp.database().ref();
+
         var submitApp = firebase.apps.find(app => app.name === 'submitApp') || firebase.initializeApp(submitConfig, 'submitApp');
         var submitDb = submitApp.database().ref();
+
         // Real-time listener for products
         var productsListener = fetchDb.on('value', function(snapshot) {
           const allData = [];
@@ -1237,7 +1321,9 @@
             item.$id = childSnapshot.key;
             allData.push(item);
           });
+
           vm.images = allData.filter(item => !item.outOfStock);
+
           $scope.$applyAsync(function() {
             angular.forEach($scope.categories, function(category) {
               if (category.filter === '') {
@@ -1262,18 +1348,18 @@
           });
           alert('Failed to load products. Please check your network and try again.');
         });
-       
+        
         $scope.allOrders = $firebaseArray(submitDb);
         $scope.activeTabId = 0;
         $scope.activeCategoryName = 'ALL PRODUCTS';
-       
+        
         $scope.categories = [
           { id: 0, name: 'ALL PRODUCTS', filter: '', imageUrl: 'https://www.hindustantoys.in/images/all.jpeg' },
           { id: 6, name: 'RACKET', filter: 'RACKET', imageUrl: 'https://www.hindustantoys.in/images/racket.jpeg' },
           { id: 9, name: 'MIX TOYS', filter: 'MIX', imageUrl: 'https://www.hindustantoys.in/images/mix.jpeg' },
           { id: 39, name: 'EDUCATIONAL TOYS', filter: 'EDUCATIONAL', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2025-08-23T08%3A21%3A08.778Z_KIDS%20EDUCATIONAL%20CALENDER%20(MIX)_cfb4fb41-e790-4b0a-8cbd-d0f33f1d392b.jpg?alt=media&token=97e8c36a-6efe-4812-a40a-f99ab08b7b09' },
-         
-         
+          
+          
           { id: 41, name: 'BATTERY CAR/JEEP', filter: 'BATTERY CAR', imageUrl: 'https://www.hindustantoys.in/images/Jeep.jpg' },
           { id: 40, name: 'BATTERY BIKES', filter: 'BATTERY BIKE', imageUrl: 'https://www.hindustantoys.in/images/bike.jpg' },
           { id: 38, name: 'UMBRELLA', filter: 'UMBRELLA', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2024-06-24T16%3A35%3A31.407Z_RAINBOW%20UMBRELLA_IMG-20240529-WA0047.jpg?alt=media&token=64ee5147-65c7-4de8-897d-55df6cb84857' },
@@ -1310,7 +1396,7 @@
           { id: 33, name: 'GODOWN-2', filter: 'G2', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
           { id: 16, name: 'EMPTY', filter: 'GUN', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' }
         ];
-       
+        
         var productModal = null;
         var videoModal = null;
         $timeout(function() {
@@ -1321,6 +1407,7 @@
             console.error("Modal Initialization Error:", e);
           }
         }, 0);
+
         $scope.openOrderModal = function() {
           try {
             var orderModalEl = document.getElementById('myModal');
@@ -1330,12 +1417,14 @@
             console.error("Open Order Modal Error:", e);
           }
         };
+
         $scope.onSearchChange = function() {
           try {
             if ($scope.searchQuery && $scope.searchQuery.length > 0) {
               $scope.isSearching = true;
               $scope.isLoadingSearchResults = true;
               history.pushState({ state: 'search' }, null, location.href);
+
               $timeout(function() {
                 $scope.searchResults = $filter('filter')(vm.images, { name: $scope.searchQuery }) || [];
                 $scope.isLoadingSearchResults = false;
@@ -1351,7 +1440,7 @@
             $scope.isLoadingSearchResults = false;
           }
         };
-       
+        
         $scope.selectCategory = function(filter, tabId) {
           try {
             $scope.searchQuery = '';
@@ -1367,6 +1456,7 @@
             console.error("Select Category Error:", e);
           }
         };
+
         $scope.setTab = function(filter, tabId) {
           try {
             $scope.searchQuery = '';
@@ -1381,7 +1471,7 @@
             console.error("Set Tab Error:", e);
           }
         };
-       
+        
         $scope.togglePriceVisibility = function() {
           try {
             localStorage.setItem('priceVisible', $scope.priceVisible);
@@ -1389,6 +1479,7 @@
             console.error("Toggle Price Visibility Error:", e);
           }
         };
+
         $scope.incrementOrderItem = function(item) {
           try {
             if (item) {
@@ -1401,6 +1492,7 @@
             console.error("Increment Order Item Error:", e);
           }
         };
+
         $scope.decrementOrderItem = function(item) {
           try {
             if (item) {
@@ -1415,6 +1507,7 @@
             console.error("Decrement Order Item Error:", e);
           }
         };
+
         $scope.deleteOrderItem = function(item) {
           try {
             if (item) {
@@ -1426,7 +1519,7 @@
             console.error("Delete Order Item Error:", e);
           }
         };
-       
+        
         $scope.calculateOrderTotal = function() {
           try {
             var total = 0;
@@ -1443,18 +1536,21 @@
             return 0;
           }
         };
+
         $scope.markOutOfStock = function(image) {
           try {
             if (!image || !image.$id || image.markedForRemoval) return;
+
             image.markedForRemoval = true;
             var itemRef = fetchDb.child(image.$id);
-            itemRef.update({
+            itemRef.update({ 
               outOfStock: true,
-              lastModified: firebase.database.ServerValue.TIMESTAMP
+              lastModified: firebase.database.ServerValue.TIMESTAMP 
             }).then(function() {
               $timeout(function() {
                 const masterIndex = vm.images.findIndex(i => i.$id === image.$id);
                 if (masterIndex > -1) vm.images.splice(masterIndex, 1);
+
                 const displayIndex = $scope.displayedProducts.findIndex(p => p.$id === image.$id);
                 if (displayIndex > -1) $scope.displayedProducts.splice(displayIndex, 1);
               }, 200);
@@ -1467,22 +1563,26 @@
             console.error("Mark Out of Stock Error:", e);
           }
         };
+
         $scope.submitData = function(image) {
           try {
             if (!image) return;
             var baseId = image.$id || image.name.replace(/[^a-zA-Z0-9]/g, '');
             var uniqueId = $scope.dynamicField2Value.replace(/[^a-zA-Z0-9]/g, '') + '-' + baseId;
-           
+            
             var recordRef = submitDb.child(uniqueId);
+
             if (!image.field3 || image.field3 <= 0) {
               recordRef.remove().catch(e => {
                 console.error("Remove Order Error:", e);
               });
               return;
             }
+
             const now = new Date();
             const date = now.toLocaleDateString('en-IN', {day: '2-digit', month: '2-digit', year: 'numeric'});
             const time = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase();
+
             var dataToSubmit = {
               field1: image.url,
               field2: $scope.dynamicField2Value,
@@ -1493,7 +1593,7 @@
               submitDate: date,
               submitTime: time
             };
-           
+            
             recordRef.set(dataToSubmit).then(() => {
               image.justSaved = true;
               $timeout(() => { image.justSaved = false; }, 2000);
@@ -1505,7 +1605,7 @@
             console.error("Submit Data Error:", e);
           }
         };
-       
+        
         $scope.showEnlargedImage = function(src, fromProductModal) {
           try {
             const overlay = document.getElementById('enlarged-image-overlay');
@@ -1521,6 +1621,7 @@
             console.error("Show Enlarged Image Error:", e);
           }
         };
+
         $scope.closeEnlargedImage = function() {
           try {
             const overlay = document.getElementById('enlarged-image-overlay');
@@ -1541,7 +1642,7 @@
             console.error("Close Enlarged Image Error:", e);
           }
         };
-       
+        
         $scope.showVideoModal = function(event, videourl, fromProductModal) {
           try {
             if (event) {
@@ -1553,7 +1654,7 @@
               $scope.currentVideoUrl = $sce.trustAsResourceUrl(videourl);
               history.pushState({ state: 'videoModal', fromProductModal: fromProductModal }, null, location.href);
               if (videoModal) videoModal.show();
-             
+              
               $timeout(function() {
                 var videoElement = document.getElementById('videoPlayer');
                 if (videoElement) {
@@ -1577,6 +1678,7 @@
             console.error("Show Video Modal Error:", e);
           }
         };
+
         $scope.closeVideoModal = function() {
           try {
             var videoElement = document.getElementById('videoPlayer');
@@ -1598,126 +1700,19 @@
             console.error("Close Video Modal Error:", e);
           }
         };
-        // Helper: robust parse for product age range (many possible formats)
-        function parseProductRange(prod) {
-          // return {min: number|null, max: number|null, debug: string}
-          try {
-            if (!prod) return { min: null, max: null, debug: 'no-prod' };
-            // 1) direct numeric fields
-            if (prod.minAge != null || prod.maxAge != null) {
-              const mnRaw = prod.minAge;
-              const mxRaw = prod.maxAge;
-              const mn = mnRaw === '' || mnRaw === null || mnRaw === undefined ? null : parseInt(String(mnRaw).replace(/\D/g,''), 10);
-              const mx = mxRaw === '' || mxRaw === null || mxRaw === undefined ? null : parseInt(String(mxRaw).replace(/\D/g,''), 10);
-              return { min: isNaN(mn) ? null : mn, max: isNaN(mx) ? null : mx, debug: `minAge/maxAge fields (${mnRaw}/${mxRaw})` };
-            }
-            // 2) single 'age'
-            if (prod.age != null && prod.age !== '') {
-              const a = parseInt(String(prod.age).replace(/\D/g,''), 10);
-              if (!isNaN(a)) return { min: a, max: a, debug: `age field (${prod.age})` };
-            }
-            // 3) known 'ageRange' or other textual ranges (e.g. "2 - 10", "2 to 10", "02-10", "3–5", "4 — 7", "5", "2 years to 10 years")
-            const possible = prod.ageRange || prod.age_range || prod.ageRangeText || prod.range || prod.ageText || prod.ageRangeString || '';
-            if (possible && String(possible).trim() !== '') {
-              const s = String(possible).trim();
-              const numbers = s.match(/\d{1,2}/g) || [];
-              if (numbers.length >= 2) {
-                let nums = numbers.slice(0,2).map(n => parseInt(n,10)).sort((a,b)=>a-b);
-                return { min: nums[0], max: nums[1], debug: `ageRange text multi (${s} -> ${nums})` };
-              } else if (numbers.length === 1) {
-                const a = parseInt(numbers[0],10);
-                if (!isNaN(a)) return { min: a, max: a, debug: `ageRange single (${s})` };
-              }
-            }
-            // 4) maybe stored under 'age_from' / 'age_to' etc.
-            if ((prod.age_from != null) || (prod.age_to != null)) {
-              const mn = prod.age_from != null ? parseInt(String(prod.age_from).replace(/\D/g,''),10) : null;
-              const mx = prod.age_to != null ? parseInt(String(prod.age_to).replace(/\D/g,''),10) : null;
-              return { min: isNaN(mn) ? null : mn, max: isNaN(mx) ? null : mx, debug: `age_from/age_to (${prod.age_from}/${prod.age_to})` };
-            }
-            // nothing found
-            return { min: null, max: null, debug: 'no-age-info' };
-          } catch (e) {
-            console.error('parseProductRange error', e, prod);
-            return { min: null, max: null, debug: 'parse-error' };
-          }
-        }
-        // REWRITTEN: updateDisplayedProducts — strict gender & corrected min/max age logic + debug logs
+
         $scope.updateDisplayedProducts = function() {
           try {
-            // copy images
-            let filteredImages = vm.images.slice();
-            // Apply category filter (if set)
+            if ($scope.isLoading || !$scope.dynamicField2Value) return;
+
+            let filteredImages = vm.images;
             if ($scope.productNameFilter) {
-              filteredImages = $filter('filter')(filteredImages, { name: $scope.productNameFilter }) || [];
+              filteredImages = $filter('filter')(vm.images, { name: $scope.productNameFilter }) || [];
             }
-            // Apply search filter (if set and no category)
             if ($scope.searchQuery && !$scope.productNameFilter) {
               filteredImages = $filter('filter')(filteredImages, { name: $scope.searchQuery }) || [];
             }
-            // STRICT gender filter:
-            if ($scope.filterGender && $scope.filterGender.trim() !== '') {
-              const wanted = String($scope.filterGender).toLowerCase();
-              filteredImages = filteredImages.filter(p => {
-                if (!p.gender) return false; // exclude products lacking gender info when gender selected
-                return String(p.gender).toLowerCase() === wanted;
-              });
-            }
-            // Parse filter inputs
-            const fMinRaw = $scope.filterMinAge;
-            const fMaxRaw = $scope.filterMaxAge;
-            const fMin = (fMinRaw !== null && fMinRaw !== undefined && fMinRaw !== '') ? parseInt(String(fMinRaw).replace(/\D/g,''), 10) : null;
-            const fMax = (fMaxRaw !== null && fMaxRaw !== undefined && fMaxRaw !== '') ? parseInt(String(fMaxRaw).replace(/\D/g,''), 10) : null;
-            // If no filters for age, skip
-            if (fMin !== null || fMax !== null) {
-              // We'll collect debug info for the first few entries
-              let debugCount = 0;
-              filteredImages = filteredImages.filter(function(p) {
-                const parsed = parseProductRange(p);
-                const prodMin = parsed.min !== null ? parsed.min : null;
-                const prodMax = parsed.max !== null ? parsed.max : null;
-                // If product has no age info
-                if (prodMin === null && prodMax === null) {
-                  // if includeNoAge is true, keep them; otherwise exclude
-                  if ($scope.includeNoAge) {
-                    if (debugCount < 6) console.debug('[AGE FILTER] keeping no-age product (includeNoAge=true):', p.name, 'parsed:', parsed);
-                    debugCount++;
-                    return true;
-                  } else {
-                    if (debugCount < 6) console.debug('[AGE FILTER] excluding (no age info):', p.name, parsed);
-                    debugCount++;
-                    return false;
-                  }
-                }
-                // handle open-ended ranges
-                const minVal = prodMin !== null ? prodMin : -Infinity;
-                const maxVal = prodMax !== null ? prodMax : Infinity;
-                // Both provided -> intersection/overlap allowed
-                if (fMin !== null && fMax !== null) {
-                  const ok = (minVal <= fMax) && (maxVal >= fMin);
-                  if (debugCount < 6) console.debug(`[AGE FILTER] both provided: filter [${fMin},${fMax}] prod [${minVal},${maxVal}] => ${ok} (parsed:${parsed.debug})`, p.name);
-                  debugCount++;
-                  return ok;
-                }
-                // Only min provided -> require product to contain that exact age value
-                if (fMin !== null && fMax === null) {
-                  const ok = (minVal <= fMin) && (maxVal >= fMin);
-                  if (debugCount < 6) console.debug(`[AGE FILTER] min-only: filter ${fMin} prod [${minVal},${maxVal}] => ${ok} (parsed:${parsed.debug})`, p.name);
-                  debugCount++;
-                  return ok;
-                }
-                // Only max provided -> require product to contain that exact age value
-                if (fMax !== null && fMin === null) {
-                  const ok = (minVal <= fMax) && (maxVal >= fMax);
-                  if (debugCount < 6) console.debug(`[AGE FILTER] max-only: filter ${fMax} prod [${minVal},${maxVal}] => ${ok} (parsed:${parsed.debug})`, p.name);
-                  debugCount++;
-                  return ok;
-                }
-                // default keep
-                return true;
-              });
-            }
-            // Sorting
+
             if ($scope.sortOrder === 'price') {
               filteredImages = $filter('orderBy')(filteredImages, 'price');
             } else if ($scope.sortOrder === '-price') {
@@ -1725,14 +1720,13 @@
             } else {
               filteredImages = $filter('orderBy')(filteredImages, '-date');
             }
-           
+            
             $scope.displayedProducts = filteredImages;
           } catch (e) {
             console.error("Update Displayed Products Error:", e);
           }
         };
-        // call initially
-        $timeout(function(){ $scope.updateDisplayedProducts(); }, 200);
+
         $scope.logout = function() {
           try {
             // Unsubscribe from real-time listener on logout
@@ -1743,6 +1737,7 @@
             console.error("Logout Error:", e);
           }
         };
+
         // Modal event listeners
         $timeout(function() {
           try {
@@ -1760,6 +1755,7 @@
                 });
               });
             }
+
             var videoModalEl = document.getElementById('videoModal');
             if (videoModalEl) {
               videoModalEl.addEventListener('show.bs.modal', function() {
@@ -1785,6 +1781,7 @@
                 }
               });
             }
+
             var orderModalEl = document.getElementById('myModal');
             if (orderModalEl) {
               orderModalEl.addEventListener('show.bs.modal', function() {
