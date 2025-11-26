@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>YouTube DJ Player — Both Decks Fit Fullscreen (No Scrolling)</title>
+  <title>YouTube DJ Player — Mobile UI & Bottom Crossfade</title>
 
   <!-- Firebase (compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
@@ -17,106 +17,79 @@
       --panel-radius:10px;
       --footer-h:64px;
       --header-h:62px;
-      --search-h:56px;
-      --controls-h:120px; /* crossfade & balance area */
+      --search-h:48px;
+      --controls-h:116px; /* crossfade area height */
       --gap:10px;
-      --touch-size:40px;
+      --touch-size:44px;
+      --iframe-h:160px;
+      --iframe-h-compact:110px;
     }
     *{box-sizing:border-box;font-family:Inter,Arial,sans-serif}
-    html,body{height:100%;margin:0;background:linear-gradient(135deg,#071019,#071827);color:#ecf6ff; -webkit-font-smoothing:antialiased}
-    /* Layout that guarantees no page scroll in main area */
-    .app {
-      height: 100vh;
-      display:flex;
-      flex-direction:column;
-      gap:var(--gap);
-      padding:10px;
-      padding-bottom: calc(var(--footer-h) + 10px);
-    }
-    header {
-      height: var(--header-h);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-    }
-    header .left {display:flex;flex-direction:column}
+    html,body{height:100%;margin:0;background:linear-gradient(135deg,#071019,#071827);color:#ecf6ff;-webkit-font-smoothing:antialiased}
+    .app { height:100vh; display:flex; flex-direction:column; gap:var(--gap); padding:10px; padding-bottom: calc(var(--footer-h) + 12px); }
+    header{height:var(--header-h); display:flex; justify-content:space-between; align-items:center; gap:12px}
+    header .left{display:flex;flex-direction:column}
     h1{margin:0;color:var(--accent);font-size:16px}
     .small{font-size:11px;color:var(--muted)}
-    .top-actions {display:flex;gap:8px;align-items:center}
+    .top-actions{display:flex;gap:8px;align-items:center}
     .card{background:linear-gradient(180deg,#04101a,#061524);border-radius:var(--panel-radius);padding:8px;border:1px solid rgba(255,255,255,0.03)}
-    /* Search row has fixed height */
+    /* reduced search */
     .search-row{display:flex;gap:8px;height:var(--search-h);align-items:center}
-    .search-box{flex:1;display:flex;gap:6px;align-items:center}
+    .search-box{display:flex;gap:6px;align-items:center}
+    .search-box.small-search input { padding:7px 8px; font-size:13px; min-width:120px; width:180px; }
     input[type=text], input[type=search], select, textarea{padding:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:inherit;outline:none;font-size:13px}
-    button{background:linear-gradient(180deg,var(--accent),#ff8f4d);border:0;color:#061018;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px}
-    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);padding:8px 10px;border-radius:8px;font-size:13px}
-    /* Main area: decks + crossfade. main-body height is viewport minus header, search, footer */
-    .main-body {
-      display:flex;
-      flex-direction:column;
-      gap:var(--gap);
-      height: calc(100vh - var(--header-h) - var(--search-h) - var(--footer-h) - 40px); /* 40px margins */
-      overflow:hidden; /* prevent page scrolling */
-    }
-
-    /* Decks row: always two columns, each 50% width; height flexible but limited so whole main fits */
-    .deck-row {
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:var(--gap);
-      align-items:stretch;
-      height: calc(100% - var(--controls-h)); /* leave space for crossfade controls */
-      min-height: 120px;
-    }
-    .deck-row > div { display:flex; flex-direction:column; gap:8px; }
-
-    /* Player area smaller to allow whole UI to fit */
+    button{background:linear-gradient(180deg,var(--accent),#ff8f4d);border:0;color:#061018;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;min-height:var(--touch-size)}
+    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);padding:8px 10px;border-radius:8px;font-size:13px;min-height:var(--touch-size)}
+    .main-body { display:flex; flex-direction:column; gap:var(--gap); height: calc(100vh - var(--header-h) - var(--search-h) - var(--footer-h) - 28px); overflow:hidden; }
+    .deck-row { display:grid; grid-template-columns: 1fr 1fr; gap:var(--gap); align-items:stretch; height: calc(100% - var(--controls-h)); }
+    .deck-row > div { display:flex; flex-direction:column; gap:8px; min-width:0; }
     .player-area{position:relative;background:#000;border-radius:8px;overflow:hidden; display:flex; flex-direction:column; justify-content:flex-start; align-items:stretch;}
-    /* iframe sized to a compact height so both decks fit */
-    iframe{width:100%;height:160px;border:0;display:block}
+    iframe{width:100%;height:var(--iframe-h);border:0;display:block}
+    .compact iframe{height:var(--iframe-h-compact)}
     .deck-audio-ui{padding:8px;display:flex;flex-direction:column;gap:8px;background:linear-gradient(180deg,rgba(0,0,0,0.55),rgba(0,0,0,0.45))}
     .hidden{display:none!important}
     .dropdown{position:absolute;top:8px;left:8px;max-height:260px;overflow:auto;z-index:999;background:#071726;border-radius:8px;padding:6px;box-shadow:0 10px 30px rgba(0,0,0,0.6);display:none}
     .dropdown .item{display:flex;gap:8px;align-items:center;padding:8px;border-radius:6px;cursor:pointer}
     .dropdown .item:hover{background:rgba(255,255,255,0.02)}
     .tag{background:rgba(255,255,255,0.02);padding:6px 8px;border-radius:999px;font-size:12px}
-    /* Crossfade controls fixed height */
-    .crossfade { height: var(--controls-h); display:flex; align-items:center; gap:12px; padding:8px; border-radius:8px }
+    /* crossfade fixed to bottom above footer */
+    .crossfade-fixed { position:fixed; left:10px; right:10px; bottom: calc(10px + var(--footer-h)); height:var(--controls-h); display:flex; align-items:center; gap:12px; padding:10px; border-radius:10px; z-index:10001; box-shadow:0 8px 30px rgba(0,0,0,0.6); background:linear-gradient(180deg,#061725,#04101a); border:1px solid rgba(255,255,255,0.03); }
     .list{max-height:100%;overflow:auto;padding:8px}
     .history-row{display:flex;align-items:center;justify-content:space-between;padding:8px;border-radius:8px;background:linear-gradient(180deg,transparent,rgba(255,255,255,0.01));margin-bottom:8px;border:1px solid rgba(255,255,255,0.02)}
     .muted{color:var(--muted)}
     .bpm-row{display:flex;gap:8px;align-items:center;margin-top:6px}
     .bpm-value{font-weight:700;color:var(--accent);min-width:40px;text-align:center}
     .tempo-slider{width:100%}
-    /* Footer pinned */
-    .footer-tabs{position:fixed;left:10px;right:10px;bottom:10px;height:var(--footer-h);display:flex;gap:8px;align-items:center;justify-content:center;background:rgba(3,6,10,0.95);padding:8px;border-radius:10px;z-index:9999}
-    /* Modals: full-screen panel on small screens, scroll inside panel */
+    .footer-tabs{position:fixed;left:10px;right:10px;bottom:10px;height:var(--footer-h);display:flex;gap:8px;align-items:center;justify-content:space-between;background:rgba(3,6,10,0.95);padding:8px;border-radius:10px;z-index:9999}
+    .footer-left{display:flex;gap:8px;align-items:center}
+    .compact-toggle{display:flex;align-items:center;gap:8px}
     .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:10000;align-items:center;justify-content:center;padding:12px;overflow:auto}
     .panel{width:100%;max-width:980px;background:linear-gradient(180deg,#04101a,#061524);border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 12px 40px rgba(0,0,0,0.6)}
     .close-x{background:transparent;border:0;color:var(--muted);cursor:pointer;font-size:14px;padding:6px;border-radius:6px}
-    /* Make lists inside modals look good on small screens */
     #mp3-list-modal .history-row, #history-list-modal .history-row {flex-direction:column;align-items:flex-start;gap:8px}
-    /* Responsive reductions for small phones to guarantee no vertical overflow */
-    @media (max-height:700px) {
-      iframe{height:120px}
-      :root { --controls-h:110px; --search-h:52px; --header-h:56px; --footer-h:60px }
-      .panel{padding:10px}
+    /* responsive */
+    @media (max-width:520px) {
+      .deck-row { grid-template-columns: 1fr 1fr; gap:8px; }
+      :root { --iframe-h:140px; --iframe-h-compact:100px; --controls-h:120px; --search-h:44px; }
+      .search-box.small-search input { width:140px; }
     }
-    @media (max-width:420px) {
-      iframe{height:120px}
-      .search-row{gap:6px}
-      .btn-ghost, button { padding:6px 8px; font-size:12px }
-      .tag { font-size:11px }
+    @media (max-width:380px) {
+      .deck-row { grid-template-columns: 1fr 1fr; gap:6px; }
+      :root { --iframe-h:120px; --iframe-h-compact:90px; --controls-h:110px; --header-h:56px; --footer-h:64px; }
+      .search-box.small-search input { width:120px; min-width:100px; }
     }
+
+    /* small helper to visually hide BPM and controls when compact */
+    .compact .bpm-row, .compact .tempo-slider, .compact .bpm-value, .compact .reset-bpm { display:none !important; }
+    .compact .deck-audio-ui { padding:6px }
   </style>
 </head>
 <body>
-  <div class="app">
+  <div class="app" id="appRoot">
     <header>
       <div class="left">
-        <h1>SAMMY'S YT DJ — Fit Both Decks (No Scroll)</h1>
-        <div class="small">Compact players so both decks + controls fit inside the screen</div>
+        <h1>SAMMY'S YT DJ — Mobile Friendly</h1>
+        <div class="small">Both decks visible, crossfade pinned to bottom. Compact toggle for phones.</div>
       </div>
       <div class="top-actions">
         <button class="btn-ghost" id="open-notes-btn">Notes</button>
@@ -127,18 +100,18 @@
     </header>
 
     <div class="search-row card">
-      <div class="search-box">
-        <input id="search-deck1" type="search" placeholder="Search YouTube for Deck 1 (Enter)">
-        <button id="search-btn-1">Search D1</button>
+      <div class="search-box small-search">
+        <input id="search-deck1" type="search" placeholder="Search Deck 1">
+        <button id="search-btn-1">Search</button>
       </div>
-      <div class="search-box">
-        <input id="search-deck2" type="search" placeholder="Search YouTube for Deck 2 (Enter)">
-        <button id="search-btn-2">Search D2</button>
+      <div class="search-box small-search">
+        <input id="search-deck2" type="search" placeholder="Search Deck 2">
+        <button id="search-btn-2">Search</button>
       </div>
     </div>
 
     <div class="main-body">
-      <div class="card deck-row">
+      <div class="card deck-row" id="deck-row">
         <!-- Deck 1 -->
         <div>
           <div style="display:flex;justify-content:space-between;align-items:center">
@@ -176,7 +149,7 @@
               <div style="display:flex;flex-direction:column;align-items:flex-end">
                 <div class="small muted">Deck 1</div>
                 <div style="display:flex;gap:6px;margin-top:6px">
-                  <button class="btn-ghost" id="reset-bpm-1">Reset</button>
+                  <button class="btn-ghost reset-bpm" id="reset-bpm-1">Reset</button>
                 </div>
               </div>
             </div>
@@ -222,7 +195,7 @@
               <div style="display:flex;flex-direction:column;align-items:flex-end">
                 <div class="small muted">Deck 2</div>
                 <div style="display:flex;gap:6px;margin-top:6px">
-                  <button class="btn-ghost" id="reset-bpm-2">Reset</button>
+                  <button class="btn-ghost reset-bpm" id="reset-bpm-2">Reset</button>
                 </div>
               </div>
             </div>
@@ -231,36 +204,45 @@
           </div>
         </div>
       </div>
+    </div>
 
-      <div class="card crossfade">
-        <div style="flex:1">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div><strong>Crossfade & Balance</strong><div class="small">Smooth crossfade</div></div>
-            <div style="display:flex;gap:8px;align-items:center">
-              <label class="small">Duration <input id="crossfade-duration" type="number" value="4000" style="width:84px"></label>
-              <label class="small" style="display:flex;align-items:center;gap:6px"><input id="crossfade-respect-balance" type="checkbox" checked> Respect</label>
-            </div>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
-            <input id="balance-slider" type="range" min="0" max="100" value="50" style="flex:1">
-            <div class="small" id="volume-percentage">Center (0%)</div>
+    <!-- crossfade pinned just above footer -->
+    <div class="crossfade-fixed card" id="crossfadeFixed">
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><strong>Crossfade & Balance</strong><div class="small">Pinned bottom — always available</div></div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <label class="small">Duration <input id="crossfade-duration" type="number" value="4000" style="width:84px"></label>
+            <label class="small" style="display:flex;align-items:center;gap:6px"><input id="crossfade-respect-balance" type="checkbox" checked> Respect</label>
           </div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
-          <div style="display:flex;gap:6px">
-            <button class="btn-ghost" id="fade-a-b">A→B</button>
-            <button class="btn-ghost" id="fade-b-a">B→A</button>
-            <button class="btn-ghost" id="sync-btn">Sync</button>
-          </div>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+          <input id="balance-slider" type="range" min="0" max="100" value="50" style="flex:1">
+          <div class="small" id="volume-percentage">Center (0%)</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+        <div style="display:flex;gap:6px">
+          <button class="btn-ghost" id="fade-a-b">A→B</button>
+          <button class="btn-ghost" id="fade-b-a">B→A</button>
+          <button class="btn-ghost" id="sync-btn">Sync</button>
         </div>
       </div>
     </div>
 
     <div class="footer-tabs">
-      <button class="btn-ghost" id="tab-decks-btn">🎛 Decks</button>
-      <button class="btn-ghost" id="open-history-btn">🎵 History</button>
-      <button class="btn-ghost" id="open-mp3s-btn">💽 MP3s</button>
-      <button class="btn-ghost" id="play-last-btn">⏮ Play Last</button>
+      <div class="footer-left">
+        <div style="display:flex;gap:8px">
+          <button class="btn-ghost" id="tab-decks-btn">🎛 Decks</button>
+          <button class="btn-ghost" id="open-history-btn">🎵 History</button>
+          <button class="btn-ghost" id="open-mp3s-btn">💽 MP3s</button>
+          <button class="btn-ghost" id="play-last-btn">⏮ Play Last</button>
+        </div>
+      </div>
+      <div class="compact-toggle">
+        <label class="small muted">Compact</label>
+        <button id="compact-toggle-btn" class="btn-ghost" aria-pressed="false">Off</button>
+      </div>
     </div>
   </div>
 
@@ -333,8 +315,7 @@
 
 <script>
 /* =========================
-   Script — identical behavior, adjusted to compact layout
-   (kept your Firebase + IndexedDB + YT + MP3 logic; minimal changes)
+   Script — same logic as before with Compact toggle wiring
    ========================= */
 
 (function(){
@@ -1066,10 +1047,9 @@
     m.appendChild(div); m.scrollTop = m.scrollHeight;
   }
 
-  /* Utilities & modal helpers (simple) */
+  /* Utils & modal helpers */
   function formatTime(t){ if (!t||isNaN(t)) return '0:00'; const s = Math.floor(t%60); const m = Math.floor(t/60); return m+':'+(s<10?'0'+s:s); }
 
-  // Modal helpers
   const overlayHandlerMap = new Map();
   function openModal(id){
     const el = document.getElementById(id);
@@ -1109,6 +1089,33 @@
       });
     }
   });
+
+  /* Compact toggle wiring */
+  function setCompactMode(on){
+    const root = document.getElementById('appRoot');
+    const body = document.body;
+    const btn = document.getElementById('compact-toggle-btn');
+    if (on) {
+      root.classList.add('compact');
+      document.getElementById('crossfadeFixed').classList.add('compact');
+      btn.textContent = 'On';
+      btn.setAttribute('aria-pressed','true');
+    } else {
+      root.classList.remove('compact');
+      document.getElementById('crossfadeFixed').classList.remove('compact');
+      btn.textContent = 'Off';
+      btn.setAttribute('aria-pressed','false');
+    }
+    // small tweak: add .compact class to body for iframe size
+    if (on) body.classList.add('compact'); else body.classList.remove('compact');
+  }
+
+  // Expose a method to toggle compact
+  function toggleCompact(){
+    const btn = document.getElementById('compact-toggle-btn');
+    const isOn = btn.getAttribute('aria-pressed') === 'true';
+    setCompactMode(!isOn);
+  }
 
   /* Bindings and init */
   window.openHistoryModal = function(){ openModal('history-modal'); };
@@ -1200,11 +1207,17 @@
     document.getElementById('chat-send-btn').addEventListener('click', sendMessage);
     document.getElementById('chat-input').addEventListener('keydown', (e)=> { if (e.key==='Enter') sendMessage();});
 
-    // init
+    // Compact toggle
+    document.getElementById('compact-toggle-btn').addEventListener('click', toggleCompact);
+
+    // initialize
     resetDeckBpm(1); resetDeckBpm(2);
     initListeners();
     refreshLocalList().catch(()=>{});
     adaptDropdownToPlayer(1); adaptDropdownToPlayer(2);
+
+    // safety: initial compact mode for narrow screens
+    if (window.innerHeight < 700 || window.innerWidth < 380) setCompactMode(true);
   });
 
   // public utilities
