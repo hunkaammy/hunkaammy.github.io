@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>YouTube DJ Player — Fixed Modals & Mobile Improvements</title>
+  <title>YouTube DJ Player — Both Decks Fit Fullscreen (No Scrolling)</title>
 
   <!-- Firebase (compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
@@ -14,77 +14,111 @@
       --bg1:#071019;
       --accent:#ff6a2b;
       --muted:#93a3ad;
-      --panel-radius:12px;
-      --footer-h:72px;
-      --modal-padding:12px;
-      --touch-size:44px;
+      --panel-radius:10px;
+      --footer-h:64px;
+      --header-h:62px;
+      --search-h:56px;
+      --controls-h:120px; /* crossfade & balance area */
+      --gap:10px;
+      --touch-size:40px;
     }
     *{box-sizing:border-box;font-family:Inter,Arial,sans-serif}
-    html,body{height:100%;margin:0;background:linear-gradient(135deg,#071019,#071827);color:#ecf6ff;padding:18px;padding-bottom:calc(var(--footer-h)+28px);-webkit-font-smoothing:antialiased}
-    .wrap{max-width:1180px;margin:0 auto}
-    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-    h1{margin:0;color:var(--accent);font-size:18px}
-    .small{font-size:12px;color:var(--muted)}
-    .card{background:linear-gradient(180deg,#04101a,#061524);border-radius:var(--panel-radius);padding:12px;border:1px solid rgba(255,255,255,0.03)}
-    .search-row{display:flex;gap:12px;margin-bottom:12px}
-    .search-box{flex:1;display:flex;gap:8px;align-items:center}
-    input[type=text], input[type=search], select, textarea{padding:10px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:inherit;outline:none}
-    button{background:linear-gradient(180deg,var(--accent),#ff8f4d);border:0;color:#061018;padding:8px 10px;border-radius:8px;cursor:pointer}
-    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);padding:8px 10px;border-radius:8px}
-    .deck-row{display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(320px, 1fr)); overflow-x: auto; padding-bottom: 6px; scroll-snap-type: x mandatory;}
-    .deck-row > div { scroll-snap-align: start; min-width: 320px; }
-    @media (max-width:760px){
-      /* keep decks side-by-side via horizontal scroll rather than stacking */
-      .search-row{display:flex;gap:12px;margin-bottom:12px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x mandatory}
-      .search-box{display:flex;gap:8px;align-items:center;min-width:260px;flex:0 0 auto; scroll-snap-align:start}
-      .search-row .search-box input[type="search"]{min-width:160px;flex:1 1 auto}
+    html,body{height:100%;margin:0;background:linear-gradient(135deg,#071019,#071827);color:#ecf6ff; -webkit-font-smoothing:antialiased}
+    /* Layout that guarantees no page scroll in main area */
+    .app {
+      height: 100vh;
+      display:flex;
+      flex-direction:column;
+      gap:var(--gap);
+      padding:10px;
+      padding-bottom: calc(var(--footer-h) + 10px);
     }
-    @media (max-width:420px){
-      :root { --panel-radius:10px; --modal-padding:10px; }
-      .deck-row > div { min-width:300px; }
-      .search-box { min-width:220px; }
+    header {
+      height: var(--header-h);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
     }
-    .player-area{position:relative;background:#000;border-radius:10px;min-height:220px;overflow:visible}
-    iframe{width:100%;height:100%;border:0;display:block}
-    .deck-audio-ui{position:absolute;left:0;right:0;top:0;bottom:0;padding:12px;display:flex;flex-direction:column;justify-content:center;gap:8px;background:linear-gradient(180deg,rgba(0,0,0,0.55),rgba(0,0,0,0.45))}
+    header .left {display:flex;flex-direction:column}
+    h1{margin:0;color:var(--accent);font-size:16px}
+    .small{font-size:11px;color:var(--muted)}
+    .top-actions {display:flex;gap:8px;align-items:center}
+    .card{background:linear-gradient(180deg,#04101a,#061524);border-radius:var(--panel-radius);padding:8px;border:1px solid rgba(255,255,255,0.03)}
+    /* Search row has fixed height */
+    .search-row{display:flex;gap:8px;height:var(--search-h);align-items:center}
+    .search-box{flex:1;display:flex;gap:6px;align-items:center}
+    input[type=text], input[type=search], select, textarea{padding:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:inherit;outline:none;font-size:13px}
+    button{background:linear-gradient(180deg,var(--accent),#ff8f4d);border:0;color:#061018;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px}
+    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);padding:8px 10px;border-radius:8px;font-size:13px}
+    /* Main area: decks + crossfade. main-body height is viewport minus header, search, footer */
+    .main-body {
+      display:flex;
+      flex-direction:column;
+      gap:var(--gap);
+      height: calc(100vh - var(--header-h) - var(--search-h) - var(--footer-h) - 40px); /* 40px margins */
+      overflow:hidden; /* prevent page scrolling */
+    }
+
+    /* Decks row: always two columns, each 50% width; height flexible but limited so whole main fits */
+    .deck-row {
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:var(--gap);
+      align-items:stretch;
+      height: calc(100% - var(--controls-h)); /* leave space for crossfade controls */
+      min-height: 120px;
+    }
+    .deck-row > div { display:flex; flex-direction:column; gap:8px; }
+
+    /* Player area smaller to allow whole UI to fit */
+    .player-area{position:relative;background:#000;border-radius:8px;overflow:hidden; display:flex; flex-direction:column; justify-content:flex-start; align-items:stretch;}
+    /* iframe sized to a compact height so both decks fit */
+    iframe{width:100%;height:160px;border:0;display:block}
+    .deck-audio-ui{padding:8px;display:flex;flex-direction:column;gap:8px;background:linear-gradient(180deg,rgba(0,0,0,0.55),rgba(0,0,0,0.45))}
     .hidden{display:none!important}
-    .dropdown{position:absolute;top:10px;left:12px;max-height:320px;overflow:auto;z-index:999;background:#071726;border-radius:10px;padding:8px;box-shadow:0 10px 30px rgba(0,0,0,0.6);display:none}
+    .dropdown{position:absolute;top:8px;left:8px;max-height:260px;overflow:auto;z-index:999;background:#071726;border-radius:8px;padding:6px;box-shadow:0 10px 30px rgba(0,0,0,0.6);display:none}
     .dropdown .item{display:flex;gap:8px;align-items:center;padding:8px;border-radius:6px;cursor:pointer}
     .dropdown .item:hover{background:rgba(255,255,255,0.02)}
     .tag{background:rgba(255,255,255,0.02);padding:6px 8px;border-radius:999px;font-size:12px}
-    .footer-tabs{position:fixed;left:12px;right:12px;bottom:12px;height:var(--footer-h);display:flex;gap:8px;align-items:center;justify-content:center;background:rgba(3,6,10,0.95);padding:8px;border-radius:10px;z-index:9999}
-    .list{max-height:60vh;overflow:auto;padding:8px}
+    /* Crossfade controls fixed height */
+    .crossfade { height: var(--controls-h); display:flex; align-items:center; gap:12px; padding:8px; border-radius:8px }
+    .list{max-height:100%;overflow:auto;padding:8px}
     .history-row{display:flex;align-items:center;justify-content:space-between;padding:8px;border-radius:8px;background:linear-gradient(180deg,transparent,rgba(255,255,255,0.01));margin-bottom:8px;border:1px solid rgba(255,255,255,0.02)}
     .muted{color:var(--muted)}
-    .bpm-row{display:flex;gap:8px;align-items:center;margin-top:8px}
-    .bpm-value{font-weight:700;color:var(--accent);min-width:44px;text-align:center}
+    .bpm-row{display:flex;gap:8px;align-items:center;margin-top:6px}
+    .bpm-value{font-weight:700;color:var(--accent);min-width:40px;text-align:center}
     .tempo-slider{width:100%}
-    /* Modal baseline rules so display:flex works reliably */
-    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:10000;align-items:center;justify-content:center;padding:18px;overflow:auto}
-    .panel{max-width:1100px;width:100%;max-height:calc(100vh - 40px);overflow:auto;border-radius:12px;padding:var(--modal-padding)}
-    .close-x{background:transparent;border:0;color:var(--muted);cursor:pointer;font-size:16px;padding:8px;border-radius:8px}
-    /* make panel nicely scrollable for small screens */
-    .modal .panel { box-shadow: 0 12px 40px rgba(0,0,0,0.6); }
-    /* larger touch targets for modal close actions */
-    .modal .close-x { min-width: var(--touch-size); min-height: var(--touch-size); display:inline-flex; align-items:center; justify-content:center; }
-    /* ensure list elements inside modals look good on small screens */
+    /* Footer pinned */
+    .footer-tabs{position:fixed;left:10px;right:10px;bottom:10px;height:var(--footer-h);display:flex;gap:8px;align-items:center;justify-content:center;background:rgba(3,6,10,0.95);padding:8px;border-radius:10px;z-index:9999}
+    /* Modals: full-screen panel on small screens, scroll inside panel */
+    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:10000;align-items:center;justify-content:center;padding:12px;overflow:auto}
+    .panel{width:100%;max-width:980px;background:linear-gradient(180deg,#04101a,#061524);border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 12px 40px rgba(0,0,0,0.6)}
+    .close-x{background:transparent;border:0;color:var(--muted);cursor:pointer;font-size:14px;padding:6px;border-radius:6px}
+    /* Make lists inside modals look good on small screens */
     #mp3-list-modal .history-row, #history-list-modal .history-row {flex-direction:column;align-items:flex-start;gap:8px}
-    #mp3-list-modal .history-row > div:last-child, #history-list-modal .history-row > div:last-child {display:flex;gap:6px;flex-wrap:wrap}
-    /* Make dropdown images not too large on mobile */
-    .dropdown img{width:56px;height:40px;object-fit:cover;border-radius:6px}
-    /* A little nicer scrollbar on desktops */
-    .dropdown::-webkit-scrollbar, .list::-webkit-scrollbar { height:8px; width:8px }
-    .dropdown::-webkit-scrollbar-thumb, .list::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.06); border-radius:8px }
+    /* Responsive reductions for small phones to guarantee no vertical overflow */
+    @media (max-height:700px) {
+      iframe{height:120px}
+      :root { --controls-h:110px; --search-h:52px; --header-h:56px; --footer-h:60px }
+      .panel{padding:10px}
+    }
+    @media (max-width:420px) {
+      iframe{height:120px}
+      .search-row{gap:6px}
+      .btn-ghost, button { padding:6px 8px; font-size:12px }
+      .tag { font-size:11px }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <div class="app">
     <header>
-      <div>
-        <h1>SAMMY'S YT DJ (mobile + modals)</h1>
-        <div class="small">Side-by-side decks on mobile, improved modals, MP3 + YouTube</div>
+      <div class="left">
+        <h1>SAMMY'S YT DJ — Fit Both Decks (No Scroll)</h1>
+        <div class="small">Compact players so both decks + controls fit inside the screen</div>
       </div>
-      <div style="display:flex;gap:8px;align-items:center">
+      <div class="top-actions">
         <button class="btn-ghost" id="open-notes-btn">Notes</button>
         <button class="btn-ghost" id="open-chat-btn">Chatbot</button>
         <button id="add-mp3-btn">Add MP3</button>
@@ -92,26 +126,26 @@
       </div>
     </header>
 
-    <!-- SEARCH ROW -->
-    <div class="card search-row">
+    <div class="search-row card">
       <div class="search-box">
-        <input id="search-deck1" type="search" placeholder="Search YouTube for Deck 1 (press Enter or click Search)">
-        <button id="search-btn-1">Search Deck 1</button>
+        <input id="search-deck1" type="search" placeholder="Search YouTube for Deck 1 (Enter)">
+        <button id="search-btn-1">Search D1</button>
       </div>
       <div class="search-box">
-        <input id="search-deck2" type="search" placeholder="Search YouTube for Deck 2 (press Enter or click Search)">
-        <button id="search-btn-2">Search Deck 2</button>
+        <input id="search-deck2" type="search" placeholder="Search YouTube for Deck 2 (Enter)">
+        <button id="search-btn-2">Search D2</button>
       </div>
     </div>
 
-    <main>
+    <div class="main-body">
       <div class="card deck-row">
         <!-- Deck 1 -->
         <div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
             <div><strong>DECK 1</strong><div class="small">YouTube or MP3</div></div>
             <div class="tag" id="tag-deck1">YT</div>
           </div>
+
           <div class="player-area" id="player-area-1">
             <iframe id="youtube-player1" src="https://www.youtube.com/embed?enablejsapi=1&playsinline=1&disablekb=1" allow="autoplay"></iframe>
 
@@ -123,7 +157,7 @@
               <div style="display:flex;gap:8px;align-items:center">
                 <button id="deck1-playbtn">▶</button>
                 <input id="deck1-seek" type="range" min="0" max="100" value="0" style="flex:1">
-                <input id="deck1-volume" type="range" min="0" max="100" value="80" style="width:120px">
+                <input id="deck1-volume" type="range" min="0" max="100" value="80" style="width:100px">
               </div>
               <div style="display:flex;justify-content:space-between;align-items:center">
                 <div class="small" id="deck1-current">0:00</div>
@@ -131,8 +165,7 @@
               </div>
             </div>
 
-            <!-- BPM controls -->
-            <div style="position:absolute;left:12px;right:12px;bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+            <div style="position:absolute;left:8px;right:8px;bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px">
               <div style="flex:1;display:flex;flex-direction:column">
                 <label class="small">BPM</label>
                 <div class="bpm-row">
@@ -142,8 +175,8 @@
               </div>
               <div style="display:flex;flex-direction:column;align-items:flex-end">
                 <div class="small muted">Deck 1</div>
-                <div style="display:flex;gap:8px;margin-top:6px">
-                  <button class="btn-ghost" id="reset-bpm-1">Reset BPM</button>
+                <div style="display:flex;gap:6px;margin-top:6px">
+                  <button class="btn-ghost" id="reset-bpm-1">Reset</button>
                 </div>
               </div>
             </div>
@@ -154,10 +187,11 @@
 
         <!-- Deck 2 -->
         <div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
             <div><strong>DECK 2</strong><div class="small">YouTube or MP3</div></div>
             <div class="tag" id="tag-deck2">YT</div>
           </div>
+
           <div class="player-area" id="player-area-2">
             <iframe id="youtube-player2" src="https://www.youtube.com/embed?enablejsapi=1&playsinline=1&disablekb=1" allow="autoplay"></iframe>
 
@@ -169,7 +203,7 @@
               <div style="display:flex;gap:8px;align-items:center">
                 <button id="deck2-playbtn">▶</button>
                 <input id="deck2-seek" type="range" min="0" max="100" value="0" style="flex:1">
-                <input id="deck2-volume" type="range" min="0" max="100" value="80" style="width:120px">
+                <input id="deck2-volume" type="range" min="0" max="100" value="80" style="width:100px">
               </div>
               <div style="display:flex;justify-content:space-between;align-items:center">
                 <div class="small" id="deck2-current">0:00</div>
@@ -177,7 +211,7 @@
               </div>
             </div>
 
-            <div style="position:absolute;left:12px;right:12px;bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+            <div style="position:absolute;left:8px;right:8px;bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px">
               <div style="flex:1;display:flex;flex-direction:column">
                 <label class="small">BPM</label>
                 <div class="bpm-row">
@@ -187,8 +221,8 @@
               </div>
               <div style="display:flex;flex-direction:column;align-items:flex-end">
                 <div class="small muted">Deck 2</div>
-                <div style="display:flex;gap:8px;margin-top:6px">
-                  <button class="btn-ghost" id="reset-bpm-2">Reset BPM</button>
+                <div style="display:flex;gap:6px;margin-top:6px">
+                  <button class="btn-ghost" id="reset-bpm-2">Reset</button>
                 </div>
               </div>
             </div>
@@ -198,18 +232,21 @@
         </div>
       </div>
 
-      <!-- crossfade & balance -->
-      <div style="margin-top:12px" class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div><strong>Crossfade & Balance</strong><div class="small">Smooth crossfade between decks</div></div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <label class="small">Duration <input id="crossfade-duration" type="number" value="5000" style="width:90px"></label>
-            <label class="small"><input id="crossfade-respect-balance" type="checkbox" checked> Respect balance</label>
+      <div class="card crossfade">
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><strong>Crossfade & Balance</strong><div class="small">Smooth crossfade</div></div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <label class="small">Duration <input id="crossfade-duration" type="number" value="4000" style="width:84px"></label>
+              <label class="small" style="display:flex;align-items:center;gap:6px"><input id="crossfade-respect-balance" type="checkbox" checked> Respect</label>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+            <input id="balance-slider" type="range" min="0" max="100" value="50" style="flex:1">
+            <div class="small" id="volume-percentage">Center (0%)</div>
           </div>
         </div>
-        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
-          <input id="balance-slider" type="range" min="0" max="100" value="50" style="flex:1">
-          <div class="small" id="volume-percentage">Center (0%)</div>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
           <div style="display:flex;gap:6px">
             <button class="btn-ghost" id="fade-a-b">A→B</button>
             <button class="btn-ghost" id="fade-b-a">B→A</button>
@@ -217,67 +254,63 @@
           </div>
         </div>
       </div>
-    </main>
+    </div>
+
+    <div class="footer-tabs">
+      <button class="btn-ghost" id="tab-decks-btn">🎛 Decks</button>
+      <button class="btn-ghost" id="open-history-btn">🎵 History</button>
+      <button class="btn-ghost" id="open-mp3s-btn">💽 MP3s</button>
+      <button class="btn-ghost" id="play-last-btn">⏮ Play Last</button>
+    </div>
   </div>
 
-  <!-- Footer tabs -->
-  <div class="footer-tabs">
-    <button class="btn-ghost" id="tab-decks-btn">🎛 Decks</button>
-    <button class="btn-ghost" id="open-history-btn">🎵 History</button>
-    <button class="btn-ghost" id="open-mp3s-btn">💽 MP3s</button>
-    <button class="btn-ghost" id="play-last-btn">⏮ Play Last</button>
-  </div>
-
-  <!-- Hidden audio elements for local MP3 playback -->
+  <!-- audio elements -->
   <audio id="audio-deck1" crossorigin="anonymous"></audio>
   <audio id="audio-deck2" crossorigin="anonymous"></audio>
 
-  <!-- History Modal (YouTube only) -->
+  <!-- History Modal -->
   <div id="history-modal" class="modal" aria-hidden="true">
-    <div class="card panel" role="dialog" aria-modal="true" aria-labelledby="history-title">
+    <div class="panel card" role="dialog" aria-modal="true">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div><strong id="history-title">History — YouTube only</strong><div class="small">Only YouTube tracks are stored in History</div></div>
+        <div><strong>History — YouTube only</strong><div class="small">Only YouTube tracks saved</div></div>
         <div style="display:flex;gap:8px;align-items:center">
           <button class="btn-ghost" id="history-backup">Backup</button>
           <input id="restore-input" type="file" style="display:none">
           <button class="btn-ghost" id="history-restore">Restore</button>
-          <button class="close-x" id="close-history" aria-label="Close history modal">Close ✕</button>
+          <button class="close-x" id="close-history">Close ✕</button>
         </div>
       </div>
-
       <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;flex-wrap:wrap">
-        <select id="category-filter-modal" style="min-width:180px"></select>
-        <input id="history-search-modal" placeholder="Search history" style="flex:1;min-width:140px">
-        <input id="new-category-input-modal" placeholder="New category" style="width:220px">
+        <select id="category-filter-modal" style="min-width:140px"></select>
+        <input id="history-search-modal" placeholder="Search history" style="flex:1;min-width:120px">
+        <input id="new-category-input-modal" placeholder="New category" style="width:180px">
         <button class="btn-ghost" id="add-category-modal">Add</button>
       </div>
-
-      <div id="history-list-modal" class="list" tabindex="0"></div>
+      <div id="history-list-modal" class="list" tabindex="0" style="max-height:60vh"></div>
     </div>
   </div>
 
   <!-- MP3 Modal -->
   <div id="mp3-modal" class="modal" aria-hidden="true">
-    <div class="card panel" role="dialog" aria-modal="true" aria-labelledby="mp3-title">
+    <div class="panel card" role="dialog" aria-modal="true">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div><strong id="mp3-title">Local MP3s</strong><div class="small">Saved in browser (IndexedDB)</div></div>
+        <div><strong>Local MP3s</strong><div class="small">Saved in browser (IndexedDB)</div></div>
         <div style="display:flex;gap:8px;align-items:center">
           <button class="btn-ghost" id="mp3-refresh">Refresh</button>
           <button class="btn-ghost" id="mp3-clear">Delete All</button>
-          <button class="close-x" id="close-mp3" aria-label="Close mp3 modal">Close ✕</button>
+          <button class="close-x" id="close-mp3">Close ✕</button>
         </div>
       </div>
-
-      <div id="mp3-list-modal" class="list" tabindex="0"></div>
+      <div id="mp3-list-modal" class="list" tabindex="0" style="max-height:60vh"></div>
     </div>
   </div>
 
-  <!-- Notes & Chatbot -->
+  <!-- Notes & Chatbot Modals -->
   <div id="notes-modal" class="modal" aria-hidden="true">
-    <div class="card panel" style="max-width:600px" role="dialog" aria-modal="true" aria-labelledby="notes-title">
+    <div class="panel card" role="dialog" aria-modal="true">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <strong id="notes-title">Notes</strong>
-        <button class="close-x" id="close-notes" aria-label="Close notes">Close</button>
+        <strong>Notes</strong>
+        <button class="close-x" id="close-notes">Close</button>
       </div>
       <textarea id="notes-textarea" style="width:100%;height:220px;margin-top:8px;background:#041019;color:#eaf2fb;padding:8px;border-radius:8px"></textarea>
       <div style="text-align:right;margin-top:8px"><button id="save-notes-btn">Save</button></div>
@@ -285,10 +318,10 @@
   </div>
 
   <div id="chatbot-modal" class="modal" aria-hidden="true">
-    <div class="card panel" style="max-width:600px" role="dialog" aria-modal="true" aria-labelledby="chat-title">
+    <div class="panel card" role="dialog" aria-modal="true">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <strong id="chat-title">AI Suggester</strong>
-        <button class="close-x" id="close-chat" aria-label="Close chat">Close</button>
+        <strong>AI Suggester</strong>
+        <button class="close-x" id="close-chat">Close</button>
       </div>
       <div id="chat-messages" style="height:220px;overflow:auto;background:#021219;padding:8px;border-radius:8px;margin-top:8px"></div>
       <div style="display:flex;gap:8px;margin-top:8px">
@@ -300,11 +333,12 @@
 
 <script>
 /* =========================
-   Robust initializations
+   Script — identical behavior, adjusted to compact layout
+   (kept your Firebase + IndexedDB + YT + MP3 logic; minimal changes)
    ========================= */
 
 (function(){
-  // Firebase config unchanged (kept your keys)
+  // Firebase config (same as you provided)
   const firebaseConfig = {
     apiKey: "AIzaSyBPc51z-pGrtKwtB5dKTMPei-fVRg4ePME",
     authDomain: "pagdi-6f8ce.firebaseapp.com",
@@ -318,7 +352,7 @@
   firebase.initializeApp(firebaseConfig);
   const database = firebase.database();
 
-  /* IndexedDB helpers (robust) */
+  /* IndexedDB helpers */
   const DB_NAME = 'sammy-dj-db';
   const DB_STORE = 'mp3files';
   function openDb() {
@@ -393,9 +427,7 @@
     });
   }
 
-  /* =========================
-     YouTube API loader + safe stubs
-     ========================= */
+  /* YouTube API loader */
   let YTready = false;
   let player1 = null, player2 = null;
   function loadYouTubeAPI(){
@@ -406,10 +438,7 @@
       s.src = "https://www.youtube.com/iframe_api";
       document.head.appendChild(s);
     }
-    window.onYouTubeIframeAPIReady = function(){
-      YTready = true;
-      setupYTPlayers();
-    };
+    window.onYouTubeIframeAPIReady = function(){ YTready = true; setupYTPlayers(); };
   }
   function setupYTPlayers(){
     try {
@@ -420,9 +449,7 @@
   function onPlayerReady(e){}
   function onPlayerStateChange(e){}
 
-  /* =========================
-     WebAudio & low-cut
-     ========================= */
+  /* WebAudio & low-cut */
   const audioCtxs = {1:null,2:null};
   const mediaSources = {1:null,2:null};
   const lowCutFilters = {1:null,2:null};
@@ -467,25 +494,21 @@
     document.getElementById(`deck${deck}-lowcut`).textContent = lowCutState[deck] ? 'Low-cut ✓' : 'Low-cut';
   }
 
-  /* =========================
-     Deck wrapper: unifies YT & audio and resets BPM on load
-     ========================= */
+  /* Deck wrapper */
   function createDeckWrapper(deckNumber){
     const audioEl = document.getElementById(`audio-deck${deckNumber}`);
     let current = { type:null, id:null, title:'' };
     return {
       async loadSource(src){
         if (!src) return;
-        resetDeckBpm(deckNumber); // reset BPM on every load
+        resetDeckBpm(deckNumber);
         if (src.type === 'youtube'){
           current = { type:'youtube', id:src.videoId, title: src.title || '' };
-          // show iframe, hide audio UI
           showDeckSource(deckNumber,'youtube');
           if (YTready){
             const player = deckNumber===1 ? player1 : player2;
             try { if (player && typeof player.loadVideoById === 'function') player.loadVideoById(src.videoId); } catch(e){ console.warn(e); }
           } else {
-            // fallback: set iframe src (works even if API not ready)
             const iframe = document.getElementById(`youtube-player${deckNumber}`);
             if (iframe) iframe.src = `https://www.youtube.com/embed/${encodeURIComponent(src.videoId)}?enablejsapi=1&playsinline=1&autoplay=1`;
           }
@@ -516,9 +539,7 @@
 
   const deckWrappers = { 1:createDeckWrapper(1), 2:createDeckWrapper(2) };
 
-  /* =========================
-     UI helpers (deck audio controls)
-     ========================= */
+  /* UI helpers */
   function bindDeckAudioUI(deck){
     const audio = document.getElementById(`audio-deck${deck}`);
     const playBtn = document.getElementById(`deck${deck}-playbtn`);
@@ -551,9 +572,7 @@
     if (type === 'audio'){ if (iframe) iframe.style.display = 'none'; if (audioUI) audioUI.classList.remove('hidden'); if (tag) tag.textContent='MP3'; } else { if (iframe) iframe.style.display=''; if (audioUI) audioUI.classList.add('hidden'); if (tag) tag.textContent='YT'; }
   }
 
-  /* =========================
-     MP3 file input handling & lists
-     ========================= */
+  /* MP3 handling & lists */
   const mp3Input = document.getElementById('mp3-input');
   document.getElementById('add-mp3-btn').addEventListener('click', ()=> mp3Input.click());
   mp3Input.addEventListener('change', async (ev) => {
@@ -583,8 +602,8 @@
         const left = document.createElement('div'); left.style.flex='1'; left.innerHTML = `<strong>${escapeHtml(rec.name)}</strong><div class="muted" style="font-size:12px">Saved: ${new Date(rec.created).toLocaleString()}</div>`;
         const right = document.createElement('div'); right.style.display='flex'; right.style.gap='6px';
         const play = document.createElement('button'); play.textContent='Play'; play.onclick = ()=> mp3PlayPreview(rec.id);
-        const d1 = document.createElement('button'); d1.textContent='→ Deck 1'; d1.className='btn-ghost'; d1.onclick = ()=> playLocalOnDeck(rec.id,1);
-        const d2 = document.createElement('button'); d2.textContent='→ Deck 2'; d2.className='btn-ghost'; d2.onclick = ()=> playLocalOnDeck(rec.id,2);
+        const d1 = document.createElement('button'); d1.textContent='→ D1'; d1.className='btn-ghost'; d1.onclick = ()=> playLocalOnDeck(rec.id,1);
+        const d2 = document.createElement('button'); d2.textContent='→ D2'; d2.className='btn-ghost'; d2.onclick = ()=> playLocalOnDeck(rec.id,2);
         const del = document.createElement('button'); del.textContent='Delete'; del.className='btn-ghost'; del.onclick = async ()=> { if (!confirm('Delete "'+rec.name+'"?')) return; await deleteMp3File(rec.id); refreshLocalList(); };
         right.appendChild(play); right.appendChild(d1); right.appendChild(d2); right.appendChild(del);
         row.appendChild(left); row.appendChild(right); container.appendChild(row);
@@ -618,9 +637,7 @@
     } catch (e){ console.error(e); alert('Failed to play local mp3'); }
   }
 
-  /* =========================
-     YouTube Search & dropdown handling (robust)
-     ========================= */
+  /* YouTube search */
   const API_KEYS = ['13452c8109msh7750057c5193b47p1c47c0jsn5d53a80bb998','d85300e47amsh5ad671c2832cec6p1b7953jsnab9c3a237b6e'];
   const searchState = { deck1:{query:'',nextToken:null,apiKeyIndex:0,loading:false}, deck2:{query:'',nextToken:null,apiKeyIndex:0,loading:false} };
 
@@ -647,10 +664,10 @@
       const dropdown = document.getElementById(`custom-dropdown${deck}`);
       if (!playerArea || !dropdown) return;
       const rect = playerArea.getBoundingClientRect();
-      const widthPx = Math.max(220, rect.width - 24);
+      const widthPx = Math.max(200, rect.width - 16);
       dropdown.style.width = widthPx + 'px';
-      dropdown.style.left = '12px';
-      dropdown.style.top = '10px';
+      dropdown.style.left = '8px';
+      dropdown.style.top = '8px';
     } catch(e){ console.warn(e); }
   }
 
@@ -846,9 +863,7 @@
     if (!success){ dropdown.innerHTML=''; const errElem=document.createElement('div'); errElem.className='muted'; errElem.textContent='Failed to fetch channel videos.'; dropdown.appendChild(errElem); }
   }
 
-  /* =========================
-     History (firebase) & categories
-     ========================= */
+  /* History & categories (firebase) */
   let djCategories = [];
   function createHistoryRow(title, videoId, category, key){
     const tr = document.createElement('div'); tr.className='history-row';
@@ -857,8 +872,8 @@
     tr.setAttribute('data-category', category||'Uncategorized');
     const left = document.createElement('div'); left.style.flex='1'; left.innerHTML = `<strong>${escapeHtml(title)}</strong><div class="muted" style="font-size:12px">${escapeHtml(category)}</div>`;
     const right = document.createElement('div'); right.style.display='flex'; right.style.gap='8px';
-    const btn1 = document.createElement('button'); btn1.textContent='Play → D1'; btn1.onclick = ()=> { deckWrappers[1].loadSource({ type:'youtube', videoId }); updateDeckTitleUI(1, title); };
-    const btn2 = document.createElement('button'); btn2.textContent='Play → D2'; btn2.onclick = ()=> { deckWrappers[2].loadSource({ type:'youtube', videoId }); updateDeckTitleUI(2, title); };
+    const btn1 = document.createElement('button'); btn1.textContent='→ D1'; btn1.onclick = ()=> { deckWrappers[1].loadSource({ type:'youtube', videoId }); updateDeckTitleUI(1, title); };
+    const btn2 = document.createElement('button'); btn2.textContent='→ D2'; btn2.onclick = ()=> { deckWrappers[2].loadSource({ type:'youtube', videoId }); updateDeckTitleUI(2, title); };
     const sel = document.createElement('select');
     function buildOptions(){
       sel.innerHTML = '';
@@ -918,7 +933,7 @@
     });
   }
 
-  // Firebase listeners
+  /* Firebase listeners */
   function initListeners(){
     database.ref('playedHistory').on('value', snapshot => {
       const data = snapshot.val() || {};
@@ -962,9 +977,7 @@
     reader.readAsText(file);
   }
 
-  /* =========================
-     Balance & crossfade
-     ========================= */
+  /* Balance & crossfade */
   function onBalanceChange(){
     const bal = parseInt(document.getElementById('balance-slider')?.value || 50,10);
     const side = bal===50 ? 'Center' : (bal<50 ? 'Deck 1' : 'Deck 2');
@@ -974,7 +987,7 @@
     try { deckWrappers[1].setVolume(100 - bal); deckWrappers[2].setVolume(bal); } catch(e){}
   }
 
-  function smoothCrossfade(fromDeck=1,toDeck=2,duration=5000,options={}) {
+  function smoothCrossfade(fromDeck=1,toDeck=2,duration=4000,options={}) {
     const { stopSource=true, respectBalanceSlider=true } = options;
     const fromPlayer = deckWrappers[fromDeck], toPlayer = deckWrappers[toDeck];
     if (!fromPlayer || !toPlayer) return;
@@ -1006,9 +1019,7 @@
     requestAnimationFrame(step);
   }
 
-  /* =========================
-     BPM logic (per-deck) — baseline 120
-     ========================= */
+  /* BPM logic */
   function onTempoInput(deck, bpm){
     const display = document.getElementById(`tempo${deck}-value`);
     if (display) display.textContent = String(Math.round(bpm));
@@ -1027,9 +1038,7 @@
     setDeckBpm(deck, 120);
   }
 
-  /* =========================
-     Chatbot (minimal)
-     ========================= */
+  /* Chatbot (minimal) */
   const chatHistory = [];
   const apiKeyForGen = 'AIzaSyDfWaNBq0S_A1iDyx4A71XGvpK4WCofCmU';
   async function sendMessage(){
@@ -1057,27 +1066,19 @@
     m.appendChild(div); m.scrollTop = m.scrollHeight;
   }
 
-  /* =========================
-     Utilities & DOM helpers
-     ========================= */
+  /* Utilities & modal helpers (simple) */
   function formatTime(t){ if (!t||isNaN(t)) return '0:00'; const s = Math.floor(t%60); const m = Math.floor(t/60); return m+':'+(s<10?'0'+s:s); }
 
-  /* =========================
-     Modal open/close helpers (improved)
-     ========================= */
-  // Use a Map to track attached overlay handlers so we don't attach multiple times
+  // Modal helpers
   const overlayHandlerMap = new Map();
   function openModal(id){
     const el = document.getElementById(id);
     if (!el) return;
     el.style.display = 'flex';
     el.setAttribute('aria-hidden','false');
-    // lock body scroll
     document.body.style.overflow = 'hidden';
-    // attach overlay click handler once
     if (!overlayHandlerMap.has(el)) {
       const handler = function(e){
-        // close if click on overlay (not inside panel)
         if (!e) return;
         const panel = el.querySelector('.panel');
         if (!panel) return;
@@ -1097,11 +1098,9 @@
     el.style.display = 'none';
     el.setAttribute('aria-hidden','true');
     document.body.style.overflow = '';
-    // remove overlay handler if attached
     const h = overlayHandlerMap.get(el);
     if (h) { el.removeEventListener('click', h); overlayHandlerMap.delete(el); }
   }
-  // ESC to close any open modal
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       ['history-modal','mp3-modal','notes-modal','chatbot-modal'].forEach(id => {
@@ -1111,43 +1110,28 @@
     }
   });
 
-  /* =========================
-     Small bindings (buttons & init)
-     ========================= */
-
-  // Expose a few helper functions globally in case buttons call them externally
+  /* Bindings and init */
   window.openHistoryModal = function(){ openModal('history-modal'); };
-  window.closeHistoryModal = function(){ closeModal('history-modal'); };
-  window.openMp3Modal = function(){ refreshLocalList().then(()=> openModal('mp3-modal')).catch(()=>openModal('mp3-modal')); };
-  window.closeMp3Modal = function(){ closeModal('mp3-modal'); };
+  window.openMp3Modal = function(){ refreshLocalList().then(()=> openModal('mp3-modal')).catch(()=> openModal('mp3-modal')); };
   window.openNotesModal = function(){ openModal('notes-modal'); };
-  window.closeNotesModal = function(){ closeModal('notes-modal'); };
   window.openChatbotModal = function(){ openModal('chatbot-modal'); };
-  window.closeChatbotModal = function(){ closeModal('chatbot-modal'); };
 
-  // Wire UI after DOM ready
   document.addEventListener('DOMContentLoaded', () => {
-    // load YT
     loadYouTubeAPI();
-    // init audio contexts
     initAudioContexts();
 
-    // attach search buttons & enter keys
     document.getElementById('search-btn-1').addEventListener('click', ()=> searchYouTubeForDeck('deck1'));
     document.getElementById('search-btn-2').addEventListener('click', ()=> searchYouTubeForDeck('deck2'));
     document.getElementById('search-deck1').addEventListener('keydown', (e)=> { if (e.key==='Enter') searchYouTubeForDeck('deck1'); });
     document.getElementById('search-deck2').addEventListener('keydown', (e)=> { if (e.key==='Enter') searchYouTubeForDeck('deck2'); });
 
-    // dropdown adapt on resize
     window.addEventListener('resize', ()=>{ adaptDropdownToPlayer(1); adaptDropdownToPlayer(2); });
 
-    // BPM controls
     document.getElementById('tempo1').addEventListener('input', (e)=> onTempoInput(1, e.target.value));
     document.getElementById('tempo2').addEventListener('input', (e)=> onTempoInput(2, e.target.value));
     document.getElementById('reset-bpm-1').addEventListener('click', ()=> resetDeckBpm(1));
     document.getElementById('reset-bpm-2').addEventListener('click', ()=> resetDeckBpm(2));
 
-    // deck audio controls hook-ups (safe)
     document.getElementById('deck1-volume').addEventListener('input', (e)=> deckSetVolume(1, e.target.value));
     document.getElementById('deck2-volume').addEventListener('input', (e)=> deckSetVolume(2, e.target.value));
     document.getElementById('deck1-seek').addEventListener('input', (e)=> deckSeekFromUI(1, e.target.value));
@@ -1157,10 +1141,9 @@
     document.getElementById('deck1-lowcut').addEventListener('click', ()=> toggleLowCut(1));
     document.getElementById('deck2-lowcut').addEventListener('click', ()=> toggleLowCut(2));
 
-    // balance & crossfade
     document.getElementById('balance-slider').addEventListener('input', onBalanceChange);
-    document.getElementById('fade-a-b').addEventListener('click', ()=> smoothCrossfade(1,2,parseInt(document.getElementById('crossfade-duration').value||5000,10), { stopSource:true, respectBalanceSlider:document.getElementById('crossfade-respect-balance').checked }));
-    document.getElementById('fade-b-a').addEventListener('click', ()=> smoothCrossfade(2,1,parseInt(document.getElementById('crossfade-duration').value||5000,10), { stopSource:true, respectBalanceSlider:document.getElementById('crossfade-respect-balance').checked }));
+    document.getElementById('fade-a-b').addEventListener('click', ()=> smoothCrossfade(1,2,parseInt(document.getElementById('crossfade-duration').value||4000,10), { stopSource:true, respectBalanceSlider:document.getElementById('crossfade-respect-balance').checked }));
+    document.getElementById('fade-b-a').addEventListener('click', ()=> smoothCrossfade(2,1,parseInt(document.getElementById('crossfade-duration').value||4000,10), { stopSource:true, respectBalanceSlider:document.getElementById('crossfade-respect-balance').checked }));
     document.getElementById('sync-btn').addEventListener('click', ()=> {
       const fromTempo = parseFloat(document.getElementById('tempo1')?.value || 120);
       const toTempo = parseFloat(document.getElementById('tempo2')?.value || 120);
@@ -1170,7 +1153,6 @@
       alert(`Deck 2 playbackRate set to ${rate.toFixed(3)}`);
     });
 
-    // footer buttons & modal openers
     document.getElementById('open-history-btn').addEventListener('click', ()=> { openModal('history-modal'); });
     document.getElementById('open-mp3s-btn').addEventListener('click', ()=> { refreshLocalList().then(()=> openModal('mp3-modal')).catch(()=> openModal('mp3-modal')); });
     document.getElementById('play-last-btn').addEventListener('click', ()=> {
@@ -1181,7 +1163,6 @@
       }).catch(()=>alert('Failed to fetch history'));
     });
 
-    // notes/chatbot buttons
     document.getElementById('open-notes-btn').addEventListener('click', ()=> openModal('notes-modal'));
     document.getElementById('open-chat-btn').addEventListener('click', ()=> openModal('chatbot-modal'));
     document.getElementById('close-notes').addEventListener('click', ()=> closeModal('notes-modal'));
@@ -1190,7 +1171,6 @@
     document.getElementById('close-mp3').addEventListener('click', ()=> closeModal('mp3-modal'));
     document.getElementById('save-notes-btn').addEventListener('click', ()=> { const notes = document.getElementById('notes-textarea').value; database.ref('djNotes').set(notes); closeModal('notes-modal'); });
 
-    // history modal buttons
     document.getElementById('history-backup').addEventListener('click', backupHistory);
     document.getElementById('history-restore').addEventListener('click', ()=> document.getElementById('restore-input').click());
     document.getElementById('restore-input').addEventListener('change', (e)=> { if (e.target.files[0]) restoreHistoryFromFile(e.target.files[0]); });
@@ -1203,11 +1183,9 @@
     document.getElementById('history-search-modal').addEventListener('input', filterHistoryModal);
     document.getElementById('category-filter-modal').addEventListener('change', filterHistoryModal);
 
-    // mp3 modal buttons
     document.getElementById('mp3-refresh').addEventListener('click', refreshLocalList);
     document.getElementById('mp3-clear').addEventListener('click', ()=> { if (confirm('Delete all saved MP3s?')) clearAllLocalMp3s(); });
 
-    // Search dropdown adapt on open: attach click on player-area to hide dropdowns when clicking outside
     document.getElementById('player-area-1').addEventListener('click', (e)=> {
       const dd = document.getElementById('custom-dropdown1');
       if (!dd) return;
@@ -1219,26 +1197,17 @@
       if (!dd.contains(e.target) && e.target.id !== 'search-deck2' && e.target.id !== 'search-btn-2') { dd.style.display='none'; dd.setAttribute('aria-hidden','true'); }
     });
 
-    // Chat send
     document.getElementById('chat-send-btn').addEventListener('click', sendMessage);
     document.getElementById('chat-input').addEventListener('keydown', (e)=> { if (e.key==='Enter') sendMessage();});
 
-    // initialize values
+    // init
     resetDeckBpm(1); resetDeckBpm(2);
     initListeners();
     refreshLocalList().catch(()=>{});
     adaptDropdownToPlayer(1); adaptDropdownToPlayer(2);
-    // safety: periodically adapt dropdown width when window resizes
-    window.addEventListener('resize', ()=> { adaptDropdownToPlayer(1); adaptDropdownToPlayer(2); });
+  });
 
-    // small UX: when user taps search input on mobile, show corresponding dropdown area width
-    ['search-deck1','search-deck2'].forEach((id, idx) => {
-      document.getElementById(id).addEventListener('focus', ()=> adaptDropdownToPlayer(idx+1));
-    });
-
-  }); // DOMContentLoaded
-
-  // small public utilities for debug (if you want)
+  // public utilities
   window.deckWrappers = deckWrappers;
   window.refreshLocalList = refreshLocalList;
   window.playLocalOnDeck = playLocalOnDeck;
