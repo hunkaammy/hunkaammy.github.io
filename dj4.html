@@ -3,16 +3,24 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>YouTube DJ Player — Fixed Modals & Bugs</title>
+  <title>YouTube DJ Player — Fixed Modals & Mobile Improvements</title>
 
-  <!-- Firebase -->
+  <!-- Firebase (compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
 
   <style>
-    :root{ --bg1:#071019; --accent:#ff6a2b; --muted:#93a3ad; --panel-radius:12px; --footer-h:72px; }
+    :root{
+      --bg1:#071019;
+      --accent:#ff6a2b;
+      --muted:#93a3ad;
+      --panel-radius:12px;
+      --footer-h:72px;
+      --modal-padding:12px;
+      --touch-size:44px;
+    }
     *{box-sizing:border-box;font-family:Inter,Arial,sans-serif}
-    html,body{height:100%;margin:0;background:linear-gradient(135deg,#071019,#071827);color:#ecf6ff;padding:18px;padding-bottom:calc(var(--footer-h)+28px)}
+    html,body{height:100%;margin:0;background:linear-gradient(135deg,#071019,#071827);color:#ecf6ff;padding:18px;padding-bottom:calc(var(--footer-h)+28px);-webkit-font-smoothing:antialiased}
     .wrap{max-width:1180px;margin:0 auto}
     header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
     h1{margin:0;color:var(--accent);font-size:18px}
@@ -20,11 +28,22 @@
     .card{background:linear-gradient(180deg,#04101a,#061524);border-radius:var(--panel-radius);padding:12px;border:1px solid rgba(255,255,255,0.03)}
     .search-row{display:flex;gap:12px;margin-bottom:12px}
     .search-box{flex:1;display:flex;gap:8px;align-items:center}
-    input[type=text], input[type=search], select, textarea{padding:10px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:inherit}
+    input[type=text], input[type=search], select, textarea{padding:10px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:inherit;outline:none}
     button{background:linear-gradient(180deg,var(--accent),#ff8f4d);border:0;color:#061018;padding:8px 10px;border-radius:8px;cursor:pointer}
-    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
-    .deck-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    @media (max-width:760px){ .deck-row{grid-template-columns:1fr} .search-row{flex-direction:column} }
+    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);padding:8px 10px;border-radius:8px}
+    .deck-row{display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(320px, 1fr)); overflow-x: auto; padding-bottom: 6px; scroll-snap-type: x mandatory;}
+    .deck-row > div { scroll-snap-align: start; min-width: 320px; }
+    @media (max-width:760px){
+      /* keep decks side-by-side via horizontal scroll rather than stacking */
+      .search-row{display:flex;gap:12px;margin-bottom:12px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x mandatory}
+      .search-box{display:flex;gap:8px;align-items:center;min-width:260px;flex:0 0 auto; scroll-snap-align:start}
+      .search-row .search-box input[type="search"]{min-width:160px;flex:1 1 auto}
+    }
+    @media (max-width:420px){
+      :root { --panel-radius:10px; --modal-padding:10px; }
+      .deck-row > div { min-width:300px; }
+      .search-box { min-width:220px; }
+    }
     .player-area{position:relative;background:#000;border-radius:10px;min-height:220px;overflow:visible}
     iframe{width:100%;height:100%;border:0;display:block}
     .deck-audio-ui{position:absolute;left:0;right:0;top:0;bottom:0;padding:12px;display:flex;flex-direction:column;justify-content:center;gap:8px;background:linear-gradient(180deg,rgba(0,0,0,0.55),rgba(0,0,0,0.45))}
@@ -41,17 +60,29 @@
     .bpm-value{font-weight:700;color:var(--accent);min-width:44px;text-align:center}
     .tempo-slider{width:100%}
     /* Modal baseline rules so display:flex works reliably */
-    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:10000;align-items:center;justify-content:center;padding:18px}
-    .panel{max-width:1100px;width:100%;max-height:90vh;overflow:auto}
-    .close-x{background:transparent;border:0;color:var(--muted);cursor:pointer;font-size:16px}
+    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:10000;align-items:center;justify-content:center;padding:18px;overflow:auto}
+    .panel{max-width:1100px;width:100%;max-height:calc(100vh - 40px);overflow:auto;border-radius:12px;padding:var(--modal-padding)}
+    .close-x{background:transparent;border:0;color:var(--muted);cursor:pointer;font-size:16px;padding:8px;border-radius:8px}
+    /* make panel nicely scrollable for small screens */
+    .modal .panel { box-shadow: 0 12px 40px rgba(0,0,0,0.6); }
+    /* larger touch targets for modal close actions */
+    .modal .close-x { min-width: var(--touch-size); min-height: var(--touch-size); display:inline-flex; align-items:center; justify-content:center; }
+    /* ensure list elements inside modals look good on small screens */
+    #mp3-list-modal .history-row, #history-list-modal .history-row {flex-direction:column;align-items:flex-start;gap:8px}
+    #mp3-list-modal .history-row > div:last-child, #history-list-modal .history-row > div:last-child {display:flex;gap:6px;flex-wrap:wrap}
+    /* Make dropdown images not too large on mobile */
+    .dropdown img{width:56px;height:40px;object-fit:cover;border-radius:6px}
+    /* A little nicer scrollbar on desktops */
+    .dropdown::-webkit-scrollbar, .list::-webkit-scrollbar { height:8px; width:8px }
+    .dropdown::-webkit-scrollbar-thumb, .list::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.06); border-radius:8px }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
       <div>
-        <h1>SAMMY'S YT DJ (fixed)</h1>
-        <div class="small">Modals, dropdowns, BPM & MP3/YouTube switching — fixed and hardened.</div>
+        <h1>SAMMY'S YT DJ (mobile + modals)</h1>
+        <div class="small">Side-by-side decks on mobile, improved modals, MP3 + YouTube</div>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
         <button class="btn-ghost" id="open-notes-btn">Notes</button>
@@ -203,20 +234,20 @@
 
   <!-- History Modal (YouTube only) -->
   <div id="history-modal" class="modal" aria-hidden="true">
-    <div class="card panel">
+    <div class="card panel" role="dialog" aria-modal="true" aria-labelledby="history-title">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div><strong>History — YouTube only</strong><div class="small">Only YouTube tracks are stored in History</div></div>
-        <div style="display:flex;gap:8px">
+        <div><strong id="history-title">History — YouTube only</strong><div class="small">Only YouTube tracks are stored in History</div></div>
+        <div style="display:flex;gap:8px;align-items:center">
           <button class="btn-ghost" id="history-backup">Backup</button>
           <input id="restore-input" type="file" style="display:none">
           <button class="btn-ghost" id="history-restore">Restore</button>
-          <button class="close-x" id="close-history">Close ✕</button>
+          <button class="close-x" id="close-history" aria-label="Close history modal">Close ✕</button>
         </div>
       </div>
 
-      <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
+      <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;flex-wrap:wrap">
         <select id="category-filter-modal" style="min-width:180px"></select>
-        <input id="history-search-modal" placeholder="Search history" style="flex:1">
+        <input id="history-search-modal" placeholder="Search history" style="flex:1;min-width:140px">
         <input id="new-category-input-modal" placeholder="New category" style="width:220px">
         <button class="btn-ghost" id="add-category-modal">Add</button>
       </div>
@@ -227,13 +258,13 @@
 
   <!-- MP3 Modal -->
   <div id="mp3-modal" class="modal" aria-hidden="true">
-    <div class="card panel">
+    <div class="card panel" role="dialog" aria-modal="true" aria-labelledby="mp3-title">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div><strong>Local MP3s</strong><div class="small">Saved in browser (IndexedDB)</div></div>
-        <div style="display:flex;gap:8px">
+        <div><strong id="mp3-title">Local MP3s</strong><div class="small">Saved in browser (IndexedDB)</div></div>
+        <div style="display:flex;gap:8px;align-items:center">
           <button class="btn-ghost" id="mp3-refresh">Refresh</button>
           <button class="btn-ghost" id="mp3-clear">Delete All</button>
-          <button class="close-x" id="close-mp3">Close ✕</button>
+          <button class="close-x" id="close-mp3" aria-label="Close mp3 modal">Close ✕</button>
         </div>
       </div>
 
@@ -243,10 +274,10 @@
 
   <!-- Notes & Chatbot -->
   <div id="notes-modal" class="modal" aria-hidden="true">
-    <div class="card panel" style="max-width:600px">
+    <div class="card panel" style="max-width:600px" role="dialog" aria-modal="true" aria-labelledby="notes-title">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <strong>Notes</strong>
-        <button class="close-x" id="close-notes">Close</button>
+        <strong id="notes-title">Notes</strong>
+        <button class="close-x" id="close-notes" aria-label="Close notes">Close</button>
       </div>
       <textarea id="notes-textarea" style="width:100%;height:220px;margin-top:8px;background:#041019;color:#eaf2fb;padding:8px;border-radius:8px"></textarea>
       <div style="text-align:right;margin-top:8px"><button id="save-notes-btn">Save</button></div>
@@ -254,10 +285,10 @@
   </div>
 
   <div id="chatbot-modal" class="modal" aria-hidden="true">
-    <div class="card panel" style="max-width:600px">
+    <div class="card panel" style="max-width:600px" role="dialog" aria-modal="true" aria-labelledby="chat-title">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <strong>AI Suggester</strong>
-        <button class="close-x" id="close-chat">Close</button>
+        <strong id="chat-title">AI Suggester</strong>
+        <button class="close-x" id="close-chat" aria-label="Close chat">Close</button>
       </div>
       <div id="chat-messages" style="height:220px;overflow:auto;background:#021219;padding:8px;border-radius:8px;margin-top:8px"></div>
       <div style="display:flex;gap:8px;margin-top:8px">
@@ -273,7 +304,7 @@
    ========================= */
 
 (function(){
-  // Firebase config unchanged
+  // Firebase config unchanged (kept your keys)
   const firebaseConfig = {
     apiKey: "AIzaSyBPc51z-pGrtKwtB5dKTMPei-fVRg4ePME",
     authDomain: "pagdi-6f8ce.firebaseapp.com",
@@ -287,7 +318,7 @@
   firebase.initializeApp(firebaseConfig);
   const database = firebase.database();
 
-  /* IndexedDB helpers (same, robust) */
+  /* IndexedDB helpers (robust) */
   const DB_NAME = 'sammy-dj-db';
   const DB_STORE = 'mp3files';
   function openDb() {
@@ -375,7 +406,6 @@
       s.src = "https://www.youtube.com/iframe_api";
       document.head.appendChild(s);
     }
-    // onYouTubeIframeAPIReady will be called by YT; define it once
     window.onYouTubeIframeAPIReady = function(){
       YTready = true;
       setupYTPlayers();
@@ -695,7 +725,7 @@
               dropdown.setAttribute('aria-hidden','true');
             } catch (e) { console.error(e); }
           };
-          dropdownItem.innerHTML = `<img src="${thumb}" alt="${escapeHtml(title)} thumbnail" style="width:56px;height:40px;object-fit:cover;border-radius:6px;margin-right:8px"><div style="flex:1"><div style="font-size:13px">${escapeHtml(title)}</div><div class="muted">${duration ? duration : 'Video'}</div></div>`;
+          dropdownItem.innerHTML = `<img src="${thumb}" alt="${escapeHtml(title)} thumbnail"><div style="flex:1"><div style="font-size:13px">${escapeHtml(title)}</div><div class="muted">${duration ? duration : 'Video'}</div></div>`;
           dropdown.appendChild(dropdownItem);
         } else if (entry && entry.channel) {
           const c = entry.channel;
@@ -705,7 +735,7 @@
           const dropdownItem = document.createElement('div');
           dropdownItem.className = 'item';
           dropdownItem.onclick = () => fetchChannelVideos(channelId, deck, apiKeyIndex);
-          dropdownItem.innerHTML = `<img src="${thumb}" style="width:56px;height:40px;object-fit:cover;border-radius:6px;margin-right:8px"><div style="flex:1"><div style="font-size:13px">${escapeHtml(title)}</div><div class="muted">Channel</div></div>`;
+          dropdownItem.innerHTML = `<img src="${thumb}" alt="${escapeHtml(title)}"><div style="flex:1"><div style="font-size:13px">${escapeHtml(title)}</div><div class="muted">Channel</div></div>`;
           dropdown.appendChild(dropdownItem);
         }
       });
@@ -762,7 +792,7 @@
             const dropdownItem = document.createElement('div');
             dropdownItem.className = 'item';
             dropdownItem.onclick = () => { const playerWrapper = deck === 'deck1' ? deckWrappers[1] : deckWrappers[2]; try { playerWrapper.loadSource({ type:'youtube', videoId, title }); addNewTrackToHistory(title, videoId, 'Uncategorized'); dropdown.style.display='none'; dropdown.setAttribute('aria-hidden','true'); } catch(e){ console.error(e); } };
-            dropdownItem.innerHTML = `<img src="${thumb}" style="width:56px;height:40px;object-fit:cover;border-radius:6px;margin-right:8px"><div style="flex:1"><div style="font-size:13px">${escapeHtml(title)}</div><div class="muted">${duration ? duration : 'Video'}</div></div>`;
+            dropdownItem.innerHTML = `<img src="${thumb}" alt="${escapeHtml(title)} thumbnail"><div style="flex:1"><div style="font-size:13px">${escapeHtml(title)}</div><div class="muted">${duration ? duration : 'Video'}</div></div>`;
             dropdown.appendChild(dropdownItem);
           }
         });
@@ -806,7 +836,7 @@
           const thumb = (v.thumbnails && v.thumbnails[0] && v.thumbnails[0].url) || (v.thumbnail && v.thumbnail.url) || 'https://via.placeholder.com/50';
           const duration = v.duration || v.length || (v.snippet && v.snippet.lengthText && v.snippet.lengthText.simpleText) || '';
           const item = document.createElement('div'); item.className='item';
-          item.innerHTML = `<img src="${thumb}" style="width:56px;height:40px;object-fit:cover;border-radius:6px;margin-right:8px"><div style="flex:1"><div style="font-size:13px">${escapeHtml(title)}</div><div class="muted">${duration || 'Video'}</div></div>`;
+          item.innerHTML = `<img src="${thumb}" alt="${escapeHtml(title)}"><div style="flex:1"><div style="font-size:13px">${escapeHtml(title)}</div><div class="muted">${duration || 'Video'}</div></div>`;
           item.onclick = ()=> { const playerWrapper = deck==='deck1'?deckWrappers[1]:deckWrappers[2]; try { playerWrapper.loadSource({ type:'youtube', videoId, title }); addNewTrackToHistory(title, videoId, 'Uncategorized'); dropdown.style.display='none'; } catch(e){ console.error(e); } };
           dropdown.appendChild(item);
         });
@@ -1031,36 +1061,45 @@
      Utilities & DOM helpers
      ========================= */
   function formatTime(t){ if (!t||isNaN(t)) return '0:00'; const s = Math.floor(t%60); const m = Math.floor(t/60); return m+':'+(s<10?'0'+s:s); }
-  function escapeHtml(str){ if (!str && str!==0) return ''; return String(str).replace(/[&<>"'`=\/]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','/':'&#x2F;','`':'&#x60;'})[s]); }
 
   /* =========================
-     Modal open/close helpers (robust)
+     Modal open/close helpers (improved)
      ========================= */
+  // Use a Map to track attached overlay handlers so we don't attach multiple times
+  const overlayHandlerMap = new Map();
   function openModal(id){
     const el = document.getElementById(id);
     if (!el) return;
     el.style.display = 'flex';
     el.setAttribute('aria-hidden','false');
-    // attach overlay click to close when clicked outside panel
-    el.addEventListener('click', overlayClickHandler);
+    // lock body scroll
+    document.body.style.overflow = 'hidden';
+    // attach overlay click handler once
+    if (!overlayHandlerMap.has(el)) {
+      const handler = function(e){
+        // close if click on overlay (not inside panel)
+        if (!e) return;
+        const panel = el.querySelector('.panel');
+        if (!panel) return;
+        if (!panel.contains(e.target)) {
+          el.style.display = 'none';
+          el.setAttribute('aria-hidden','true');
+          document.body.style.overflow = '';
+        }
+      };
+      overlayHandlerMap.set(el, handler);
+      el.addEventListener('click', handler);
+    }
   }
   function closeModal(id){
     const el = document.getElementById(id);
     if (!el) return;
     el.style.display = 'none';
     el.setAttribute('aria-hidden','true');
-    el.removeEventListener('click', overlayClickHandler);
-  }
-  function overlayClickHandler(e){
-    // close if click on overlay (not inside panel)
-    if (!e) return;
-    const panel = this.querySelector('.panel');
-    if (!panel) return;
-    if (!panel.contains(e.target)) {
-      this.style.display = 'none';
-      this.setAttribute('aria-hidden','true');
-      this.removeEventListener('click', overlayClickHandler);
-    }
+    document.body.style.overflow = '';
+    // remove overlay handler if attached
+    const h = overlayHandlerMap.get(el);
+    if (h) { el.removeEventListener('click', h); overlayHandlerMap.delete(el); }
   }
   // ESC to close any open modal
   document.addEventListener('keydown', (e) => {
@@ -1168,11 +1207,8 @@
     document.getElementById('mp3-refresh').addEventListener('click', refreshLocalList);
     document.getElementById('mp3-clear').addEventListener('click', ()=> { if (confirm('Delete all saved MP3s?')) clearAllLocalMp3s(); });
 
-    // history/modal accessible close when clicking Escape handled earlier
-
     // Search dropdown adapt on open: attach click on player-area to hide dropdowns when clicking outside
     document.getElementById('player-area-1').addEventListener('click', (e)=> {
-      // if clicked outside dropdown, hide it
       const dd = document.getElementById('custom-dropdown1');
       if (!dd) return;
       if (!dd.contains(e.target) && e.target.id !== 'search-deck1' && e.target.id !== 'search-btn-1') { dd.style.display='none'; dd.setAttribute('aria-hidden','true'); }
@@ -1183,6 +1219,10 @@
       if (!dd.contains(e.target) && e.target.id !== 'search-deck2' && e.target.id !== 'search-btn-2') { dd.style.display='none'; dd.setAttribute('aria-hidden','true'); }
     });
 
+    // Chat send
+    document.getElementById('chat-send-btn').addEventListener('click', sendMessage);
+    document.getElementById('chat-input').addEventListener('keydown', (e)=> { if (e.key==='Enter') sendMessage();});
+
     // initialize values
     resetDeckBpm(1); resetDeckBpm(2);
     initListeners();
@@ -1190,6 +1230,11 @@
     adaptDropdownToPlayer(1); adaptDropdownToPlayer(2);
     // safety: periodically adapt dropdown width when window resizes
     window.addEventListener('resize', ()=> { adaptDropdownToPlayer(1); adaptDropdownToPlayer(2); });
+
+    // small UX: when user taps search input on mobile, show corresponding dropdown area width
+    ['search-deck1','search-deck2'].forEach((id, idx) => {
+      document.getElementById(id).addEventListener('focus', ()=> adaptDropdownToPlayer(idx+1));
+    });
 
   }); // DOMContentLoaded
 
