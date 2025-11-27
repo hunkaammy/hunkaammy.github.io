@@ -50,8 +50,8 @@
   <div class="wrap">
     <header>
       <div>
-        <h1>SAMMY'S YT DJ (fixed)</h1>
-        <div class="small">Modals, dropdowns, BPM & MP3/YouTube switching — fixed and hardened.</div>
+        <h1>SAMMY'S YT DJ</h1>
+
       </div>
       <div style="display:flex;gap:8px;align-items:center">
         <button class="btn-ghost" id="open-notes-btn">Notes</button>
@@ -62,16 +62,15 @@
     </header>
 
     <!-- SEARCH ROW -->
-    <div class="card search-row">
-      <div class="search-box">
-        <input id="search-deck1" type="search" placeholder="Search YouTube for Deck 1 (press Enter or click Search)">
-        <button id="search-btn-1">Search Deck 1</button>
-      </div>
-      <div class="search-box">
-        <input id="search-deck2" type="search" placeholder="Search YouTube for Deck 2 (press Enter or click Search)">
-        <button id="search-btn-2">Search Deck 2</button>
-      </div>
-    </div>
+<div class="card search-row" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px">
+  <div class="search-box" style="flex:1;min-width:240px;display:flex;gap:6px">
+    <input id="search-deck1" type="search" placeholder="Deck 1 search…" style="flex:1;width:80px;">
+    <button id="search-btn-1"style="white-space:nowrap;padding:9px 12px;font-size:13px; display:none">Search</button>
+ 
+    <input id="search-deck2" type="search" placeholder="Deck 2 search…" style="flex:1;width:80px;">
+    <button id="search-btn-2" style="white-space:nowrap;padding:9px 12px;font-size:13px; display:none">Search</button>
+  </div>
+</div>
 
     <main>
       <div class="card deck-row">
@@ -1199,6 +1198,20 @@
   window.playLocalOnDeck = playLocalOnDeck;
   window.searchYouTubeForDeck = searchYouTubeForDeck;
 
+  // ──────────────────────────────
+  // AUTO SEARCH (no button needed)
+  // ──────────────────────────────
+  document.getElementById('search-deck1').addEventListener('input', debounce(() => searchYouTubeForDeck('deck1'), 600));
+  document.getElementById('search-deck2').addEventListener('input', debounce(() => searchYouTubeForDeck('deck2'), 600));
+
+  function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func(...args), wait);
+    };
+  }
+  // ──────────────────────────────
 })(); // end IIFE
 </script>
 </body>
