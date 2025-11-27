@@ -18,12 +18,12 @@
     h1{margin:0;color:var(--accent);font-size:18px}
     .small{font-size:12px;color:var(--muted)}
     .card{background:linear-gradient(180deg,#04101a,#061524);border-radius:var(--panel-radius);padding:12px;border:1px solid rgba(255,255,255,0.03)}
-    .search-row{display:FLEX;gap:12px;margin-bottom:12px}
+    .search-row{display:flex;gap:12px;margin-bottom:12px}
     .search-box{flex:1;display:flex;gap:8px;align-items:center}
     input[type=text], input[type=search], select, textarea{padding:10px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:inherit}
     button{background:linear-gradient(180deg,var(--accent),#ff8f4d);border:0;color:#061018;padding:8px 10px;border-radius:8px;cursor:pointer}
     .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
-    .deck-row{display:flex;grid-template-columns:1fr 1fr;gap:12px}
+    .deck-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     @media (max-width:760px){ .deck-row{grid-template-columns:1fr} .search-row{flex-direction:column} }
     .player-area{position:relative;background:#000;border-radius:10px;min-height:220px;overflow:visible}
     iframe{width:100%;height:100%;border:0;display:block}
@@ -35,7 +35,7 @@
     .tag{background:rgba(255,255,255,0.02);padding:6px 8px;border-radius:999px;font-size:12px}
     .footer-tabs{position:fixed;left:12px;right:12px;bottom:12px;height:var(--footer-h);display:flex;gap:8px;align-items:center;justify-content:center;background:rgba(3,6,10,0.95);padding:8px;border-radius:10px;z-index:9999}
     .list{max-height:60vh;overflow:auto;padding:8px}
-    .history-row{font-size: 12px;align-items:center;justify-content:space-between;padding:8px;border-radius:8px;background:linear-gradient(180deg,transparent,rgba(255,255,255,0.01));margin-bottom:8px;border:1px solid rgba(255,255,255,0.02)}
+    .history-row{display:flex;align-items:center;justify-content:space-between;padding:8px;border-radius:8px;background:linear-gradient(180deg,transparent,rgba(255,255,255,0.01));margin-bottom:8px;border:1px solid rgba(255,255,255,0.02)}
     .muted{color:var(--muted)}
     .bpm-row{display:flex;gap:8px;align-items:center;margin-top:8px}
     .bpm-value{font-weight:700;color:var(--accent);min-width:44px;text-align:center}
@@ -50,8 +50,8 @@
   <div class="wrap">
     <header>
       <div>
-        <h1>SAMMY'S YT DJ</h1>
-
+        <h1>SAMMY'S YT DJ (fixed)</h1>
+        <div class="small">Modals, dropdowns, BPM & MP3/YouTube switching — fixed and hardened.</div>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
         <button class="btn-ghost" id="open-notes-btn">Notes</button>
@@ -62,15 +62,16 @@
     </header>
 
     <!-- SEARCH ROW -->
-<div class="card search-row" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px">
-  <div class="search-box" style="flex:1;min-width:240px;display:flex;gap:6px">
-    <input id="search-deck1" type="search" placeholder="Deck 1 search…" style="flex:1;width:80px;">
-    <button id="search-btn-1"style="white-space:nowrap;padding:9px 12px;font-size:13px; display:none">Search</button>
- 
-    <input id="search-deck2" type="search" placeholder="Deck 2 search…" style="flex:1;width:80px;">
-    <button id="search-btn-2" style="white-space:nowrap;padding:9px 12px;font-size:13px; display:none">Search</button>
-  </div>
-</div>
+    <div class="card search-row">
+      <div class="search-box">
+        <input id="search-deck1" type="search" placeholder="Search YouTube for Deck 1 (press Enter or click Search)">
+        <button id="search-btn-1">Search Deck 1</button>
+      </div>
+      <div class="search-box">
+        <input id="search-deck2" type="search" placeholder="Search YouTube for Deck 2 (press Enter or click Search)">
+        <button id="search-btn-2">Search Deck 2</button>
+      </div>
+    </div>
 
     <main>
       <div class="card deck-row">
@@ -1198,20 +1199,6 @@
   window.playLocalOnDeck = playLocalOnDeck;
   window.searchYouTubeForDeck = searchYouTubeForDeck;
 
-  // ──────────────────────────────
-  // AUTO SEARCH (no button needed)
-  // ──────────────────────────────
-  document.getElementById('search-deck1').addEventListener('input', debounce(() => searchYouTubeForDeck('deck1'), 600));
-  document.getElementById('search-deck2').addEventListener('input', debounce(() => searchYouTubeForDeck('deck2'), 600));
-
-  function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func(...args), wait);
-    };
-  }
-  // ──────────────────────────────
 })(); // end IIFE
 </script>
 </body>
