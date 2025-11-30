@@ -686,7 +686,9 @@
           const duration = v.duration || v.length || v.durationText || '';
           const dropdownItem = document.createElement('div');
           dropdownItem.className = 'item';
-          dropdownItem.onclick = () => {
+          dropdownItem.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
             const playerWrapper = deck === 'deck1' ? deckWrappers[1] : deckWrappers[2];
             try {
               playerWrapper.loadSource({ type:'youtube', videoId, title });
@@ -694,7 +696,7 @@
               dropdown.style.display = 'none';
               dropdown.setAttribute('aria-hidden','true');
             } catch (e) { console.error(e); }
-          };
+          });
           dropdownItem.innerHTML = `<img src="${thumb}" alt="${escapeHtml(title)} thumbnail" style="width:56px;height:40px;object-fit:cover;border-radius:6px;margin-right:8px"><div style="flex:1"><div style="font-size:13px">${escapeHtml(title)}</div><div class="muted">${duration ? duration : 'Video'}</div></div>`;
           dropdown.appendChild(dropdownItem);
         } else if (entry && entry.channel) {
@@ -704,7 +706,12 @@
           const thumb = (c.thumbnails && c.thumbnails[0] && c.thumbnails[0].url) || c.avatar || 'https://via.placeholder.com/50';
           const dropdownItem = document.createElement('div');
           dropdownItem.className = 'item';
-          dropdownItem.onclick = () => fetchChannelVideos(channelId, deck, apiKeyIndex);
+          // use addEventListener and stop propagation so player-area click doesn't close dropdown
+          dropdownItem.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            fetchChannelVideos(channelId, deck, apiKeyIndex);
+          });
           dropdownItem.innerHTML = `<img src="${thumb}" style="width:56px;height:40px;object-fit:cover;border-radius:6px;margin-right:8px"><div style="flex:1"><div style="font-size:13px">${escapeHtml(title)}</div><div class="muted">Channel</div></div>`;
           dropdown.appendChild(dropdownItem);
         }
@@ -761,7 +768,17 @@
             const duration = v.duration || v.length || v.durationText || '';
             const dropdownItem = document.createElement('div');
             dropdownItem.className = 'item';
-            dropdownItem.onclick = () => { const playerWrapper = deck === 'deck1' ? deckWrappers[1] : deckWrappers[2]; try { playerWrapper.loadSource({ type:'youtube', videoId, title }); addNewTrackToHistory(title, videoId, 'Uncategorized'); dropdown.style.display='none'; dropdown.setAttribute('aria-hidden','true'); } catch(e){ console.error(e); } };
+            dropdownItem.addEventListener('click', (ev) => {
+              ev.preventDefault();
+              ev.stopPropagation();
+              try {
+                const playerWrapper = deck === 'deck1' ? deckWrappers[1] : deckWrappers[2];
+                playerWrapper.loadSource({ type:'youtube', videoId, title });
+                addNewTrackToHistory(title, videoId, 'Uncategorized');
+                dropdown.style.display = 'none';
+                dropdown.setAttribute('aria-hidden','true');
+              } catch(e){ console.error(e); }
+            });
             dropdownItem.innerHTML = `<img src="${thumb}" style="width:56px;height:40px;object-fit:cover;border-radius:6px;margin-right:8px"><div style="flex:1"><div style="font-size:13px">${escapeHtml(title)}</div><div class="muted">${duration ? duration : 'Video'}</div></div>`;
             dropdown.appendChild(dropdownItem);
           }
@@ -774,9 +791,18 @@
 
   async function fetchChannelVideos(channelId, deck, apiKeyIndex=0){
     if (!channelId) { alert('Channel ID missing'); return; }
-    const dropdown = document.getElementById(`custom-dropdown${deck==='deck1'?1:2}`);
+    // normalize deck: accept 'deck1'/'deck2' or numeric 1/2
+    const deckNum = (function(d){
+      if (d === 1 || d === '1' || d === 'deck1') return 1;
+      if (d === 2 || d === '2' || d === 'deck2') return 2;
+      return 1;
+    })(deck);
+    const dropdown = document.getElementById(`custom-dropdown${deckNum}`);
     if (!dropdown) return;
-    dropdown.innerHTML = '<div class="muted">Loading channel videos...</div>'; dropdown.style.display='block'; dropdown.setAttribute('aria-hidden','false'); adaptDropdownToPlayer(deck==='deck1'?1:2);
+    dropdown.innerHTML = '<div class="muted">Loading channel videos...</div>';
+    dropdown.style.display = 'block';
+    dropdown.setAttribute('aria-hidden','false');
+    adaptDropdownToPlayer(deckNum);
     const urlsToTry = [
       `https://youtube-search-and-download.p.rapidapi.com/channel?id=${encodeURIComponent(channelId)}`,
       `https://youtube-search-and-download.p.rapidapi.com/channel/videos?id=${encodeURIComponent(channelId)}`,
@@ -807,7 +833,12 @@
           const duration = v.duration || v.length || (v.snippet && v.snippet.lengthText && v.snippet.lengthText.simpleText) || '';
           const item = document.createElement('div'); item.className='item';
           item.innerHTML = `<img src="${thumb}" style="width:56px;height:40px;object-fit:cover;border-radius:6px;margin-right:8px"><div style="flex:1"><div style="font-size:13px">${escapeHtml(title)}</div><div class="muted">${duration || 'Video'}</div></div>`;
-          item.onclick = ()=> { const playerWrapper = deck==='deck1'?deckWrappers[1]:deckWrappers[2]; try { playerWrapper.loadSource({ type:'youtube', videoId, title }); addNewTrackToHistory(title, videoId, 'Uncategorized'); dropdown.style.display='none'; } catch(e){ console.error(e); } };
+          item.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            const playerWrapper = deckNum===1?deckWrappers[1]:deckWrappers[2];
+            try { playerWrapper.loadSource({ type:'youtube', videoId, title }); addNewTrackToHistory(title, videoId, 'Uncategorized'); dropdown.style.display='none'; } catch(e){ console.error(e); }
+          });
           dropdown.appendChild(item);
         });
         success=true;
@@ -1031,7 +1062,6 @@
      Utilities & DOM helpers
      ========================= */
   function formatTime(t){ if (!t||isNaN(t)) return '0:00'; const s = Math.floor(t%60); const m = Math.floor(t/60); return m+':'+(s<10?'0'+s:s); }
-  function escapeHtml(str){ if (!str && str!==0) return ''; return String(str).replace(/[&<>"'`=\/]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','/':'&#x2F;','`':'&#x60;'})[s]); }
 
   /* =========================
      Modal open/close helpers (robust)
