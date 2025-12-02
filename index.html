@@ -15,9 +15,7 @@
       --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
 
-    html, body {
-      overscroll-behavior: none;
-    }
+    html, body { overscroll-behavior: none; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -35,7 +33,7 @@
     
     [ng-cloak] { display: none !important; }
 
-    /* Constrain content width to tablet-like size on all devices */
+    /* Constrain content width */
     #content, #login-container { max-width: 768px; margin: 0 auto; box-sizing: border-box; }
 
     #login-container {
@@ -49,7 +47,7 @@
     }
 
     #inside {
-      background-color: rgba(255, 255, 255, 0.95);
+      background-color: rgba(255,255,255,0.95);
       padding: 30px;
       border-radius: 12px;
       box-shadow: var(--card-shadow);
@@ -95,10 +93,8 @@
       height: 110px;
     }
 
-    .category-card:hover { transform: translateY(-4px); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12); }
-
+    .category-card:hover { transform: translateY(-4px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
     .category-card img { width: 60%; height: auto; object-fit: contain; margin-bottom: 8px; border-radius: 8px; }
-
     .category-card span { font-size: 11px; font-weight: 500; color: #555; }
 
     .modal-body { background-color: var(--light-gray); }
@@ -119,15 +115,15 @@
       align-items: stretch;
     }
 
-    /* Show full image (no cropping). Keep aspect ratio. Limit height so layout stays tidy */
+    /* Show full image (no cropping) */
     .card img {
       width: 100%;
-      height: auto;            /* important: allow natural height */
-      max-height: 240px;      /* prevents excessively tall images */
-      object-fit: contain;    /* ensure full image visible */
+      height: auto;
+      max-height: 240px;
+      object-fit: contain;
       display: block;
       margin: 0 auto;
-      background-color: #ffffff;
+      background-color: #fff;
     }
 
     .containers {
@@ -138,7 +134,7 @@
     .containers h4 { margin: 0 0 4px; font-size: 13px; font-weight: bold; }
     .containers p {
       margin: 0 0 4px;
-      white-space: normal; /* allow wrapping */
+      white-space: normal;
       overflow: visible;
       text-overflow: initial;
       font-size: 11px;
@@ -164,16 +160,12 @@
       right: 8px;
       animation: fadeOut 2s forwards;
     }
-    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+    @keyframes fadeOut { from { opacity: 1 } to { opacity: 0 } }
 
-    .enlarged-image-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background-color: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center;
-      z-index: 1060; cursor: pointer;
-    }
-    .enlarged-image-content { max-width: 95%; max-height: 95%; border-radius: 8px; object-fit: contain; }
+    .enlarged-image-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); display:none; justify-content:center; align-items:center; z-index:1060; cursor:pointer; }
+    .enlarged-image-content { max-width:95%; max-height:95%; border-radius:8px; object-fit: contain; }
 
-    @keyframes skeleton-pulse { 0% { background-color: #e0e0e0; } 50% { background-color: #f0f0f0; } 100% { background-color: #e0e0e0; } }
+    @keyframes skeleton-pulse { 0% { background-color: #e0e0e0 } 50% { background-color: #f0f0f0 } 100% { background-color: #e0e0e0 } }
     .skeleton-card { background-color: #fff; padding: 0; }
     .skeleton-image { width: 100%; height: 140px; animation: skeleton-pulse 1.5s infinite ease-in-out; }
     .skeleton-line { height: 12px; width: 90%; margin: 8px auto; border-radius: 4px; animation: skeleton-pulse 1.5s infinite ease-in-out; }
@@ -185,121 +177,108 @@
 
     .manual-slideshow-container { position: relative; }
     .manual-slideshow-scroll-wrapper {
-      display: flex; flex-wrap: nowrap; overflow-x: auto !important; -webkit-overflow-scrolling: touch;
-      scroll-snap-type: x mandatory; padding-bottom: 10px; gap: 12px; scrollbar-width: none; -ms-overflow-style: none;
+      display:flex; flex-wrap:nowrap; overflow-x:auto !important; -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory; padding-bottom: 10px; gap:12px; scrollbar-width:none; -ms-overflow-style:none;
     }
-    .manual-slideshow-scroll-wrapper::-webkit-scrollbar { display: none; }
-    .manual-slideshow-scroll-wrapper .card { flex-shrink: 0; width: 150px; scroll-snap-align: start; }
-    .manual-slideshow-scroll-wrapper .card img { width: 100%; height: auto; max-height: 140px; object-fit: contain; background: #fff; }
+    .manual-slideshow-scroll-wrapper::-webkit-scrollbar { display:none; }
+    .manual-slideshow-scroll-wrapper .card { flex-shrink:0; width:150px; scroll-snap-align:start; }
+    .manual-slideshow-scroll-wrapper .card img { width:100%; height:auto; max-height:140px; object-fit:contain; background:#fff; }
 
     .view-all-container { text-align: right; padding: 0 12px 12px; }
-    .view-all-button { display: inline-block; color: BLACK; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; transition: background-color 0.2s ease; }
+    .view-all-button { display:inline-block; color: BLACK; border:none; border-radius:6px; font-size:14px; font-weight:500; cursor:pointer; transition: background-color 0.2s ease; }
 
-    .video-modal-content { max-width: 90%; max-height: 90vh; margin: auto; display: flex; flex-direction: column; align-items: center; }
-    .video-modal-content video { width: 100%; max-height: 70vh; border-radius: 8px; }
-    .video-modal-content .download-btn { margin-top: 10px; padding: 8px 16px; background-color: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
-    .video-modal-content .download-btn:hover { background-color: #2e7d32; }
-    .video-error { color: var(--danger-color); font-size: 12px; margin-top: 10px; text-align: center; }
+    .video-modal-content { max-width:90%; max-height:90vh; margin:auto; display:flex; flex-direction:column; align-items:center; }
+    .video-modal-content video { width:100%; max-height:70vh; border-radius:8px; }
+    .video-modal-content .download-btn { margin-top:10px; padding:8px 16px; background-color:var(--primary-color); color:white; border:none; border-radius:6px; cursor:pointer; font-size:14px; }
+    .video-modal-content .download-btn:hover { background-color:#2e7d32; }
+    .video-error { color: var(--danger-color); font-size:12px; margin-top:10px; text-align:center; }
 
-    #videoModal { z-index: 1060; }
+    #videoModal { z-index:1060; }
 
     .search-results-container { max-width: 768px; margin: 0 auto; box-sizing: border-box; }
-    .modal-dialog { max-width: 768px; margin: 1.75rem auto; }
+
+    .modal-dialog { max-width: 768px; margin:1.75rem auto; }
 
     /* Fixed product modal header */
     #productModal .modal-header {
-      position: sticky; top: 0; background-color: #fff; z-index: 1050; padding: 10px 15px; border-bottom: 1px solid #dee2e6;
-      display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap;
+      position: sticky; top: 0; background-color: #fff; z-index:1050; padding: 10px 15px; border-bottom: 1px solid #dee2e6;
+      display:flex; align-items:center; justify-content:space-between; flex-wrap:nowrap;
     }
-    #productModal .modal-title { margin: 0; font-size: 18px; font-weight: 600; flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    #productModal .sort-container { flex-shrink: 0; margin-left: 10px; }
-    #productModal .form-select-sm { width: auto; min-width: 120px; font-size: 12px; padding: 4px 8px; }
-    #productModal .btn-close { flex-shrink: 0; margin-left: 10px; }
-    #productModal .modal-body { padding-top: 10px; }
+    #productModal .modal-title { margin:0; font-size:18px; font-weight:600; flex-grow:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    #productModal .sort-container { flex-shrink:0; margin-left:10px; }
+    #productModal .form-select-sm { width:auto; min-width:120px; font-size:12px; padding:4px 8px; }
+    #productModal .btn-close { flex-shrink:0; margin-left:10px; }
+    #productModal .modal-body { padding-top:10px; }
 
     @media (min-width: 768px) {
-      #productModal .modal-dialog, #myModal .modal-dialog { max-width: 768px; margin: 1.75rem auto; }
-      #productModal .modal-content, #myModal .modal-content { width: 100%; }
+      #productModal .modal-dialog, #myModal .modal-dialog { max-width:768px; margin:1.75rem auto; }
+      #productModal .modal-content, #myModal .modal-content { width:100%; }
     }
 
-    @media (max-width: 767.98px) {
-      .modal-dialog { max-width: none; margin: 0; width: 100%; height: 100%; }
-      .modal-content { height: 100%; border-radius: 0; }
-      #productModal .modal-header { flex-wrap: wrap; padding: 8px 10px; }
-      #productModal .modal-title { font-size: 16px; }
-      #productModal .sort-container { margin-left: 0; margin-top: 5px; }
-      #productModal .form-select-sm { width: 100%; }
-    }
-
-    /* Fixed Your Order Button */
-    .fixed-order-button {
-      position: fixed; bottom: 20px; right: 20px; z-index: 1070;
-      background-color: var(--primary-color); color: white; border: none; border-radius: 50px; padding: 8px 12px;
-      font-size: 12px; font-weight: 500; box-shadow: var(--card-shadow); cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease;
-    }
-    .fixed-order-button:hover { background-color: #2e7d32; transform: scale(1.05); }
-    @media (max-width: 767.98px) {
-      .fixed-order-button { bottom: 10px; right: 10px; padding: 6px 10px; font-size: 11px; }
-    }
-
-    /* Layout */
-    .main-content-layout { display: flex; gap: 20px; max-width: 768px; margin: 0 auto; min-height: calc(100vh - 70px); }
-    .sidebar-container {
-      flex-shrink: 0; width: 180px; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-      border-radius: 16px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1); padding: 20px 12px; position: sticky; top: 80px;
-      align-self: flex-start; max-height: calc(100vh - 110px); overflow-y: auto;
-    }
-    .sidebar-title { font-size: 16px; font-weight: 600; margin: 0 0 20px; padding: 0 10px; color: var(--dark-gray); }
-    .vertical-tabs { display: flex; flex-direction: column; gap: 10px; }
-    .tab-item {
-      display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px 10px; border-radius: 12px;
-      cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); gap: 8px; border: 2px solid transparent; text-align: center;
-      background-color: #fff; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); position: relative;
-    }
-    .tab-item:hover { background: linear-gradient(135deg, #f0f4f8 0%, #e8eff5 100%); transform: translateY(-2px) scale(1.02); box-shadow: 0 4px 12px rgba(56, 142, 60, 0.15); border-color: rgba(56, 142, 60, 0.2); }
-    .tab-item.active { background: linear-gradient(135deg, var(--primary-color) 0%, #2e7d32 100%); color: white; border-color: var(--primary-color); box-shadow: 0 6px 16px rgba(56, 142, 60, 0.3); transform: scale(1.03); }
-    .tab-icon-img { width: 32px; height: 32px; object-fit: contain; border-radius: 8px; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); transition: all 0.3s ease; background: #fff; }
-    .tab-text { font-size: 11px; font-weight: 500; color: var(--dark-gray); word-break: break-word; text-align: center; line-height: 1.3; width: 100%; transition: color 0.3s ease; }
-    .tab-count { font-size: 9px; color: var(--dark-gray); opacity: 0.8; font-weight: 500; margin-top: -2px; }
-    .tab-loading { display: flex; flex-direction: column; gap: 8px; }
-    .skeleton-tab { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 10px; }
-    .skeleton-tab .tab-icon { width: 24px; height: 24px; background-color: #e0e0e0; border-radius: 4px; animation: skeleton-pulse 1.5s infinite ease-in-out; }
-    .skeleton-tab .tab-text { height: 12px; width: 60%; background-color: #e0e0e0; border-radius: 4px; animation: skeleton-pulse 1.5s infinite ease-in-out; }
-
-    .products-container { flex: 1; min-width: 0; }
-    .products-header { background-color: #fff; padding: 15px; border-radius: 12px; box-shadow: var(--card-shadow); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-    .products-title { margin: 0; font-size: 18px; font-weight: 600; color: var(--dark-gray); }
-    .products-content { background-color: #fff; padding: 15px; border-radius: 12px; box-shadow: var(--card-shadow); }
-
+    /* Responsive tweaks */
     @media (max-width: 767.98px) {
       .main-content-layout { flex-direction: row; gap: 10px; padding: 0px 5px 20px; }
-      .sidebar-container { width: 95px; flex-shrink: 0; padding: 12px 8px; position: sticky; top: 0px; max-height: calc(100vh - 70px); overflow-y: auto; }
-      .sidebar-title { font-size: 13px; margin-bottom: 12px; }
+      .sidebar-container { width: 95px; flex-shrink: 0; padding: 12px 8px; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); position: sticky; top: 0px; align-self:flex-start; max-height: calc(100vh - 70px); overflow-y:auto; }
+      .sidebar-title { font-size: 13px; margin-bottom:12px; }
       .vertical-tabs { gap: 8px; }
-      .tab-item { padding: 10px 6px; gap: 6px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06); }
+      .tab-item { padding: 10px 6px; gap: 6px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.06); }
       .tab-icon-img { width: 40px; height: 40px; margin-bottom: 0; border-radius: 6px; }
-      .tab-text { font-size: 10px; line-height: 1.2; text-align: center; word-break: break-word; display: block; font-weight: 500; }
-      .product-grid { grid-template-columns: 1fr; gap: 10px; } /* single column on small screens for better legibility */
+      .tab-text { font-size: 10px; line-height: 1.2; text-align:center; word-break: break-word; display:block; font-weight:500; }
+      .product-grid { grid-template-columns: 1fr; gap: 10px; } /* default: single column on small screens */
       .products-header { padding: 10px; margin-bottom: 10px; }
       .products-title { font-size: 16px; }
       .products-content { padding: 10px; }
       .containers h4 { font-size: 14px; }
       .containers p { font-size: 12px; }
       .qtyclass { height: 36px; width: 60px; font-size: 13px; }
-      .order-item-img { width: 60px; height: 60px; }
-      .manual-slideshow-scroll-wrapper .card { width: 220px; min-width: 220px; }
+      .order-item-img { width: 60px; height:60px; }
+      .manual-slideshow-scroll-wrapper .card { width: 220px; min-width:220px; }
     }
 
+    /* --- IMPORTANT: force search results to be two-column even on small screens --- */
+    .search-results-container .product-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    /* If you want to tweak spacing on very small phones, we keep it sensible */
     @media (max-width: 420px) {
-      .manual-slideshow-scroll-wrapper .card { width: 180px; min-width: 180px; }
+      .manual-slideshow-scroll-wrapper .card { width: 180px; min-width:180px; }
       .tab-icon-img { width: 36px; height: 36px; }
       .tab-text { font-size: 9px; }
       .qtyclass { width: 56px; height: 34px; }
       .card img { max-height: 200px; }
+      .search-results-container .product-grid { gap: 8px; }
     }
 
     /* ensure crisp images */
     .card img, .category-card img, .tab-icon-img { image-rendering: auto; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+
+    /* fixed order button */
+    .fixed-order-button {
+      position: fixed; bottom: 20px; right: 20px; z-index: 1070;
+      background-color: var(--primary-color); color: white; border: none; border-radius: 50px; padding: 8px 12px;
+      font-size: 12px; font-weight: 500; box-shadow: var(--card-shadow); cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+    .fixed-order-button:hover { background-color: #2e7d32; transform: scale(1.05); }
+    @media (max-width: 767.98px) { .fixed-order-button { bottom: 10px; right: 10px; padding: 6px 10px; font-size: 11px; } }
+
+    /* sidebar & products layout */
+    .main-content-layout { display:flex; gap:20px; max-width:768px; margin:0 auto; min-height: calc(100vh - 70px); }
+    .sidebar-container { flex-shrink:0; width:180px; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-radius:16px; box-shadow:0 8px 24px rgba(0,0,0,0.1); padding:20px 12px; position: sticky; top:80px; align-self:flex-start; max-height: calc(100vh - 110px); overflow-y:auto; }
+    .sidebar-title { font-size:16px; font-weight:600; margin:0 0 20px; padding:0 10px; color:var(--dark-gray); }
+    .vertical-tabs { display:flex; flex-direction:column; gap:10px; }
+    .tab-item { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:14px 10px; border-radius:12px; cursor:pointer; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); gap:8px; border:2px solid transparent; text-align:center; background-color:#fff; box-shadow:0 2px 4px rgba(0,0,0,0.05); position:relative; }
+    .tab-item:hover { background: linear-gradient(135deg, #f0f4f8 0%, #e8eff5 100%); transform: translateY(-2px) scale(1.02); box-shadow: 0 4px 12px rgba(56,142,60,0.15); border-color: rgba(56,142,60,0.2); }
+    .tab-item.active { background: linear-gradient(135deg, var(--primary-color) 0%, #2e7d32 100%); color: white; border-color: var(--primary-color); box-shadow: 0 6px 16px rgba(56,142,60,0.3); transform: scale(1.03); }
+    .tab-icon-img { width:32px; height:32px; object-fit: contain; border-radius:8px; flex-shrink:0; box-shadow:0 2px 6px rgba(0,0,0,0.1); transition: all 0.3s ease; background:#fff; }
+    .tab-text { font-size:11px; font-weight:500; color:var(--dark-gray); word-break:break-word; text-align:center; line-height:1.3; width:100%; transition: color 0.3s ease; }
+    .tab-count { font-size:9px; color:var(--dark-gray); opacity:0.8; font-weight:500; margin-top:-2px; }
+
+    .products-container { flex:1; min-width:0; }
+    .products-header { background-color:#fff; padding:15px; border-radius:12px; box-shadow:var(--card-shadow); margin-bottom:15px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
+    .products-title { margin:0; font-size:18px; font-weight:600; color:var(--dark-gray); }
+    .products-content { background-color:#fff; padding:15px; border-radius:12px; box-shadow:var(--card-shadow); }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 </head>
@@ -447,6 +426,7 @@
 
   </div>
 
+  <!-- product modal -->
   <div class="modal fade" id="productModal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -467,9 +447,7 @@
             <div class="product-grid">
               <div class="card" ng-repeat="image in displayedProducts" ng-hide="image.markedForRemoval">
                 <img ng-src="{{image.url}}" alt="{{image.name}}" ng-click="showEnlargedImage(image.url, true)" loading="lazy">
-                <button ng-if="dynamicField2Value === 'sammyadmin'" class="btn btn-danger btn-sm mt-2 mx-2" ng-click="markOutOfStock(image)">
-                  Mark Out of Stock
-                </button>
+                <button ng-if="dynamicField2Value === 'sammyadmin'" class="btn btn-danger btn-sm mt-2 mx-2" ng-click="markOutOfStock(image)">Mark Out of Stock</button>
                 <div class="containers">
                   <span class="saved-feedback" ng-if="image.justSaved">Saved!</span>
                   <h4 ng-if="priceVisible"><b>{{image.price | currency:"₹":0 }}</b></h4>
@@ -487,7 +465,8 @@
       </div>
     </div>
   </div>
-  
+
+  <!-- video modal -->
   <div class="modal fade" id="videoModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content video-modal-content">
@@ -505,11 +484,13 @@
       </div>
     </div>
   </div>
-  
-  <div id="enlarged-image-overlay" class="enlarged-image-overlay" ng-click="closeEnlargedImage()"> 
-    <img class="enlarged-image-content" id="enlarged-image" src=""> 
+
+  <!-- enlarged image overlay -->
+  <div id="enlarged-image-overlay" class="enlarged-image-overlay" ng-click="closeEnlargedImage()">
+    <img class="enlarged-image-content" id="enlarged-image" src="">
   </div>
-  
+
+  <!-- order modal -->
   <div class="modal fade" id="myModal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -533,9 +514,7 @@
                       <span class="qty-display">{{item.field3}}</span>
                       <button class="btn btn-secondary btn-sm" ng-click="incrementOrderItem(item)">+</button>
                   </div>
-                <button class="btn btn-outline-danger btn-sm ms-3" ng-click="deleteOrderItem(item)">
-                  <i class="fas fa-trash"></i>
-                </button>
+                <button class="btn btn-outline-danger btn-sm ms-3" ng-click="deleteOrderItem(item)"><i class="fas fa-trash"></i></button>
               </div>
             </li>
           </ul>
@@ -560,17 +539,17 @@
   <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
 
   <script>
-    // Global flag to track if enlarged image is open
+    // Global flag to track enlarged image
     var isEnlargedImageOpen = false;
 
-    // Error handling for script loading
+    // Simple global error handler
     window.onerror = function(message, source, lineno, colno, error) {
       console.error('Script Error:', { message, source, lineno, colno, error });
       alert('An error occurred. Please try refreshing the page.');
       return true;
     };
 
-    // Back Button Control
+    // Back button handling (preserve behavior from your original code)
     history.pushState({ state: 'home' }, null, location.href);
     window.addEventListener('popstate', function (event) {
       try {
@@ -578,7 +557,7 @@
         var orderModalEl = document.getElementById('myModal');
         var videoModalEl = document.getElementById('videoModal');
         var enlargedOverlayEl = document.getElementById('enlarged-image-overlay');
-        
+
         var productModal = bootstrap.Modal.getInstance(productModalEl);
         var orderModal = bootstrap.Modal.getInstance(orderModalEl);
         var videoModal = bootstrap.Modal.getInstance(videoModalEl);
@@ -636,12 +615,11 @@
       }
     });
 
-    // Update enlarged image flag
     document.getElementById('enlarged-image-overlay').addEventListener('transitionend', function() {
       isEnlargedImageOpen = this.style.display === 'flex';
     });
 
-    // Login Logic
+    // Login logic
     (function() {
       var loginConfig = {
         apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
@@ -725,22 +703,23 @@
         alert('Failed to initialize application. Please check your network and try again.');
       }
     })();
-    
+
+    // Angular controller (unchanged functionality)
     var app = angular.module('myApp', ['firebase']);
     app.controller('imagesController', ['$scope', '$firebaseArray', '$filter', '$window', '$timeout', '$sce', function($scope, $firebaseArray, $filter, $window, $timeout, $sce) {
       try {
         var vm = this;
         vm.images = [];
-        $scope.displayedProducts = []; 
+        $scope.displayedProducts = [];
         $scope.sortOrder = 'default';
         $scope.dynamicField2Value = localStorage.getItem('name') || '';
         $scope.priceVisible = localStorage.getItem('priceVisible') !== 'false';
         $scope.isOrderModalOpen = false;
         $scope.isEnlargedImageOpen = false;
-        
+
         $scope.isLoading = true;
         $scope.isLoadingCategories = true;
-        
+
         $scope.isSearching = false;
         $scope.searchResults = [];
         $scope.isLoadingSearchResults = false;
@@ -750,7 +729,7 @@
 
         var fetchConfig = { databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com" };
         var submitConfig = { databaseURL: "https://notes-12519-default-rtdb.firebaseio.com" };
-        
+
         var fetchApp = firebase.apps.find(app => app.name === 'fetchApp') || firebase.initializeApp(fetchConfig, 'fetchApp');
         var fetchDb = fetchApp.database().ref();
 
@@ -786,11 +765,11 @@
           $scope.$applyAsync(function() { $scope.isLoading = false; $scope.isLoadingCategories = false; });
           alert('Failed to load products. Please check your network and try again.');
         });
-        
+
         $scope.allOrders = $firebaseArray(submitDb);
         $scope.activeTabId = 0;
         $scope.activeCategoryName = 'ALL PRODUCTS';
-        
+
         $scope.categories = [
           { id: 0, name: 'ALL PRODUCTS', filter: '', imageUrl: 'https://www.hindustantoys.in/images/all.jpeg' },
           { id: 6, name: 'RACKET', filter: 'RACKET', imageUrl: 'https://www.hindustantoys.in/images/racket.jpeg' },
@@ -832,16 +811,14 @@
           { id: 33, name: 'GODOWN-2', filter: 'G2', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' },
           { id: 16, name: 'EMPTY', filter: 'GUN', imageUrl: 'https://www.hindustantoys.in/images/DUMMY.jpeg' }
         ];
-        
+
         var productModal = null;
         var videoModal = null;
         $timeout(function() {
           try {
             productModal = new bootstrap.Modal(document.getElementById('productModal'));
             videoModal = new bootstrap.Modal(document.getElementById('videoModal'));
-          } catch (e) {
-            console.error("Modal Initialization Error:", e);
-          }
+          } catch (e) { console.error("Modal Initialization Error:", e); }
         }, 0);
 
         $scope.openOrderModal = function() {
@@ -849,9 +826,7 @@
             var orderModalEl = document.getElementById('myModal');
             var orderModal = bootstrap.Modal.getInstance(orderModalEl) || new bootstrap.Modal(orderModalEl);
             orderModal.show();
-          } catch (e) {
-            console.error("Open Order Modal Error:", e);
-          }
+          } catch (e) { console.error("Open Order Modal Error:", e); }
         };
 
         $scope.onSearchChange = function() {
@@ -870,13 +845,9 @@
               $scope.searchResults = [];
               history.pushState({ state: 'home' }, null, location.href);
             }
-          } catch (e) {
-            console.error("Search Change Error:", e);
-            $scope.isSearching = false;
-            $scope.isLoadingSearchResults = false;
-          }
+          } catch (e) { console.error("Search Change Error:", e); $scope.isSearching = false; $scope.isLoadingSearchResults = false; }
         };
-        
+
         $scope.selectCategory = function(filter, tabId) {
           try {
             $scope.searchQuery = '';
@@ -885,7 +856,7 @@
             $scope.activeCategoryName = $scope.categories.find(c => c.id === tabId)?.name || 'Products';
             $scope.activeTabId = tabId;
             $scope.updateDisplayedProducts();
-            $timeout(function() { window.scrollTo(0, 0); }, 0);
+            $timeout(function() { window.scrollTo(0,0); }, 0);
           } catch (e) { console.error("Select Category Error:", e); }
         };
 
@@ -901,37 +872,13 @@
             if (productModal) productModal.show();
           } catch (e) { console.error("Set Tab Error:", e); }
         };
-        
-        $scope.togglePriceVisibility = function() {
-          try { localStorage.setItem('priceVisible', $scope.priceVisible); } catch (e) { console.error("Toggle Price Visibility Error:", e); }
-        };
 
-        $scope.incrementOrderItem = function(item) {
-          try {
-            if (item) {
-              item.field3 = parseInt(item.field3 || 0) + 1;
-              $scope.allOrders.$save(item).catch(e => { console.error("Increment Order Item Error:", e); });
-            }
-          } catch (e) { console.error("Increment Order Item Error:", e); }
-        };
+        $scope.togglePriceVisibility = function() { try { localStorage.setItem('priceVisible', $scope.priceVisible); } catch (e) { console.error("Toggle Price Visibility Error:", e); } };
 
-        $scope.decrementOrderItem = function(item) {
-          try {
-            if (item) {
-              var newQty = parseInt(item.field3 || 0) - 1;
-              if (newQty < 1) newQty = 1;
-              item.field3 = newQty;
-              $scope.allOrders.$save(item).catch(e => { console.error("Decrement Order Item Error:", e); });
-            }
-          } catch (e) { console.error("Decrement Order Item Error:", e); }
-        };
+        $scope.incrementOrderItem = function(item) { try { if (item) { item.field3 = parseInt(item.field3 || 0) + 1; $scope.allOrders.$save(item).catch(e => { console.error("Increment Order Item Error:", e); }); } } catch (e) { console.error("Increment Order Item Error:", e); } };
+        $scope.decrementOrderItem = function(item) { try { if (item) { var newQty = parseInt(item.field3 || 0) - 1; if (newQty < 1) newQty = 1; item.field3 = newQty; $scope.allOrders.$save(item).catch(e => { console.error("Decrement Order Item Error:", e); }); } } catch (e) { console.error("Decrement Order Item Error:", e); } };
+        $scope.deleteOrderItem = function(item) { try { if (item) $scope.allOrders.$remove(item).catch(e => { console.error("Delete Order Item Error:", e); }); } catch (e) { console.error("Delete Order Item Error:", e); } };
 
-        $scope.deleteOrderItem = function(item) {
-          try {
-            if (item) { $scope.allOrders.$remove(item).catch(e => { console.error("Delete Order Item Error:", e); }); }
-          } catch (e) { console.error("Delete Order Item Error:", e); }
-        };
-        
         $scope.calculateOrderTotal = function() {
           try {
             var total = 0;
@@ -979,7 +926,7 @@
             }
 
             const now = new Date();
-            const date = now.toLocaleDateString('en-IN', {day: '2-digit', month: '2-digit', year: 'numeric'});
+            const date = now.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' });
             const time = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase();
 
             var dataToSubmit = {
@@ -987,7 +934,7 @@
               productName: image.name, productPrice: image.price,
               serverTimestamp: firebase.database.ServerValue.TIMESTAMP, submitDate: date, submitTime: time
             };
-            
+
             recordRef.set(dataToSubmit).then(() => {
               image.justSaved = true;
               $timeout(() => { image.justSaved = false; }, 2000);
@@ -997,7 +944,7 @@
             });
           } catch (e) { console.error("Submit Data Error:", e); }
         };
-        
+
         $scope.showEnlargedImage = function(src, fromProductModal) {
           try {
             const overlay = document.getElementById('enlarged-image-overlay');
@@ -1030,7 +977,7 @@
             }
           } catch (e) { console.error("Close Enlarged Image Error:", e); }
         };
-        
+
         $scope.showVideoModal = function(event, videourl, fromProductModal) {
           try {
             if (event) { event.preventDefault(); event.stopPropagation(); }
@@ -1039,7 +986,7 @@
               $scope.currentVideoUrl = $sce.trustAsResourceUrl(videourl);
               history.pushState({ state: 'videoModal', fromProductModal: fromProductModal }, null, location.href);
               if (videoModal) videoModal.show();
-              
+
               $timeout(function() {
                 var videoElement = document.getElementById('videoPlayer');
                 if (videoElement) {
@@ -1065,7 +1012,8 @@
             var videoElement = document.getElementById('videoPlayer');
             if (videoElement) { videoElement.pause(); videoElement.currentTime = 0; }
             if (videoModal) videoModal.hide();
-            $scope.currentVideoUrl = ''; $scope.videoError = '';
+            $scope.currentVideoUrl = '';
+            $scope.videoError = '';
             var productModalEl = document.getElementById('productModal');
             var productModal = bootstrap.Modal.getInstance(productModalEl);
             if (productModal && productModalEl.classList.contains('show')) {
@@ -1079,19 +1027,14 @@
         $scope.updateDisplayedProducts = function() {
           try {
             if ($scope.isLoading || !$scope.dynamicField2Value) return;
-
             let filteredImages = vm.images;
-            if ($scope.productNameFilter) {
-              filteredImages = $filter('filter')(vm.images, { name: $scope.productNameFilter }) || [];
-            }
-            if ($scope.searchQuery && !$scope.productNameFilter) {
-              filteredImages = $filter('filter')(filteredImages, { name: $scope.searchQuery }) || [];
-            }
+            if ($scope.productNameFilter) filteredImages = $filter('filter')(vm.images, { name: $scope.productNameFilter }) || [];
+            if ($scope.searchQuery && !$scope.productNameFilter) filteredImages = $filter('filter')(filteredImages, { name: $scope.searchQuery }) || [];
 
             if ($scope.sortOrder === 'price') filteredImages = $filter('orderBy')(filteredImages, 'price');
             else if ($scope.sortOrder === '-price') filteredImages = $filter('orderBy')(filteredImages, '-price');
             else filteredImages = $filter('orderBy')(filteredImages, '-date');
-            
+
             $scope.displayedProducts = filteredImages;
           } catch (e) { console.error("Update Displayed Products Error:", e); }
         };
@@ -1105,12 +1048,8 @@
           try {
             var productModalEl = document.getElementById('productModal');
             if (productModalEl) {
-              productModalEl.addEventListener('show.bs.modal', function() {
-                $scope.$applyAsync(function() { $scope.isProductModalOpen = true; });
-              });
-              productModalEl.addEventListener('hide.bs.modal', function() {
-                $scope.$applyAsync(function() { $scope.isProductModalOpen = false; history.pushState({ state: 'home' }, null, location.href); });
-              });
+              productModalEl.addEventListener('show.bs.modal', function() { $scope.$applyAsync(function() { $scope.isProductModalOpen = true; }); });
+              productModalEl.addEventListener('hide.bs.modal', function() { $scope.$applyAsync(function() { $scope.isProductModalOpen = false; history.pushState({ state: 'home' }, null, location.href); }); });
             }
 
             var videoModalEl = document.getElementById('videoModal');
@@ -1144,6 +1083,7 @@
             }
           } catch (e) { console.error("Modal Event Listener Error:", e); }
         }, 0);
+
       } catch (e) {
         console.error("Controller Initialization Error:", e);
         alert('Application initialization failed. Please refresh the page.');
