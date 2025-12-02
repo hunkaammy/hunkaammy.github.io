@@ -16,7 +16,7 @@
       --card-shadow:0 4px 12px rgba(0,0,0,0.08);
     }
 
-    html,body{overscroll-behavior:none;}
+    html,body{overscroll-behavior:none;height:100%;}
     body{
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
       font-size:14px;line-height:1.5;color:var(--dark-gray);background-color:var(--light-gray);margin:0;
@@ -27,8 +27,9 @@
     /* Page containers */
     #content,#login-container{max-width:768px;margin:0 auto;box-sizing:border-box;}
 
-    /* Reserve space for fixed navbar so content doesn't hide behind it */
-    #content { padding-top: 64px; }
+    /* Reserve space for fixed navbar so content doesn't hide behind it.
+       Use a slightly larger top padding to allow for two-row navbar on small screens. */
+    #content { padding-top: 92px; }
 
     #login-container{
       background-size:cover;background-position:center;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;
@@ -37,12 +38,16 @@
       background-color:rgba(255,255,255,0.95);padding:30px;border-radius:12px;box-shadow:var(--card-shadow);text-align:center;width:100%;max-width:360px;
     }
 
-    /* Navbar */
+    /* Navbar: two rows (top = search + menu, bottom = welcome + toggle) */
     .navbar{
-      background:#fff;padding:8px 15px;position:fixed;height:64px;width:100%;max-width:768px;top:0;z-index:1200;
-      box-shadow:0 2px 4px rgba(0,0,0,0.1);left:50%;transform:translateX(-50%);
-      display:flex;flex-direction:column;justify-content:center;
+      background:#fff;padding:8px 12px;position:fixed;width:100%;max-width:768px;top:0;z-index:1200;
+      box-shadow:0 2px 4px rgba(0,0,0,0.08);left:50%;transform:translateX(-50%);
+      display:flex;flex-direction:column;gap:6px;
+      min-height:64px;
     }
+
+    .navbar-top{display:flex;align-items:center;gap:8px;}
+    .navbar-bottom{display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:var(--dark-gray);}
 
     .page-title{font-size:18px;font-weight:600;}
     .section-container{background:#fff;border-radius:12px;box-shadow:var(--card-shadow);padding:2px;}
@@ -67,7 +72,7 @@
 
     /* Full image (no cropping), preserve aspect ratio */
     .card img{
-      width:100%;height:auto;max-height:240px;object-fit:contain;display:block;margin:0 auto;background:#fff;
+      width:100%;height:auto;max-height:260px;object-fit:contain;display:block;margin:0 auto;background:#fff;
     }
 
     .containers{padding:8px;position:relative;flex:0 0 auto;}
@@ -132,7 +137,7 @@
     .main-content-layout{display:flex;gap:20px;max-width:768px;margin:0 auto;min-height:calc(100vh - 70px);position:relative; z-index: 100;}
     .sidebar-container{
       flex-shrink:0;width:180px;background:linear-gradient(135deg,#f8f9fa 0%,#fff 100%);border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,0.1);
-      padding:20px 12px;position:sticky;top:80px;align-self:flex-start;max-height:calc(100vh - 110px);overflow-y:auto;
+      padding:20px 12px;position:sticky;top:88px;align-self:flex-start;max-height:calc(100vh - 140px);overflow-y:auto;
     }
     .sidebar-title{font-size:16px;font-weight:600;margin:0 0 20px;padding:0 10px;color:var(--dark-gray);}
     .vertical-tabs{display:flex;flex-direction:column;gap:10px;}
@@ -153,9 +158,8 @@
 
     /* Responsive breakpoints */
     @media (max-width: 767.98px){
-      /* Main layout becomes narrower; keep sidebar compact */
       .main-content-layout{flex-direction:row;gap:10px;padding:0 5px 20px;}
-      .sidebar-container{width:95px;padding:12px 8px;position:sticky;top:64px;max-height:calc(100vh - 70px);overflow-y:auto;}
+      .sidebar-container{width:95px;padding:12px 8px;position:sticky;top:110px;max-height:calc(100vh - 140px);overflow-y:auto;}
       .sidebar-title{font-size:13px;margin-bottom:12px;}
       .vertical-tabs{gap:8px;}
       .tab-item{padding:10px 6px;gap:6px;border-radius:10px;box-shadow:0 2px 4px rgba(0,0,0,0.06);}
@@ -170,19 +174,19 @@
       .order-item-img{width:60px;height:60px;}
       .manual-slideshow-scroll-wrapper .card{width:220px;min-width:220px;}
 
-      /* MAIN product area becomes single column on small screens (original behavior) */
+      /* Main product area becomes single column on very small screens */
       .main-content-layout .product-grid{grid-template-columns:1fr;}
 
       /* Prevent search results container from covering the main layout:
          give it bottom margin and allow main scroll beneath. */
       .search-results-container{
-        z-index:1150; /* slightly above main but below modals */
+        z-index:1150;
         margin-bottom: 12px;
         min-height: 120px;
       }
 
-      /* Ensure the #content padding keeps the product area visible */
-      #content { padding-top: 64px; }
+      /* Adjust content padding for taller navbar */
+      #content { padding-top: 120px; }
     }
 
     /* Search results should always be 2 columns (targeted, high specificity so it doesn't affect main area) */
@@ -200,6 +204,7 @@
       .card img{max-height:200px;}
       .search-results-container .product-grid{gap:8px;}
       .search-results-container{min-height: 200px;}
+      #content { padding-top: 140px; }
     }
 
     /* small performance/visual tweaks */
@@ -219,13 +224,13 @@
 
   <!-- MAIN CONTENT -->
   <div id="content" style="display:none;">
-    <div class="navbar">
-      <div class="d-flex w-100 align-items-center">
-        <div class="input-group input-group-sm me-2">
+    <nav class="navbar" role="navigation" aria-label="Main">
+      <div class="navbar-top">
+        <div class="input-group input-group-sm me-2" style="flex:1; min-width:0;">
           <input type="text" ng-model="searchQuery" ng-change="onSearchChange()" ng-model-options="{ debounce: 400 }" placeholder="Search all products..." class="form-control" />
           <span class="input-group-text"><i class="fas fa-search"></i></span>
         </div>
-        <div class="dropdown">
+        <div class="dropdown" style="flex:0 0 auto;">
           <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-bars"></i></button>
           <ul class="dropdown-menu dropdown-menu-end">
             <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#myModal">Your Order</a></li>
@@ -233,20 +238,21 @@
           </ul>
         </div>
       </div>
-      <div class="d-flex w-100 justify-content-center align-items-center mt-1">
-        <small class="text-muted me-3">Welcome, {{dynamicField2Value}}</small>
-        <div class="form-check form-switch">
+
+      <div class="navbar-bottom">
+        <small class="text-muted" style="margin-right:8px;">Welcome, <span ng-bind="dynamicField2Value"></span></small>
+        <div class="form-check form-switch" style="transform:scale(0.95);">
           <input class="form-check-input" type="checkbox" role="switch" id="priceToggle" ng-model="priceVisible" ng-change="togglePriceVisibility()">
         </div>
       </div>
-    </div>
+    </nav>
 
     <!-- Fixed Your Order Button -->
     <button class="fixed-order-button" ng-if="dynamicField2Value && !isOrderModalOpen && !isEnlargedImageOpen" ng-click="openOrderModal()">
       <i class="fas fa-shopping-cart me-1"></i>Your Order
     </button>
 
-    <!-- SEARCH RESULTS (keeps 2-up layout always) -->
+    <!-- SEARCH RESULTS -->
     <div class="search-results-container p-3" ng-if="isSearching" aria-live="polite">
       <h2 class="page-title">Search Results for "{{ searchQuery }}"</h2>
 
@@ -687,11 +693,11 @@
 
         $scope.closeVideoModal = function(){ try { var videoElement = document.getElementById('videoPlayer'); if(videoElement){ videoElement.pause(); videoElement.currentTime = 0; } if(videoModal) videoModal.hide(); $scope.currentVideoUrl = ''; $scope.videoError = ''; var productModalEl = document.getElementById('productModal'); var productModal = bootstrap.Modal.getInstance(productModalEl); if(productModal && productModalEl.classList.contains('show')) history.pushState({ state: 'productModal' }, null, location.href); else history.pushState({ state: 'home' }, null, location.href); } catch(e){ console.error("Close video modal error",e); } };
 
-        $scope.updateDisplayedProducts = function(){ try { if($scope.isLoading || !$scope.dynamicField2Value) return; let filteredImages = vm.images; if($scope.productNameFilter) filteredImages = $filter('filter')(vm.images, { name: $scope.productNameFilter }) || []; if($scope.searchQuery && !$scope.productNameFilter) filteredImages = $filter('filter')(filteredImages, { name: $scope.searchQuery }) || []; if($scope.sortOrder === 'price') filteredImages = $filter('orderBy')(filteredImages, 'price'); else if($scope.sortOrder === '-price') filteredImages = $filter('orderBy')(filteredImages, '-price'); else filteredImages = $filter('orderBy')(filteredImages, '-date'); $scope.displayedProducts = filteredImages; } catch(e){ console.error("Update displayed products error",e); } };
+        $scope.updateDisplayedProducts = function(){ try { if($scope.isLoading) return; let filteredImages = vm.images; if($scope.productNameFilter) filteredImages = $filter('filter')(vm.images, { name: $scope.productNameFilter }) || []; if($scope.searchQuery && !$scope.productNameFilter) filteredImages = $filter('filter')(filteredImages, { name: $scope.searchQuery }) || []; if($scope.sortOrder === 'price') filteredImages = $filter('orderBy')(filteredImages, 'price'); else if($scope.sortOrder === '-price') filteredImages = $filter('orderBy')(filteredImages, '-price'); else filteredImages = $filter('orderBy')(filteredImages, '-date'); $scope.displayedProducts = filteredImages; } catch(e){ console.error("Update displayed products error",e); } };
 
         $scope.logout = function(){ try { fetchDb.off('value', productsListener); localStorage.clear(); $window.location.reload(); } catch(e){ console.error("Logout error",e); } };
 
-        // Modal listeners (keep behavior)
+        // Modal listeners
         $timeout(function(){ try {
           var productModalEl = document.getElementById('productModal');
           if(productModalEl){
