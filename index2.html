@@ -2,92 +2,104 @@
 <html lang="en" ng-app="myApp" ng-cloak>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Hindustan Toys - Order Portal</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <style>
-    :root {
-      --primary-color: #388e3c;
-      --secondary-color: #0d6efd;
-      --danger-color: #dc3545;
-      --warning-color: #ffc107;
-      --light-gray: #f8f9fa;
-      --dark-gray: #333;
-      --medium-gray: #6c757d;
-      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      --card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+    /* Reset and Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
-    html, body {
-      overscroll-behavior: none;
-      -webkit-tap-highlight-color: transparent;
-      height: 100%;
+    :root {
+      --primary-color: #388e3c;
+      --primary-dark: #2e7d32;
+      --primary-light: #4caf50;
+      --secondary-color: #2196f3;
+      --danger-color: #f44336;
+      --warning-color: #ff9800;
+      --success-color: #4caf50;
+      --light-bg: #f8f9fa;
+      --dark-text: #212121;
+      --medium-text: #616161;
+      --light-text: #9e9e9e;
+      --white: #ffffff;
+      --border-color: #e0e0e0;
+      --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      --card-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
+      --nav-height: 56px;
+      --bottom-nav-height: 60px;
+      --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    html {
+      font-size: 16px;
+    }
+
+    @media (max-width: 480px) {
+      html {
+        font-size: 14px;
+      }
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      font-size: 14px;
-      line-height: 1.5;
-      color: var(--dark-gray);
-      background-color: #f5f7fa;
-      margin: 0;
-      -webkit-user-select: none;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.875rem;
+      line-height: 1.4;
+      color: var(--dark-text);
+      background: var(--light-bg);
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
       user-select: none;
-      touch-action: manipulation;
+      overflow-x: hidden;
+      padding-bottom: calc(var(--bottom-nav-height) + var(--safe-area-inset-bottom));
+      min-height: 100vh;
     }
-    
+
     [ng-cloak] {
       display: none !important;
     }
 
-    /* Login Container */
+    /* Login Screen */
     #login-container {
-      background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://hunkaammy.github.io/mywebsite/NEWWEBSITE/loginpg.jpeg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
       min-height: 100vh;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 20px;
+      padding: 1rem;
     }
 
     #inside {
-      background: white;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-      text-align: center;
+      background: var(--white);
       width: 100%;
       max-width: 400px;
-      animation: slideUp 0.5s ease;
-    }
-
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      border-radius: 20px;
+      padding: 2rem 1.5rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      text-align: center;
     }
 
     #inside h2 {
       color: var(--primary-color);
+      font-size: 1.75rem;
       font-weight: 700;
-      margin-bottom: 30px;
-      font-size: 24px;
+      margin-bottom: 2rem;
     }
 
     #inside input {
-      padding: 12px 15px;
-      border: 2px solid #e1e5e9;
-      border-radius: 10px;
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      font-size: 1rem;
+      margin-bottom: 1rem;
       transition: all 0.3s ease;
-      font-size: 15px;
+      background: var(--white);
     }
 
     #inside input:focus {
@@ -97,127 +109,163 @@
     }
 
     #inside button {
-      padding: 12px;
-      font-weight: 600;
-      font-size: 16px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, var(--primary-color), #2e7d32);
+      width: 100%;
+      padding: 0.875rem;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: var(--white);
       border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
       transition: all 0.3s ease;
+      margin-top: 0.5rem;
     }
 
     #inside button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(56, 142, 60, 0.3);
+      box-shadow: 0 8px 20px rgba(56, 142, 60, 0.3);
     }
 
-    /* Main Content Container */
-    #content, .search-results-container {
-      max-width: 768px;
-      margin: 0 auto;
-      box-sizing: border-box;
+    /* Main App Container */
+    #content {
+      display: none;
+      max-width: 100%;
+      overflow-x: hidden;
     }
 
-    /* Navbar */
+    /* Top Navigation */
     .navbar {
-      background: rgba(255, 255, 255, 0.98);
-      padding: 12px 15px;
       position: fixed;
-      width: 100%;
-      max-width: 768px;
       top: 0;
-      z-index: 1030;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      left: 50%;
-      transform: translateX(-50%);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      left: 0;
+      right: 0;
+      height: var(--nav-height);
+      background: var(--white);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      z-index: 1000;
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
     }
 
-    .search-box {
+    .search-container {
       flex: 1;
       position: relative;
+      max-width: 400px;
     }
 
-    .search-box input {
-      padding: 10px 15px 10px 40px;
-      border-radius: 25px;
-      border: 2px solid #e1e5e9;
-      background: #f8f9fa;
-      font-size: 14px;
-      transition: all 0.3s ease;
+    .search-container input {
       width: 100%;
+      padding: 0.625rem 0.75rem 0.625rem 2.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      font-size: 0.875rem;
+      background: #f5f5f5;
+      transition: all 0.3s ease;
     }
 
-    .search-box input:focus {
+    .search-container input:focus {
+      background: var(--white);
       border-color: var(--primary-color);
-      background: white;
       box-shadow: 0 0 0 3px rgba(56, 142, 60, 0.1);
-      outline: none;
     }
 
-    .search-box i {
+    .search-container .search-icon {
       position: absolute;
-      left: 15px;
+      left: 0.875rem;
       top: 50%;
       transform: translateY(-50%);
-      color: var(--medium-gray);
-      font-size: 14px;
+      color: var(--medium-text);
+      font-size: 0.875rem;
     }
 
-    /* Menu Dropdown */
     .menu-btn {
       width: 40px;
       height: 40px;
       border-radius: 50%;
+      border: none;
+      background: #f5f5f5;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.3s ease;
-      background: #f8f9fa;
-      border: none;
+      color: var(--dark-text);
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
     }
 
-    .menu-btn:hover {
-      background: #e9ecef;
-      transform: rotate(90deg);
-    }
-
-    .dropdown-menu {
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-      border: none;
-      padding: 8px;
-      margin-top: 10px;
-    }
-
-    .dropdown-item {
-      padding: 10px 15px;
-      border-radius: 8px;
-      font-size: 14px;
-      transition: all 0.2s ease;
+    .notification-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: var(--danger-color);
+      color: var(--white);
+      font-size: 0.625rem;
+      font-weight: 700;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: center;
     }
 
-    .dropdown-item:hover {
-      background: #f8f9fa;
-      transform: translateX(5px);
-    }
-
-    /* Price Toggle */
-    .price-toggle-container {
-      background: #f8f9fa;
-      padding: 6px 12px;
-      border-radius: 20px;
+    /* User Info Bar */
+    .user-bar {
+      background: var(--white);
+      padding: 0.75rem 1rem;
+      margin-top: var(--nav-height);
+      border-bottom: 1px solid var(--border-color);
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: var(--medium-gray);
-      font-weight: 500;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .user-info .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-weight: 600;
+      font-size: 0.875rem;
+      flex-shrink: 0;
+    }
+
+    .user-info .name {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--dark-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .price-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+    }
+
+    .price-toggle span {
+      font-size: 0.75rem;
+      color: var(--medium-text);
     }
 
     .form-check-input:checked {
@@ -225,731 +273,313 @@
       border-color: var(--primary-color);
     }
 
-    .form-check-input:focus {
-      box-shadow: 0 0 0 0.25rem rgba(56, 142, 60, 0.25);
+    /* Main Content */
+    .main-content {
+      padding: 1rem;
+      padding-bottom: calc(var(--bottom-nav-height) + 1rem + var(--safe-area-inset-bottom));
     }
 
-    /* Product Grid - IMPROVED FOR MOBILE */
-    .product-grid {
+    /* Category Tabs - Mobile Optimized */
+    .category-tabs {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding: 0.5rem 0;
+      margin: -0.5rem -1rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .category-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .category-tab {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 12px;
+      background: var(--white);
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 70px;
+      max-width: 90px;
+      text-align: center;
+    }
+
+    .category-tab:hover,
+    .category-tab.active {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      border-color: var(--primary-color);
+      color: var(--white);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(56, 142, 60, 0.2);
+    }
+
+    .category-tab.active .tab-text {
+      color: var(--white);
+    }
+
+    .tab-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f5f5f5;
+    }
+
+    .category-tab.active .tab-icon {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .tab-icon img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+
+    .tab-text {
+      font-size: 0.7rem;
+      font-weight: 500;
+      line-height: 1.2;
+      color: var(--dark-text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      max-height: 2.4em;
+    }
+
+    /* Products Grid - Mobile Optimized */
+    .products-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 15px;
-      padding: 5px;
-    }
-
-    @media (max-width: 767.98px) {
-      .product-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-        padding: 8px;
-      }
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 0.75rem;
+      margin-top: 1rem;
     }
 
     @media (max-width: 480px) {
-      .product-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
+      .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.625rem;
       }
     }
 
-    /* Product Card */
-    .card {
-      background: white;
-      border-radius: 16px;
+    @media (max-width: 360px) {
+      .products-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
+    }
+
+    /* Product Card - Mobile Optimized */
+    .product-card {
+      background: var(--white);
+      border-radius: 12px;
       overflow: hidden;
       box-shadow: var(--card-shadow);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.3s ease;
       display: flex;
       flex-direction: column;
       height: 100%;
       position: relative;
-      border: 1px solid rgba(0, 0, 0, 0.05);
     }
 
-    .card:hover {
-      transform: translateY(-6px);
+    .product-card:hover {
+      transform: translateY(-4px);
       box-shadow: var(--card-shadow-hover);
     }
 
-    /* Image Container - FIXED FOR MOBILE */
-    .card-image-container {
+    .product-image-container {
       position: relative;
       width: 100%;
-      padding-top: 100%; /* Creates square aspect ratio */
+      padding-top: 100%;
+      background: #f5f5f5;
       overflow: hidden;
-      background: linear-gradient(135deg, #f5f7fa, #e4e8ed);
     }
 
-    .card img {
+    .product-image {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      object-fit: contain; /* Ensures full image fits within container */
-      padding: 15px;
+      object-fit: contain;
+      padding: 0.75rem;
       cursor: pointer;
-      transition: transform 0.5s ease;
-      transform-origin: center;
+      transition: transform 0.3s ease;
     }
 
-    .card img:hover {
+    .product-image:hover {
       transform: scale(1.05);
     }
 
-    /* Zoom Icon on Image */
     .zoom-indicator {
       position: absolute;
-      bottom: 10px;
-      right: 10px;
+      bottom: 8px;
+      right: 8px;
       background: rgba(0, 0, 0, 0.7);
-      color: white;
-      width: 28px;
-      height: 28px;
+      color: var(--white);
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
+      font-size: 0.75rem;
       opacity: 0;
       transition: opacity 0.3s ease;
-      pointer-events: none;
     }
 
-    .card-image-container:hover .zoom-indicator {
+    .product-image-container:hover .zoom-indicator {
       opacity: 1;
     }
 
-    /* Card Content */
-    .card-content {
-      padding: 15px;
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
+    .out-of-stock-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(244, 67, 54, 0.9);
+      color: var(--white);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.625rem;
+      font-weight: 600;
+      z-index: 1;
     }
 
-    .card-title {
-      font-size: 13px;
+    .product-info {
+      padding: 0.75rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .product-name {
       font-weight: 600;
-      line-height: 1.4;
-      margin-bottom: 8px;
-      color: var(--dark-gray);
-      min-height: 36px;
+      font-size: 0.875rem;
+      line-height: 1.3;
+      color: var(--dark-text);
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      min-height: 2.6em;
     }
 
-    .card-price {
+    .product-price {
       color: var(--primary-color);
       font-weight: 700;
-      font-size: 16px;
-      margin: 8px 0;
+      font-size: 1rem;
+      margin: 0.25rem 0;
     }
 
-    .card-actions {
+    .price-hidden {
+      color: var(--medium-text);
+      font-size: 0.75rem;
+      font-style: italic;
+    }
+
+    .product-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
       margin-top: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
     }
 
-    /* Quantity Input */
-    .qtyclass {
+    .quantity-input {
       width: 100%;
-      height: 38px;
-      border: 2px solid #e1e5e9;
-      border-radius: 10px;
-      text-align: center;
-      font-size: 14px;
-      font-weight: 600;
-      background: #f8f9fa;
-      transition: all 0.3s ease;
-    }
-
-    .qtyclass:focus {
-      border-color: var(--primary-color);
-      background: white;
-      box-shadow: 0 0 0 3px rgba(56, 142, 60, 0.1);
-      outline: none;
-    }
-
-    /* Watch Video Button */
-    .watch-video-btn {
-      width: 100%;
-      height: 36px;
-      background: linear-gradient(135deg, var(--secondary-color), #0b5ed7);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: all 0.3s ease;
-    }
-
-    .watch-video-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(13, 110, 253, 0.25);
-    }
-
-    .watch-video-btn i {
-      font-size: 12px;
-    }
-
-    /* Fixed Your Order Button */
-    .fixed-order-button {
-      position: fixed;
-      bottom: 25px;
-      right: 25px;
-      z-index: 1070;
-      background: linear-gradient(135deg, var(--primary-color), #2e7d32);
-      color: white;
-      border: none;
-      border-radius: 50px;
-      padding: 14px 22px;
-      font-size: 14px;
-      font-weight: 700;
-      box-shadow: 0 10px 30px rgba(56, 142, 60, 0.4);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      animation: float 3s ease-in-out infinite;
-    }
-
-    @keyframes float {
-      0%, 100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(-5px);
-      }
-    }
-
-    .fixed-order-button:hover {
-      transform: translateY(-5px) scale(1.05);
-      box-shadow: 0 15px 35px rgba(56, 142, 60, 0.5);
-    }
-
-    .fixed-order-button .badge {
-      background: rgba(255, 255, 255, 0.25);
-      border-radius: 12px;
-      padding: 4px 10px;
-      font-size: 12px;
-      font-weight: 700;
-      backdrop-filter: blur(5px);
-    }
-
-    @media (max-width: 767.98px) {
-      .fixed-order-button {
-        bottom: 20px;
-        right: 20px;
-        padding: 12px 18px;
-        font-size: 13px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .fixed-order-button {
-        bottom: 15px;
-        right: 15px;
-        padding: 10px 16px;
-        font-size: 12px;
-      }
-    }
-
-    /* Main Layout */
-    .main-content-layout {
-      display: flex;
-      gap: 20px;
-      max-width: 768px;
-      margin: 0 auto;
-      min-height: calc(100vh - 70px);
-      padding-top: 80px;
-      padding-bottom: 100px;
-    }
-
-    /* Sidebar - IMPROVED FOR MOBILE */
-    .sidebar-container {
-      flex-shrink: 0;
-      width: 180px;
-      background: linear-gradient(135deg, #ffffff, #f8f9fa);
-      border-radius: 20px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-      padding: 20px 12px;
-      position: sticky;
-      top: 90px;
-      align-self: flex-start;
-      max-height: calc(100vh - 120px);
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: #c1c1c1 transparent;
-      border: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    .sidebar-container::-webkit-scrollbar {
-      width: 4px;
-    }
-
-    .sidebar-container::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    .sidebar-container::-webkit-scrollbar-thumb {
-      background: #c1c1c1;
-      border-radius: 10px;
-    }
-
-    @media (max-width: 767.98px) {
-      .main-content-layout {
-        flex-direction: row;
-        gap: 10px;
-        padding: 80px 10px 100px;
-      }
-
-      .sidebar-container {
-        width: 85px;
-        padding: 15px 8px;
-        position: fixed;
-        left: 10px;
-        top: 80px;
-        bottom: 20px;
-        z-index: 1010;
-        border-radius: 16px;
-        max-height: calc(100vh - 100px);
-      }
-    }
-
-    @media (max-width: 480px) {
-      .sidebar-container {
-        width: 70px;
-        padding: 12px 6px;
-      }
-    }
-
-    /* Category Tabs */
-    .vertical-tabs {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .tab-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 12px 8px;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      gap: 8px;
-      border: 2px solid transparent;
-      background: white;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-      position: relative;
-      text-align: center;
-    }
-
-    .tab-item:hover {
-      background: linear-gradient(135deg, #f8f9fa, #f0f4f8);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(56, 142, 60, 0.1);
-      border-color: rgba(56, 142, 60, 0.1);
-    }
-
-    .tab-item.active {
-      background: linear-gradient(135deg, var(--primary-color), #2e7d32);
-      color: white;
-      box-shadow: 0 8px 20px rgba(56, 142, 60, 0.3);
-      transform: scale(1.02);
-      border-color: var(--primary-color);
-    }
-
-    .tab-icon-img {
-      width: 36px;
-      height: 36px;
-      object-fit: cover;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-    }
-
-    .tab-item:hover .tab-icon-img {
-      transform: scale(1.1);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .tab-item.active .tab-icon-img {
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-      border: 2px solid rgba(255, 255, 255, 0.3);
-    }
-
-    .tab-text {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--dark-gray);
-      line-height: 1.3;
-      width: 100%;
-      word-break: break-word;
-    }
-
-    .tab-item.active .tab-text {
-      color: white;
-    }
-
-    .tab-count {
-      font-size: 10px;
-      color: var(--medium-gray);
-      font-weight: 500;
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      background: rgba(0, 0, 0, 0.05);
+      padding: 0.5rem;
+      border: 1px solid var(--border-color);
       border-radius: 8px;
-      padding: 2px 6px;
-    }
-
-    .tab-item.active .tab-count {
-      background: rgba(255, 255, 255, 0.2);
-      color: rgba(255, 255, 255, 0.9);
-    }
-
-    /* Products Container */
-    .products-container {
-      flex: 1;
-      min-width: 0;
-    }
-
-    @media (max-width: 767.98px) {
-      .products-container {
-        margin-left: 95px;
-        width: calc(100% - 95px);
-      }
-    }
-
-    @media (max-width: 480px) {
-      .products-container {
-        margin-left: 80px;
-        width: calc(100% - 80px);
-      }
-    }
-
-    .products-header {
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: var(--card-shadow);
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 15px;
-      border: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    .products-title {
-      margin: 0;
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--dark-gray);
-      flex: 1;
-    }
-
-    .sort-select {
-      min-width: 160px;
-      padding: 8px 15px;
-      border: 2px solid #e1e5e9;
-      border-radius: 10px;
-      background: #f8f9fa;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 600;
+      background: #f9f9f9;
       transition: all 0.3s ease;
     }
 
-    .sort-select:focus {
+    .quantity-input:focus {
       border-color: var(--primary-color);
-      background: white;
-      box-shadow: 0 0 0 3px rgba(56, 142, 60, 0.1);
+      background: var(--white);
       outline: none;
     }
 
-    .products-content {
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: var(--card-shadow);
-      border: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    /* Loading Skeletons */
-    .skeleton-card {
-      background: white;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: var(--card-shadow);
-      animation: skeleton-pulse 1.5s infinite ease-in-out;
-    }
-
-    .skeleton-image {
+    .video-btn {
       width: 100%;
-      padding-top: 100%;
-      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-    }
-
-    @keyframes shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-
-    .skeleton-text {
-      height: 14px;
-      background: #f0f0f0;
-      border-radius: 7px;
-      margin: 10px 15px;
-      animation: skeleton-pulse 1.5s infinite ease-in-out;
-    }
-
-    .skeleton-text.short {
-      width: 60%;
-    }
-
-    /* Search Results */
-    .search-results-container {
-      padding: 90px 20px 100px;
-      min-height: 100vh;
-    }
-
-    .search-title {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 25px;
-      color: var(--dark-gray);
-      padding: 0 10px;
-    }
-
-    /* Empty State */
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--medium-gray);
-    }
-
-    .empty-state-icon {
-      font-size: 60px;
-      color: #e1e5e9;
-      margin-bottom: 20px;
-      opacity: 0.5;
-    }
-
-    .empty-state-text {
-      font-size: 16px;
-      line-height: 1.6;
-      max-width: 300px;
-      margin: 0 auto;
-    }
-
-    /* Enlarged Image Overlay - IMPROVED */
-    .enlarged-image-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.95);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1080;
-      animation: fadeIn 0.3s ease;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-    }
-
-    .enlarged-image-content {
-      max-width: 95vw;
-      max-height: 95vh;
-      object-fit: contain;
-      animation: zoomIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      border-radius: 12px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    }
-
-    .close-enlarged {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: rgba(255, 255, 255, 0.1);
+      padding: 0.5rem;
+      background: linear-gradient(135deg, var(--secondary-color), #1976d2);
+      color: var(--white);
       border: none;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
-      font-size: 20px;
-      cursor: pointer;
+      gap: 0.375rem;
       transition: all 0.3s ease;
-      backdrop-filter: blur(5px);
-      -webkit-backdrop-filter: blur(5px);
     }
 
-    .close-enlarged:hover {
-      background: rgba(255, 255, 255, 0.2);
-      transform: rotate(90deg);
-    }
-
-    /* Order Item Styles */
-    .order-item {
-      display: flex;
-      align-items: center;
-      padding: 15px;
-      border-radius: 12px;
-      margin-bottom: 10px;
-      background: #f8f9fa;
-      transition: all 0.3s ease;
-      border: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    .order-item:hover {
-      background: #f0f4f8;
+    .video-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
     }
 
-    .order-item-img {
-      width: 70px;
-      height: 70px;
-      object-fit: contain;
-      border-radius: 10px;
-      margin-right: 15px;
-      flex-shrink: 0;
-      background: white;
-      padding: 5px;
-      border: 1px solid #e1e5e9;
+    .video-btn i {
+      font-size: 0.75rem;
     }
 
-    .order-item-details {
-      flex: 1;
-      min-width: 0;
+    .admin-action {
+      margin-top: 0.5rem;
     }
 
-    .order-item-name {
+    .out-of-stock-btn {
+      width: 100%;
+      padding: 0.5rem;
+      background: transparent;
+      color: var(--danger-color);
+      border: 1px solid var(--danger-color);
+      border-radius: 8px;
+      font-size: 0.75rem;
       font-weight: 600;
-      font-size: 14px;
-      margin-bottom: 5px;
-      line-height: 1.4;
-      color: var(--dark-gray);
-    }
-
-    .order-item-price {
-      color: var(--primary-color);
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    .order-item-qty {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .qty-btn {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      border: 2px solid #e1e5e9;
-      background: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       cursor: pointer;
       transition: all 0.3s ease;
-      font-weight: 600;
-      color: var(--dark-gray);
     }
 
-    .qty-btn:hover {
-      border-color: var(--primary-color);
-      background: #f8f9fa;
-      transform: scale(1.1);
-    }
-
-    .qty-display {
-      min-width: 40px;
-      text-align: center;
-      font-weight: 700;
-      font-size: 16px;
-      color: var(--dark-gray);
-    }
-
-    .delete-btn {
-      color: var(--danger-color);
-      border-color: rgba(220, 53, 69, 0.2);
-    }
-
-    .delete-btn:hover {
+    .out-of-stock-btn:hover {
       background: var(--danger-color);
-      color: white;
-      border-color: var(--danger-color);
-    }
-
-    /* Notification Badge */
-    .notification-badge {
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      background: linear-gradient(135deg, var(--danger-color), #c82333);
-      color: white;
-      font-size: 11px;
-      font-weight: 700;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% {
-        transform: scale(1);
-      }
-      50% {
-        transform: scale(1.1);
-      }
+      color: var(--white);
     }
 
     /* Saved Feedback */
     .saved-feedback {
       position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(56, 142, 60, 0.9);
-      color: white;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 11px;
+      top: 8px;
+      right: 8px;
+      background: rgba(76, 175, 80, 0.9);
+      color: var(--white);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.625rem;
       font-weight: 600;
+      z-index: 1;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 0.25rem;
       animation: slideIn 0.3s ease, fadeOut 0.3s ease 1.7s forwards;
-      z-index: 1;
     }
 
     @keyframes slideIn {
@@ -969,356 +599,912 @@
       }
     }
 
-    /* Modal Improvements */
-    .modal-content {
-      border-radius: 20px;
-      border: none;
-      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+    /* Bottom Navigation - Mobile */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: calc(var(--bottom-nav-height) + var(--safe-area-inset-bottom));
+      background: var(--white);
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+      z-index: 1000;
+      padding: 0.5rem 1rem var(--safe-area-inset-bottom);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.5rem;
+      border-radius: 8px;
+      color: var(--medium-text);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      min-width: 0;
+    }
+
+    .nav-item:hover,
+    .nav-item.active {
+      color: var(--primary-color);
+      background: rgba(56, 142, 60, 0.05);
+    }
+
+    .nav-icon {
+      font-size: 1.25rem;
+    }
+
+    .nav-text {
+      font-size: 0.625rem;
+      font-weight: 500;
+      white-space: nowrap;
       overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .order-btn {
+      flex: 2;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: var(--white);
+      border: none;
+      border-radius: 12px;
+      padding: 0.75rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(56, 142, 60, 0.3);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+    .order-btn:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 8px 20px rgba(56, 142, 60, 0.4);
+    }
+
+    .order-count {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.125rem 0.5rem;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    /* Search Results */
+    .search-results {
+      padding: 1rem;
+      padding-bottom: calc(var(--bottom-nav-height) + 1rem + var(--safe-area-inset-bottom));
+      margin-top: var(--nav-height);
+    }
+
+    .search-header {
+      margin-bottom: 1rem;
+    }
+
+    .search-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--dark-text);
+      margin-bottom: 0.5rem;
+    }
+
+    .search-query {
+      color: var(--primary-color);
+    }
+
+    .results-count {
+      color: var(--medium-text);
+      font-size: 0.875rem;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+
+    .empty-icon {
+      font-size: 3rem;
+      color: #e0e0e0;
+      margin-bottom: 1rem;
+    }
+
+    .empty-text {
+      color: var(--medium-text);
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .empty-subtext {
+      color: var(--light-text);
+      font-size: 0.875rem;
+    }
+
+    /* Loading States */
+    .skeleton-loader {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .skeleton-card {
+      background: var(--white);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--card-shadow);
+    }
+
+    .skeleton-image {
+      width: 100%;
+      padding-top: 100%;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+
+    .skeleton-content {
+      padding: 0.75rem;
+    }
+
+    .skeleton-line {
+      height: 0.75rem;
+      background: #f0f0f0;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+    }
+
+    .skeleton-line.short {
+      width: 60%;
+    }
+
+    .skeleton-line.medium {
+      width: 80%;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: -200% 0;
+      }
+      100% {
+        background-position: 200% 0;
+      }
+    }
+
+    /* Category Skeleton */
+    .category-skeleton {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding: 0.5rem 0;
+      margin: -0.5rem -1rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .skeleton-tab {
+      flex-shrink: 0;
+      width: 70px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+    }
+
+    .skeleton-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: #f0f0f0;
+      animation: shimmer 1.5s infinite;
+    }
+
+    .skeleton-text {
+      width: 60%;
+      height: 0.5rem;
+      background: #f0f0f0;
+      border-radius: 2px;
+      animation: shimmer 1.5s infinite;
+    }
+
+    /* Modal Styles */
+    .modal-content {
+      border-radius: 16px;
+      border: none;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
     }
 
     .modal-header {
-      background: linear-gradient(135deg, #f8f9fa, #ffffff);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-      padding: 20px;
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--white);
+      border-radius: 16px 16px 0 0;
+      position: sticky;
+      top: 0;
+      z-index: 1;
     }
 
     .modal-title {
-      font-weight: 700;
-      color: var(--dark-gray);
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--dark-text);
+      margin: 0;
     }
 
     .modal-body {
       max-height: 70vh;
       overflow-y: auto;
-      padding: 20px;
+      padding: 1rem;
     }
 
     .modal-footer {
-      background: #f8f9fa;
-      border-top: 1px solid rgba(0, 0, 0, 0.05);
-      padding: 20px;
+      padding: 1rem;
+      border-top: 1px solid var(--border-color);
+      background: #f9f9f9;
+      border-radius: 0 0 16px 16px;
     }
 
-    /* Scrollbar Styling */
+    /* Order Items in Modal */
+    .order-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .order-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: #f9f9f9;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .order-item:hover {
+      background: #f0f0f0;
+    }
+
+    .order-item-image {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      object-fit: contain;
+      background: var(--white);
+      flex-shrink: 0;
+    }
+
+    .order-item-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .order-item-name {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--dark-text);
+      margin-bottom: 0.25rem;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .order-item-price {
+      color: var(--primary-color);
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .order-item-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .qty-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--border-color);
+      background: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--dark-text);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .qty-btn:hover {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .qty-display {
+      min-width: 30px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--dark-text);
+    }
+
+    .delete-btn {
+      color: var(--danger-color);
+      border-color: rgba(244, 67, 54, 0.3);
+    }
+
+    .delete-btn:hover {
+      background: var(--danger-color);
+      color: var(--white);
+      border-color: var(--danger-color);
+    }
+
+    .order-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      font-size: 1.125rem;
+      color: var(--primary-color);
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    /* Enlarged Image Overlay */
+    .image-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 1rem;
+    }
+
+    .image-overlay img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+      animation: zoomIn 0.3s ease;
+    }
+
+    @keyframes zoomIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .close-overlay {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      color: var(--white);
+      font-size: 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+      transition: all 0.3s ease;
+    }
+
+    .close-overlay:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: rotate(90deg);
+    }
+
+    /* Video Modal */
+    .video-modal video {
+      width: 100%;
+      border-radius: 8px;
+      background: #000;
+    }
+
+    /* Dropdown Menu */
+    .dropdown-menu {
+      border: none;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      border-radius: 12px;
+      padding: 0.5rem;
+      min-width: 200px;
+    }
+
+    .dropdown-item {
+      padding: 0.625rem 1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      color: var(--dark-text);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .dropdown-item:hover {
+      background: #f5f5f5;
+      color: var(--primary-color);
+    }
+
+    .dropdown-item.text-danger:hover {
+      background: rgba(244, 67, 54, 0.05);
+      color: var(--danger-color);
+    }
+
+    /* Sort Select */
+    .sort-select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--white);
+      color: var(--dark-text);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .sort-select:focus {
+      border-color: var(--primary-color);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(56, 142, 60, 0.1);
+    }
+
+    /* Scrollbar */
     ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
+      width: 4px;
+      height: 4px;
     }
 
     ::-webkit-scrollbar-track {
       background: #f1f1f1;
-      border-radius: 10px;
+      border-radius: 4px;
     }
 
     ::-webkit-scrollbar-thumb {
       background: #c1c1c1;
-      border-radius: 10px;
-      transition: background 0.3s ease;
+      border-radius: 4px;
     }
 
     ::-webkit-scrollbar-thumb:hover {
       background: #a8a8a8;
     }
 
-    /* Responsive Utilities */
-    .mobile-only {
-      display: none;
-    }
-
-    .desktop-only {
-      display: block;
-    }
-
-    @media (max-width: 767.98px) {
-      .mobile-only {
-        display: block;
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 0.5rem 0.75rem;
       }
-      .desktop-only {
-        display: none;
+      
+      .user-bar {
+        padding: 0.75rem;
+      }
+      
+      .main-content {
+        padding: 0.75rem;
+        padding-bottom: calc(var(--bottom-nav-height) + 0.75rem + var(--safe-area-inset-bottom));
+      }
+      
+      .products-grid {
+        gap: 0.5rem;
+      }
+      
+      .bottom-nav {
+        padding: 0.5rem 0.75rem var(--safe-area-inset-bottom);
+      }
+      
+      .order-btn {
+        padding: 0.625rem;
+        font-size: 0.75rem;
       }
     }
 
-    /* Loading Animation */
-    .loading-spinner {
-      width: 40px;
-      height: 40px;
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid var(--primary-color);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 20px auto;
+    @media (max-width: 480px) {
+      .navbar {
+        padding: 0.5rem;
+      }
+      
+      .search-container input {
+        padding: 0.5rem 0.625rem 0.5rem 2rem;
+        font-size: 0.8125rem;
+      }
+      
+      .search-container .search-icon {
+        left: 0.75rem;
+        font-size: 0.75rem;
+      }
+      
+      .menu-btn {
+        width: 36px;
+        height: 36px;
+      }
+      
+      .user-bar {
+        padding: 0.5rem;
+      }
+      
+      .user-info .avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.75rem;
+      }
+      
+      .user-info .name {
+        font-size: 0.8125rem;
+      }
+      
+      .price-toggle span {
+        font-size: 0.6875rem;
+      }
+      
+      .main-content {
+        padding: 0.5rem;
+        padding-bottom: calc(var(--bottom-nav-height) + 0.5rem + var(--safe-area-inset-bottom));
+      }
+      
+      .category-tab {
+        min-width: 65px;
+        max-width: 75px;
+        padding: 0.375rem 0.5rem;
+      }
+      
+      .tab-icon {
+        width: 28px;
+        height: 28px;
+      }
+      
+      .tab-icon img {
+        width: 20px;
+        height: 20px;
+      }
+      
+      .tab-text {
+        font-size: 0.625rem;
+      }
+      
+      .product-name {
+        font-size: 0.8125rem;
+      }
+      
+      .product-price {
+        font-size: 0.875rem;
+      }
+      
+      .quantity-input {
+        padding: 0.375rem;
+        font-size: 0.8125rem;
+      }
+      
+      .video-btn {
+        padding: 0.375rem;
+        font-size: 0.6875rem;
+      }
+      
+      .out-of-stock-btn {
+        padding: 0.375rem;
+        font-size: 0.6875rem;
+      }
+      
+      .bottom-nav {
+        padding: 0.375rem 0.5rem var(--safe-area-inset-bottom);
+      }
+      
+      .nav-icon {
+        font-size: 1.125rem;
+      }
+      
+      .nav-text {
+        font-size: 0.5625rem;
+      }
+      
+      .order-btn {
+        padding: 0.5rem;
+        font-size: 0.6875rem;
+      }
     }
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* Out of Stock Badge */
-    .out-of-stock-badge {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: rgba(220, 53, 69, 0.9);
-      color: white;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 10px;
-      font-weight: 700;
-      z-index: 1;
-      backdrop-filter: blur(5px);
-      -webkit-backdrop-filter: blur(5px);
-    }
-
-    /* Price Hidden State */
-    .price-hidden {
-      color: var(--medium-gray);
-      font-style: italic;
-      font-size: 13px;
+    /* Safe Area Support */
+    @supports (padding-top: env(safe-area-inset-top)) {
+      .navbar {
+        padding-top: calc(0.5rem + env(safe-area-inset-top));
+        height: calc(var(--nav-height) + env(safe-area-inset-top));
+      }
+      
+      .user-bar {
+        margin-top: calc(var(--nav-height) + env(safe-area-inset-top));
+      }
+      
+      .search-results {
+        margin-top: calc(var(--nav-height) + env(safe-area-inset-top));
+      }
     }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 </head>
 <body ng-controller="imagesController as vm">
-  <!-- Login Container -->
+  <!-- Login Screen -->
   <div id="login-container">
     <div id="inside">
       <h2>HINDUSTAN TOYS</h2>
-      <input type="text" id="name" placeholder="Enter your shop name" class="form-control mb-3" autocomplete="off">
-      <input type="tel" id="mobile" placeholder="Enter your mobile number" class="form-control mb-4" autocomplete="off">
+      <input type="text" id="name" placeholder="Shop Name" class="form-control mb-3" autocomplete="off">
+      <input type="tel" id="mobile" placeholder="Mobile Number" class="form-control mb-4" autocomplete="off">
       <button class="btn btn-success w-100" onclick="validateLogin()">
         <i class="fas fa-sign-in-alt me-2"></i>Login
       </button>
     </div>
   </div>
 
-  <!-- Main Content -->
+  <!-- Main App -->
   <div id="content" style="display: none;">
-    <!-- Navbar -->
-    <div class="navbar">
-      <div class="d-flex w-100 align-items-center justify-content-between">
-        <!-- Search Box -->
-        <div class="search-box">
-          <i class="fas fa-search"></i>
-          <input type="text" 
-                 ng-model="searchQuery" 
-                 ng-change="onSearchChange()" 
-                 ng-model-options="{ debounce: 400 }"
-                 placeholder="Search products...">
-        </div>
-        
-        <!-- Menu Button -->
-        <div class="dropdown">
-          <button class="menu-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-bars"></i>
-            <span class="notification-badge" ng-if="orderCount > 0">{{orderCount}}</span>
-          </button>
-          <ul class="dropdown-menu">
-            <li>
-              <a class="dropdown-item" href="#" ng-click="openOrderModal()">
-                <i class="fas fa-shopping-cart"></i>
-                Your Order
-                <span class="badge bg-primary float-end" ng-if="orderCount > 0">{{orderCount}}</span>
-              </a>
-            </li>
-            <li><hr class="dropdown-divider"></li>
-            <li>
-              <a class="dropdown-item text-danger" href="#" ng-click="logout()">
-                <i class="fas fa-sign-out-alt"></i>
-                Logout
-              </a>
-            </li>
-          </ul>
-        </div>
+    <!-- Top Navigation -->
+    <nav class="navbar">
+      <div class="search-container">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" 
+               ng-model="searchQuery" 
+               ng-change="onSearchChange()" 
+               ng-model-options="{ debounce: 400 }"
+               placeholder="Search products...">
       </div>
-      
-      <!-- Welcome and Price Toggle -->
-      <div class="d-flex w-100 justify-content-between align-items-center mt-3">
-        <small class="text-muted">
-          <i class="fas fa-store me-2"></i>
-          Welcome, <strong>{{dynamicField2Value}}</strong>
-        </small>
-        <div class="price-toggle-container">
-          <i class="fas fa-tag"></i>
-          <span>Show Prices</span>
-          <div class="form-check form-switch mb-0 ms-2">
-            <input class="form-check-input" type="checkbox" role="switch" id="priceToggle" 
-                   ng-model="priceVisible" ng-change="togglePriceVisibility()">
-          </div>
+      <button class="menu-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-bars"></i>
+        <span class="notification-badge" ng-if="orderCount > 0">{{orderCount}}</span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li>
+          <a class="dropdown-item" href="#" ng-click="openOrderModal()">
+            <i class="fas fa-shopping-cart"></i>
+            Your Order
+            <span class="badge bg-primary float-end" ng-if="orderCount > 0">{{orderCount}}</span>
+          </a>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <a class="dropdown-item text-danger" href="#" ng-click="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- User Info Bar -->
+    <div class="user-bar">
+      <div class="user-info">
+        <div class="avatar">
+          {{dynamicField2Value ? dynamicField2Value.charAt(0) : 'U'}}
+        </div>
+        <div class="name">{{dynamicField2Value || 'User'}}</div>
+      </div>
+      <div class="price-toggle">
+        <span>Show Prices</span>
+        <div class="form-check form-switch mb-0">
+          <input class="form-check-input" type="checkbox" role="switch" id="priceToggle" 
+                 ng-model="priceVisible" ng-change="togglePriceVisibility()">
         </div>
       </div>
     </div>
 
-    <!-- Fixed Your Order Button -->
-    <button class="fixed-order-button" 
-            ng-if="dynamicField2Value && !isOrderModalOpen && !isEnlargedImageOpen" 
-            ng-click="openOrderModal()">
-      <i class="fas fa-shopping-cart"></i>
-      Your Order
-      <span class="badge" ng-if="orderCount > 0">{{orderCount}}</span>
-    </button>
+    <!-- Search Results View -->
+    <div class="search-results" ng-if="isSearching">
+      <div class="search-header">
+        <h2 class="search-title">Search Results <span class="search-query">"{{searchQuery}}"</span></h2>
+        <div class="results-count">{{searchResults.length}} products found</div>
+      </div>
 
-    <!-- Search Results -->
-    <div class="search-results-container" ng-if="isSearching">
-      <h2 class="search-title">Search Results for "{{ searchQuery }}"</h2>
-      
       <!-- Loading State -->
-      <div ng-if="isLoadingSearchResults">
-        <div class="product-grid">
-          <div class="skeleton-card" ng-repeat="i in [1,2,3,4,5,6]">
-            <div class="skeleton-image"></div>
-            <div class="skeleton-text short"></div>
-            <div class="skeleton-text"></div>
+      <div class="skeleton-loader" ng-if="isLoadingSearchResults">
+        <div class="skeleton-card" ng-repeat="i in [1,2,3,4]">
+          <div class="skeleton-image"></div>
+          <div class="skeleton-content">
+            <div class="skeleton-line medium"></div>
+            <div class="skeleton-line short"></div>
           </div>
         </div>
       </div>
 
-      <!-- Search Results -->
-      <div ng-if="!isLoadingSearchResults">
-        <div class="product-grid">
-          <div class="card" ng-repeat="product in searchResults">
-            <div class="card-image-container">
-              <img ng-src="{{product.url}}" alt="{{product.name}}" 
-                   ng-click="showEnlargedImage(product.url)" loading="lazy">
-              <div class="zoom-indicator">
-                <i class="fas fa-search-plus"></i>
-              </div>
-              <span class="saved-feedback" ng-if="product.justSaved">
-                <i class="fas fa-check"></i> Saved!
-              </span>
+      <!-- Results Grid -->
+      <div class="products-grid" ng-if="!isLoadingSearchResults">
+        <div class="product-card" ng-repeat="product in searchResults">
+          <div class="product-image-container">
+            <img ng-src="{{product.url}}" alt="{{product.name}}" 
+                 class="product-image" ng-click="showEnlargedImage(product.url)">
+            <div class="zoom-indicator">
+              <i class="fas fa-search-plus"></i>
             </div>
-            <div class="card-content">
-              <div class="card-title">{{product.name}}</div>
-              <div class="card-price" ng-if="priceVisible">
-                {{product.price | currency:"₹":0 }}
-              </div>
-              <div class="price-hidden" ng-if="!priceVisible">
-                Price hidden
-              </div>
-              <div class="card-actions">
-                <input type="number" class="qtyclass" placeholder="Quantity" 
-                       ng-model="product.field3" ng-change="submitData(product)" 
-                       ng-model-options="{ debounce: 800 }" min="0">
-                <button class="watch-video-btn" ng-if="product.videourl" 
-                        ng-click="showVideoModal($event, product.videourl, false)">
-                  <i class="fas fa-play-circle"></i> Watch Video
+            <span class="saved-feedback" ng-if="product.justSaved">
+              <i class="fas fa-check"></i> Saved
+            </span>
+          </div>
+          <div class="product-info">
+            <div class="product-name">{{product.name}}</div>
+            <div class="product-price" ng-if="priceVisible">
+              {{product.price | currency:"₹":0}}
+            </div>
+            <div class="price-hidden" ng-if="!priceVisible">
+              Price hidden
+            </div>
+            <div class="product-actions">
+              <input type="number" class="quantity-input" placeholder="Qty"
+                     ng-model="product.field3" ng-change="submitData(product)"
+                     ng-model-options="{ debounce: 800 }" min="0">
+              <button class="video-btn" ng-if="product.videourl" 
+                      ng-click="showVideoModal($event, product.videourl, false)">
+                <i class="fas fa-play-circle"></i> Video
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" ng-if="!isLoadingSearchResults && searchResults.length === 0">
+        <div class="empty-icon">
+          <i class="fas fa-search"></i>
+        </div>
+        <div class="empty-text">No products found</div>
+        <div class="empty-subtext">Try different keywords</div>
+      </div>
+    </div>
+
+    <!-- Main Products View -->
+    <div class="main-content" ng-if="!isSearching">
+      <!-- Category Tabs -->
+      <div class="category-tabs">
+        <!-- Loading State -->
+        <div class="category-skeleton" ng-if="isLoadingCategories">
+          <div class="skeleton-tab" ng-repeat="i in [1,2,3,4,5,6]">
+            <div class="skeleton-icon"></div>
+            <div class="skeleton-text"></div>
+          </div>
+        </div>
+
+        <!-- Categories -->
+        <div class="category-tab" 
+             ng-class="{'active': activeTabId === category.id}"
+             ng-click="selectCategory(category.filter, category.id)"
+             ng-repeat="category in categories"
+             ng-if="!isLoadingCategories">
+          <div class="tab-icon">
+            <img ng-src="{{category.imageUrl}}" alt="{{category.name}}">
+          </div>
+          <div class="tab-text">{{category.name}}</div>
+        </div>
+      </div>
+
+      <!-- Sort Select -->
+      <select ng-model="sortOrder" ng-change="updateDisplayedProducts()" class="sort-select mt-3">
+        <option value="default">Sort: Newest</option>
+        <option value="price">Sort: Price Low to High</option>
+        <option value="-price">Sort: Price High to Low</option>
+      </select>
+
+      <!-- Products Grid -->
+      <div class="skeleton-loader" ng-if="isLoading">
+        <div class="skeleton-card" ng-repeat="i in [1,2,3,4,5,6]">
+          <div class="skeleton-image"></div>
+          <div class="skeleton-content">
+            <div class="skeleton-line medium"></div>
+            <div class="skeleton-line short"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="products-grid" ng-if="!isLoading">
+        <div class="product-card" ng-repeat="product in displayedProducts" ng-hide="product.markedForRemoval">
+          <div class="product-image-container">
+            <img ng-src="{{product.url}}" alt="{{product.name}}" 
+                 class="product-image" ng-click="showEnlargedImage(product.url, false)">
+            <div class="zoom-indicator">
+              <i class="fas fa-search-plus"></i>
+            </div>
+            <span class="saved-feedback" ng-if="product.justSaved">
+              <i class="fas fa-check"></i> Saved
+            </span>
+            <div class="out-of-stock-badge" ng-if="product.outOfStock">
+              Out of Stock
+            </div>
+          </div>
+          <div class="product-info">
+            <div class="product-name">{{product.name}}</div>
+            <div class="product-price" ng-if="priceVisible">
+              {{product.price | currency:"₹":0}}
+            </div>
+            <div class="price-hidden" ng-if="!priceVisible">
+              Price hidden
+            </div>
+            <div class="product-actions">
+              <input type="number" class="quantity-input" placeholder="Qty"
+                     ng-model="product.field3" ng-change="submitData(product)"
+                     ng-model-options="{ debounce: 800 }" min="0">
+              <button class="video-btn" ng-if="product.videourl" 
+                      ng-click="showVideoModal($event, product.videourl, false)">
+                <i class="fas fa-play-circle"></i> Video
+              </button>
+              <div class="admin-action" ng-if="dynamicField2Value === 'sammyadmin'">
+                <button class="out-of-stock-btn" ng-click="markOutOfStock(product)">
+                  <i class="fas fa-ban me-1"></i> Out of Stock
                 </button>
               </div>
             </div>
           </div>
         </div>
-        <div ng-if="searchResults.length === 0" class="empty-state">
-          <div class="empty-state-icon">
-            <i class="fas fa-search"></i>
-          </div>
-          <p class="empty-state-text">No products found matching your search.</p>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" ng-if="!isLoading && displayedProducts.length === 0">
+        <div class="empty-icon">
+          <i class="fas fa-box-open"></i>
         </div>
+        <div class="empty-text">No products in this category</div>
+        <div class="empty-subtext">Try selecting a different category</div>
       </div>
     </div>
-    
-    <!-- Main Content Layout -->
-    <div ng-if="!isSearching" class="main-content-layout">
-      <!-- Sidebar Categories -->
-      <div class="sidebar-container">
-        <div class="vertical-tabs">
-          <!-- Loading State -->
-          <div class="tab-loading" ng-if="isLoadingCategories">
-            <div class="skeleton-tab" ng-repeat="i in [1,2,3,4,5,6]">
-              <div class="skeleton-text" style="width: 40px; height: 40px; border-radius: 10px;"></div>
-              <div class="skeleton-text short" style="width: 60%; margin: 5px auto;"></div>
-            </div>
-          </div>
-          
-          <!-- Categories -->
-          <div class="tab-item" 
-               ng-if="!isLoadingCategories"
-               ng-class="{'active': activeTabId === category.id}"
-               ng-click="selectCategory(category.filter, category.id)"
-               ng-repeat="category in categories">
-            <img ng-src="{{category.imageUrl}}" alt="{{category.name}}" class="tab-icon-img">
-            <span class="tab-text">{{category.name}}</span>
-            <small class="tab-count" ng-if="category.productCount > 0">
-              {{category.productCount}}
-            </small>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Products Container -->
-      <div class="products-container">
-        <div class="products-header">
-          <h3 class="products-title">{{activeCategoryName}}</h3>
-          <select ng-model="sortOrder" ng-change="updateDisplayedProducts()" class="sort-select">
-            <option value="default">Sort: Newest</option>
-            <option value="price">Sort: Price Low</option>
-            <option value="-price">Sort: Price High</option>
-          </select>
-        </div>
-        
-        <div class="products-content">
-          <!-- Loading State -->
-          <div ng-if="isLoading">
-            <div class="product-grid">
-              <div class="skeleton-card" ng-repeat="i in [1,2,3,4,5,6]">
-                <div class="skeleton-image"></div>
-                <div class="skeleton-text short"></div>
-                <div class="skeleton-text"></div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Products Grid -->
-          <div ng-if="!isLoading">
-            <div class="product-grid">
-              <div class="card" ng-repeat="product in displayedProducts" ng-hide="product.markedForRemoval">
-                <div class="card-image-container">
-                  <img ng-src="{{product.url}}" alt="{{product.name}}" 
-                       ng-click="showEnlargedImage(product.url, false)" loading="lazy">
-                  <div class="zoom-indicator">
-                    <i class="fas fa-search-plus"></i>
-                  </div>
-                  <span class="saved-feedback" ng-if="product.justSaved">
-                    <i class="fas fa-check"></i> Saved!
-                  </span>
-                  <div class="out-of-stock-badge" ng-if="product.outOfStock">
-                    Out of Stock
-                  </div>
-                </div>
-                <div class="card-content">
-                  <div class="card-title">{{product.name}}</div>
-                  <div class="card-price" ng-if="priceVisible">
-                    {{product.price | currency:"₹":0 }}
-                  </div>
-                  <div class="price-hidden" ng-if="!priceVisible">
-                    Price hidden
-                  </div>
-                  <div class="card-actions">
-                    <input type="number" class="qtyclass" placeholder="Quantity" 
-                           ng-model="product.field3" ng-change="submitData(product)" 
-                           ng-model-options="{ debounce: 800 }" min="0">
-                    <button class="watch-video-btn" ng-if="product.videourl" 
-                            ng-click="showVideoModal($event, product.videourl, false)">
-                      <i class="fas fa-play-circle"></i> Watch Video
-                    </button>
-                    <button ng-if="dynamicField2Value === 'sammyadmin'" 
-                            class="btn btn-outline-danger btn-sm mt-2 w-100"
-                            ng-click="markOutOfStock(product)">
-                      <i class="fas fa-ban me-2"></i> Mark Out of Stock
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div ng-if="displayedProducts.length === 0" class="empty-state">
-              <div class="empty-state-icon">
-                <i class="fas fa-box-open"></i>
-              </div>
-              <p class="empty-state-text">No products found in this category.</p>
-            </div>
-          </div>
-        </div>
-      </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+      <a href="#" class="nav-item" ng-click="selectCategory('', 0)">
+        <i class="fas fa-home nav-icon"></i>
+        <span class="nav-text">Home</span>
+      </a>
+      <a href="#" class="nav-item" ng-click="setTab('', 0)">
+        <i class="fas fa-th-large nav-icon"></i>
+        <span class="nav-text">All</span>
+      </a>
+      <button class="order-btn" ng-click="openOrderModal()">
+        <i class="fas fa-shopping-cart"></i>
+        Order
+        <span class="order-count" ng-if="orderCount > 0">{{orderCount}}</span>
+      </button>
+      <a href="#" class="nav-item" data-bs-toggle="modal" data-bs-target="#productModal">
+        <i class="fas fa-filter nav-icon"></i>
+        <span class="nav-text">Filter</span>
+      </a>
+      <a href="#" class="nav-item" ng-click="logout()">
+        <i class="fas fa-sign-out-alt nav-icon"></i>
+        <span class="nav-text">Logout</span>
+      </a>
     </div>
   </div>
 
@@ -1328,38 +1514,38 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">{{ activeCategoryName }}</h5>
-          <select ng-model="sortOrder" ng-change="updateDisplayedProducts()" class="sort-select">
+          <select ng-model="sortOrder" ng-change="updateDisplayedProducts()" class="form-select form-select-sm">
             <option value="default">Sort: Newest</option>
-            <option value="price">Sort: Price Low</option>
-            <option value="-price">Sort: Price High</option>
+            <option value="price">Sort: Price Low to High</option>
+            <option value="-price">Sort: Price High to Low</option>
           </select>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <div class="product-grid">
-            <div class="card" ng-repeat="image in displayedProducts" ng-hide="image.markedForRemoval">
-              <div class="card-image-container">
+          <div class="products-grid">
+            <div class="product-card" ng-repeat="image in displayedProducts" ng-hide="image.markedForRemoval">
+              <div class="product-image-container">
                 <img ng-src="{{image.url}}" alt="{{image.name}}" 
-                     ng-click="showEnlargedImage(image.url, true)" loading="lazy">
+                     class="product-image" ng-click="showEnlargedImage(image.url, true)">
                 <div class="zoom-indicator">
                   <i class="fas fa-search-plus"></i>
                 </div>
               </div>
-              <div class="card-content">
-                <div class="card-title">{{image.name}}</div>
-                <div class="card-price" ng-if="priceVisible">
-                  {{image.price | currency:"₹":0 }}
+              <div class="product-info">
+                <div class="product-name">{{image.name}}</div>
+                <div class="product-price" ng-if="priceVisible">
+                  {{image.price | currency:"₹":0}}
                 </div>
                 <div class="price-hidden" ng-if="!priceVisible">
                   Price hidden
                 </div>
-                <div class="card-actions">
-                  <input type="number" class="qtyclass" placeholder="Quantity" 
-                         ng-model="image.field3" ng-change="submitData(image)" 
+                <div class="product-actions">
+                  <input type="number" class="quantity-input" placeholder="Qty"
+                         ng-model="image.field3" ng-change="submitData(image)"
                          ng-model-options="{ debounce: 800 }" min="0">
-                  <button class="watch-video-btn" ng-if="image.videourl" 
+                  <button class="video-btn" ng-if="image.videourl" 
                           ng-click="showVideoModal($event, image.videourl, true)">
-                    <i class="fas fa-play-circle"></i> Watch Video
+                    <i class="fas fa-play-circle"></i> Video
                   </button>
                 </div>
               </div>
@@ -1378,28 +1564,18 @@
           <h5 class="modal-title">Product Video</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" ng-click="closeVideoModal()"></button>
         </div>
-        <div class="modal-body text-center p-0">
-          <video controls autoplay id="videoPlayer" class="w-100" style="max-height: 70vh; border-radius: 0;">
+        <div class="modal-body">
+          <video controls autoplay id="videoPlayer" class="w-100" style="max-height: 60vh;">
             <source ng-src="{{currentVideoUrl}}" type="video/mp4">
             Your browser does not support the video tag.
           </video>
-          <div class="p-3" ng-if="videoError">
-            <div class="alert alert-danger mb-0">
-              <i class="fas fa-exclamation-triangle me-2"></i>
-              {{videoError}}
-            </div>
+          <div class="alert alert-danger mt-2 mb-0" ng-if="videoError">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            {{videoError}}
           </div>
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- Enlarged Image Overlay -->
-  <div id="enlarged-image-overlay" class="enlarged-image-overlay" ng-click="closeEnlargedImage()">
-    <img class="enlarged-image-content" id="enlarged-image" src="">
-    <button class="close-enlarged" ng-click="closeEnlargedImage()">
-      <i class="fas fa-times"></i>
-    </button>
   </div>
 
   <!-- Order Modal -->
@@ -1407,62 +1583,56 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">
-            <i class="fas fa-shopping-cart me-2"></i>
-            {{dynamicField2Value}}'s Order
-          </h5>
+          <h5 class="modal-title">{{dynamicField2Value}}'s Order</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <div class="order-item" 
-               ng-repeat="item in allOrders | filter:{field2: dynamicField2Value}:true | orderBy:'-serverTimestamp'">
-            <img ng-src="{{item.field1}}" class="order-item-img">
-            <div class="order-item-details">
-              <div class="order-item-name">{{item.productName}}</div>
-              <div class="order-item-price" ng-if="priceVisible">
-                {{item.productPrice | currency:"₹":0 }}
+          <div class="order-list">
+            <div class="order-item" 
+                 ng-repeat="item in allOrders | filter:{field2: dynamicField2Value}:true | orderBy:'-serverTimestamp'">
+              <img ng-src="{{item.field1}}" class="order-item-image">
+              <div class="order-item-details">
+                <div class="order-item-name">{{item.productName}}</div>
+                <div class="order-item-price" ng-if="priceVisible">
+                  {{item.productPrice | currency:"₹":0}}
+                </div>
               </div>
-              <small class="text-muted" ng-if="item.submitDate && item.submitTime">
-                {{item.submitDate}} at {{item.submitTime}}
-              </small>
-            </div>
-            <div class="order-item-qty">
-              <button class="qty-btn" ng-click="decrementOrderItem(item)">
-                <i class="fas fa-minus"></i>
-              </button>
-              <span class="qty-display">{{item.field3}}</span>
-              <button class="qty-btn" ng-click="incrementOrderItem(item)">
-                <i class="fas fa-plus"></i>
-              </button>
-              <button class="qty-btn delete-btn" ng-click="deleteOrderItem(item)">
-                <i class="fas fa-trash"></i>
-              </button>
+              <div class="order-item-actions">
+                <button class="qty-btn" ng-click="decrementOrderItem(item)">
+                  <i class="fas fa-minus"></i>
+                </button>
+                <span class="qty-display">{{item.field3}}</span>
+                <button class="qty-btn" ng-click="incrementOrderItem(item)">
+                  <i class="fas fa-plus"></i>
+                </button>
+                <button class="qty-btn delete-btn" ng-click="deleteOrderItem(item)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
             </div>
           </div>
-          <div ng-if="(allOrders | filter:{field2: dynamicField2Value}:true).length === 0" class="empty-state">
-            <div class="empty-state-icon">
+          <div class="empty-state" ng-if="(allOrders | filter:{field2: dynamicField2Value}:true).length === 0">
+            <div class="empty-icon">
               <i class="fas fa-shopping-cart"></i>
             </div>
-            <p class="empty-state-text">Your order list is empty.</p>
+            <div class="empty-text">Your order is empty</div>
+            <div class="empty-subtext">Add some products to your order</div>
           </div>
-        </div>
-        <div class="modal-footer">
-          <div class="w-100 d-flex justify-content-between align-items-center">
-            <div>
-              <h5 class="mb-0 text-primary" ng-if="priceVisible">
-                Total: {{ calculateOrderTotal() | currency:"₹":0 }}
-              </h5>
-              <small class="text-muted" ng-if="orderCount > 0">
-                {{orderCount}} item<span ng-if="orderCount > 1">s</span>
-              </small>
-            </div>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-              <i class="fas fa-times me-2"></i>Close
-            </button>
+          <div class="order-total" ng-if="orderCount > 0">
+            <span>Total</span>
+            <span ng-if="priceVisible">{{ calculateOrderTotal() | currency:"₹":0}}</span>
           </div>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Enlarged Image Overlay -->
+  <div id="enlarged-image-overlay" class="image-overlay">
+    <img id="enlarged-image" src="">
+    <button class="close-overlay" onclick="angular.element(document.body).scope().closeEnlargedImage()">
+      <i class="fas fa-times"></i>
+    </button>
   </div>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -1473,16 +1643,22 @@
   <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
 
   <script>
-    // Global flag for enlarged image
+    // Global flag to track if enlarged image is open
     var isEnlargedImageOpen = false;
 
-    // Enhanced error handling
+    // Error handling for script loading
     window.onerror = function(message, source, lineno, colno, error) {
-      console.error('Script Error:', { message, source, line: lineno, column: colno, error });
+      console.error('Script Error:', {
+        message: message,
+        source: source,
+        line: lineno,
+        column: colno,
+        error: error
+      });
       return true;
     };
 
-    // Back Button Control with improved handling
+    // Back Button Control
     history.pushState({ state: 'home' }, null, location.href);
     window.addEventListener('popstate', function (event) {
       try {
@@ -1496,36 +1672,46 @@
         var videoModal = bootstrap.Modal.getInstance(videoModalEl);
         var scope = angular.element(document.body).scope();
 
-        if (!scope) return;
+        if (!scope) {
+          console.error('Angular scope not found');
+          return;
+        }
 
         scope.$applyAsync(function() {
-          // Close enlarged image if open
           if (isEnlargedImageOpen && enlargedOverlayEl && enlargedOverlayEl.style.display === 'flex') {
             scope.closeEnlargedImage();
             isEnlargedImageOpen = false;
+            if (productModal && productModalEl.classList.contains('show')) {
+              history.pushState({ state: 'productModal' }, null, location.href);
+            } else {
+              history.pushState({ state: 'home' }, null, location.href);
+            }
             return;
           }
 
-          // Close product modal if open
           if (productModal && productModalEl.classList.contains('show')) {
             productModal.hide();
+            scope.isProductModalOpen = false;
             history.pushState({ state: 'home' }, null, location.href);
             return;
           }
 
-          // Close video modal if open
           if (videoModal && videoModalEl.classList.contains('show')) {
             scope.closeVideoModal();
+            if (event.state && event.state.fromProductModal && productModal && productModalEl.classList.contains('show')) {
+              history.pushState({ state: 'productModal' }, null, location.href);
+            } else {
+              history.pushState({ state: 'home' }, null, location.href);
+            }
             return;
           }
 
-          // Close order modal if open
           if (orderModal && orderModalEl.classList.contains('show')) {
             orderModal.hide();
+            history.pushState({ state: 'home' }, null, location.href);
             return;
           }
 
-          // Exit search if searching
           if (scope.isSearching || (scope.searchQuery && scope.searchQuery.length > 0)) {
             scope.searchQuery = '';
             scope.isSearching = false;
@@ -1534,7 +1720,6 @@
             return;
           }
 
-          // Default: push home state
           history.pushState({ state: 'home' }, null, location.href);
         });
       } catch (e) {
@@ -1547,22 +1732,18 @@
       isEnlargedImageOpen = this.style.display === 'flex';
     });
 
-    // Enhanced Login Logic
+    // Login Logic
     (function() {
       var loginConfig = {
         apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
         authDomain: "shop-reminder-3ce10.firebaseapp.com",
         databaseURL: "https://shop-reminder-3ce10-default-rtdb.firebaseio.com",
       };
-      
-      var blockedNumbers = ['7000913701', '9846434664', '8269731362', '9876543210', '9123456789', 
-                           '8987854256', '9039199794', '9166220046', '8269731352', '6263821242', 
-                           '6616495946', '6266242180', '9109390639', '9658695825', '8576911011'];
+      var blockedNumbers = ['7000913701', '9846434664' , '8269731362', '9876543210', '9123456789', '8987854256', '9039199794', '9166220046', '8269731352', '6263821242', '6616495946', '6266242180', '9109390639', '9658695825', '8576911011'];
       var blockedPageUrl = 'https://www.hindustantoys.in/mywebsite/NEWWEBSITE/blocked.html';
 
       try {
-        var loginApp = firebase.apps.find(app => app.name === 'loginApp') || 
-                      firebase.initializeApp(loginConfig, 'loginApp');
+        var loginApp = firebase.apps.find(app => app.name === 'loginApp') || firebase.initializeApp(loginConfig, 'loginApp');
         var loginDb = loginApp.database();
 
         window.validateLogin = function() {
@@ -1572,57 +1753,31 @@
             var name = nameInput.value.trim();
             var mobile = mobileInput.value.trim();
 
-            // Check if blocked
             if (blockedNumbers.includes(mobile)) {
               window.location.href = blockedPageUrl;
               return;
             }
 
-            // Validation
-            if (name.length < 4) {
-              alert('Please enter a valid shop name (at least 4 characters).');
-              nameInput.focus();
+            if (name.length < 4 || !/^[6-9]\d{9}$/.test(mobile)) {
+              alert('Please enter valid details.');
               return;
             }
 
-            if (!/^[6-9]\d{9}$/.test(mobile)) {
-              alert('Please enter a valid 10-digit mobile number starting with 6-9.');
-              mobileInput.focus();
-              return;
-            }
-
-            // Show loading
-            var btn = document.querySelector('#inside button');
-            var originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Logging in...';
-            btn.disabled = true;
-
-            // Save to Firebase
             loginDb.ref('users').push({ 
               name: name, 
               mobile: mobile, 
-              timestamp: firebase.database.ServerValue.TIMESTAMP,
-              userAgent: navigator.userAgent,
-              screenResolution: window.screen.width + 'x' + window.screen.height
+              timestamp: firebase.database.ServerValue.TIMESTAMP 
             }).then(() => {
-              // Save to localStorage
               localStorage.setItem('name', name);
               localStorage.setItem('mobile', mobile);
-              localStorage.setItem('lastLogin', new Date().toISOString());
-              
-              // Show content
               showContent(name);
             }).catch(e => {
               console.error("Login Firebase Error:", e);
-              alert('Login failed. Please check your internet connection and try again.');
-            }).finally(() => {
-              // Reset button
-              btn.innerHTML = originalText;
-              btn.disabled = false;
+              alert('Login failed. Please try again.');
             });
           } catch (e) {
             console.error("Validate Login Error:", e);
-            alert('An error occurred during login. Please try again.');
+            alert('An error occurred during login.');
           }
         };
 
@@ -1637,14 +1792,6 @@
             document.getElementById('login-container').style.display = 'none';
             document.getElementById('content').style.display = 'block';
             history.pushState({ state: 'home' }, null, location.href);
-            
-            // Add welcome animation
-            setTimeout(() => {
-              var welcomeMsg = document.querySelector('.navbar .text-muted strong');
-              if (welcomeMsg) {
-                welcomeMsg.style.animation = 'pulse 2s';
-              }
-            }, 500);
           } catch (e) {
             console.error("Show Content Error:", e);
           }
@@ -1654,40 +1801,26 @@
           try {
             var name = localStorage.getItem('name');
             var mobile = localStorage.getItem('mobile');
-            var lastLogin = localStorage.getItem('lastLogin');
 
-            // Check if blocked
             if (mobile && blockedNumbers.includes(mobile)) {
               window.location.href = blockedPageUrl;
               return;
             }
 
-            // Auto-login if within 7 days
-            if (name && mobile && lastLogin) {
-              var lastLoginDate = new Date(lastLogin);
-              var currentDate = new Date();
-              var daysSinceLogin = (currentDate - lastLoginDate) / (1000 * 60 * 60 * 24);
-              
-              if (daysSinceLogin <= 7) {
-                document.getElementById('name').value = name;
-                document.getElementById('mobile').value = mobile;
+            if (name && mobile) {
+              document.getElementById('name').value = name;
+              document.getElementById('mobile').value = mobile;
 
-                // Log auto-login
-                loginDb.ref('users').push({ 
-                  name: name, 
-                  mobile: mobile, 
-                  timestamp: firebase.database.ServerValue.TIMESTAMP,
-                  loginType: 'auto',
-                  daysSinceLastLogin: Math.floor(daysSinceLogin)
-                }).catch(e => {
-                  console.error("Auto-login Firebase Error:", e);
-                });
+              loginDb.ref('users').push({ 
+                name: name, 
+                mobile: mobile, 
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                loginType: 'auto'
+              }).catch(e => {
+                console.error("Auto-login Firebase Error:", e);
+              });
 
-                showContent(name);
-              } else {
-                // Clear old login data
-                localStorage.clear();
-              }
+              showContent(name);
             }
           } catch (e) {
             console.error("Check Authentication Error:", e);
@@ -1701,10 +1834,8 @@
       }
     })();
     
-    // Angular App
     var app = angular.module('myApp', ['firebase']);
-    app.controller('imagesController', ['$scope', '$firebaseArray', '$filter', '$window', '$timeout', '$sce', 
-    function($scope, $firebaseArray, $filter, $window, $timeout, $sce) {
+    app.controller('imagesController', ['$scope', '$firebaseArray', '$filter', '$window', '$timeout', '$sce', function($scope, $firebaseArray, $filter, $window, $timeout, $sce) {
       try {
         var vm = this;
         vm.images = [];
@@ -1729,12 +1860,10 @@
         var fetchConfig = { databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com" };
         var submitConfig = { databaseURL: "https://notes-12519-default-rtdb.firebaseio.com" };
         
-        var fetchApp = firebase.apps.find(app => app.name === 'fetchApp') || 
-                      firebase.initializeApp(fetchConfig, 'fetchApp');
+        var fetchApp = firebase.apps.find(app => app.name === 'fetchApp') || firebase.initializeApp(fetchConfig, 'fetchApp');
         var fetchDb = fetchApp.database().ref();
 
-        var submitApp = firebase.apps.find(app => app.name === 'submitApp') || 
-                      firebase.initializeApp(submitConfig, 'submitApp');
+        var submitApp = firebase.apps.find(app => app.name === 'submitApp') || firebase.initializeApp(submitConfig, 'submitApp');
         var submitDb = submitApp.database().ref();
 
         // Real-time listener for products
@@ -1743,20 +1872,17 @@
           snapshot.forEach(function(childSnapshot) {
             var item = childSnapshot.val();
             item.$id = childSnapshot.key;
-            // Ensure all required fields exist
             item.name = item.name || 'Unknown Product';
             item.price = item.price || 0;
             item.url = item.url || '';
             item.videourl = item.videourl || '';
-            item.field3 = 0; // Initialize quantity
+            item.field3 = 0;
             allData.push(item);
           });
 
-          // Filter out out of stock items
           vm.images = allData.filter(item => !item.outOfStock);
 
           $scope.$applyAsync(function() {
-            // Update category counts
             angular.forEach($scope.categories, function(category) {
               if (category.filter === '') {
                 category.productCount = vm.images.length;
@@ -1764,17 +1890,12 @@
                 category.productCount = $filter('filter')(vm.images, { name: category.filter }).length;
               }
             });
-            
             $scope.isLoading = false;
             $scope.isLoadingCategories = false;
-            
-            // Select first category by default
             if (!$scope.activeTabId && $scope.activeTabId !== 0) {
               $scope.activeTabId = 0;
-              $scope.selectCategory($scope.categories[0].filter || '', $scope.activeTabId);
-            } else {
-              $scope.updateDisplayedProducts();
             }
+            $scope.selectCategory($scope.categories.find(c => c.id === $scope.activeTabId)?.filter || '', $scope.activeTabId);
           });
         }, function(error) {
           console.error("Error loading products:", error);
@@ -1785,12 +1906,10 @@
           alert('Failed to load products. Please check your network and try again.');
         });
         
-        // Orders from Firebase
         $scope.allOrders = $firebaseArray(submitDb);
         $scope.activeTabId = 0;
         $scope.activeCategoryName = 'ALL PRODUCTS';
         
-        // Categories with images
         $scope.categories = [
           { id: 0, name: 'ALL PRODUCTS', filter: '', imageUrl: 'https://www.hindustantoys.in/images/all.jpeg' },
           { id: 6, name: 'RACKET', filter: 'RACKET', imageUrl: 'https://www.hindustantoys.in/images/racket.jpeg' },
@@ -1814,24 +1933,23 @@
           { id: 29, name: 'PALNA', filter: 'PALNA', imageUrl: 'https://www.hindustantoys.in/images/palna.png' },
           { id: 5, name: 'WALKER', filter: 'WALKER', imageUrl: 'https://www.hindustantoys.in/images/walker.jpeg' },
           { id: 28, name: 'LUNCH BOX', filter: 'LUNCH BOX', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2025-07-01T08%3A45%3A26.021Z_LUNCH%20BOX_667798d8-2789-471f-985a-8605b19313b1.jpg?alt=media&token=bb3a00ab-a86c-43c5-9e10-d18f4a427451' },
-          { id: 27, name: 'PENCIL BOX', filter: 'PENCIL BOX', imageUrl: 'https://via.placeholder.com/36x36/e1e5e9/6c757d?text=PX' },
-          { id: 23, name: 'WATER BOTTLE', filter: 'BOTTLE', imageUrl: 'https://via.placeholder.com/36x36/e1e5e9/6c757d?text=WB' },
-          { id: 26, name: 'BOARD GAME', filter: 'BOARD GAME', imageUrl: 'https://via.placeholder.com/36x36/e1e5e9/6c757d?text=BG' },
-          { id: 22, name: 'EDUCATIONAL', filter: 'EDUCATIONAL', imageUrl: 'https://via.placeholder.com/36x36/e1e5e9/6c757d?text=ED' },
-          { id: 21, name: 'BIG ITEMS', filter: 'BIG', imageUrl: 'https://via.placeholder.com/36x36/e1e5e9/6c757d?text=BI' },
-          { id: 19, name: 'TRICYCLES', filter: 'TRICYCLE', imageUrl: 'https://via.placeholder.com/36x36/e1e5e9/6c757d?text=TC' },
-          { id: 18, name: 'SPORTS ITEM', filter: 'SPORTS', imageUrl: 'https://via.placeholder.com/36x36/e1e5e9/6c757d?text=SP' },
-          { id: 17, name: 'PATTA ITEMS', filter: 'PATTA', imageUrl: 'https://via.placeholder.com/36x36/e1e5e9/6c757d?text=PT' },
-          { id: 15, name: 'GUNS VARIETY', filter: 'GUN', imageUrl: 'https://via.placeholder.com/36x36/e1e5e9/6c757d?text=GV' },
-          { id: 1, name: 'STATIONERY', filter: 'STATIONERY', imageUrl: 'https://via.placeholder.com/36x36/e1e5e9/6c757d?text=ST' },
-          { id: 8, name: 'DOLL', filter: 'DOLL', imageUrl: 'https://via.placeholder.com/36x36/e1e5e9/6c757d?text=DL' },
-          { id: 12, name: 'FANCY ITEMS', filter: 'FANCY', imageUrl: 'https://via.placeholder.com/36x36/e1e5e9/6c757d?text=FI' },
-          { id: 14, name: 'DOZEN PACKING', filter: 'DOZEN', imageUrl: 'https://via.placeholder.com/36x36/e1e5e9/6c757d?text=DP' },
-          { id: 32, name: 'GODOWN-1', filter: 'G1', imageUrl: 'https://via.placeholder.com/36x36/e1e5e9/6c757d?text=G1' },
-          { id: 33, name: 'GODOWN-2', filter: 'G2', imageUrl: 'https://via.placeholder.com/36x36/e1e5e9/6c757d?text=G2' }
+          { id: 27, name: 'PENCIL BOX', filter: 'PENCIL BOX', imageUrl: 'https://via.placeholder.com/24x24/e1e5e9/6c757d?text=PX' },
+          { id: 23, name: 'WATER BOTTLE', filter: 'BOTTLE', imageUrl: 'https://via.placeholder.com/24x24/e1e5e9/6c757d?text=WB' },
+          { id: 26, name: 'BOARD GAME', filter: 'BOARD GAME', imageUrl: 'https://via.placeholder.com/24x24/e1e5e9/6c757d?text=BG' },
+          { id: 22, name: 'EDUCATIONAL', filter: 'EDUCATIONAL', imageUrl: 'https://via.placeholder.com/24x24/e1e5e9/6c757d?text=ED' },
+          { id: 21, name: 'BIG ITEMS', filter: 'BIG', imageUrl: 'https://via.placeholder.com/24x24/e1e5e9/6c757d?text=BI' },
+          { id: 19, name: 'TRICYCLES', filter: 'TRICYCLE', imageUrl: 'https://via.placeholder.com/24x24/e1e5e9/6c757d?text=TC' },
+          { id: 18, name: 'SPORTS ITEM', filter: 'SPORTS', imageUrl: 'https://via.placeholder.com/24x24/e1e5e9/6c757d?text=SP' },
+          { id: 17, name: 'PATTA ITEMS', filter: 'PATTA', imageUrl: 'https://via.placeholder.com/24x24/e1e5e9/6c757d?text=PT' },
+          { id: 15, name: 'GUNS VARIETY', filter: 'GUN', imageUrl: 'https://via.placeholder.com/24x24/e1e5e9/6c757d?text=GV' },
+          { id: 1, name: 'STATIONERY', filter: 'STATIONERY', imageUrl: 'https://via.placeholder.com/24x24/e1e5e9/6c757d?text=ST' },
+          { id: 8, name: 'DOLL', filter: 'DOLL', imageUrl: 'https://via.placeholder.com/24x24/e1e5e9/6c757d?text=DL' },
+          { id: 12, name: 'FANCY ITEMS', filter: 'FANCY', imageUrl: 'https://via.placeholder.com/24x24/e1e5e9/6c757d?text=FI' },
+          { id: 14, name: 'DOZEN PACKING', filter: 'DOZEN', imageUrl: 'https://via.placeholder.com/24x24/e1e5e9/6c757d?text=DP' },
+          { id: 32, name: 'GODOWN-1', filter: 'G1', imageUrl: 'https://via.placeholder.com/24x24/e1e5e9/6c757d?text=G1' },
+          { id: 33, name: 'GODOWN-2', filter: 'G2', imageUrl: 'https://via.placeholder.com/24x24/e1e5e9/6c757d?text=G2' }
         ];
         
-        // Initialize modals
         var productModal = null;
         var videoModal = null;
         var orderModal = null;
@@ -1883,7 +2001,6 @@
               history.pushState({ state: 'search' }, null, location.href);
 
               $timeout(function() {
-                // Perform search
                 var searchTerm = $scope.searchQuery.toLowerCase();
                 $scope.searchResults = vm.images.filter(function(product) {
                   return product.name.toLowerCase().includes(searchTerm) ||
@@ -1915,7 +2032,6 @@
             $scope.activeTabId = tabId;
             $scope.updateDisplayedProducts();
             
-            // Scroll to top on mobile
             if (window.innerWidth <= 768) {
               $timeout(function() {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1971,7 +2087,6 @@
             if (item) {
               var newQty = parseInt(item.field3 || 0) - 1;
               if (newQty < 1) {
-                // Remove item if quantity reaches 0
                 $scope.allOrders.$remove(item).catch(e => {
                   console.error("Remove Order Item Error:", e);
                 });
@@ -2035,7 +2150,6 @@
               markedAt: new Date().toISOString()
             }).then(function() {
               $timeout(function() {
-                // Remove from arrays
                 const masterIndex = vm.images.findIndex(i => i.$id === image.$id);
                 if (masterIndex > -1) vm.images.splice(masterIndex, 1);
 
@@ -2067,7 +2181,6 @@
             
             var recordRef = submitDb.child(uniqueId);
 
-            // Remove if quantity is 0 or less
             if (!image.field3 || image.field3 <= 0) {
               recordRef.remove().catch(e => {
                 console.error("Remove Order Error:", e);
@@ -2114,6 +2227,7 @@
             if (overlay && img) {
               img.src = src || '';
               overlay.style.display = 'flex';
+              document.body.style.overflow = 'hidden';
               isEnlargedImageOpen = true;
               $scope.isEnlargedImageOpen = true;
               history.pushState({ 
@@ -2132,6 +2246,7 @@
             const overlay = document.getElementById('enlarged-image-overlay');
             if (overlay) {
               overlay.style.display = 'none';
+              document.body.style.overflow = 'auto';
               isEnlargedImageOpen = false;
               $scope.isEnlargedImageOpen = false;
               
@@ -2219,23 +2334,19 @@
 
             let filteredImages = vm.images;
             
-            // Apply category filter
             if ($scope.productNameFilter) {
               filteredImages = $filter('filter')(vm.images, { name: $scope.productNameFilter }) || [];
             }
             
-            // Apply search filter if not in search mode
             if ($scope.searchQuery && !$scope.productNameFilter && !$scope.isSearching) {
               filteredImages = $filter('filter')(filteredImages, { name: $scope.searchQuery }) || [];
             }
 
-            // Apply sorting
             if ($scope.sortOrder === 'price') {
               filteredImages = $filter('orderBy')(filteredImages, 'price');
             } else if ($scope.sortOrder === '-price') {
               filteredImages = $filter('orderBy')(filteredImages, '-price');
             } else {
-              // Default: newest first (assuming items have a date property)
               filteredImages = $filter('orderBy')(filteredImages, '-date');
             }
             
@@ -2249,13 +2360,8 @@
         $scope.logout = function() {
           try {
             if (confirm('Are you sure you want to logout?')) {
-              // Unsubscribe from real-time listener
               fetchDb.off('value', productsListener);
-              
-              // Clear all data
               localStorage.clear();
-              
-              // Reload page
               $window.location.reload();
             }
           } catch (e) {
