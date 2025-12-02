@@ -10,7 +10,6 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
 
   <style>
-    /* --- single source of truth for navbar height --- */
     :root{
       --primary-color:#388e3c;
       --secondary-color:#0d6efd;
@@ -18,9 +17,6 @@
       --light-gray:#f8f9fa;
       --dark-gray:#333;
       --card-shadow:0 4px 12px rgba(0,0,0,0.08);
-
-      /* navbar height used to align content and sticky sidebar */
-      --navbar-height: 92px; /* default desktop/tall navbar (tweak if needed) */
     }
 
     html,body{overscroll-behavior:none;height:100%;}
@@ -31,12 +27,15 @@
     }
     [ng-cloak]{display:none!important;}
 
-    /* Page containers */
-    #content,#login-container{max-width:768px;margin:0 auto;box-sizing:border-box;}
+    /* Constrain content width to tablet-like size on all devices */
+    #content, #login-container {
+      max-width: 768px;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
 
-    /* Reserve space for fixed navbar so content doesn't hide behind it.
-       Use navbar-height variable so everything stays synced. */
-    #content { padding-top: calc(var(--navbar-height) - 2px); }
+    /* keep small top padding so fixed navbar doesn't overlap content */
+    #content { padding-top: 72px; }
 
     #login-container{
       background-size:cover;background-position:center;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;
@@ -45,43 +44,35 @@
       background-color:rgba(255,255,255,0.95);padding:30px;border-radius:12px;box-shadow:var(--card-shadow);text-align:center;width:100%;max-width:360px;
     }
 
-    /* Navbar: two rows (top = search + menu, bottom = welcome + toggle) */
-    .navbar{
-      background:#fff;padding:8px 12px;position:fixed;width:100%;max-width:768px;top:0;z-index:1200;
-      box-shadow:0 2px 4px rgba(0,0,0,0.08);left:50%;transform:translateX(-50%);
-      display:flex;flex-direction:column;gap:6px;
-      min-height: var(--navbar-height);
-      box-sizing: border-box;
+    /* === NAVBAR: restored to original code exactly as you provided === */
+    .navbar {
+      background-color: #fff;
+      padding: 8px 15px;
+      position: fixed;
+      width: 100%;
+      max-width: 768px;
+      top: 0;
+      z-index: 1030;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      left: 50%;
+      transform: translateX(-50%);
     }
-
-    .navbar-top{display:flex;align-items:center;gap:8px;}
-    .navbar-bottom{display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:var(--dark-gray);}
 
     .page-title{font-size:18px;font-weight:600;}
-    .section-container{background:#fff;border-radius:12px;box-shadow:var(--card-shadow);padding:2px;}
 
-    /* Category cards */
+    /* rest of styles (kept improvements) */
+    .section-container{background:#fff;border-radius:12px;box-shadow:var(--card-shadow);padding:2px;}
     .category-grid-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:12px;}
-    .category-card{
-      background:#fff;border-radius:12px;box-shadow:var(--card-shadow);padding:12px;text-align:center;cursor:pointer;
-      transition:transform .2s ease,box-shadow .2s ease;display:flex;flex-direction:column;align-items:center;justify-content:center;height:110px;
-    }
-    .category-card:hover{transform:translateY(-4px);box-shadow:0 6px 16px rgba(0,0,0,0.12);}
+    .category-card{background:#fff;border-radius:12px;box-shadow:var(--card-shadow);padding:12px;text-align:center;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease;display:flex;flex-direction:column;align-items:center;justify-content:center;height:110px;}
     .category-card img{width:60%;height:auto;object-fit:contain;margin-bottom:8px;border-radius:8px;}
     .category-card span{font-size:11px;font-weight:500;color:#555;}
 
-    /* Product grid default layout (used by main product content) */
     .product-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
 
-    .card{
-      box-shadow:var(--card-shadow);width:100%;border-radius:8px;text-align:center;background:#fff;overflow:hidden;padding-bottom:8px;
-      display:flex;flex-direction:column;align-items:stretch;
-    }
+    .card{box-shadow:var(--card-shadow);width:100%;border-radius:8px;text-align:center;background:#fff;overflow:hidden;padding-bottom:8px;display:flex;flex-direction:column;align-items:stretch;}
 
-    /* Full image (no cropping), preserve aspect ratio */
-    .card img{
-      width:100%;height:auto;max-height:260px;object-fit:contain;display:block;margin:0 auto;background:#fff;
-    }
+    /* Show full image (no crop) */
+    .card img{width:100%;height:auto;max-height:260px;object-fit:contain;display:block;margin:0 auto;background:#fff;}
 
     .containers{padding:8px;position:relative;flex:0 0 auto;}
     .containers h4{margin:0 0 4px;font-size:13px;font-weight:bold;}
@@ -95,19 +86,16 @@
     .enlarged-image-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);display:none;justify-content:center;align-items:center;z-index:1500;cursor:pointer;}
     .enlarged-image-content{max-width:95%;max-height:95%;border-radius:8px;object-fit:contain;}
 
-    /* Skeleton */
     @keyframes skeleton-pulse{0%{background:#e0e0e0}50%{background:#f0f0f0}100%{background:#e0e0e0}}
     .skeleton-card{background:#fff;padding:0;}
     .skeleton-image{width:100%;height:140px;animation:skeleton-pulse 1.5s infinite;}
     .skeleton-line{height:12px;width:90%;margin:8px auto;border-radius:4px;animation:skeleton-pulse 1.5s infinite;}
     .skeleton-line.short{width:60%;}
 
-    /* Order list */
     .order-item-img{width:50px;height:50px;object-fit:contain;border-radius:4px;margin-right:15px;background:#fff;}
     .qty-control{display:flex;align-items:center;}
     .qty-display{width:40px;text-align:center;font-weight:700;font-size:16px;}
 
-    /* Manual slideshow helper */
     .manual-slideshow-scroll-wrapper{display:flex;flex-wrap:nowrap;overflow-x:auto!important;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;padding-bottom:10px;gap:12px;scrollbar-width:none;-ms-overflow-style:none;}
     .manual-slideshow-scroll-wrapper::-webkit-scrollbar{display:none;}
     .manual-slideshow-scroll-wrapper .card{flex-shrink:0;width:150px;scroll-snap-align:start;}
@@ -116,7 +104,6 @@
     .view-all-container{text-align:right;padding:0 12px 12px;}
     .view-all-button{display:inline-block;color:black;border:none;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;transition:background-color .2s ease;}
 
-    /* Video modal */
     .video-modal-content{max-width:90%;max-height:90vh;margin:auto;display:flex;flex-direction:column;align-items:center;}
     .video-modal-content video{width:100%;max-height:70vh;border-radius:8px;}
     .video-modal-content .download-btn{margin-top:10px;padding:8px 16px;background:var(--primary-color);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;}
@@ -127,7 +114,6 @@
     .search-results-container{max-width:768px;margin:0 auto;box-sizing:border-box;position:relative; z-index: 1100;}
     .modal-dialog{max-width:768px;margin:1.75rem auto;}
 
-    /* Sticky header inside product modal */
     #productModal .modal-header{position:sticky;top:0;background:#fff;z-index:1050;padding:10px 15px;border-bottom:1px solid #dee2e6;display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;}
     #productModal .modal-title{margin:0;font-size:18px;font-weight:600;flex-grow:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     #productModal .sort-container{flex-shrink:0;margin-left:10px;}
@@ -135,24 +121,14 @@
     #productModal .btn-close{flex-shrink:0;margin-left:10px;}
     #productModal .modal-body{padding-top:10px;}
 
-    /* Fixed Your Order Button */
-    .fixed-order-button{
-      position:fixed;bottom:20px;right:20px;z-index:1300;background:var(--primary-color);color:#fff;border:none;border-radius:50px;padding:8px 12px;font-size:12px;font-weight:500;box-shadow:var(--card-shadow);cursor:pointer;transition:background .2s ease,transform .2s ease;
-    }
+    .fixed-order-button{position:fixed;bottom:20px;right:20px;z-index:1300;background:var(--primary-color);color:#fff;border:none;border-radius:50px;padding:8px 12px;font-size:12px;font-weight:500;box-shadow:var(--card-shadow);cursor:pointer;transition:background .2s ease,transform .2s ease;}
     .fixed-order-button:hover{background:#2e7d32;transform:scale(1.05);}
 
-    /* Layout: sidebar + products */
     .main-content-layout{display:flex;gap:20px;max-width:768px;margin:0 auto;min-height:calc(100vh - 70px);position:relative; z-index: 100;}
-    .sidebar-container{
-      flex-shrink:0;width:180px;background:linear-gradient(135deg,#f8f9fa 0%,#fff 100%);border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,0.1);
-      padding:20px 12px;position:sticky;top: calc(var(--navbar-height) + 8px);align-self:flex-start;max-height:calc(100vh - 140px);overflow-y:auto;
-    }
+    .sidebar-container{flex-shrink:0;width:180px;background:linear-gradient(135deg,#f8f9fa 0%,#fff 100%);border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,0.1);padding:20px 12px;position:sticky;top:88px;align-self:flex-start;max-height:calc(100vh - 140px);overflow-y:auto;}
     .sidebar-title{font-size:16px;font-weight:600;margin:0 0 20px;padding:0 10px;color:var(--dark-gray);}
     .vertical-tabs{display:flex;flex-direction:column;gap:10px;}
-    .tab-item{
-      display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 10px;border-radius:12px;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);
-      gap:8px;border:2px solid transparent;text-align:center;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,0.05);position:relative;
-    }
+    .tab-item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 10px;border-radius:12px;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);gap:8px;border:2px solid transparent;text-align:center;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,0.05);position:relative;}
     .tab-item:hover{background:linear-gradient(135deg,#f0f4f8 0%,#e8eff5 100%);transform:translateY(-2px) scale(1.02);box-shadow:0 4px 12px rgba(56,142,60,0.15);border-color:rgba(56,142,60,0.2);}
     .tab-item.active{background:linear-gradient(135deg,var(--primary-color) 0%,#2e7d32 100%);color:#fff;border-color:var(--primary-color);box-shadow:0 6px 16px rgba(56,142,60,0.3);transform:scale(1.03);}
     .tab-icon-img{width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,0.1);background:#fff;}
@@ -164,13 +140,9 @@
     .products-title{margin:0;font-size:18px;font-weight:600;color:var(--dark-gray);}
     .products-content{background:#fff;padding:15px;border-radius:12px;box-shadow:var(--card-shadow);}
 
-    /* Responsive breakpoints */
     @media (max-width: 767.98px){
-      /* when navbar stacks to two rows, make it taller */
-      :root { --navbar-height: 120px; }
-
       .main-content-layout{flex-direction:row;gap:10px;padding:0 5px 20px;}
-      .sidebar-container{width:95px;padding:12px 8px;position:sticky;top: calc(var(--navbar-height) + 6px);max-height:calc(100vh - 140px);overflow-y:auto;}
+      .sidebar-container{width:95px;padding:12px 8px;position:sticky;top:0;align-self:flex-start;max-height:calc(100vh - 70px);overflow-y:auto;}
       .sidebar-title{font-size:13px;margin-bottom:12px;}
       .vertical-tabs{gap:8px;}
       .tab-item{padding:10px 6px;gap:6px;border-radius:10px;box-shadow:0 2px 4px rgba(0,0,0,0.06);}
@@ -184,44 +156,24 @@
       .qtyclass{height:36px;width:60px;font-size:13px;}
       .order-item-img{width:60px;height:60px;}
       .manual-slideshow-scroll-wrapper .card{width:220px;min-width:220px;}
-
-      /* Main product area becomes single column on very small screens (if desired).
-         Adjust to preserve two-column product grid on slightly larger phones. */
       .main-content-layout .product-grid{grid-template-columns:1fr;}
-
-      /* Prevent search results container from covering the main layout:
-         give it bottom margin and allow main scroll beneath. */
-      .search-results-container{
-        z-index:1150;
-        margin-bottom: 12px;
-        min-height: 120px;
-      }
-
-      /* Adjust content padding for taller navbar */
-      #content { padding-top: calc(var(--navbar-height) - 6px); }
+      .search-results-container{z-index:1150;margin-bottom:12px;min-height:120px;}
+      #content { padding-top: 110px; }
     }
 
-    /* Search results should always be 2 columns (targeted, high specificity so it doesn't affect main area) */
-    .search-results-container .product-grid{
-      grid-template-columns:repeat(2,1fr);
-      gap:10px;
-    }
+    .search-results-container .product-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
 
-    /* Tweak for very small phones */
     @media (max-width:420px){
-      :root { --navbar-height: 140px; } /* make a bit taller for stacked elements on tiny screens */
       .manual-slideshow-scroll-wrapper .card{width:180px;min-width:180px;}
       .tab-icon-img{width:36px;height:36px;}
       .tab-text{font-size:9px;}
       .qtyclass{width:56px;height:34px;}
       .card img{max-height:200px;}
       .search-results-container .product-grid{gap:8px;}
-      .search-results-container{min-height: 200px;}
-      #content { padding-top: calc(var(--navbar-height) - 8px); }
+      .search-results-container{min-height:200px;}
+      #content { padding-top: 130px; }
     }
 
-    /* small performance/visual tweaks */
-    .card img,.category-card img,.tab-icon-img{image-rendering:auto;-webkit-backface-visibility:hidden;backface-visibility:hidden;}
   </style>
 </head>
 <body ng-controller="imagesController as vm">
@@ -237,28 +189,35 @@
 
   <!-- MAIN CONTENT -->
   <div id="content" style="display:none;">
-    <nav class="navbar" role="navigation" aria-label="Main">
-      <div class="navbar-top">
+    <!-- NAVBAR restored exactly like your original code -->
+    <div class="navbar">
+      <div class="d-flex w-100 align-items-center">
         <div class="input-group input-group-sm me-2" style="flex:1; min-width:0;">
-          <input type="text" ng-model="searchQuery" ng-change="onSearchChange()" ng-model-options="{ debounce: 400 }" placeholder="Search all products..." class="form-control" />
-          <span class="input-group-text"><i class="fas fa-search"></i></span>
+            <input type="text" 
+                   ng-model="searchQuery" 
+                   ng-change="onSearchChange()" 
+                   ng-model-options="{ debounce: 400 }"
+                   placeholder="Search all products..." 
+                   class="form-control">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
         </div>
-        <div class="dropdown" style="flex:0 0 auto;">
-          <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-bars"></i></button>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#myModal">Your Order</a></li>
-            <li><a class="dropdown-item" href="#" ng-click="logout()">Logout</a></li>
-          </ul>
+        <div class="dropdown">
+            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#myModal">Your Order</a></li>
+                <li><a class="dropdown-item" href="#" ng-click="logout()">Logout</a></li>
+            </ul>
         </div>
       </div>
-
-      <div class="navbar-bottom">
-        <small class="text-muted" style="margin-right:8px;">Welcome, <span ng-bind="dynamicField2Value"></span></small>
-        <div class="form-check form-switch" style="transform:scale(0.95);">
+      <div class="d-flex w-100 justify-content-center align-items-center mt-1">
+        <small class="text-muted me-3">Welcome, {{dynamicField2Value}}</small>
+        <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" role="switch" id="priceToggle" ng-model="priceVisible" ng-change="togglePriceVisibility()">
         </div>
       </div>
-    </nav>
+    </div>
 
     <!-- Fixed Your Order Button -->
     <button class="fixed-order-button" ng-if="dynamicField2Value && !isOrderModalOpen && !isEnlargedImageOpen" ng-click="openOrderModal()">
@@ -710,7 +669,6 @@
 
         $scope.logout = function(){ try { fetchDb.off('value', productsListener); localStorage.clear(); $window.location.reload(); } catch(e){ console.error("Logout error",e); } };
 
-        // Modal listeners
         $timeout(function(){ try {
           var productModalEl = document.getElementById('productModal');
           if(productModalEl){
