@@ -26,6 +26,10 @@
 
     /* Page containers */
     #content,#login-container{max-width:768px;margin:0 auto;box-sizing:border-box;}
+
+    /* Reserve space for fixed navbar so content doesn't hide behind it */
+    #content { padding-top: 64px; }
+
     #login-container{
       background-size:cover;background-position:center;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;
     }
@@ -35,8 +39,9 @@
 
     /* Navbar */
     .navbar{
-      background:#fff;padding:8px 15px;position:fixed;width:100%;max-width:768px;top:0;z-index:1030;
+      background:#fff;padding:8px 15px;position:fixed;height:64px;width:100%;max-width:768px;top:0;z-index:1200;
       box-shadow:0 2px 4px rgba(0,0,0,0.1);left:50%;transform:translateX(-50%);
+      display:flex;flex-direction:column;justify-content:center;
     }
 
     .page-title{font-size:18px;font-weight:600;}
@@ -74,7 +79,7 @@
     .saved-feedback{color:var(--primary-color);font-size:10px;font-weight:700;position:absolute;top:8px;right:8px;animation:fadeOut 2s forwards;}
     @keyframes fadeOut{from{opacity:1}to{opacity:0}}
 
-    .enlarged-image-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);display:none;justify-content:center;align-items:center;z-index:1060;cursor:pointer;}
+    .enlarged-image-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);display:none;justify-content:center;align-items:center;z-index:1500;cursor:pointer;}
     .enlarged-image-content{max-width:95%;max-height:95%;border-radius:8px;object-fit:contain;}
 
     /* Skeleton */
@@ -104,9 +109,9 @@
     .video-modal-content .download-btn{margin-top:10px;padding:8px 16px;background:var(--primary-color);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;}
     .video-modal-content .download-btn:hover{background:#2e7d32;}
     .video-error{color:var(--danger-color);font-size:12px;margin-top:10px;text-align:center;}
-    #videoModal{z-index:1060;}
+    #videoModal{z-index:1400;}
 
-    .search-results-container{max-width:768px;margin:0 auto;box-sizing:border-box;}
+    .search-results-container{max-width:768px;margin:0 auto;box-sizing:border-box;position:relative; z-index: 1100;}
     .modal-dialog{max-width:768px;margin:1.75rem auto;}
 
     /* Sticky header inside product modal */
@@ -119,12 +124,12 @@
 
     /* Fixed Your Order Button */
     .fixed-order-button{
-      position:fixed;bottom:20px;right:20px;z-index:1070;background:var(--primary-color);color:#fff;border:none;border-radius:50px;padding:8px 12px;font-size:12px;font-weight:500;box-shadow:var(--card-shadow);cursor:pointer;transition:background .2s ease,transform .2s ease;
+      position:fixed;bottom:20px;right:20px;z-index:1300;background:var(--primary-color);color:#fff;border:none;border-radius:50px;padding:8px 12px;font-size:12px;font-weight:500;box-shadow:var(--card-shadow);cursor:pointer;transition:background .2s ease,transform .2s ease;
     }
     .fixed-order-button:hover{background:#2e7d32;transform:scale(1.05);}
 
     /* Layout: sidebar + products */
-    .main-content-layout{display:flex;gap:20px;max-width:768px;margin:0 auto;min-height:calc(100vh - 70px);}
+    .main-content-layout{display:flex;gap:20px;max-width:768px;margin:0 auto;min-height:calc(100vh - 70px);position:relative; z-index: 100;}
     .sidebar-container{
       flex-shrink:0;width:180px;background:linear-gradient(135deg,#f8f9fa 0%,#fff 100%);border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,0.1);
       padding:20px 12px;position:sticky;top:80px;align-self:flex-start;max-height:calc(100vh - 110px);overflow-y:auto;
@@ -150,7 +155,7 @@
     @media (max-width: 767.98px){
       /* Main layout becomes narrower; keep sidebar compact */
       .main-content-layout{flex-direction:row;gap:10px;padding:0 5px 20px;}
-      .sidebar-container{width:95px;padding:12px 8px;position:sticky;top:0;max-height:calc(100vh - 70px);overflow-y:auto;}
+      .sidebar-container{width:95px;padding:12px 8px;position:sticky;top:64px;max-height:calc(100vh - 70px);overflow-y:auto;}
       .sidebar-title{font-size:13px;margin-bottom:12px;}
       .vertical-tabs{gap:8px;}
       .tab-item{padding:10px 6px;gap:6px;border-radius:10px;box-shadow:0 2px 4px rgba(0,0,0,0.06);}
@@ -167,6 +172,17 @@
 
       /* MAIN product area becomes single column on small screens (original behavior) */
       .main-content-layout .product-grid{grid-template-columns:1fr;}
+
+      /* Prevent search results container from covering the main layout:
+         give it bottom margin and allow main scroll beneath. */
+      .search-results-container{
+        z-index:1150; /* slightly above main but below modals */
+        margin-bottom: 12px;
+        min-height: 120px;
+      }
+
+      /* Ensure the #content padding keeps the product area visible */
+      #content { padding-top: 64px; }
     }
 
     /* Search results should always be 2 columns (targeted, high specificity so it doesn't affect main area) */
@@ -183,11 +199,11 @@
       .qtyclass{width:56px;height:34px;}
       .card img{max-height:200px;}
       .search-results-container .product-grid{gap:8px;}
+      .search-results-container{min-height: 200px;}
     }
 
     /* small performance/visual tweaks */
     .card img,.category-card img,.tab-icon-img{image-rendering:auto;-webkit-backface-visibility:hidden;backface-visibility:hidden;}
-    .fixed-order-button{position:fixed;bottom:20px;right:20px;z-index:1070;}
   </style>
 </head>
 <body ng-controller="imagesController as vm">
@@ -231,10 +247,10 @@
     </button>
 
     <!-- SEARCH RESULTS (keeps 2-up layout always) -->
-    <div class="search-results-container p-3" ng-if="isSearching">
+    <div class="search-results-container p-3" ng-if="isSearching" aria-live="polite">
       <h2 class="page-title">Search Results for "{{ searchQuery }}"</h2>
 
-      <div ng-if="isLoadingSearchResults" class="product-grid">
+      <div ng-if="isLoadingSearchResults" class="product-grid" role="status" aria-busy="true">
         <div class="card skeleton-card" ng-repeat="i in [1,2,3,4]">
           <div class="skeleton-image"></div>
           <div class="containers">
@@ -262,8 +278,8 @@
     </div>
 
     <!-- MAIN LAYOUT (sidebar + products) -->
-    <div ng-if="!isSearching" class="main-content-layout">
-      <div class="sidebar-container">
+    <div ng-if="!isSearching" class="main-content-layout" role="main">
+      <div class="sidebar-container" aria-label="Categories">
         <div class="vertical-tabs">
           <div class="tab-loading" ng-if="isLoadingCategories">
             <div class="skeleton-tab" ng-repeat="i in [1,2,3,4,5,6,7,8]">
@@ -281,7 +297,7 @@
       </div>
 
       <div class="products-container">
-        <div class="products-header">
+        <div class="products-header" role="region" aria-label="Product controls">
           <select ng-model="sortOrder" ng-change="updateDisplayedProducts()" class="form-select form-select-sm">
             <option value="default">Sort: Newest</option>
             <option value="price">Sort: Price Low</option>
@@ -289,7 +305,7 @@
           </select>
         </div>
 
-        <div class="products-content">
+        <div class="products-content" aria-live="polite">
           <div ng-if="isLoading" class="product-grid">
             <div class="card skeleton-card" ng-repeat="i in [1,2,3,4,5,6]">
               <div class="skeleton-image"></div>
