@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-    <title>ULTIMATE DJ CONSOLE - V24 (STATUS BAR RESTORED)</title>
+    <title>ULTIMATE DJ CONSOLE - V24.1 (CHANNEL FIX)</title>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -99,7 +99,14 @@
         .dd-img { width: 60px; height: 45px; object-fit: cover; margin-right: 12px; border-radius: 4px; flex-shrink: 0;}
         .dd-info { flex: 1; overflow: hidden; }
         .dd-title { font-size: 14px; font-weight: bold; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .dd-sub { font-size: 11px; color: #888; }
+        .dd-sub { font-size: 11px; color: #888; display: flex; align-items: center; gap: 6px;}
+        
+        /* NEW CHANNEL LINK STYLE */
+        .channel-link { color: #aaa; font-weight: bold; cursor: pointer; padding: 2px 4px; border-radius: 3px; transition: 0.2s; z-index: 5; display:inline-flex; align-items:center; gap:4px; }
+        .channel-link:hover { color: var(--cyan); background: rgba(255,255,255,0.1); text-decoration: none; }
+        .deck:last-child .channel-link:hover { color: var(--pink); }
+
+        .dd-loader { padding: 20px; text-align: center; color: #666; font-style: italic; }
 
         /* VISUALS (FIXED ASPECT RATIO) */
         .vis-box { 
@@ -529,20 +536,36 @@
             if(!res.ok && switchKey()) throw new Error();
             const data = await res.json();
             searchState[d].token = data.continuation || data.token || data.next || null;
-            renderResults(d, data.contents || []);
+            renderResults(d, data.contents || [], true); // Append mode
         } catch(e){}
         searchState[d].loading = false;
     }
 
-    function renderResults(d, items) {
+    function renderResults(d, items, append=false) {
         const dd = document.getElementById(`dd${d}`);
+        if(!append) dd.innerHTML = '';
+
         items.forEach(item => {
             const v = item.video;
             const c = item.channel;
             const el = document.createElement('div'); el.className='dd-item';
             
             if(v) {
-                el.innerHTML = `<img src="${v.thumbnails[0].url}" class="dd-img"><div class="dd-info"><div class="dd-title">${v.title}</div><div class="dd-sub">${v.durationText||''}</div></div>`;
+                // Improved Channel Name Detection
+                const channelName = v.channelName || v.channelTitle || (v.channel ? v.channel.name : 'Unknown');
+                const channelId = v.channelId || (v.channel ? v.channel.id : '');
+
+                el.innerHTML = `
+                    <img src="${v.thumbnails[0].url}" class="dd-img">
+                    <div class="dd-info">
+                        <div class="dd-title">${v.title}</div>
+                        <div class="dd-sub">
+                            <span>${v.durationText||''}</span> &bull; 
+                            <span class="channel-link" onclick="event.stopPropagation(); browseChannel(${d}, '${channelId}', '${channelName.replace(/'/g, "\\'")}')">
+                                ${channelName} <i class="fas fa-external-link-alt" style="font-size:10px"></i>
+                            </span>
+                        </div>
+                    </div>`;
                 el.onclick = () => loadTrack(d, v.videoId, v.title, true);
                 dd.appendChild(el);
             } else if(c) {
@@ -555,31 +578,35 @@
 
     async function browseChannel(deck, id, name) {
         searchState[deck].token = null; 
-        const dd = document.getElementById(`dd${deck}`);
-        dd.innerHTML = '<div class="dd-loader">Loading Channel...</div>';
+        const dd = document.getElementById(`deck${deck}`).querySelector('.dropdown');
+        dd.style.display = 'block';
+        dd.innerHTML = `<div class="dd-loader">Loading ${name}...</div>`;
         
-        let url = `https://youtube-search-and-download.p.rapidapi.com/search?query=channel:${id}&type=video`;
+        // FIX: Search by Name directly instead of restricted ID
+        let url = `https://youtube-search-and-download.p.rapidapi.com/search?query=${encodeURIComponent(name)}&type=video`;
+        
         try {
             const res = await fetch(url, { method: 'GET', headers: { 'x-rapidapi-key': getApiKey(), 'x-rapidapi-host': 'youtube-search-and-download.p.rapidapi.com' } });
             const data = await res.json();
             searchState[deck].token = data.continuation || data.token || data.next || null;
             let items = data.contents || [];
-            if(items.length === 0 && name) {
-                 const fallbackUrl = `https://youtube-search-and-download.p.rapidapi.com/search?query=${encodeURIComponent(name + " channel")}&type=video`;
-                 const res2 = await fetch(fallbackUrl, { method: 'GET', headers: { 'x-rapidapi-key': getApiKey(), 'x-rapidapi-host': 'youtube-search-and-download.p.rapidapi.com' } });
-                 const data2 = await res2.json();
-                 items = data2.contents || [];
-                 searchState[deck].token = data2.continuation || data2.token || data2.next || null;
-            }
+            
+            // Render Back Button + Results
             dd.innerHTML = '';
-            const back = document.createElement('div');
-            back.className = 'dd-item'; back.style.justifyContent='center'; back.innerText = '< Back to Search';
-            back.onclick = (e) => { e.stopPropagation(); searchYouTube(deck); };
-            dd.appendChild(back);
+            
+            const backBtn = document.createElement('div');
+            backBtn.className = 'dd-item';
+            backBtn.style.cssText = 'justify-content:center; background:#222; position:sticky; top:0; z-index:10; border-bottom:2px solid #00f0ff; color:#fff; font-weight:bold;';
+            backBtn.innerHTML = `<i class="fas fa-arrow-left"></i> &nbsp; Back to Search`;
+            backBtn.onclick = (e) => { e.stopPropagation(); searchYouTube(deck); };
+            dd.appendChild(backBtn);
+
             if(items.length === 0) {
-                 const empty = document.createElement('div'); empty.className='dd-loader'; empty.innerText = 'No videos found.'; dd.appendChild(empty);
-            } else renderResults(deck, items);
-        } catch(e) { dd.innerHTML = 'Error'; }
+                 const empty = document.createElement('div'); empty.className='dd-loader'; empty.innerText = 'No videos found for this channel.'; dd.appendChild(empty);
+            } else {
+                renderResults(deck, items, true);
+            }
+        } catch(e) { dd.innerHTML = '<div class="dd-loader">Error loading channel</div>'; }
     }
 
     function loadTrack(d, id, title, save) {
