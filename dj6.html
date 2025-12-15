@@ -344,7 +344,7 @@
 
             <div class="scrubber-container">
                 <input type="range" class="scrubber" id="seek1" min="0" max="100" value="0" 
-                    onmousedown="startSeek(1)" onmouseup="endSeek(1)" oninput="seeking(1)">
+                    oninput="startSeek(1)" onchange="endSeek(1)">
             </div>
 
             <div class="controls-grid">
@@ -398,7 +398,7 @@
 
             <div class="scrubber-container">
                 <input type="range" class="scrubber" id="seek2" min="0" max="100" value="0" 
-                    onmousedown="startSeek(2)" onmouseup="endSeek(2)" oninput="seeking(2)">
+                    oninput="startSeek(2)" onchange="endSeek(2)">
             </div>
 
             <div class="controls-grid">
@@ -665,14 +665,32 @@
         }, 500);
     }
     
-    function startSeek(d) { state[d].dragging = true; }
-    function seeking(d) { }
+    // ----- FIX START: UPDATED SEEKING LOGIC -----
+    function startSeek(d) { 
+        state[d].dragging = true; 
+    }
+    
+    // Keep function name for compatibility, but ensures drag lock
+    function seeking(d) { 
+        state[d].dragging = true; 
+    }
+    
     function endSeek(d) {
         if(!state[d].isReady) return;
-        const v = document.getElementById(`seek${d}`).value, dur = players[d].getDuration();
-        if(dur) players[d].seekTo((v/100)*dur, true);
-        state[d].dragging = false;
+        const v = document.getElementById(`seek${d}`).value;
+        const dur = players[d].getDuration();
+        
+        if(dur) {
+            players[d].seekTo((v/100)*dur, true);
+        }
+        
+        // Critical: Small delay to prevent the timer from snapping the slider 
+        // back to the old time before the video actually jumps.
+        setTimeout(() => {
+            state[d].dragging = false;
+        }, 500);
     }
+    // ----- FIX END -----
 
     function playPause(d) { if(state[d].isReady) players[d].getPlayerState()===1 ? players[d].pauseVideo() : players[d].playVideo(); }
     function cue(d) { if(state[d].isReady) { players[d].pauseVideo(); players[d].seekTo(0); } }
