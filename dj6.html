@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>ULTIMATE DJ CONSOLE - V11 (SCROLL FIX & KEY ROTATION)</title>
+    <title>ULTIMATE DJ CONSOLE - V15 (READY STATE LOCK)</title>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -123,7 +123,7 @@
 <body>
 
 <header>
-    <div class="logo"><i class="fas fa-video" style="color:var(--cyan)"></i> ULTIMATE CONSOLE V11</div>
+    <div class="logo"><i class="fas fa-video" style="color:var(--cyan)"></i> ULTIMATE CONSOLE V15</div>
     <div style="display:flex; gap:10px;">
         <button class="btn-sm btn-lib" onclick="toggleLibrary()"><i class="fas fa-music"></i> LIBRARY</button>
         <button class="btn-sm" onclick="exportData()">Backup</button>
@@ -294,9 +294,10 @@
 
     /* ----- STATE ----- */
     const players = { 1: null, 2: null };
+    // NEW: isReady flag strictly controls access to player methods
     const state = {
-        1: { playing: false, loops: {}, hots: {A:null,B:null,C:null}, dragging: false },
-        2: { playing: false, loops: {}, hots: {A:null,B:null,C:null}, dragging: false }
+        1: { playing: false, loops: {}, hots: {A:null,B:null,C:null}, dragging: false, isReady: false },
+        2: { playing: false, loops: {}, hots: {A:null,B:null,C:null}, dragging: false, isReady: false }
     };
     const searchState = {
         1: { query: '', token: null, loading: false, timer: null },
@@ -304,22 +305,15 @@
     };
     let history = [];
     let categories = [];
-    
-    // API KEYS ROTATION SYSTEM
     let currentKeyIndex = 0;
     const apiKeys = [
         '13452c8109msh7750057c5193b47p1c47c0jsn5d53a80bb998', 
         'd85300e47amsh5ad671c2832cec6p1b7953jsnab9c3a237b6e'
     ];
-    function getApiKey() {
-        return apiKeys[currentKeyIndex];
-    }
+
+    function getApiKey() { return apiKeys[currentKeyIndex]; }
     function switchKey() {
-        if(currentKeyIndex < apiKeys.length - 1) {
-            currentKeyIndex++;
-            console.log("Switching to API Key: " + currentKeyIndex);
-            return true;
-        }
+        if(currentKeyIndex < apiKeys.length - 1) { currentKeyIndex++; return true; }
         return false;
     }
 
@@ -351,24 +345,33 @@
             }
         });
 
-        // Initialize scroll listeners
         document.getElementById('dd1').onscroll = () => checkScroll(1);
         document.getElementById('dd2').onscroll = () => checkScroll(2);
     };
 
+    // INIT PLAYERS
     window.onYouTubeIframeAPIReady = function() {
-        players[1] = new YT.Player('p1-wrap', { height:'100%', width:'100%', events: { 'onStateChange': e => onState(1, e), 'onReady': () => setVol() } });
-        players[2] = new YT.Player('p2-wrap', { height:'100%', width:'100%', events: { 'onStateChange': e => onState(2, e), 'onReady': () => setVol() } });
+        players[1] = new YT.Player('p1-wrap', { 
+            height:'100%', width:'100%', 
+            events: { 
+                'onStateChange': e => onState(1, e), 
+                'onReady': () => { state[1].isReady = true; setVol(); } // MARK READY
+            } 
+        });
+        players[2] = new YT.Player('p2-wrap', { 
+            height:'100%', width:'100%', 
+            events: { 
+                'onStateChange': e => onState(2, e), 
+                'onReady': () => { state[2].isReady = true; setVol(); } // MARK READY
+            } 
+        });
     };
 
     /* ----- AUTO SEARCH LOGIC ----- */
     function handleType(deck) {
         clearTimeout(searchState[deck].timer);
         const val = document.getElementById(`search${deck}`).value;
-        if(!val) {
-             document.getElementById(`dd${deck}`).style.display = 'none';
-             return; 
-        }
+        if(!val) { document.getElementById(`dd${deck}`).style.display = 'none'; return; }
         document.getElementById(`type${deck}`).style.display = 'block';
         searchState[deck].timer = setTimeout(() => {
             document.getElementById(`type${deck}`).style.display = 'none';
@@ -379,47 +382,30 @@
     async function searchYouTube(deck, retry = false) {
         const query = document.getElementById(`search${deck}`).value;
         if(!query) return;
-
         searchState[deck].query = query;
         searchState[deck].token = null;
         searchState[deck].loading = true;
 
         const dd = document.getElementById(`dd${deck}`);
-        if(!retry) {
-            dd.scrollTop = 0;
-            dd.innerHTML = '<div class="dd-loader">Loading...</div>';
-            dd.style.display = 'block';
-        }
+        if(!retry) { dd.scrollTop = 0; dd.innerHTML = '<div class="dd-loader">Loading...</div>'; dd.style.display = 'block'; }
 
         const url = `https://youtube-search-and-download.p.rapidapi.com/search?query=${encodeURIComponent(query)}&type=all`;
-        
         try {
             const res = await fetch(url, { method: 'GET', headers: { 'x-rapidapi-key': getApiKey(), 'x-rapidapi-host': 'youtube-search-and-download.p.rapidapi.com' } });
-            
-            if(!res.ok) {
-                if(switchKey()) { searchYouTube(deck, true); return; } // Retry with new key
-                throw new Error("API Limit");
-            }
-
+            if(!res.ok) { if(switchKey()) { searchYouTube(deck, true); return; } throw new Error("API Limit"); }
             const data = await res.json();
             searchState[deck].token = data.continuation || data.token || data.next || null;
             searchState[deck].loading = false;
-            
             dd.innerHTML = '';
             if(!data.contents || !data.contents.length) { dd.innerHTML='<div class="dd-loader">No Results</div>'; return; }
             renderResults(deck, data.contents);
-        } catch(e) { 
-            dd.innerHTML = '<div class="dd-loader" style="color:red">API Error (Try waiting or check keys)</div>'; 
-            searchState[deck].loading = false; 
-        }
+        } catch(e) { dd.innerHTML = '<div class="dd-loader" style="color:red">API Error</div>'; searchState[deck].loading = false; }
     }
 
     function checkScroll(deck) {
         const dd = document.getElementById(`dd${deck}`);
         if (dd.scrollHeight - dd.scrollTop <= dd.clientHeight + 100) {
-            if (!searchState[deck].loading && searchState[deck].token) {
-                loadMore(deck);
-            }
+            if (!searchState[deck].loading && searchState[deck].token) loadMore(deck);
         }
     }
 
@@ -430,36 +416,16 @@
         loader.className = 'dd-loader'; loader.innerText = 'Loading more...'; loader.id = `loader${deck}`;
         dd.appendChild(loader);
 
-        // FIXED: Using 'next' param instead of 'token'
         const url = `https://youtube-search-and-download.p.rapidapi.com/search?next=${searchState[deck].token}`;
-
         try {
             const res = await fetch(url, { method: 'GET', headers: { 'x-rapidapi-key': getApiKey(), 'x-rapidapi-host': 'youtube-search-and-download.p.rapidapi.com' } });
-            
-            if(!res.ok) {
-                if(switchKey()) { 
-                     // Retry logic for loadMore is complex because of async recursion, 
-                     // simpler to just fail this attempt and let user scroll again
-                     throw new Error("API Limit");
-                }
-            }
-
+            if(!res.ok && switchKey()) throw new Error("API Limit");
             const data = await res.json();
             searchState[deck].token = data.continuation || data.token || data.next || null;
             searchState[deck].loading = false;
-            
             const l = document.getElementById(`loader${deck}`); if(l) l.remove();
-            
             if(data.contents) renderResults(deck, data.contents);
-            else if (searchState[deck].token === null) {
-                 const end = document.createElement('div'); end.className='dd-loader'; end.innerText='End of results'; dd.appendChild(end);
-            }
-
-        } catch(e) { 
-            console.error(e); 
-            searchState[deck].loading = false;
-            const l = document.getElementById(`loader${deck}`); if(l) l.innerHTML = 'Error loading more';
-        }
+        } catch(e) { searchState[deck].loading = false; const l = document.getElementById(`loader${deck}`); if(l) l.innerHTML = 'Error'; }
     }
 
     function renderResults(deck, items) {
@@ -490,20 +456,20 @@
         try {
             const res = await fetch(url, { method: 'GET', headers: { 'x-rapidapi-key': getApiKey(), 'x-rapidapi-host': 'youtube-search-and-download.p.rapidapi.com' } });
             const data = await res.json();
+            searchState[deck].token = data.continuation || data.token || data.next || null;
             let items = data.contents || [];
-            
             if(items.length === 0 && name) {
                  const fallbackUrl = `https://youtube-search-and-download.p.rapidapi.com/search?query=${encodeURIComponent(name + " channel")}&type=video`;
                  const res2 = await fetch(fallbackUrl, { method: 'GET', headers: { 'x-rapidapi-key': getApiKey(), 'x-rapidapi-host': 'youtube-search-and-download.p.rapidapi.com' } });
                  const data2 = await res2.json();
                  items = data2.contents || [];
+                 searchState[deck].token = data2.continuation || data2.token || data2.next || null;
             }
             dd.innerHTML = '';
             const back = document.createElement('div');
             back.className = 'dd-back'; back.innerText = '< Back to Search';
             back.onclick = (e) => { e.stopPropagation(); searchYouTube(deck); };
             dd.appendChild(back);
-
             if(items.length === 0) {
                  const empty = document.createElement('div'); empty.className='dd-loader'; empty.innerText = 'No videos found.'; dd.appendChild(empty);
             } else renderResults(deck, items);
@@ -511,39 +477,38 @@
     }
 
     function loadTrack(deck, id, title, addToHistory) {
-        if(players[deck]) {
-            players[deck].loadVideoById(id);
-            document.getElementById(`title${deck}`).innerText = title;
-            document.getElementById(`dd${deck}`).style.display = 'none';
-            document.getElementById(`seek${deck}`).value = 0;
-            document.getElementById(`search${deck}`).value = '';
-            document.getElementById('modal-library').style.display = 'none';
-            if(addToHistory) {
-                db.ref('playedHistory').push({ title: title, videoId: id, category: 'Uncategorized', timestamp: Date.now() });
-            }
+        if(!state[deck].isReady) return; // SAFE GUARD
+        players[deck].loadVideoById(id);
+        document.getElementById(`title${deck}`).innerText = title;
+        document.getElementById(`dd${deck}`).style.display = 'none';
+        document.getElementById(`seek${deck}`).value = 0;
+        document.getElementById(`search${deck}`).value = '';
+        document.getElementById('modal-library').style.display = 'none';
+        if(addToHistory) {
+            db.ref('playedHistory').push({ title: title, videoId: id, category: 'Uncategorized', timestamp: Date.now() });
         }
     }
 
-    /* ----- SCRUBBER & PLAYER ----- */
+    /* ----- CONTROLS & SAFE GUARDS ----- */
     function startSeek(d) { state[d].dragging = true; }
     function seeking(d) { }
     function endSeek(d) {
+        if(!state[d].isReady) return;
         const val = document.getElementById(`seek${d}`).value;
         const dur = players[d].getDuration();
         if(dur) players[d].seekTo((val/100)*dur, true);
         state[d].dragging = false;
     }
     function updateSeek(d) {
-        if(!state[d].dragging && players[d] && players[d].getDuration) {
-            const cur = players[d].getCurrentTime();
-            const dur = players[d].getDuration();
-            if(dur > 0) {
-                const perc = (cur / dur) * 100;
-                const bar = document.getElementById(`seek${d}`);
-                bar.value = perc;
-                const color = d===1 ? 'var(--cyan)' : 'var(--pink)';
-                bar.style.background = `linear-gradient(90deg, ${color} ${perc}%, #222 ${perc}%)`;
-            }
+        if(!state[d].isReady || state[d].dragging) return;
+        const cur = players[d].getCurrentTime();
+        const dur = players[d].getDuration();
+        if(dur > 0) {
+            const perc = (cur / dur) * 100;
+            const bar = document.getElementById(`seek${d}`);
+            bar.value = perc;
+            const color = d===1 ? 'var(--cyan)' : 'var(--pink)';
+            bar.style.background = `linear-gradient(90deg, ${color} ${perc}%, #222 ${perc}%)`;
         }
     }
     function onState(deck, e) {
@@ -554,7 +519,7 @@
     function startTime(deck) {
         if(window[`tmr${deck}`]) clearInterval(window[`tmr${deck}`]);
         window[`tmr${deck}`] = setInterval(() => {
-            if(players[deck] && state[deck].playing) {
+            if(state[deck].playing && state[deck].isReady) {
                 const t = players[deck].getCurrentTime();
                 const m = Math.floor(t/60).toString().padStart(2,'0');
                 const s = Math.floor(t%60).toString().padStart(2,'0');
@@ -563,9 +528,13 @@
             }
         }, 200);
     }
-    function playPause(d) { if(players[d].getPlayerState()===1) players[d].pauseVideo(); else players[d].playVideo(); }
-    function cue(d) { players[d].pauseVideo(); players[d].seekTo(0); document.getElementById(`seek${d}`).value = 0; }
+    
+    // SAFE CONTROL WRAPPERS
+    function playPause(d) { if(state[d].isReady) { if(players[d].getPlayerState()===1) players[d].pauseVideo(); else players[d].playVideo(); } }
+    function cue(d) { if(state[d].isReady) { players[d].pauseVideo(); players[d].seekTo(0); document.getElementById(`seek${d}`).value = 0; } }
+    
     function loop(d, len) {
+        if(!state[d].isReady) return;
         const btn = document.getElementById(`loop${d}-${len}`);
         if(btn.classList.contains('active-loop')) { clearInterval(state[d].loops[len]); btn.classList.remove('active-loop'); }
         else {
@@ -576,26 +545,32 @@
         }
     }
     function hotCue(d, l) {
+        if(!state[d].isReady) return;
         const btn = document.getElementById(`hot${d}-${l}`);
         if(state[d].hots[l] !== null) players[d].seekTo(state[d].hots[l], true);
         else { state[d].hots[l] = players[d].getCurrentTime(); btn.classList.add('set'); }
     }
     function delCue(d) { ['A','B','C'].forEach(l => { state[d].hots[l]=null; document.getElementById(`hot${d}-${l}`).classList.remove('set'); }); }
+    
     function setRate(d) {
+        if(!state[d].isReady) return;
         const v = document.getElementById(`tempo${d}`).value;
         document.getElementById(`rate${d}`).innerText = Math.round(v*100)+'%';
         players[d].setPlaybackRate(parseFloat(v));
     }
 
-    /* ----- MIXER ----- */
+    /* ----- MIXER (FIXED) ----- */
     function setVol() {
-        if(!players[1] || !players[2]) return;
+        // Safe check using IS READY flags
         const xVal = parseInt(document.getElementById('xfader').value);
         const x = xVal / 100;
         const v1 = parseInt(document.getElementById('vol1').value) / 100;
         const v2 = parseInt(document.getElementById('vol2').value) / 100;
         const g1 = Math.cos(x * 1.57); const g2 = Math.sin(x * 1.57);
-        players[1].setVolume(v1 * g1 * 100); players[2].setVolume(v2 * g2 * 100);
+        
+        if(state[1].isReady) players[1].setVolume(v1 * g1 * 100);
+        if(state[2].isReady) players[2].setVolume(v2 * g2 * 100);
+        
         updateLibStatus(xVal);
     }
     
