@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>ULTIMATE DJ CONSOLE - V7 (FIXED SCROLL & CHANNELS)</title>
+    <title>ULTIMATE DJ CONSOLE - V11 (SCROLL FIX & KEY ROTATION)</title>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -22,9 +22,10 @@
         .logo { font-weight: 900; letter-spacing: 1px; color: #fff; display:flex; align-items:center; gap:8px; }
         .btn-sm { background: #222; border: 1px solid #444; color: #ccc; padding: 5px 12px; border-radius: 4px; font-size: 11px; cursor: pointer; transition: 0.2s; }
         .btn-sm:hover { background: #444; color: #fff; border-color: #666; }
+        .btn-lib { background: #333; border: 1px solid #666; color: #fff; font-weight: bold; }
 
         /* LAYOUT */
-        .console { display: flex; flex: 1; overflow: hidden; }
+        .console { display: flex; flex: 1; overflow: hidden; height: 100%; }
         .deck { flex: 2; display: flex; flex-direction: column; gap: 8px; padding: 10px; position: relative; background: linear-gradient(180deg, #1e1e1e 0%, #121212 100%); border-right: 1px solid var(--border); }
         .deck.right { border-left: 1px solid var(--border); border-right: none; }
         .deck-header { display: flex; align-items: center; justify-content: space-between; }
@@ -34,16 +35,18 @@
 
         /* SEARCH & DROPDOWN */
         .search-area { flex: 1; margin-left: 15px; position: relative; display: flex; gap: 5px; }
-        .inp-search { width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 6px 10px; border-radius: 3px; font-size: 12px; }
-        .inp-search:focus { outline: none; border-color: var(--cyan); }
         
-        /* DROPDOWN FIXED FOR SCROLLING */
+        .inp-wrapper { position: relative; width: 100%; }
+        .inp-search { width: 100%; box-sizing: border-box; background: #000; border: 1px solid #333; color: #fff; padding: 6px 10px; border-radius: 3px; font-size: 12px; }
+        .inp-search:focus { outline: none; border-color: var(--cyan); }
+        .typing-indicator { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 10px; color: var(--cyan); display: none; }
+
         .dropdown {
             position: absolute; top: 35px; left: 0; width: 100%; 
-            height: 350px; /* Fixed Height */
-            max-height: 350px;
+            height: 400px;
+            max-height: 400px;
             background: #1a1a1a; border: 1px solid #555; z-index: 1000;
-            overflow-y: scroll; /* Force Scrollbar */
+            overflow-y: auto; 
             display: none; box-shadow: 0 10px 30px rgba(0,0,0,1);
         }
         .dd-item { display: flex; padding: 8px; border-bottom: 1px solid #333; cursor: pointer; align-items: center; min-height: 50px; }
@@ -53,14 +56,11 @@
         .dd-title { font-size: 12px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .dd-sub { font-size: 10px; color: #888; }
         .dd-back { text-align: center; padding: 10px; background: #333; font-weight: bold; cursor: pointer; border-bottom: 1px solid #444; position: sticky; top: 0; z-index: 10; }
-        .dd-loader { text-align: center; padding: 15px; font-size: 11px; color: #888; background: #111; }
+        .dd-loader { text-align: center; padding: 15px; font-size: 11px; color: #888; background: #111; border-top: 1px solid #333; }
 
-        /* VISUALS */
-        .vis-box { height: 120px; background: #000; border: 1px solid #333; border-radius: 4px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 5px; }
-        .vinyl { width: 90px; height: 90px; border-radius: 50%; background: #222; border: 2px solid #444; position: relative; z-index: 2; transition: transform 0.1s linear; display: flex; align-items: center; justify-content: center; }
-        .vinyl::after { content: ''; width: 30px; height: 30px; background: #111; border-radius: 50%; border: 1px solid #555; }
-        .spinning { animation: spin 1.8s linear infinite; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        /* VISUALS - VIDEO PLAYER */
+        .vis-box { height: 140px; background: #000; border: 1px solid #333; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 5px; }
+        .video-container { width: 100%; height: 100%; }
 
         /* SCRUBBER */
         .scrubber-container { width: 100%; margin-bottom: 8px; }
@@ -98,26 +98,34 @@
         .xfader { width: 100%; -webkit-appearance: none; height: 25px; background: #000; border: 1px solid #333; border-radius: 4px; margin-top: auto; }
         .xfader::-webkit-slider-thumb { -webkit-appearance: none; width: 40px; height: 25px; background: #444; border: 1px solid #666; cursor: ew-resize; }
 
-        /* LIBRARY */
-        .library { height: 250px; background: #111; border-top: 2px solid #333; display: flex; flex-direction: column; }
-        .lib-tools { padding: 8px; background: #1a1a1a; display: flex; gap: 8px; border-bottom: 1px solid #333; align-items: center; }
-        .lib-scroll { flex: 1; overflow-y: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        th { text-align: left; background: #000; padding: 8px; color: #888; position: sticky; top: 0; z-index: 10; }
-        td { padding: 6px 8px; border-bottom: 1px solid #222; color: #ccc; }
-        tr:hover { background: #222; }
-        
-        /* UTILS */
-        .hide-player { position: absolute; top:0; left:0; width:1px; height:1px; opacity:0; pointer-events: none; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-box { background: #1e1e1e; padding: 20px; border-radius: 6px; width: 400px; border: 1px solid #444; }
+        /* MODALS */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-box { background: #1e1e1e; padding: 20px; border-radius: 6px; width: 400px; border: 1px solid #444; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+        #modal-library .modal-box { width: 85%; height: 85%; max-width: 900px; display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+        .lib-header { padding: 15px; background: #000; border-bottom: 1px solid #333; }
+        .lib-status-bar { height: 30px; margin-bottom: 10px; display: flex; border-radius: 4px; overflow: hidden; background: #111; border: 1px solid #333; }
+        .lib-status-side { flex: 1; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 11px; color: #444; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px; }
+        .lib-status-side.active-a { background: var(--cyan); color: #000; box-shadow: 0 0 15px var(--cyan); }
+        .lib-status-side.active-b { background: var(--pink); color: #fff; box-shadow: 0 0 15px var(--pink); }
+        .lib-status-side.active-mix { background: #ffaa00; color: #000; }
+        .lib-tools { padding: 10px; background: #1a1a1a; display: flex; gap: 8px; border-bottom: 1px solid #333; align-items: center; }
+        .lib-scroll { flex: 1; overflow-y: auto; background: #121212; padding: 0; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { text-align: left; background: #222; padding: 12px; color: #fff; position: sticky; top: 0; z-index: 10; font-size: 11px; text-transform: uppercase; }
+        td { padding: 10px 12px; border-bottom: 1px solid #222; color: #ccc; }
+        tr:hover { background: #1f1f1f; }
+        .btn-load { font-size: 10px; padding: 4px 8px; border-radius: 3px; font-weight: bold; border:none; cursor: pointer; }
+        .btn-load.a { background: rgba(0, 229, 255, 0.2); color: var(--cyan); border: 1px solid rgba(0, 229, 255, 0.4); }
+        .btn-load.b { background: rgba(255, 0, 85, 0.2); color: var(--pink); border: 1px solid rgba(255, 0, 85, 0.4); }
+        .btn-load:hover { filter: brightness(1.5); }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo"><i class="fas fa-compact-disc fa-spin" style="color:var(--cyan)"></i> ULTIMATE CONSOLE V7</div>
-    <div>
+    <div class="logo"><i class="fas fa-video" style="color:var(--cyan)"></i> ULTIMATE CONSOLE V11</div>
+    <div style="display:flex; gap:10px;">
+        <button class="btn-sm btn-lib" onclick="toggleLibrary()"><i class="fas fa-music"></i> LIBRARY</button>
         <button class="btn-sm" onclick="exportData()">Backup</button>
         <button class="btn-sm" onclick="document.getElementById('file-restore').click()">Restore</button>
         <input type="file" id="file-restore" hidden onchange="importData(event)">
@@ -130,15 +138,16 @@
         <div class="deck-header">
             <div class="deck-id">A</div>
             <div class="search-area">
-                <input type="text" class="inp-search" id="search1" placeholder="Search YouTube..." onkeypress="if(event.key==='Enter') searchYouTube(1)">
-                <button class="btn-sm" onclick="searchYouTube(1)"><i class="fas fa-search"></i></button>
+                <div class="inp-wrapper">
+                    <input type="text" class="inp-search" id="search1" placeholder="Type to Auto-Search..." oninput="handleType(1)">
+                    <div class="typing-indicator" id="type1">Searching...</div>
+                </div>
                 <div class="dropdown" id="dd1"></div>
             </div>
         </div>
         
         <div class="vis-box">
-            <div class="vinyl" id="vinyl1"></div>
-            <div id="p1-wrap" class="hide-player"></div>
+            <div id="p1-wrap" class="video-container"></div>
         </div>
 
         <div class="scrubber-container">
@@ -190,15 +199,16 @@
         <div class="deck-header">
             <div class="deck-id">B</div>
             <div class="search-area">
-                <input type="text" class="inp-search" id="search2" placeholder="Search YouTube..." onkeypress="if(event.key==='Enter') searchYouTube(2)">
-                <button class="btn-sm" onclick="searchYouTube(2)"><i class="fas fa-search"></i></button>
+                <div class="inp-wrapper">
+                    <input type="text" class="inp-search" id="search2" placeholder="Type to Auto-Search..." oninput="handleType(2)">
+                    <div class="typing-indicator" id="type2">Searching...</div>
+                </div>
                 <div class="dropdown" id="dd2"></div>
             </div>
         </div>
         
         <div class="vis-box">
-            <div class="vinyl" id="vinyl2"></div>
-            <div id="p2-wrap" class="hide-player"></div>
+            <div id="p2-wrap" class="video-container"></div>
         </div>
 
         <div class="scrubber-container">
@@ -229,31 +239,39 @@
     </div>
 </div>
 
-<div class="library">
-    <div class="lib-tools">
-        <select id="cat-filter" class="btn-sm" onchange="renderLib()">
-            <option value="">All Categories</option>
-        </select>
-        <input type="text" id="lib-filter" class="inp-search" style="width:200px" placeholder="Search Library..." onkeyup="renderLib()">
-        <div style="flex:1"></div>
-        <span style="font-size:11px; color:#666">Count: <span id="count">0</span></span>
-    </div>
-    <div class="lib-scroll">
-        <table id="lib-table">
-            <thead>
-                <tr>
-                    <th style="width:40%">Title</th>
-                    <th style="width:30%">Category</th>
-                    <th style="width:30%">Actions</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+<div class="modal" id="modal-library" onclick="if(event.target===this) this.style.display='none'">
+    <div class="modal-box">
+        <div class="lib-header">
+            <div class="lib-status-bar">
+                <div class="lib-status-side" id="status-a">LIVE: DECK A</div>
+                <div class="lib-status-side" id="status-b">LIVE: DECK B</div>
+            </div>
+            <div class="lib-tools">
+                <select id="cat-filter" class="inp-search" style="width:150px" onchange="renderLib()">
+                    <option value="">All Categories</option>
+                </select>
+                <input type="text" id="lib-filter" class="inp-search" style="flex:1" placeholder="Search Library..." onkeyup="renderLib()">
+                <span style="font-size:11px; color:#666; white-space:nowrap;">Tracks: <span id="count">0</span></span>
+                <button class="btn-sm" style="color:red" onclick="document.getElementById('modal-library').style.display='none'"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+        <div class="lib-scroll">
+            <table id="lib-table">
+                <thead>
+                    <tr>
+                        <th style="width:40%">Title</th>
+                        <th style="width:25%">Category</th>
+                        <th style="width:35%; text-align:right">Load To Deck</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <div class="modal" id="modal-notes" onclick="if(event.target===this) this.style.display='none'">
-    <div class="modal-box">
+    <div class="modal-box" style="width:400px; height:auto;">
         <h3>DJ Notes</h3>
         <textarea id="notes-text" style="width:100%; height:150px; background:#111; color:#fff; border:1px solid #333; margin-bottom:10px;"></textarea>
         <button class="btn-sm" onclick="saveNotes()">Save</button>
@@ -280,18 +298,30 @@
         1: { playing: false, loops: {}, hots: {A:null,B:null,C:null}, dragging: false },
         2: { playing: false, loops: {}, hots: {A:null,B:null,C:null}, dragging: false }
     };
-    // Search State (for Infinite Scroll)
     const searchState = {
-        1: { query: '', token: null, loading: false },
-        2: { query: '', token: null, loading: false }
+        1: { query: '', token: null, loading: false, timer: null },
+        2: { query: '', token: null, loading: false, timer: null }
     };
     let history = [];
     let categories = [];
-    // YouTube API Keys Rotation
+    
+    // API KEYS ROTATION SYSTEM
+    let currentKeyIndex = 0;
     const apiKeys = [
         '13452c8109msh7750057c5193b47p1c47c0jsn5d53a80bb998', 
         'd85300e47amsh5ad671c2832cec6p1b7953jsnab9c3a237b6e'
     ];
+    function getApiKey() {
+        return apiKeys[currentKeyIndex];
+    }
+    function switchKey() {
+        if(currentKeyIndex < apiKeys.length - 1) {
+            currentKeyIndex++;
+            console.log("Switching to API Key: " + currentKeyIndex);
+            return true;
+        }
+        return false;
+    }
 
     /* ----- INIT ----- */
     window.onload = function() {
@@ -321,9 +351,9 @@
             }
         });
 
-        // Infinite Scroll Listeners
-        document.getElementById('dd1').addEventListener('scroll', () => checkScroll(1));
-        document.getElementById('dd2').addEventListener('scroll', () => checkScroll(2));
+        // Initialize scroll listeners
+        document.getElementById('dd1').onscroll = () => checkScroll(1);
+        document.getElementById('dd2').onscroll = () => checkScroll(2);
     };
 
     window.onYouTubeIframeAPIReady = function() {
@@ -331,42 +361,62 @@
         players[2] = new YT.Player('p2-wrap', { height:'100%', width:'100%', events: { 'onStateChange': e => onState(2, e), 'onReady': () => setVol() } });
     };
 
-    /* ----- SEARCH LOGIC + INFINITE SCROLL ----- */
-    async function searchYouTube(deck, qOverride = null) {
-        const query = qOverride || document.getElementById(`search${deck}`).value;
+    /* ----- AUTO SEARCH LOGIC ----- */
+    function handleType(deck) {
+        clearTimeout(searchState[deck].timer);
+        const val = document.getElementById(`search${deck}`).value;
+        if(!val) {
+             document.getElementById(`dd${deck}`).style.display = 'none';
+             return; 
+        }
+        document.getElementById(`type${deck}`).style.display = 'block';
+        searchState[deck].timer = setTimeout(() => {
+            document.getElementById(`type${deck}`).style.display = 'none';
+            searchYouTube(deck);
+        }, 1000); 
+    }
+
+    async function searchYouTube(deck, retry = false) {
+        const query = document.getElementById(`search${deck}`).value;
         if(!query) return;
 
-        // Reset search state
         searchState[deck].query = query;
         searchState[deck].token = null;
         searchState[deck].loading = true;
 
         const dd = document.getElementById(`dd${deck}`);
-        dd.scrollTop = 0;
-        dd.innerHTML = '<div class="dd-loader">Loading...</div>';
-        dd.style.display = 'block';
+        if(!retry) {
+            dd.scrollTop = 0;
+            dd.innerHTML = '<div class="dd-loader">Loading...</div>';
+            dd.style.display = 'block';
+        }
 
         const url = `https://youtube-search-and-download.p.rapidapi.com/search?query=${encodeURIComponent(query)}&type=all`;
         
         try {
-            const res = await fetch(url, { method: 'GET', headers: { 'x-rapidapi-key': apiKeys[0], 'x-rapidapi-host': 'youtube-search-and-download.p.rapidapi.com' } });
-            const data = await res.json();
+            const res = await fetch(url, { method: 'GET', headers: { 'x-rapidapi-key': getApiKey(), 'x-rapidapi-host': 'youtube-search-and-download.p.rapidapi.com' } });
             
-            // Extract Continuation Token (Robust Check)
+            if(!res.ok) {
+                if(switchKey()) { searchYouTube(deck, true); return; } // Retry with new key
+                throw new Error("API Limit");
+            }
+
+            const data = await res.json();
             searchState[deck].token = data.continuation || data.token || data.next || null;
             searchState[deck].loading = false;
-
+            
             dd.innerHTML = '';
             if(!data.contents || !data.contents.length) { dd.innerHTML='<div class="dd-loader">No Results</div>'; return; }
             renderResults(deck, data.contents);
-
-        } catch(e) { dd.innerHTML = '<div class="dd-loader">Error fetching data</div>'; searchState[deck].loading = false; }
+        } catch(e) { 
+            dd.innerHTML = '<div class="dd-loader" style="color:red">API Error (Try waiting or check keys)</div>'; 
+            searchState[deck].loading = false; 
+        }
     }
 
     function checkScroll(deck) {
         const dd = document.getElementById(`dd${deck}`);
-        // Sensitive Scroll Check (scrollHeight - scrollTop <= clientHeight + padding)
-        if (dd.scrollHeight - dd.scrollTop <= dd.clientHeight + 50) {
+        if (dd.scrollHeight - dd.scrollTop <= dd.clientHeight + 100) {
             if (!searchState[deck].loading && searchState[deck].token) {
                 loadMore(deck);
             }
@@ -376,24 +426,40 @@
     async function loadMore(deck) {
         searchState[deck].loading = true;
         const dd = document.getElementById(`dd${deck}`);
-        
         const loader = document.createElement('div');
         loader.className = 'dd-loader'; loader.innerText = 'Loading more...'; loader.id = `loader${deck}`;
         dd.appendChild(loader);
 
-        const url = `https://youtube-search-and-download.p.rapidapi.com/search?token=${searchState[deck].token}`;
+        // FIXED: Using 'next' param instead of 'token'
+        const url = `https://youtube-search-and-download.p.rapidapi.com/search?next=${searchState[deck].token}`;
 
         try {
-            const res = await fetch(url, { method: 'GET', headers: { 'x-rapidapi-key': apiKeys[0], 'x-rapidapi-host': 'youtube-search-and-download.p.rapidapi.com' } });
-            const data = await res.json();
+            const res = await fetch(url, { method: 'GET', headers: { 'x-rapidapi-key': getApiKey(), 'x-rapidapi-host': 'youtube-search-and-download.p.rapidapi.com' } });
             
+            if(!res.ok) {
+                if(switchKey()) { 
+                     // Retry logic for loadMore is complex because of async recursion, 
+                     // simpler to just fail this attempt and let user scroll again
+                     throw new Error("API Limit");
+                }
+            }
+
+            const data = await res.json();
             searchState[deck].token = data.continuation || data.token || data.next || null;
             searchState[deck].loading = false;
             
             const l = document.getElementById(`loader${deck}`); if(l) l.remove();
-            renderResults(deck, data.contents || []);
+            
+            if(data.contents) renderResults(deck, data.contents);
+            else if (searchState[deck].token === null) {
+                 const end = document.createElement('div'); end.className='dd-loader'; end.innerText='End of results'; dd.appendChild(end);
+            }
 
-        } catch(e) { console.error(e); searchState[deck].loading = false; }
+        } catch(e) { 
+            console.error(e); 
+            searchState[deck].loading = false;
+            const l = document.getElementById(`loader${deck}`); if(l) l.innerHTML = 'Error loading more';
+        }
     }
 
     function renderResults(deck, items) {
@@ -403,7 +469,6 @@
             const chan = item.channel;
             const el = document.createElement('div');
             el.className = 'dd-item';
-            
             if(vid) {
                 el.innerHTML = `<img src="${vid.thumbnails[0].url}" class="dd-img"><div class="dd-info"><div class="dd-title">${vid.title}</div><div class="dd-sub">${vid.durationText || 'Video'}</div></div>`;
                 el.onclick = () => loadTrack(deck, vid.videoId, vid.title, true);
@@ -421,24 +486,18 @@
         const dd = document.getElementById(`dd${deck}`);
         dd.innerHTML = '<div class="dd-loader">Loading Channel...</div>';
         
-        // Use Fallback search if specific endpoint fails or returns 0
         let url = `https://youtube-search-and-download.p.rapidapi.com/search?query=channel:${id}&type=video`;
-        
         try {
-            const res = await fetch(url, { method: 'GET', headers: { 'x-rapidapi-key': apiKeys[0], 'x-rapidapi-host': 'youtube-search-and-download.p.rapidapi.com' } });
+            const res = await fetch(url, { method: 'GET', headers: { 'x-rapidapi-key': getApiKey(), 'x-rapidapi-host': 'youtube-search-and-download.p.rapidapi.com' } });
             const data = await res.json();
-            
-            // Check if results exist
             let items = data.contents || [];
             
-            // Fallback: If 0 results, search by name + "channel"
             if(items.length === 0 && name) {
                  const fallbackUrl = `https://youtube-search-and-download.p.rapidapi.com/search?query=${encodeURIComponent(name + " channel")}&type=video`;
-                 const res2 = await fetch(fallbackUrl, { method: 'GET', headers: { 'x-rapidapi-key': apiKeys[0], 'x-rapidapi-host': 'youtube-search-and-download.p.rapidapi.com' } });
+                 const res2 = await fetch(fallbackUrl, { method: 'GET', headers: { 'x-rapidapi-key': getApiKey(), 'x-rapidapi-host': 'youtube-search-and-download.p.rapidapi.com' } });
                  const data2 = await res2.json();
                  items = data2.contents || [];
             }
-
             dd.innerHTML = '';
             const back = document.createElement('div');
             back.className = 'dd-back'; back.innerText = '< Back to Search';
@@ -447,10 +506,7 @@
 
             if(items.length === 0) {
                  const empty = document.createElement('div'); empty.className='dd-loader'; empty.innerText = 'No videos found.'; dd.appendChild(empty);
-            } else {
-                 renderResults(deck, items);
-            }
-            
+            } else renderResults(deck, items);
         } catch(e) { dd.innerHTML = 'Error'; }
     }
 
@@ -460,15 +516,17 @@
             document.getElementById(`title${deck}`).innerText = title;
             document.getElementById(`dd${deck}`).style.display = 'none';
             document.getElementById(`seek${deck}`).value = 0;
+            document.getElementById(`search${deck}`).value = '';
+            document.getElementById('modal-library').style.display = 'none';
             if(addToHistory) {
                 db.ref('playedHistory').push({ title: title, videoId: id, category: 'Uncategorized', timestamp: Date.now() });
             }
         }
     }
 
-    /* ----- SCRUBBER ----- */
+    /* ----- SCRUBBER & PLAYER ----- */
     function startSeek(d) { state[d].dragging = true; }
-    function seeking(d) { /* Visual update automatic */ }
+    function seeking(d) { }
     function endSeek(d) {
         const val = document.getElementById(`seek${d}`).value;
         const dur = players[d].getDuration();
@@ -488,13 +546,10 @@
             }
         }
     }
-
-    /* ----- CONTROLS ----- */
     function onState(deck, e) {
         const isPlaying = e.data === 1;
         state[deck].playing = isPlaying;
-        const v = document.getElementById(`vinyl${deck}`);
-        if(isPlaying) { v.classList.add('spinning'); startTime(deck); } else { v.classList.remove('spinning'); }
+        if(isPlaying) startTime(deck);
     }
     function startTime(deck) {
         if(window[`tmr${deck}`]) clearInterval(window[`tmr${deck}`]);
@@ -535,12 +590,36 @@
     /* ----- MIXER ----- */
     function setVol() {
         if(!players[1] || !players[2]) return;
-        const x = parseInt(document.getElementById('xfader').value) / 100;
+        const xVal = parseInt(document.getElementById('xfader').value);
+        const x = xVal / 100;
         const v1 = parseInt(document.getElementById('vol1').value) / 100;
         const v2 = parseInt(document.getElementById('vol2').value) / 100;
         const g1 = Math.cos(x * 1.57); const g2 = Math.sin(x * 1.57);
         players[1].setVolume(v1 * g1 * 100); players[2].setVolume(v2 * g2 * 100);
+        updateLibStatus(xVal);
     }
+    
+    function updateLibStatus(xVal) {
+        const stA = document.getElementById('status-a');
+        const stB = document.getElementById('status-b');
+        stA.className = 'lib-status-side';
+        stB.className = 'lib-status-side';
+        stA.innerText = "DECK A";
+        stB.innerText = "DECK B";
+        if (xVal < 40) {
+            stA.classList.add('active-a');
+            stA.innerText = "DECK A IS LIVE (AUDIBLE)";
+        } else if (xVal > 60) {
+            stB.classList.add('active-b');
+            stB.innerText = "DECK B IS LIVE (AUDIBLE)";
+        } else {
+            stA.classList.add('active-mix');
+            stB.classList.add('active-mix');
+            stA.innerText = "MIX LIVE";
+            stB.innerText = "MIX LIVE";
+        }
+    }
+
     function autoFade(from, to) {
         const xf = document.getElementById('xfader');
         const end = to===2 ? 100 : 0; const step = to===2 ? 1 : -1;
@@ -548,7 +627,12 @@
         const timer = setInterval(() => { if(cur === end) clearInterval(timer); else { cur += step; xf.value = cur; setVol(); } }, 15);
     }
 
-    /* ----- LIBRARY ----- */
+    /* ----- LIBRARY & MODALS ----- */
+    function toggleLibrary() {
+        const modal = document.getElementById('modal-library');
+        if (modal.style.display === 'flex') modal.style.display = 'none';
+        else { modal.style.display = 'flex'; setVol(); }
+    }
     function updateCatFilter() {
         const s = document.getElementById('cat-filter');
         const prev = s.value;
@@ -571,12 +655,12 @@
             categories.forEach(c => catOpts += `<option value="${c}" ${c===t.category?'selected':''}>${c}</option>`);
             catOpts += `<option value="__new__" style="color:#00e5ff; font-weight:bold">+ New Category</option>`;
             tr.innerHTML = `
-                <td contenteditable="true" onblur="saveTitle('${t.id}', this)">${t.title}</td>
+                <td><div contenteditable="true" onblur="saveTitle('${t.id}', this)" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:300px;">${t.title}</div></td>
                 <td><select onchange="changeCat('${t.id}', this)" style="background:#222; color:#ccc; border:none; width:100%">${catOpts}</select></td>
-                <td>
-                    <button class="btn-sm" onclick="loadTrack(1, '${t.videoId}', '${t.title.replace(/'/g,"\\'")}', false)">A</button>
-                    <button class="btn-sm" onclick="loadTrack(2, '${t.videoId}', '${t.title.replace(/'/g,"\\'")}', false)">B</button>
-                    <button class="btn-sm" style="color:red" onclick="delTrack('${t.id}')"><i class="fas fa-trash"></i></button>
+                <td style="text-align:right">
+                    <button class="btn-load a" onclick="loadTrack(1, '${t.videoId}', '${t.title.replace(/'/g,"\\'")}', false)">LOAD A</button>
+                    <button class="btn-load b" onclick="loadTrack(2, '${t.videoId}', '${t.title.replace(/'/g,"\\'")}', false)">LOAD B</button>
+                    <button class="btn-sm" style="color:#555; background:transparent; border:none" onclick="delTrack('${t.id}')"><i class="fas fa-trash"></i></button>
                 </td>`;
             tbody.appendChild(tr);
         });
@@ -593,8 +677,6 @@
     }
     function saveTitle(id, el) { db.ref(`playedHistory/${id}/title`).set(el.innerText); }
     function delTrack(id) { if(confirm("Delete?")) db.ref(`playedHistory/${id}`).remove(); }
-
-    /* ----- EXTRAS ----- */
     function toggleNotes() { document.getElementById('modal-notes').style.display = 'flex'; }
     function saveNotes() { db.ref('djNotes').set(document.getElementById('notes-text').value); document.getElementById('modal-notes').style.display='none'; }
     function exportData() {
