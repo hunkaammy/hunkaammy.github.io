@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>ULTIMATE DJ CONSOLE - V15 (READY STATE LOCK)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <title>ULTIMATE DJ CONSOLE - V16 (RESPONSIVE & MARQUEE)</title>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -12,124 +12,179 @@
         :root {
             --bg: #121212; --panel: #1b1b1b; --cyan: #00e5ff; --pink: #ff0055; --text: #e0e0e0; --border: #333;
         }
+        * { box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text);
             margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none;
         }
 
         /* HEADER */
-        header { background: #000; height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 1px solid var(--border); }
-        .logo { font-weight: 900; letter-spacing: 1px; color: #fff; display:flex; align-items:center; gap:8px; }
-        .btn-sm { background: #222; border: 1px solid #444; color: #ccc; padding: 5px 12px; border-radius: 4px; font-size: 11px; cursor: pointer; transition: 0.2s; }
+        header { 
+            background: #000; height: 50px; min-height: 50px; display: flex; align-items: center; 
+            justify-content: space-between; padding: 0 10px; border-bottom: 1px solid var(--border); 
+            z-index: 100;
+        }
+        .logo { font-weight: 900; letter-spacing: 1px; color: #fff; display:flex; align-items:center; gap:8px; font-size: 14px; }
+        .header-controls { display:flex; gap:8px; }
+        .btn-sm { background: #222; border: 1px solid #444; color: #ccc; padding: 5px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; transition: 0.2s; white-space: nowrap; }
         .btn-sm:hover { background: #444; color: #fff; border-color: #666; }
         .btn-lib { background: #333; border: 1px solid #666; color: #fff; font-weight: bold; }
 
-        /* LAYOUT */
-        .console { display: flex; flex: 1; overflow: hidden; height: 100%; }
-        .deck { flex: 2; display: flex; flex-direction: column; gap: 8px; padding: 10px; position: relative; background: linear-gradient(180deg, #1e1e1e 0%, #121212 100%); border-right: 1px solid var(--border); }
+        /* LAYOUT MAIN */
+        .console { display: flex; flex: 1; overflow: hidden; height: 100%; width: 100%; }
+        
+        /* DECK STYLES */
+        .deck { 
+            flex: 2; display: flex; flex-direction: column; gap: 8px; padding: 10px; 
+            position: relative; background: linear-gradient(180deg, #1e1e1e 0%, #121212 100%); 
+            border-right: 1px solid var(--border); min-width: 0; /* Critical for text overflow */
+        }
         .deck.right { border-left: 1px solid var(--border); border-right: none; }
-        .deck-header { display: flex; align-items: center; justify-content: space-between; }
-        .deck-id { font-size: 24px; font-weight: 900; color: rgba(255,255,255,0.05); }
+        .deck-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .deck-id { font-size: 24px; font-weight: 900; color: rgba(255,255,255,0.05); flex-shrink: 0; }
         .deck:not(.right) .deck-id { color: rgba(0, 229, 255, 0.1); }
         .deck.right .deck-id { color: rgba(255, 0, 85, 0.1); }
 
         /* SEARCH & DROPDOWN */
-        .search-area { flex: 1; margin-left: 15px; position: relative; display: flex; gap: 5px; }
-        
+        .search-area { flex: 1; position: relative; display: flex; gap: 5px; min-width: 0; }
         .inp-wrapper { position: relative; width: 100%; }
-        .inp-search { width: 100%; box-sizing: border-box; background: #000; border: 1px solid #333; color: #fff; padding: 6px 10px; border-radius: 3px; font-size: 12px; }
+        .inp-search { width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 8px 10px; border-radius: 3px; font-size: 12px; }
         .inp-search:focus { outline: none; border-color: var(--cyan); }
         .typing-indicator { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 10px; color: var(--cyan); display: none; }
 
         .dropdown {
-            position: absolute; top: 35px; left: 0; width: 100%; 
-            height: 400px;
-            max-height: 400px;
+            position: absolute; top: 40px; left: 0; width: 100%; 
+            height: 300px; max-height: 50vh;
             background: #1a1a1a; border: 1px solid #555; z-index: 1000;
-            overflow-y: auto; 
-            display: none; box-shadow: 0 10px 30px rgba(0,0,0,1);
+            overflow-y: auto; display: none; box-shadow: 0 10px 30px rgba(0,0,0,1);
         }
         .dd-item { display: flex; padding: 8px; border-bottom: 1px solid #333; cursor: pointer; align-items: center; min-height: 50px; }
         .dd-item:hover { background: #2a2a2a; }
-        .dd-img { width: 60px; height: 45px; object-fit: cover; margin-right: 10px; border-radius: 3px; }
+        .dd-img { width: 60px; height: 45px; object-fit: cover; margin-right: 10px; border-radius: 3px; flex-shrink: 0; }
         .dd-info { flex: 1; overflow: hidden; }
         .dd-title { font-size: 12px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .dd-sub { font-size: 10px; color: #888; }
-        .dd-back { text-align: center; padding: 10px; background: #333; font-weight: bold; cursor: pointer; border-bottom: 1px solid #444; position: sticky; top: 0; z-index: 10; }
+        .dd-back { text-align: center; padding: 12px; background: #333; font-weight: bold; cursor: pointer; border-bottom: 1px solid #444; position: sticky; top: 0; z-index: 10; }
         .dd-loader { text-align: center; padding: 15px; font-size: 11px; color: #888; background: #111; border-top: 1px solid #333; }
 
         /* VISUALS - VIDEO PLAYER */
-        .vis-box { height: 140px; background: #000; border: 1px solid #333; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 5px; }
-        .video-container { width: 100%; height: 100%; }
+        .vis-box { 
+            height: 140px; background: #000; border: 1px solid #333; border-radius: 4px; 
+            position: relative; overflow: hidden; margin-bottom: 5px; flex-shrink: 0;
+        }
+        .video-container { width: 100%; height: 100%; pointer-events: none; /* User can't click YouTube ads easily */ }
 
         /* SCRUBBER */
-        .scrubber-container { width: 100%; margin-bottom: 8px; }
-        input[type=range].scrubber { -webkit-appearance: none; width: 100%; height: 8px; background: #222; border-radius: 4px; border: 1px solid #333; cursor: pointer; }
-        input[type=range].scrubber::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 6px; background: #fff; border-radius: 2px; cursor: ew-resize; margin-top: -5px; box-shadow: 0 0 5px rgba(255,255,255,0.5); }
-        .deck:not(.right) .scrubber::-webkit-slider-runnable-track { background: linear-gradient(90deg, var(--cyan) 0%, #222 0%); height: 6px; border-radius:3px; }
-        .deck.right .scrubber::-webkit-slider-runnable-track { background: linear-gradient(90deg, var(--pink) 0%, #222 0%); height: 6px; border-radius:3px; }
+        .scrubber-container { width: 100%; margin-bottom: 8px; padding: 0 2px; }
+        input[type=range].scrubber { -webkit-appearance: none; width: 100%; height: 12px; background: #222; border-radius: 4px; border: 1px solid #333; cursor: pointer; }
+        input[type=range].scrubber::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 12px; background: #fff; border-radius: 2px; cursor: ew-resize; margin-top: -3px; box-shadow: 0 0 5px rgba(255,255,255,0.5); }
+        .deck:not(.right) .scrubber::-webkit-slider-runnable-track { background: linear-gradient(90deg, var(--cyan) 0%, #222 0%); height: 10px; border-radius:3px; }
+        .deck.right .scrubber::-webkit-slider-runnable-track { background: linear-gradient(90deg, var(--pink) 0%, #222 0%); height: 10px; border-radius:3px; }
 
-        /* INFO & CONTROLS */
-        .info-box { text-align: center; }
-        .track-name { font-weight: bold; font-size: 13px; color: #fff; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .time-badge { background: #000; color: var(--cyan); padding: 2px 8px; border-radius: 3px; font-family: monospace; font-size: 14px; }
+        /* INFO BOX & MARQUEE */
+        .info-box { 
+            background: #111; border: 1px solid #333; padding: 6px; border-radius: 4px; 
+            margin-bottom: 8px; overflow: hidden; display: flex; flex-direction: column; align-items: center;
+        }
+        .marquee-wrap {
+            width: 100%; overflow: hidden; white-space: nowrap; position: relative; height: 18px; margin-bottom: 2px;
+        }
+        .track-name { 
+            font-weight: bold; font-size: 13px; color: #fff; display: inline-block;
+            /* If text is short, center it. If long, animation handles it */
+            width: 100%; text-align: center;
+        }
+        /* CSS Animation for long text */
+        .scrolling {
+            animation: scroll-text 10s linear infinite;
+            text-align: left; padding-left: 100%;
+        }
+        @keyframes scroll-text {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%) translateX(-100px); } 
+        }
+
+        .time-badge { background: #000; color: var(--cyan); padding: 2px 8px; border-radius: 3px; font-family: monospace; font-size: 14px; border: 1px solid #333; }
         .right .time-badge { color: var(--pink); }
 
-        .pads { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 5px; }
-        .pad { background: #2a2a2a; border: 1px solid #333; color: #aaa; padding: 12px 0; border-radius: 4px; cursor: pointer; font-weight: 700; font-size: 10px; }
-        .pad:active { transform: scale(0.98); }
-        .pad.play { border-bottom: 2px solid #2ecc71; color: #2ecc71; }
-        .pad.cue { border-bottom: 2px solid #f1c40f; color: #f1c40f; }
-        .pad.hot { border-top: 2px solid #444; }
+        /* PADS */
+        .pads { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 5px; }
+        .pad { 
+            background: #2a2a2a; border: 1px solid #333; color: #aaa; padding: 14px 0; 
+            border-radius: 4px; cursor: pointer; font-weight: 700; font-size: 10px; 
+            touch-action: manipulation;
+        }
+        .pad:active { transform: scale(0.96); background: #333; }
+        .pad.play { border-bottom: 3px solid #2ecc71; color: #2ecc71; }
+        .pad.cue { border-bottom: 3px solid #f1c40f; color: #f1c40f; }
+        .pad.hot { border-top: 3px solid #444; }
         .pad.hot.set { background: #333; color: #fff; border-top-color: var(--cyan); box-shadow: 0 0 8px rgba(0, 229, 255, 0.2); }
         .right .pad.hot.set { border-top-color: var(--pink); box-shadow: 0 0 8px rgba(255, 0, 85, 0.2); }
         .active-loop { background: #ddd; color: #000; }
 
+        /* TEMPO */
         .tempo-row { display: flex; align-items: center; gap: 10px; background: #111; padding: 8px; border-radius: 4px; border: 1px solid #333; }
-        .slider { flex: 1; cursor: pointer; }
+        .slider { flex: 1; cursor: pointer; height: 20px; }
         
         /* MIXER */
-        .mixer { flex: 1.2; background: #161616; border-left: 1px solid #222; border-right: 1px solid #222; padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        .mixer { 
+            flex: 1.2; background: #161616; border-left: 1px solid #222; border-right: 1px solid #222; 
+            padding: 10px; display: flex; flex-direction: column; align-items: center; min-width: 140px;
+        }
         .eq-row { display: flex; justify-content: space-around; width: 100%; margin-bottom: 15px; }
         .knob { width: 35px; height: 35px; border-radius: 50%; background: #222; border: 2px solid #444; position: relative; }
         .knob::before { content: ''; position: absolute; top: 3px; left: 50%; width: 2px; height: 10px; background: #fff; transform: translateX(-50%); }
         .fader-row { display: flex; justify-content: space-between; width: 80%; height: 150px; margin-bottom: 15px; }
-        input[type=range].v-fader { writing-mode: bt-lr; -webkit-appearance: slider-vertical; width: 30px; cursor: pointer; }
-        .xfader { width: 100%; -webkit-appearance: none; height: 25px; background: #000; border: 1px solid #333; border-radius: 4px; margin-top: auto; }
-        .xfader::-webkit-slider-thumb { -webkit-appearance: none; width: 40px; height: 25px; background: #444; border: 1px solid #666; cursor: ew-resize; }
+        input[type=range].v-fader { writing-mode: bt-lr; -webkit-appearance: slider-vertical; width: 40px; cursor: pointer; }
+        .xfader { width: 100%; -webkit-appearance: none; height: 35px; background: #000; border: 1px solid #333; border-radius: 4px; margin-top: auto; }
+        .xfader::-webkit-slider-thumb { -webkit-appearance: none; width: 50px; height: 35px; background: #444; border: 1px solid #666; cursor: ew-resize; }
+
+        /* --- RESPONSIVE CSS --- */
+        @media (max-width: 900px) {
+            body { overflow-y: auto; height: auto; }
+            .console { flex-direction: column; height: auto; overflow: visible; }
+            .deck { border-right: none; border-bottom: 1px solid #333; flex: none; height: auto; }
+            .deck.right { border-left: none; }
+            .mixer { 
+                flex: none; width: 100%; border: none; border-bottom: 1px solid #333; border-top: 1px solid #333;
+                flex-direction: row; flex-wrap: wrap; justify-content: space-between; padding: 15px;
+            }
+            .eq-row { width: auto; gap: 15px; margin-bottom: 0; }
+            .fader-row { height: 100px; width: 120px; margin-bottom: 0; }
+            .xfader { width: 100%; margin-top: 15px; order: 10; }
+            .vis-box { height: 180px; } /* Bigger video on mobile */
+            .pads { gap: 8px; }
+            .pad { padding: 18px 0; font-size: 12px; }
+            header { position: sticky; top: 0; width: 100%; }
+        }
 
         /* MODALS */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .modal-box { background: #1e1e1e; padding: 20px; border-radius: 6px; width: 400px; border: 1px solid #444; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
-        #modal-library .modal-box { width: 85%; height: 85%; max-width: 900px; display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+        #modal-library .modal-box { width: 95%; height: 90%; max-width: 900px; display: flex; flex-direction: column; padding: 0; overflow: hidden; }
         .lib-header { padding: 15px; background: #000; border-bottom: 1px solid #333; }
         .lib-status-bar { height: 30px; margin-bottom: 10px; display: flex; border-radius: 4px; overflow: hidden; background: #111; border: 1px solid #333; }
         .lib-status-side { flex: 1; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 11px; color: #444; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px; }
-        .lib-status-side.active-a { background: var(--cyan); color: #000; box-shadow: 0 0 15px var(--cyan); }
-        .lib-status-side.active-b { background: var(--pink); color: #fff; box-shadow: 0 0 15px var(--pink); }
+        .lib-status-side.active-a { background: var(--cyan); color: #000; }
+        .lib-status-side.active-b { background: var(--pink); color: #fff; }
         .lib-status-side.active-mix { background: #ffaa00; color: #000; }
-        .lib-tools { padding: 10px; background: #1a1a1a; display: flex; gap: 8px; border-bottom: 1px solid #333; align-items: center; }
+        .lib-tools { padding: 10px; background: #1a1a1a; display: flex; gap: 8px; border-bottom: 1px solid #333; align-items: center; flex-wrap: wrap; }
         .lib-scroll { flex: 1; overflow-y: auto; background: #121212; padding: 0; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
         th { text-align: left; background: #222; padding: 12px; color: #fff; position: sticky; top: 0; z-index: 10; font-size: 11px; text-transform: uppercase; }
-        td { padding: 10px 12px; border-bottom: 1px solid #222; color: #ccc; }
-        tr:hover { background: #1f1f1f; }
-        .btn-load { font-size: 10px; padding: 4px 8px; border-radius: 3px; font-weight: bold; border:none; cursor: pointer; }
-        .btn-load.a { background: rgba(0, 229, 255, 0.2); color: var(--cyan); border: 1px solid rgba(0, 229, 255, 0.4); }
-        .btn-load.b { background: rgba(255, 0, 85, 0.2); color: var(--pink); border: 1px solid rgba(255, 0, 85, 0.4); }
-        .btn-load:hover { filter: brightness(1.5); }
+        td { padding: 10px 12px; border-bottom: 1px solid #222; color: #ccc; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo"><i class="fas fa-video" style="color:var(--cyan)"></i> ULTIMATE CONSOLE V15</div>
-    <div style="display:flex; gap:10px;">
-        <button class="btn-sm btn-lib" onclick="toggleLibrary()"><i class="fas fa-music"></i> LIBRARY</button>
-        <button class="btn-sm" onclick="exportData()">Backup</button>
-        <button class="btn-sm" onclick="document.getElementById('file-restore').click()">Restore</button>
+    <div class="logo"><i class="fas fa-video" style="color:var(--cyan)"></i> ULTIMATE CONSOLE V16</div>
+    <div class="header-controls">
+        <button class="btn-sm btn-lib" onclick="toggleLibrary()"><i class="fas fa-music"></i> LIB</button>
+        <button class="btn-sm" onclick="exportData()"><i class="fas fa-download"></i></button>
+        <button class="btn-sm" onclick="document.getElementById('file-restore').click()"><i class="fas fa-upload"></i></button>
         <input type="file" id="file-restore" hidden onchange="importData(event)">
-        <button class="btn-sm" onclick="toggleNotes()">Notes</button>
+        <button class="btn-sm" onclick="toggleNotes()"><i class="fas fa-sticky-note"></i></button>
     </div>
 </header>
 
@@ -139,7 +194,7 @@
             <div class="deck-id">A</div>
             <div class="search-area">
                 <div class="inp-wrapper">
-                    <input type="text" class="inp-search" id="search1" placeholder="Type to Auto-Search..." oninput="handleType(1)">
+                    <input type="text" class="inp-search" id="search1" placeholder="Search / Type URL..." oninput="handleType(1)">
                     <div class="typing-indicator" id="type1">Searching...</div>
                 </div>
                 <div class="dropdown" id="dd1"></div>
@@ -150,28 +205,30 @@
             <div id="p1-wrap" class="video-container"></div>
         </div>
 
+        <div class="info-box">
+            <div class="marquee-wrap">
+                <div class="track-name" id="title1">No Track Loaded</div>
+            </div>
+            <div class="time-badge" id="time1">00:00</div>
+        </div>
+
         <div class="scrubber-container">
             <input type="range" class="scrubber" id="seek1" min="0" max="100" value="0" 
                 onmousedown="startSeek(1)" onmouseup="endSeek(1)" oninput="seeking(1)">
         </div>
 
-        <div class="info-box">
-            <div class="track-name" id="title1">No Track Loaded</div>
-            <div class="time-badge" id="time1">00:00</div>
-        </div>
-
         <div class="pads">
             <button class="pad play" onclick="playPause(1)"><i class="fas fa-play"></i></button>
             <button class="pad cue" onclick="cue(1)">CUE</button>
-            <button class="pad" onclick="loop(1,4)" id="loop1-4">LOOP 4</button>
-            <button class="pad" onclick="loop(1,8)" id="loop1-8">LOOP 8</button>
-            <button class="pad hot" id="hot1-A" onclick="hotCue(1,'A')">HOT A</button>
-            <button class="pad hot" id="hot1-B" onclick="hotCue(1,'B')">HOT B</button>
-            <button class="pad hot" id="hot1-C" onclick="hotCue(1,'C')">HOT C</button>
+            <button class="pad" onclick="loop(1,4)" id="loop1-4">L4</button>
+            <button class="pad" onclick="loop(1,8)" id="loop1-8">L8</button>
+            <button class="pad hot" id="hot1-A" onclick="hotCue(1,'A')">H1</button>
+            <button class="pad hot" id="hot1-B" onclick="hotCue(1,'B')">H2</button>
+            <button class="pad hot" id="hot1-C" onclick="hotCue(1,'C')">H3</button>
             <button class="pad" onclick="delCue(1)" style="color:red">DEL</button>
         </div>
         <div class="tempo-row">
-            <span style="font-size:10px; color:#888;">TEMPO</span>
+            <span style="font-size:10px; color:#888;">SPEED</span>
             <input type="range" class="slider" id="tempo1" min="0.5" max="1.5" step="0.01" value="1" oninput="setRate(1)">
             <span style="font-size:10px; font-weight:bold" id="rate1">100%</span>
         </div>
@@ -189,8 +246,8 @@
             <input type="range" class="v-fader" id="vol2" min="0" max="100" value="100" oninput="setVol()">
         </div>
         <div style="width:100%; display:flex; gap:5px; margin-bottom:5px;">
-            <button class="btn-sm" style="flex:1" onclick="autoFade(1,2)">AUTO A&rarr;B</button>
-            <button class="btn-sm" style="flex:1" onclick="autoFade(2,1)">AUTO B&rarr;A</button>
+            <button class="btn-sm" style="flex:1" onclick="autoFade(1,2)">A&rarr;B</button>
+            <button class="btn-sm" style="flex:1" onclick="autoFade(2,1)">B&rarr;A</button>
         </div>
         <input type="range" class="xfader" id="xfader" min="0" max="100" value="50" oninput="setVol()">
     </div>
@@ -200,7 +257,7 @@
             <div class="deck-id">B</div>
             <div class="search-area">
                 <div class="inp-wrapper">
-                    <input type="text" class="inp-search" id="search2" placeholder="Type to Auto-Search..." oninput="handleType(2)">
+                    <input type="text" class="inp-search" id="search2" placeholder="Search / Type URL..." oninput="handleType(2)">
                     <div class="typing-indicator" id="type2">Searching...</div>
                 </div>
                 <div class="dropdown" id="dd2"></div>
@@ -211,28 +268,30 @@
             <div id="p2-wrap" class="video-container"></div>
         </div>
 
+        <div class="info-box">
+            <div class="marquee-wrap">
+                <div class="track-name" id="title2">No Track Loaded</div>
+            </div>
+            <div class="time-badge" id="time2">00:00</div>
+        </div>
+
         <div class="scrubber-container">
             <input type="range" class="scrubber" id="seek2" min="0" max="100" value="0" 
                 onmousedown="startSeek(2)" onmouseup="endSeek(2)" oninput="seeking(2)">
         </div>
 
-        <div class="info-box">
-            <div class="track-name" id="title2">No Track Loaded</div>
-            <div class="time-badge" id="time2">00:00</div>
-        </div>
-
         <div class="pads">
             <button class="pad play" onclick="playPause(2)"><i class="fas fa-play"></i></button>
             <button class="pad cue" onclick="cue(2)">CUE</button>
-            <button class="pad" onclick="loop(2,4)" id="loop2-4">LOOP 4</button>
-            <button class="pad" onclick="loop(2,8)" id="loop2-8">LOOP 8</button>
-            <button class="pad hot" id="hot2-A" onclick="hotCue(2,'A')">HOT A</button>
-            <button class="pad hot" id="hot2-B" onclick="hotCue(2,'B')">HOT B</button>
-            <button class="pad hot" id="hot2-C" onclick="hotCue(2,'C')">HOT C</button>
+            <button class="pad" onclick="loop(2,4)" id="loop2-4">L4</button>
+            <button class="pad" onclick="loop(2,8)" id="loop2-8">L8</button>
+            <button class="pad hot" id="hot2-A" onclick="hotCue(2,'A')">H1</button>
+            <button class="pad hot" id="hot2-B" onclick="hotCue(2,'B')">H2</button>
+            <button class="pad hot" id="hot2-C" onclick="hotCue(2,'C')">H3</button>
             <button class="pad" onclick="delCue(2)" style="color:red">DEL</button>
         </div>
         <div class="tempo-row">
-            <span style="font-size:10px; color:#888;">TEMPO</span>
+            <span style="font-size:10px; color:#888;">SPEED</span>
             <input type="range" class="slider" id="tempo2" min="0.5" max="1.5" step="0.01" value="1" oninput="setRate(2)">
             <span style="font-size:10px; font-weight:bold" id="rate2">100%</span>
         </div>
@@ -243,15 +302,14 @@
     <div class="modal-box">
         <div class="lib-header">
             <div class="lib-status-bar">
-                <div class="lib-status-side" id="status-a">LIVE: DECK A</div>
-                <div class="lib-status-side" id="status-b">LIVE: DECK B</div>
+                <div class="lib-status-side" id="status-a">DECK A</div>
+                <div class="lib-status-side" id="status-b">DECK B</div>
             </div>
             <div class="lib-tools">
-                <select id="cat-filter" class="inp-search" style="width:150px" onchange="renderLib()">
+                <select id="cat-filter" class="inp-search" style="width:120px" onchange="renderLib()">
                     <option value="">All Categories</option>
                 </select>
-                <input type="text" id="lib-filter" class="inp-search" style="flex:1" placeholder="Search Library..." onkeyup="renderLib()">
-                <span style="font-size:11px; color:#666; white-space:nowrap;">Tracks: <span id="count">0</span></span>
+                <input type="text" id="lib-filter" class="inp-search" style="min-width:120px; flex:1" placeholder="Search Library..." onkeyup="renderLib()">
                 <button class="btn-sm" style="color:red" onclick="document.getElementById('modal-library').style.display='none'"><i class="fas fa-times"></i></button>
             </div>
         </div>
@@ -261,7 +319,7 @@
                     <tr>
                         <th style="width:40%">Title</th>
                         <th style="width:25%">Category</th>
-                        <th style="width:35%; text-align:right">Load To Deck</th>
+                        <th style="width:35%; text-align:right">Load</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -271,7 +329,7 @@
 </div>
 
 <div class="modal" id="modal-notes" onclick="if(event.target===this) this.style.display='none'">
-    <div class="modal-box" style="width:400px; height:auto;">
+    <div class="modal-box" style="width:90%; max-width:400px; height:auto;">
         <h3>DJ Notes</h3>
         <textarea id="notes-text" style="width:100%; height:150px; background:#111; color:#fff; border:1px solid #333; margin-bottom:10px;"></textarea>
         <button class="btn-sm" onclick="saveNotes()">Save</button>
@@ -294,7 +352,6 @@
 
     /* ----- STATE ----- */
     const players = { 1: null, 2: null };
-    // NEW: isReady flag strictly controls access to player methods
     const state = {
         1: { playing: false, loops: {}, hots: {A:null,B:null,C:null}, dragging: false, isReady: false },
         2: { playing: false, loops: {}, hots: {A:null,B:null,C:null}, dragging: false, isReady: false }
@@ -317,7 +374,6 @@
         return false;
     }
 
-    /* ----- INIT ----- */
     window.onload = function() {
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
@@ -349,25 +405,23 @@
         document.getElementById('dd2').onscroll = () => checkScroll(2);
     };
 
-    // INIT PLAYERS
     window.onYouTubeIframeAPIReady = function() {
         players[1] = new YT.Player('p1-wrap', { 
             height:'100%', width:'100%', 
             events: { 
                 'onStateChange': e => onState(1, e), 
-                'onReady': () => { state[1].isReady = true; setVol(); } // MARK READY
+                'onReady': () => { state[1].isReady = true; setVol(); }
             } 
         });
         players[2] = new YT.Player('p2-wrap', { 
             height:'100%', width:'100%', 
             events: { 
                 'onStateChange': e => onState(2, e), 
-                'onReady': () => { state[2].isReady = true; setVol(); } // MARK READY
+                'onReady': () => { state[2].isReady = true; setVol(); }
             } 
         });
     };
 
-    /* ----- AUTO SEARCH LOGIC ----- */
     function handleType(deck) {
         clearTimeout(searchState[deck].timer);
         const val = document.getElementById(`search${deck}`).value;
@@ -477,9 +531,18 @@
     }
 
     function loadTrack(deck, id, title, addToHistory) {
-        if(!state[deck].isReady) return; // SAFE GUARD
+        if(!state[deck].isReady) return;
         players[deck].loadVideoById(id);
-        document.getElementById(`title${deck}`).innerText = title;
+        
+        const tElem = document.getElementById(`title${deck}`);
+        tElem.innerText = title;
+        // Check if long name for marquee
+        if(title.length > 35) {
+            tElem.classList.add('scrolling');
+        } else {
+            tElem.classList.remove('scrolling');
+        }
+
         document.getElementById(`dd${deck}`).style.display = 'none';
         document.getElementById(`seek${deck}`).value = 0;
         document.getElementById(`search${deck}`).value = '';
@@ -489,7 +552,6 @@
         }
     }
 
-    /* ----- CONTROLS & SAFE GUARDS ----- */
     function startSeek(d) { state[d].dragging = true; }
     function seeking(d) { }
     function endSeek(d) {
@@ -529,7 +591,6 @@
         }, 200);
     }
     
-    // SAFE CONTROL WRAPPERS
     function playPause(d) { if(state[d].isReady) { if(players[d].getPlayerState()===1) players[d].pauseVideo(); else players[d].playVideo(); } }
     function cue(d) { if(state[d].isReady) { players[d].pauseVideo(); players[d].seekTo(0); document.getElementById(`seek${d}`).value = 0; } }
     
@@ -559,9 +620,7 @@
         players[d].setPlaybackRate(parseFloat(v));
     }
 
-    /* ----- MIXER (FIXED) ----- */
     function setVol() {
-        // Safe check using IS READY flags
         const xVal = parseInt(document.getElementById('xfader').value);
         const x = xVal / 100;
         const v1 = parseInt(document.getElementById('vol1').value) / 100;
@@ -583,10 +642,10 @@
         stB.innerText = "DECK B";
         if (xVal < 40) {
             stA.classList.add('active-a');
-            stA.innerText = "DECK A IS LIVE (AUDIBLE)";
+            stA.innerText = "DECK A LIVE";
         } else if (xVal > 60) {
             stB.classList.add('active-b');
-            stB.innerText = "DECK B IS LIVE (AUDIBLE)";
+            stB.innerText = "DECK B LIVE";
         } else {
             stA.classList.add('active-mix');
             stB.classList.add('active-mix');
@@ -602,7 +661,6 @@
         const timer = setInterval(() => { if(cur === end) clearInterval(timer); else { cur += step; xf.value = cur; setVol(); } }, 15);
     }
 
-    /* ----- LIBRARY & MODALS ----- */
     function toggleLibrary() {
         const modal = document.getElementById('modal-library');
         if (modal.style.display === 'flex') modal.style.display = 'none';
@@ -630,11 +688,11 @@
             categories.forEach(c => catOpts += `<option value="${c}" ${c===t.category?'selected':''}>${c}</option>`);
             catOpts += `<option value="__new__" style="color:#00e5ff; font-weight:bold">+ New Category</option>`;
             tr.innerHTML = `
-                <td><div contenteditable="true" onblur="saveTitle('${t.id}', this)" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:300px;">${t.title}</div></td>
+                <td><div contenteditable="true" onblur="saveTitle('${t.id}', this)" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%;">${t.title}</div></td>
                 <td><select onchange="changeCat('${t.id}', this)" style="background:#222; color:#ccc; border:none; width:100%">${catOpts}</select></td>
                 <td style="text-align:right">
-                    <button class="btn-load a" onclick="loadTrack(1, '${t.videoId}', '${t.title.replace(/'/g,"\\'")}', false)">LOAD A</button>
-                    <button class="btn-load b" onclick="loadTrack(2, '${t.videoId}', '${t.title.replace(/'/g,"\\'")}', false)">LOAD B</button>
+                    <button class="btn-load a" onclick="loadTrack(1, '${t.videoId}', '${t.title.replace(/'/g,"\\'")}', false)">A</button>
+                    <button class="btn-load b" onclick="loadTrack(2, '${t.videoId}', '${t.title.replace(/'/g,"\\'")}', false)">B</button>
                     <button class="btn-sm" style="color:#555; background:transparent; border:none" onclick="delTrack('${t.id}')"><i class="fas fa-trash"></i></button>
                 </td>`;
             tbody.appendChild(tr);
