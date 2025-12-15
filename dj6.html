@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-    <title>ULTIMATE DJ CONSOLE - V24.1 (CHANNEL FIX)</title>
+    <title>ULTIMATE DJ CONSOLE - V24.3 (MATCHED HEIGHT)</title>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -19,8 +19,6 @@
             --lime: #ccff00;
             --text-main: #e0e0e0;
             --text-muted: #666;
-            --border-light: rgba(255,255,255,0.1);
-            --shadow-hard: 0 4px 10px rgba(0,0,0,0.8);
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         
@@ -56,8 +54,23 @@
 
         /* --- MAIN CONSOLE FRAME --- */
         .console { 
-            display: flex; flex: 1; overflow: hidden; height: 100%; width: 100%; 
+            display: flex; flex-direction: column;
+            flex: 1; overflow: hidden; height: 100%; width: 100%; 
             padding: 5px; gap: 5px;
+        }
+
+        /* UPPER SECTION: FLEX CONTAINER */
+        /* This ensures Deck A, Mixer, and Deck B stretch to the same height */
+        .console-upper {
+            display: flex; flex: 1; gap: 5px; overflow: hidden; min-height: 0;
+            align-items: stretch; /* CRITICAL: Forces equal height */
+        }
+        
+        .console-bottom {
+            height: 80px; flex-shrink: 0;
+            background: #101010; border: 1px solid #333; border-radius: 6px;
+            display: flex; flex-direction: column; justify-content: center; padding: 5px 15px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
         }
         
         /* --- DECKS --- */
@@ -100,22 +113,17 @@
         .dd-info { flex: 1; overflow: hidden; }
         .dd-title { font-size: 14px; font-weight: bold; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .dd-sub { font-size: 11px; color: #888; display: flex; align-items: center; gap: 6px;}
-        
-        /* NEW CHANNEL LINK STYLE */
         .channel-link { color: #aaa; font-weight: bold; cursor: pointer; padding: 2px 4px; border-radius: 3px; transition: 0.2s; z-index: 5; display:inline-flex; align-items:center; gap:4px; }
         .channel-link:hover { color: var(--cyan); background: rgba(255,255,255,0.1); text-decoration: none; }
         .deck:last-child .channel-link:hover { color: var(--pink); }
-
         .dd-loader { padding: 20px; text-align: center; color: #666; font-style: italic; }
 
-        /* VISUALS (FIXED ASPECT RATIO) */
+        /* VISUALS */
         .vis-box { 
-            width: 100%;
-            aspect-ratio: 16/9; 
+            width: 100%; aspect-ratio: 16/9; 
             background: #000; border-radius: 6px; 
             overflow: hidden; border: 1px solid #333; position: relative;
-            box-shadow: inset 0 0 20px #000;
-            flex-grow: 0; flex-shrink: 0;
+            box-shadow: inset 0 0 20px #000; flex-grow: 0; flex-shrink: 0;
         }
         .video-container { width: 100%; height: 100%; pointer-events: none; opacity: 0.8; transition: opacity 0.5s; }
         .deck.active-deck-a .video-container, .deck.active-deck-b .video-container { opacity: 1; }
@@ -155,12 +163,10 @@
             box-shadow: 0 3px 0 #000, 0 3px 5px rgba(0,0,0,0.5); position: relative; top: 0; transition: 0.05s;
         }
         .btn-pad:active { transform: translateY(3px); box-shadow: 0 1px 0 #000; background: #111; border-color: #444; }
-        
         .btn-pad.play { color: #ccc; border-bottom: 3px solid #2ecc71; }
         .btn-pad.play:active { background: #2ecc71; color: #000; box-shadow: 0 0 15px #2ecc71; }
         .btn-pad.cue { color: #ccc; border-bottom: 3px solid #f1c40f; }
         .btn-pad.cue:active { background: #f1c40f; color: #000; box-shadow: 0 0 15px #f1c40f; }
-        
         .btn-pad.hot { border-top: 3px solid #333; }
         .deck:first-child .btn-pad.hot.set { border-top-color: var(--cyan); color: var(--cyan); background: rgba(0, 242, 255, 0.05); text-shadow: 0 0 8px var(--cyan); box-shadow: 0 3px 0 #000, inset 0 0 10px rgba(0, 242, 255, 0.2); }
         .deck:last-child .btn-pad.hot.set { border-top-color: var(--pink); color: var(--pink); background: rgba(255, 0, 85, 0.05); text-shadow: 0 0 8px var(--pink); box-shadow: 0 3px 0 #000, inset 0 0 10px rgba(255, 0, 85, 0.2); }
@@ -180,18 +186,19 @@
         }
         .tempo-val { font-size: 11px; font-weight: bold; color: #fff; width: 40px; text-align: right; font-family: monospace; }
 
-        /* --- MIXER (HARDWARE STYLE) --- */
+        /* --- MIXER (EQ & VOLUME) --- */
         .mixer { 
-            flex: 0 0 160px;
+            flex: 0 0 140px; /* Base width */
             background: var(--mixer-surface); 
             background-image: linear-gradient(90deg, transparent 50%, rgba(0,0,0,0.2) 50%), linear-gradient(0deg, transparent 50%, rgba(255,255,255,0.02) 50%);
             background-size: 20px 20px;
             border-left: 1px solid #2a2a2a; border-right: 1px solid #2a2a2a;
-            
             box-shadow: inset 0 0 50px rgba(0,0,0,0.8); z-index: 10;
+            display: flex; flex-direction: column; padding-bottom: 5px;
+            /* No fixed height - it stretches due to console-upper flex settings */
         }
         
-        .eq-group { display: flex; justify-content: space-around; width: 100%; flex-shrink: 0; }
+        .eq-group { display: flex; justify-content: space-around; width: 100%; flex-shrink: 0; padding-top: 5px;}
         .knob-stack { display:flex; flex-direction:column; gap:8px; align-items:center; }
         .knob { 
             width: 38px; height: 38px; border-radius: 50%; 
@@ -203,39 +210,42 @@
         .knob-label { font-size: 8px; color: #777; font-weight: bold; margin-top: 3px; }
 
         .fader-group { 
-            display: flex; justify-content: space-between; width: 100%; flex: 1; min-height: 120px;
+            display: flex; justify-content: space-between; width: 100%; 
+            /* THIS IS THE KEY: Flex 1 makes it fill the vertical space */
+            flex: 1; min-height: 0; 
             padding: 10px 15px; 
             background: repeating-linear-gradient(0deg, #222, #222 1px, transparent 1px, transparent 10px);
             border-radius: 4px; border: 1px solid #222; box-shadow: inset 0 0 10px #000;
+            margin-top: 5px;
         }
         input[type=range].v-fader { 
             writing-mode: bt-lr; -webkit-appearance: slider-vertical; 
-            width: 50px; cursor: pointer; background: transparent; margin: 0;
+            width: 40px; cursor: pointer; background: transparent; margin: 0;
+            height: 100%; /* Fill available height */
         }
         input[type=range].v-fader::-webkit-slider-runnable-track {
             width: 8px; border-radius: 4px; border: 1px solid #000;
-            background: linear-gradient(to top, #0f0 0%, #ff0 70%, #f00 100%);
-            opacity: 0.3;
+            background: linear-gradient(to top, #0f0 0%, #ff0 70%, #f00 100%); opacity: 0.3;
         }
         input[type=range].v-fader:active::-webkit-slider-runnable-track { opacity: 0.8; }
-
         input[type=range].v-fader::-webkit-slider-thumb {
-            -webkit-appearance: none; height: 40px; width: 50px;
+            -webkit-appearance: none; height: 40px; width: 40px;
             background: linear-gradient(180deg, #444, #111, #000);
             border: 1px solid #000; border-radius: 2px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.9); margin-left: -22px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.9); margin-left: -17px;
             position: relative; z-index: 5;
             background-image: repeating-linear-gradient(0deg, transparent, transparent 10px, rgba(255,255,255,0.1) 11px, transparent 12px);
         }
 
-        .autofade-box { width: 100%; display: flex; gap: 5px; flex-shrink: 0; }
-        .btn-xf { background: #222; border: 1px solid #444; color: #888; font-size: 10px; flex: 1; padding: 6px; border-radius: 3px; cursor: pointer; }
+        /* --- BOTTOM SECTION (CROSSFADER) --- */
+        .autofade-box { width: 100%; display: flex; justify-content: space-between; gap: 20px; flex-shrink: 0; margin-bottom: 5px;}
+        .btn-xf { background: #222; border: 1px solid #444; color: #888; font-size: 11px; width: 80px; padding: 4px; border-radius: 3px; cursor: pointer; text-align: center; font-weight: bold;}
         .btn-xf:hover { color: #fff; background: #333; }
 
-        /* CROSSFADER - CHROME KNOB */
+        /* CROSSFADER - WIDE */
         .xfader-container { 
-            width: 100%; height: 55px; background: #050505; border-radius: 4px; border: 1px solid #333; 
-            display: flex; align-items: center; padding: 0 10px; margin-top: 5px;
+            width: 100%; height: 50px; background: #050505; border-radius: 4px; border: 1px solid #333; 
+            display: flex; align-items: center; padding: 0 20px;
             box-shadow: inset 0 2px 10px #000;
             background-image: linear-gradient(#000, #000), linear-gradient(90deg, #111 0%, #111 100%);
             background-size: 100% 2px, 90% 6px;
@@ -245,7 +255,7 @@
         }
         .xfader { -webkit-appearance: none; width: 100%; height: 100%; background: transparent; cursor: pointer; touch-action: none; }
         .xfader::-webkit-slider-thumb { 
-            -webkit-appearance: none; width: 60px; height: 45px; 
+            -webkit-appearance: none; width: 80px; height: 40px; 
             background: linear-gradient(180deg, #f0f0f0, #aaa, #555); 
             border: 1px solid #fff; border-radius: 3px; 
             box-shadow: 0 5px 15px rgba(0,0,0,1), inset 0 1px 0 rgba(255,255,255,0.8);
@@ -262,14 +272,11 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
         }
         .lib-header { padding: 15px; background: #1a1a1a; border-bottom: 1px solid #333; }
-        
-        /* RESTORED STATUS BAR */
         .lib-status-bar { height: 32px; display: flex; margin-bottom: 15px; border-radius: 4px; overflow: hidden; background: #000; border: 1px solid #333; }
         .lib-status-side { flex: 1; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; color: #444; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px; }
         .lib-status-side.active-a { background: var(--cyan); color: #000; box-shadow: 0 0 20px var(--cyan); }
         .lib-status-side.active-b { background: var(--pink); color: #fff; box-shadow: 0 0 20px var(--pink); }
         .lib-status-side.active-mix { background: #ffaa00; color: #000; }
-
         .lib-search-row { display: flex; gap: 10px; }
         .lib-scroll { flex: 1; overflow-y: auto; }
         table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -281,15 +288,23 @@
         .btn-load.b { background: rgba(255, 0, 85, 0.1); color: var(--pink); border: 1px solid rgba(255, 0, 85, 0.3); }
         .btn-load:hover { filter: brightness(1.5); }
 
-        /* RESPONSIVE */
+        /* RESPONSIVE SCALING */
         @media (max-width: 800px) {
-            .mixer { flex: 0 0 120px; padding: 5px; }
-            .knob { width: 34px; height: 34px; }
-            /* FORCE VIDEO HEIGHT TO NOT STRETCH */
+            /* Shrink mixer width */
+            .mixer { flex: 0 0 90px; padding: 2px; }
+            /* Shrink knobs */
+            .knob { width: 30px; height: 30px; }
+            .knob-stack { gap: 4px; }
+            /* Tighten spacing */
+            .fader-group { padding: 5px; margin-top: 2px; }
+            input[type=range].v-fader { width: 30px; }
+            input[type=range].v-fader::-webkit-slider-thumb { width: 30px; height: 30px; margin-left: -12px; }
+            
+            /* Player shrinks */
             .vis-box { width: 100%; aspect-ratio: 16/9; min-height: 0; height: auto; }
             .deck-id { display: none; }
             .btn-pad { font-size: 9px; height: 40px; }
-            .console { gap: 2px; padding: 2px; }
+            .console-upper { gap: 2px; }
             .deck { padding: 5px; }
         }
     </style>
@@ -308,107 +323,111 @@
 </header>
 
 <div class="console">
-    <div class="deck" id="deck1">
-        <div class="deck-header">
-            <div class="deck-id">A</div>
-            <div class="search-area">
-                <input type="text" class="inp-search" id="search1" placeholder="Search YouTube / ID..." oninput="handleType(1)">
-                <div class="dropdown" id="dd1"></div>
+    <div class="console-upper">
+        <div class="deck" id="deck1">
+            <div class="deck-header">
+                <div class="deck-id">A</div>
+                <div class="search-area">
+                    <input type="text" class="inp-search" id="search1" placeholder="Search YouTube / ID..." oninput="handleType(1)">
+                    <div class="dropdown" id="dd1"></div>
+                </div>
+            </div>
+            
+            <div class="vis-box">
+                <div id="p1-wrap" class="video-container"></div>
+            </div>
+
+            <div class="info-box">
+                <div class="marquee-wrap"><span class="track-name" id="title1">No Track Loaded</span></div>
+                <div class="time-badge" id="time1">00:00</div>
+            </div>
+
+            <div class="scrubber-container">
+                <input type="range" class="scrubber" id="seek1" min="0" max="100" value="0" 
+                    onmousedown="startSeek(1)" onmouseup="endSeek(1)" oninput="seeking(1)">
+            </div>
+
+            <div class="controls-grid">
+                <button class="btn-pad play" onclick="playPause(1)"><i class="fas fa-play"></i></button>
+                <button class="btn-pad cue" onclick="cue(1)">CUE</button>
+                <button class="btn-pad" onclick="loop(1,4)" id="loop1-4">LOOP 4</button>
+                <button class="btn-pad" onclick="loop(1,8)" id="loop1-8">LOOP 8</button>
+                <button class="btn-pad hot" id="hot1-A" onclick="hotCue(1,'A')">HOT 1</button>
+                <button class="pad btn-pad hot" id="hot1-B" onclick="hotCue(1,'B')">HOT 2</button>
+                <button class="btn-pad hot" id="hot1-C" onclick="hotCue(1,'C')">HOT 3</button>
+                <button class="btn-pad" onclick="delCue(1)" style="color:#d32f2f">DEL</button>
+            </div>
+
+            <div class="tempo-container">
+                <div class="tempo-label">TEMPO</div>
+                <input type="range" class="tempo-slider" id="tempo1" min="0.5" max="1.5" step="0.01" value="1" oninput="setRate(1)">
+                <div class="tempo-val" id="rate1">0%</div>
             </div>
         </div>
-        
-        <div class="vis-box">
-            <div id="p1-wrap" class="video-container"></div>
+
+        <div class="mixer">
+            <div class="eq-group">
+                <div class="knob-stack"><div class="knob"></div><span class="knob-label">HIGH</span></div>
+                <div class="knob-stack"><div class="knob"></div><span class="knob-label">MID</span></div>
+                <div class="knob-stack"><div class="knob"></div><span class="knob-label">LOW</span></div>
+            </div>
+            
+            <div class="fader-group">
+                <input type="range" class="v-fader" id="vol1" min="0" max="100" value="100" oninput="setVol()">
+                <input type="range" class="v-fader" id="vol2" min="0" max="100" value="100" oninput="setVol()">
+            </div>
         </div>
 
-        <div class="info-box">
-            <div class="marquee-wrap"><span class="track-name" id="title1">No Track Loaded</span></div>
-            <div class="time-badge" id="time1">00:00</div>
-        </div>
+        <div class="deck right" id="deck2">
+            <div class="deck-header">
+                <div class="deck-id">B</div>
+                <div class="search-area">
+                    <input type="text" class="inp-search" id="search2" placeholder="Search YouTube / ID..." oninput="handleType(2)">
+                    <div class="dropdown" id="dd2"></div>
+                </div>
+            </div>
+            
+            <div class="vis-box">
+                <div id="p2-wrap" class="video-container"></div>
+            </div>
 
-        <div class="scrubber-container">
-            <input type="range" class="scrubber" id="seek1" min="0" max="100" value="0" 
-                onmousedown="startSeek(1)" onmouseup="endSeek(1)" oninput="seeking(1)">
-        </div>
+            <div class="info-box">
+                <div class="marquee-wrap"><span class="track-name" id="title2">No Track Loaded</span></div>
+                <div class="time-badge" id="time2">00:00</div>
+            </div>
 
-        <div class="controls-grid">
-            <button class="btn-pad play" onclick="playPause(1)"><i class="fas fa-play"></i></button>
-            <button class="btn-pad cue" onclick="cue(1)">CUE</button>
-            <button class="btn-pad" onclick="loop(1,4)" id="loop1-4">LOOP 4</button>
-            <button class="btn-pad" onclick="loop(1,8)" id="loop1-8">LOOP 8</button>
-            <button class="btn-pad hot" id="hot1-A" onclick="hotCue(1,'A')">HOT 1</button>
-            <button class="pad btn-pad hot" id="hot1-B" onclick="hotCue(1,'B')">HOT 2</button>
-            <button class="btn-pad hot" id="hot1-C" onclick="hotCue(1,'C')">HOT 3</button>
-            <button class="btn-pad" onclick="delCue(1)" style="color:#d32f2f">DEL</button>
-        </div>
+            <div class="scrubber-container">
+                <input type="range" class="scrubber" id="seek2" min="0" max="100" value="0" 
+                    onmousedown="startSeek(2)" onmouseup="endSeek(2)" oninput="seeking(2)">
+            </div>
 
-        <div class="tempo-container">
-            <div class="tempo-label">TEMPO</div>
-            <input type="range" class="tempo-slider" id="tempo1" min="0.5" max="1.5" step="0.01" value="1" oninput="setRate(1)">
-            <div class="tempo-val" id="rate1">0%</div>
+            <div class="controls-grid">
+                <button class="btn-pad play" onclick="playPause(2)"><i class="fas fa-play"></i></button>
+                <button class="btn-pad cue" onclick="cue(2)">CUE</button>
+                <button class="btn-pad" onclick="loop(2,4)" id="loop2-4">LOOP 4</button>
+                <button class="btn-pad" onclick="loop(2,8)" id="loop2-8">LOOP 8</button>
+                <button class="btn-pad hot" id="hot2-A" onclick="hotCue(2,'A')">HOT 1</button>
+                <button class="btn-pad hot" id="hot2-B" onclick="hotCue(2,'B')">HOT 2</button>
+                <button class="btn-pad hot" id="hot2-C" onclick="hotCue(2,'C')">HOT 3</button>
+                <button class="btn-pad" onclick="delCue(2)" style="color:#d32f2f">DEL</button>
+            </div>
+
+            <div class="tempo-container">
+                <div class="tempo-label">TEMPO</div>
+                <input type="range" class="tempo-slider" id="tempo2" min="0.5" max="1.5" step="0.01" value="1" oninput="setRate(2)">
+                <div class="tempo-val" id="rate2">0%</div>
+            </div>
         </div>
     </div>
 
-    <div class="mixer">
-        <div class="eq-group">
-            <div class="knob-stack"><div class="knob"></div><span class="knob-label">HIGH</span></div>
-            <div class="knob-stack"><div class="knob"></div><span class="knob-label">MID</span></div>
-            <div class="knob-stack"><div class="knob"></div><span class="knob-label">LOW</span></div>
-        </div>
-        
-        <div class="fader-group">
-            <input type="range" class="v-fader" id="vol1" min="0" max="100" value="100" oninput="setVol()">
-            <input type="range" class="v-fader" id="vol2" min="0" max="100" value="100" oninput="setVol()">
-        </div>
-
+    <div class="console-bottom">
         <div class="autofade-box">
             <button class="btn-xf" onclick="autoFade(1,2)">AUTO &rarr;</button>
+            <div style="color:#444; font-size:10px; font-weight:bold; letter-spacing:2px; display:flex; align-items:center;">CROSSFADER</div>
             <button class="btn-xf" onclick="autoFade(2,1)">&larr; AUTO</button>
         </div>
-
         <div class="xfader-container">
             <input type="range" class="xfader" id="xfader" min="0" max="100" value="50" oninput="setVol()">
-        </div>
-    </div>
-
-    <div class="deck right" id="deck2">
-        <div class="deck-header">
-            <div class="deck-id">B</div>
-            <div class="search-area">
-                <input type="text" class="inp-search" id="search2" placeholder="Search YouTube / ID..." oninput="handleType(2)">
-                <div class="dropdown" id="dd2"></div>
-            </div>
-        </div>
-        
-        <div class="vis-box">
-            <div id="p2-wrap" class="video-container"></div>
-        </div>
-
-        <div class="info-box">
-            <div class="marquee-wrap"><span class="track-name" id="title2">No Track Loaded</span></div>
-            <div class="time-badge" id="time2">00:00</div>
-        </div>
-
-        <div class="scrubber-container">
-            <input type="range" class="scrubber" id="seek2" min="0" max="100" value="0" 
-                onmousedown="startSeek(2)" onmouseup="endSeek(2)" oninput="seeking(2)">
-        </div>
-
-        <div class="controls-grid">
-            <button class="btn-pad play" onclick="playPause(2)"><i class="fas fa-play"></i></button>
-            <button class="btn-pad cue" onclick="cue(2)">CUE</button>
-            <button class="btn-pad" onclick="loop(2,4)" id="loop2-4">LOOP 4</button>
-            <button class="btn-pad" onclick="loop(2,8)" id="loop2-8">LOOP 8</button>
-            <button class="btn-pad hot" id="hot2-A" onclick="hotCue(2,'A')">HOT 1</button>
-            <button class="btn-pad hot" id="hot2-B" onclick="hotCue(2,'B')">HOT 2</button>
-            <button class="btn-pad hot" id="hot2-C" onclick="hotCue(2,'C')">HOT 3</button>
-            <button class="btn-pad" onclick="delCue(2)" style="color:#d32f2f">DEL</button>
-        </div>
-
-        <div class="tempo-container">
-            <div class="tempo-label">TEMPO</div>
-            <input type="range" class="tempo-slider" id="tempo2" min="0.5" max="1.5" step="0.01" value="1" oninput="setRate(2)">
-            <div class="tempo-val" id="rate2">0%</div>
         </div>
     </div>
 </div>
@@ -582,7 +601,6 @@
         dd.style.display = 'block';
         dd.innerHTML = `<div class="dd-loader">Loading ${name}...</div>`;
         
-        // FIX: Search by Name directly instead of restricted ID
         let url = `https://youtube-search-and-download.p.rapidapi.com/search?query=${encodeURIComponent(name)}&type=video`;
         
         try {
@@ -591,7 +609,6 @@
             searchState[deck].token = data.continuation || data.token || data.next || null;
             let items = data.contents || [];
             
-            // Render Back Button + Results
             dd.innerHTML = '';
             
             const backBtn = document.createElement('div');
@@ -695,8 +712,6 @@
             const g1 = Math.cos(x*1.57), g2 = Math.sin(x*1.57);
             if(state[1].isReady && players[1].setVolume) players[1].setVolume(v1 * g1 * 100);
             if(state[2].isReady && players[2].setVolume) players[2].setVolume(v2 * g2 * 100);
-            
-            // STATUS UPDATE
             updateLibStatus(x);
         } catch(e){}
     }
@@ -730,7 +745,7 @@
     /* ----- LIBRARY & EXTRAS ----- */
     function toggleLibrary() { 
         document.getElementById('modal-library').style.display='flex'; 
-        setVol(); // Force update status bar
+        setVol(); 
     }
     function toggleNotes() { document.getElementById('modal-notes').style.display='flex'; }
     function saveNotes() { db.ref('djNotes').set(document.getElementById('notes-text').value); document.getElementById('modal-notes').style.display='none'; }
