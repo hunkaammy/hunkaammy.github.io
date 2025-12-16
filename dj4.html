@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-    <title>ULTIMATE DJ CONSOLE - V26.5 (NO REFRESH)</title>
+    <title>ULTIMATE DJ CONSOLE - V27 (BUG FIX)</title>
     
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
@@ -148,7 +148,7 @@
 <body>
 
 <header>
-    <div class="logo"><i class="fas fa-compact-disc fa-spin" style="color:var(--cyan)"></i> V26.5 HYBRID PRO</div>
+    <div class="logo"><i class="fas fa-compact-disc fa-spin" style="color:var(--cyan)"></i> V27 BUG FIX</div>
     <div class="header-controls">
         <button class="btn-icon btn-lib" onclick="toggleLibrary()"><i class="fas fa-music"></i> &nbsp;LIBRARY</button>
         <button class="btn-icon" onclick="exportData()" title="Backup History"><i class="fas fa-download"></i></button>
@@ -395,6 +395,10 @@
         document.getElementById(`seek${d}`).value = 0;
         document.getElementById('modal-library').style.display='none';
         
+        // BUG FIX: Close the dropdown and clear search
+        document.getElementById(`dd${d}`).style.display = 'none';
+        document.getElementById(`search${d}`).value = '';
+        
         // SWITCH ENGINE
         if (source === 'yt') {
             deckState[d].type = 'yt';
@@ -587,7 +591,7 @@
     }
 
     /* ----- 6. LIBRARY, IMPORT/EXPORT & NOTES ----- */
-    // NO-REFRESH IMPORT
+    // NO-REFRESH IMPORT (IMPROVED V27)
     async function importMp3s(el) {
         if(!el.files.length) return;
         const btn = el.previousElementSibling; const oldText = btn.innerHTML;
@@ -649,7 +653,7 @@
         } else db.ref(`playedHistory/${id}/category`).set(el.value);
     }
     
-    // NO-REFRESH DELETE
+    // NO-REFRESH DELETE (IMPROVED V27)
     function delMp3(id) { 
         if(confirm('Delete MP3 from storage?')) {
             mp3DB.tracks.delete(id).then(() => {
