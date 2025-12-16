@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-    <title>ULTIMATE DJ CONSOLE - V26 (FIXED)</title>
+    <title>ULTIMATE DJ CONSOLE - V26.5 (NO REFRESH)</title>
+    
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/3.2.4/dexie.min.js"></script>
+    
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     
@@ -115,7 +117,7 @@
         .modal-box { background: #121212; width: 95%; height: 90%; max-width: 900px; border-radius: 12px; border: 1px solid #333; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
         .lib-header { padding: 15px; background: #1a1a1a; border-bottom: 1px solid #333; }
         
-        /* RESTORED STATUS BAR */
+        /* STATUS BAR */
         .lib-status-bar { height: 32px; display: flex; margin-bottom: 15px; border-radius: 4px; overflow: hidden; background: #000; border: 1px solid #333; }
         .lib-status-side { flex: 1; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; color: #444; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px; }
         .lib-status-side.active-a { background: var(--cyan); color: #000; box-shadow: 0 0 20px var(--cyan); }
@@ -146,7 +148,7 @@
 <body>
 
 <header>
-    <div class="logo"><i class="fas fa-compact-disc fa-spin" style="color:var(--cyan)"></i> V26 HYBRID PRO</div>
+    <div class="logo"><i class="fas fa-compact-disc fa-spin" style="color:var(--cyan)"></i> V26.5 HYBRID PRO</div>
     <div class="header-controls">
         <button class="btn-icon btn-lib" onclick="toggleLibrary()"><i class="fas fa-music"></i> &nbsp;LIBRARY</button>
         <button class="btn-icon" onclick="exportData()" title="Backup History"><i class="fas fa-download"></i></button>
@@ -497,27 +499,19 @@
             if(deckState[2].ready) players[2].setVolume(v2 * g2 * 100);
             audioNodes[1].volume = v1 * g1;
             audioNodes[2].volume = v2 * g2;
-            updateLibStatus(x); // UPDATE LIBRARY STATUS
+            updateLibStatus(x); 
         } catch(e){}
     }
     
-    // NEW: Update Status Bar in Library
     function updateLibStatus(x) {
         const stA = document.getElementById('status-a');
         const stB = document.getElementById('status-b');
         if(!stA || !stB) return;
-        
         stA.className = 'lib-status-side'; stB.className = 'lib-status-side';
         stA.innerText = "DECK A"; stB.innerText = "DECK B";
-        
-        if (x < 0.4) {
-            stA.classList.add('active-a'); stA.innerText = "DECK A LIVE";
-        } else if (x > 0.6) {
-            stB.classList.add('active-b'); stB.innerText = "DECK B LIVE";
-        } else {
-            stA.classList.add('active-mix'); stB.classList.add('active-mix');
-            stA.innerText = "MIX LIVE"; stB.innerText = "MIX LIVE";
-        }
+        if (x < 0.4) { stA.classList.add('active-a'); stA.innerText = "DECK A LIVE"; } 
+        else if (x > 0.6) { stB.classList.add('active-b'); stB.innerText = "DECK B LIVE"; } 
+        else { stA.classList.add('active-mix'); stB.classList.add('active-mix'); stA.innerText = "MIX LIVE"; stB.innerText = "MIX LIVE"; }
     }
 
     /* ----- 5. ADVANCED SEARCH & BROWSING ----- */
@@ -532,7 +526,6 @@
         const q = document.getElementById(`search${d}`).value; if(!q) return;
         const dd = document.getElementById(`dd${d}`);
         if(!retry) { searchState[d].query=q; searchState[d].token=null; dd.innerHTML='<div class="dd-loader">Searching...</div>'; dd.style.display='block'; }
-        
         try {
             const res = await fetch(`https://youtube-search-and-download.p.rapidapi.com/search?query=${encodeURIComponent(q)}&type=all`, { method:'GET', headers:{'x-rapidapi-key':getApiKey(),'x-rapidapi-host':'youtube-search-and-download.p.rapidapi.com'} });
             if(!res.ok) { if(switchKey()) return searchYouTube(d, true); throw new Error(); }
@@ -594,21 +587,23 @@
     }
 
     /* ----- 6. LIBRARY, IMPORT/EXPORT & NOTES ----- */
+    // NO-REFRESH IMPORT
     async function importMp3s(el) {
         if(!el.files.length) return;
+        const btn = el.previousElementSibling; const oldText = btn.innerHTML;
+        btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> &nbsp; PROCESSING...`;
         let count = 0;
         for(let f of el.files) {
-            await mp3DB.tracks.add({ title: f.name.replace('.mp3',''), blob: f, date: Date.now() });
+            const id = await mp3DB.tracks.add({ title: f.name.replace('.mp3',''), blob: f, date: Date.now() });
+            libraryData.push({ id: id, title: f.name.replace('.mp3',''), blob: f, date: Date.now(), source: 'local', videoId: id, category: 'Local' });
             count++;
         }
-        alert(`${count} Tracks added to Browser Storage!`);
-        window.location.reload();
+        btn.innerHTML = oldText; el.value = ''; refreshLib(); alert(`${count} Tracks added!`);
     }
 
     function toggleLibrary() { 
         document.getElementById('modal-library').style.display='flex'; 
-        setVol(); // Triggers updateLibStatus
-        refreshLib(); 
+        setVol(); refreshLib(); 
     }
     function toggleNotes() { document.getElementById('modal-notes').style.display='flex'; }
     function saveNotes() { db.ref('djNotes').set(document.getElementById('notes-text').value); document.getElementById('modal-notes').style.display='none'; }
@@ -654,13 +649,21 @@
         } else db.ref(`playedHistory/${id}/category`).set(el.value);
     }
     
-    function delMp3(id) { if(confirm('Delete MP3?')) mp3DB.tracks.delete(id).then(()=>window.location.reload()); }
+    // NO-REFRESH DELETE
+    function delMp3(id) { 
+        if(confirm('Delete MP3 from storage?')) {
+            mp3DB.tracks.delete(id).then(() => {
+                libraryData = libraryData.filter(t => !(t.source === 'local' && t.id === id));
+                refreshLib();
+            });
+        }
+    }
     function delHistory(id) { if(confirm('Remove from History?')) db.ref(`playedHistory/${id}`).remove(); }
     
     function updateCatFilter() { document.getElementById('cat-filter').innerHTML = '<option value="">All Categories</option>' + categories.map(c=>`<option>${c}</option>`).join(''); }
 
     function exportData() {
-        const historyOnly = libraryData.filter(x => x.source === 'yt'); // Only export YT history metadata
+        const historyOnly = libraryData.filter(x => x.source === 'yt'); 
         const b = new Blob([JSON.stringify({history: historyOnly, categories})], {type:'application/json'});
         const a = document.createElement('a'); a.href=URL.createObjectURL(b); a.download='dj_backup.json'; a.click();
     }
