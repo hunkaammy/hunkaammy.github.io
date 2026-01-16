@@ -16,8 +16,8 @@
     }
 
     html, body {
-  overscroll-behavior: none;
-}
+      overscroll-behavior: none;
+    }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -445,6 +445,30 @@
       font-size: 12px;
       padding: 4px 8px;
     }
+    
+    /* Price Filter Inputs */
+    .price-filter-container {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .price-input {
+      width: 70px;
+      font-size: 12px;
+      padding: 4px 6px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+    }
+    
+    .price-clear-btn {
+        background: none;
+        border: none;
+        color: #dc3545;
+        cursor: pointer;
+        padding: 0 4px;
+        font-size: 14px;
+    }
 
     #productModal .btn-close {
       flex-shrink: 0;
@@ -871,7 +895,6 @@
       </div>
     </div>
 
-    <!-- Fixed Your Order Button -->
     <button class="fixed-order-button" ng-if="dynamicField2Value && !isOrderModalOpen && !isEnlargedImageOpen" ng-click="openOrderModal()">
       <i class="fas fa-shopping-cart me-1"></i>Your Order
     </button>
@@ -932,12 +955,14 @@
         
         <div class="products-container">
             <div class="products-header">
-                
-                <select ng-model="sortOrder" ng-change="updateDisplayedProducts()" class="form-select form-select-sm">
-                    <option value="default">Sort: Newest</option>
-                    <option value="price">Sort: Price Low</option>
-                    <option value="-price">Sort: Price High</option>
-                </select>
+                <div class="price-filter-container">
+                    <input type="number" class="price-input" placeholder="Min ₹" ng-model="priceFilter.min" ng-change="updateDisplayedProducts()">
+                    <span class="text-muted">-</span>
+                    <input type="number" class="price-input" placeholder="Max ₹" ng-model="priceFilter.max" ng-change="updateDisplayedProducts()">
+                    <button class="price-clear-btn" ng-click="clearPriceFilter()" ng-if="priceFilter.min || priceFilter.max">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
+                </div>
             </div>
             
             <div class="products-content">
@@ -968,7 +993,7 @@
                         </div>
                     </div>
                     <div ng-if="displayedProducts.length === 0" class="text-center p-5">
-                        <p class="text-muted">No products found.</p>
+                        <p class="text-muted">No products found in this range.</p>
                     </div>
                 </div>
             </div>
@@ -983,11 +1008,14 @@
         <div class="modal-header">
           <h5 class="modal-title text-uppercase">{{ activeCategoryName }}</h5>
           <div class="sort-container">
-            <select ng-model="sortOrder" ng-change="updateDisplayedProducts()" class="form-select form-select-sm">
-              <option value="default">Sort: Newest</option>
-              <option value="price">Sort: Price Low</option>
-              <option value="-price">Sort: Price High</option>
-            </select>
+            <div class="price-filter-container">
+                <input type="number" class="price-input" placeholder="Min ₹" ng-model="priceFilter.min" ng-change="updateDisplayedProducts()">
+                <span class="text-muted">-</span>
+                <input type="number" class="price-input" placeholder="Max ₹" ng-model="priceFilter.max" ng-change="updateDisplayedProducts()">
+                <button class="price-clear-btn" ng-click="clearPriceFilter()" ng-if="priceFilter.min || priceFilter.max">
+                    <i class="fas fa-times-circle"></i>
+                </button>
+            </div>
           </div>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
@@ -1011,7 +1039,7 @@
               </div>
             </div>
             <div ng-if="!isLoading && displayedProducts.length === 0" class="text-center p-5">
-              <p class="text-muted">No products found.</p>
+              <p class="text-muted">No products found in this range.</p>
             </div>
           </div>
         </div>
@@ -1181,7 +1209,6 @@
     });
 
     // Login Logic
-    // Login Logic
     (function() {
       var loginConfig = {
         apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
@@ -1298,7 +1325,13 @@
         var vm = this;
         vm.images = [];
         $scope.displayedProducts = []; 
-        $scope.sortOrder = 'default';
+        
+        // Use an object to prevent child-scope issues in Angular
+        $scope.priceFilter = {
+            min: null,
+            max: null
+        };
+
         $scope.dynamicField2Value = localStorage.getItem('name') || '';
         $scope.priceVisible = localStorage.getItem('priceVisible') !== 'false';
         $scope.isOrderModalOpen = false;
@@ -1329,6 +1362,18 @@
           snapshot.forEach(function(childSnapshot) {
             var item = childSnapshot.val();
             item.$id = childSnapshot.key;
+            
+            // --- STRICT DATA SANITIZATION ---
+            // Force convert price to a Number immediately upon loading.
+            if (item.price !== undefined && item.price !== null) {
+                // Remove non-numeric chars except dot
+                var cleanPrice = String(item.price).replace(/[^0-9.]/g, '');
+                item.price = Number(cleanPrice) || 0;
+            } else {
+                item.price = 0;
+            }
+            // ---------------------------------
+            
             allData.push(item);
           });
 
@@ -1436,6 +1481,7 @@
               history.pushState({ state: 'search' }, null, location.href);
 
               $timeout(function() {
+                // Keep search results broad
                 $scope.searchResults = $filter('filter')(vm.images, { name: $scope.searchQuery }) || [];
                 $scope.isLoadingSearchResults = false;
               }, 100);
@@ -1458,6 +1504,9 @@
             $scope.productNameFilter = filter;
             $scope.activeCategoryName = $scope.categories.find(c => c.id === tabId)?.name || 'Products';
             $scope.activeTabId = tabId;
+            // Clear price filter when changing category
+            $scope.priceFilter.min = null;
+            $scope.priceFilter.max = null;
             $scope.updateDisplayedProducts();
             $timeout(function() {
               window.scrollTo(0, 0);
@@ -1466,6 +1515,12 @@
             console.error("Select Category Error:", e);
           }
         };
+        
+        $scope.clearPriceFilter = function() {
+            $scope.priceFilter.min = null;
+            $scope.priceFilter.max = null;
+            $scope.updateDisplayedProducts();
+        };
 
         $scope.setTab = function(filter, tabId) {
           try {
@@ -1473,6 +1528,9 @@
             $scope.isSearching = false;
             $scope.productNameFilter = filter;
             $scope.activeCategoryName = $scope.categories.find(c => c.id === tabId)?.name || 'Products';
+            // Clear price filter when opening new tab
+            $scope.priceFilter.min = null;
+            $scope.priceFilter.max = null;
             $scope.updateDisplayedProducts();
             $scope.isProductModalOpen = true;
             history.pushState({ state: 'productModal' }, null, location.href);
@@ -1715,21 +1773,41 @@
           try {
             if ($scope.isLoading || !$scope.dynamicField2Value) return;
 
-            let filteredImages = vm.images;
+            let filteredImages = vm.images.slice(); // Copy the array
+
+            // 1. Filter by Category
             if ($scope.productNameFilter) {
-              filteredImages = $filter('filter')(vm.images, { name: $scope.productNameFilter }) || [];
+              filteredImages = $filter('filter')(filteredImages, { name: $scope.productNameFilter }) || [];
             }
-            if ($scope.searchQuery && !$scope.productNameFilter) {
+            
+            // 2. Filter by Search
+            if ($scope.searchQuery) {
               filteredImages = $filter('filter')(filteredImages, { name: $scope.searchQuery }) || [];
             }
 
-            if ($scope.sortOrder === 'price') {
-              filteredImages = $filter('orderBy')(filteredImages, 'price');
-            } else if ($scope.sortOrder === '-price') {
-              filteredImages = $filter('orderBy')(filteredImages, '-price');
-            } else {
-              filteredImages = $filter('orderBy')(filteredImages, '-date');
-            }
+            // 3. Filter by Price Range (Min / Max)
+            var min = $scope.priceFilter.min;
+            var max = $scope.priceFilter.max;
+            
+            // Debugging
+            console.log("Filtering Prices:", min, max);
+
+            filteredImages = filteredImages.filter(function(item) {
+                var price = item.price; // Already a number
+                
+                // If min is set, price must be >= min
+                if (min !== null && min !== undefined && price < min) {
+                    return false;
+                }
+                // If max is set, price must be <= max
+                if (max !== null && max !== undefined && price > max) {
+                    return false;
+                }
+                return true;
+            });
+
+            // 4. Default Sort: Newest first (reverse chronological)
+            filteredImages = $filter('orderBy')(filteredImages, '-date');
             
             $scope.displayedProducts = filteredImages;
           } catch (e) {
@@ -1817,7 +1895,3 @@
   </script>
 </body>
 </html>
-
-
-
-
