@@ -1239,10 +1239,12 @@
             // Using .toLowerCase() ensures "Admin" and "admin" are both blocked
             var isNameBlocked = blockedNames.some(blockedName => blockedName.toLowerCase() === name.toLowerCase());
 
+            // --- STRICT BLOCKING LOGIC ---
             if (blockedNumbers.includes(mobile) || isNameBlocked) {
               window.location.href = blockedPageUrl;
               return;
             }
+            // -----------------------------
 
             if (name.length < 4 || !/^[6-9]\d{9}$/.test(mobile)) {
               alert('Please enter valid details.');
@@ -1287,26 +1289,29 @@
             var name = localStorage.getItem('name');
             var mobile = localStorage.getItem('mobile');
 
-            if (mobile && blockedNumbers.includes(mobile)) {
-              window.location.href = blockedPageUrl;
-              return;
-            }
-
+            // --- STRICT BLOCKING LOGIC FOR AUTO-LOGIN ---
             if (name && mobile) {
-              document.getElementById('name').value = name;
-              document.getElementById('mobile').value = mobile;
+                var isNameBlocked = blockedNames.some(blockedName => blockedName.toLowerCase() === name.toLowerCase());
+                if (blockedNumbers.includes(mobile) || isNameBlocked) {
+                  window.location.href = blockedPageUrl;
+                  return;
+                }
+            
+                document.getElementById('name').value = name;
+                document.getElementById('mobile').value = mobile;
 
-              loginDb.ref('users').push({ 
-                name: name, 
-                mobile: mobile, 
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
-                loginType: 'auto'
-              }).catch(e => {
-                console.error("Auto-login Firebase Error:", e);
-              });
+                loginDb.ref('users').push({ 
+                  name: name, 
+                  mobile: mobile, 
+                  timestamp: firebase.database.ServerValue.TIMESTAMP,
+                  loginType: 'auto'
+                }).catch(e => {
+                  console.error("Auto-login Firebase Error:", e);
+                });
 
-              showContent(name);
+                showContent(name);
             }
+            // ---------------------------------------------
           } catch (e) {
             console.error("Check Authentication Error:", e);
           }
