@@ -1078,7 +1078,7 @@
         </div>
         <div class="modal-body">
           <ul class="list-group">
-            <li class="list-group-item d-flex justify-content-between align-items-center" ng-repeat="item in allOrders | filter:{field2: dynamicField2Value}:true | orderBy:'-serverTimestamp'">
+            <li class="list-group-item d-flex justify-content-between align-items-center" ng-repeat="item in allOrders | filter:isPendingOrder | orderBy:'-serverTimestamp'">
               <div class="d-flex align-items-center">
                 <img ng-src="{{item.field1}}" class="order-item-img">
                 <div>
@@ -1098,8 +1098,8 @@
               </div>
             </li>
           </ul>
-          <div ng-if="(allOrders | filter:{field2: dynamicField2Value}:true).length === 0" class="text-center p-5">
-            <p class="text-muted">You have not ordered any items yet.</p>
+          <div ng-if="(allOrders | filter:isPendingOrder).length === 0" class="text-center p-5">
+            <p class="text-muted">You have no pending items.</p>
           </div>
         </div>
         <div class="modal-footer">
@@ -1216,12 +1216,8 @@
         databaseURL: "https://shop-reminder-3ce10-default-rtdb.firebaseio.com",
       };
       
-      // List of blocked mobile numbers
       var blockedNumbers = ['7000913701', '9846434664' , '8269731362', '9876543210', '9123456789', '8987854256', '9039199794', '9166220046', '8269731352', '6263821242', '6616495946', '6266242180', '9109390639', '7000619513', '8576911011' , '9999999999'];
-      
-      // NEW: List of blocked names (Case-insensitive check is usually safer)
       var blockedNames = ['Spammer', 'Mhgghj hyhh', 'TestUser']; 
-      
       var blockedPageUrl = 'https://www.hindustantoys.in/mywebsite/NEWWEBSITE/blocked.html';
 
       try {
@@ -1235,16 +1231,12 @@
             var name = nameInput.value.trim();
             var mobile = mobileInput.value.trim();
 
-            // UPDATED: Check for blocked numbers OR blocked names
-            // Using .toLowerCase() ensures "Admin" and "admin" are both blocked
             var isNameBlocked = blockedNames.some(blockedName => blockedName.toLowerCase() === name.toLowerCase());
 
-            // --- STRICT BLOCKING LOGIC ---
             if (blockedNumbers.includes(mobile) || isNameBlocked) {
               window.location.href = blockedPageUrl;
               return;
             }
-            // -----------------------------
 
             if (name.length < 4 || !/^[6-9]\d{9}$/.test(mobile)) {
               alert('Please enter valid details.');
@@ -1268,12 +1260,21 @@
             alert('An error occurred during login.');
           }
         };
+        
         function showContent(name) {
           try {
             var scope = angular.element(document.body).scope();
             if (scope) {
               scope.$applyAsync(function() { 
                 scope.dynamicField2Value = name; 
+                // Force update now that we have the name
+                if(scope.updateDisplayedProducts) {
+                    setTimeout(function() {
+                        scope.$apply(function() {
+                            scope.updateDisplayedProducts();
+                        });
+                    }, 100);
+                }
               });
             }
             document.getElementById('login-container').style.display = 'none';
@@ -1289,7 +1290,6 @@
             var name = localStorage.getItem('name');
             var mobile = localStorage.getItem('mobile');
 
-            // --- STRICT BLOCKING LOGIC FOR AUTO-LOGIN ---
             if (name && mobile) {
                 var isNameBlocked = blockedNames.some(blockedName => blockedName.toLowerCase() === name.toLowerCase());
                 if (blockedNumbers.includes(mobile) || isNameBlocked) {
@@ -1311,7 +1311,6 @@
 
                 showContent(name);
             }
-            // ---------------------------------------------
           } catch (e) {
             console.error("Check Authentication Error:", e);
           }
@@ -1331,7 +1330,6 @@
         vm.images = [];
         $scope.displayedProducts = []; 
         
-        // Use an object to prevent child-scope issues in Angular
         $scope.priceFilter = {
             min: null,
             max: null
@@ -1368,16 +1366,12 @@
             var item = childSnapshot.val();
             item.$id = childSnapshot.key;
             
-            // --- STRICT DATA SANITIZATION ---
-            // Force convert price to a Number immediately upon loading.
             if (item.price !== undefined && item.price !== null) {
-                // Remove non-numeric chars except dot
                 var cleanPrice = String(item.price).replace(/[^0-9.]/g, '');
                 item.price = Number(cleanPrice) || 0;
             } else {
                 item.price = 0;
             }
-            // ---------------------------------
             
             allData.push(item);
           });
@@ -1594,13 +1588,20 @@
           }
         };
         
+        // NEW FILTER: Checks if name matches AND item is not 'completed'
+        $scope.isPendingOrder = function(item) {
+            return item.field2 === $scope.dynamicField2Value && item.status !== 'completed';
+        };
+
+        // UPDATED: Calculates total only for PENDING items
         $scope.calculateOrderTotal = function() {
           try {
             var total = 0;
             if (!$scope.allOrders) return 0;
             for (var i = 0; i < $scope.allOrders.length; i++) {
               var item = $scope.allOrders[i];
-              if (item.field2 === $scope.dynamicField2Value) {
+              // Use the same logic as the filter: match Name AND NOT completed
+              if (item.field2 === $scope.dynamicField2Value && item.status !== 'completed') {
                 total += (parseFloat(item.productPrice) || 0) * (parseInt(item.field3) || 0);
               }
             }
@@ -1901,6 +1902,3 @@
   </script>
 </body>
 </html>
-
-
-
