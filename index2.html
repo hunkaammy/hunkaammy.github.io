@@ -1350,7 +1350,7 @@
         $scope.videoError = '';
         $scope.isProductModalOpen = false;
 
-        var fetchConfig = { databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com" };
+        var fetchConfig = { databaseURL: "https://pagdi-6f8ce-default-rtdb.firebaseio.com" };
         var submitConfig = { databaseURL: "https://notes-12519-default-rtdb.firebaseio.com" };
         
         var fetchApp = firebase.apps.find(app => app.name === 'fetchApp') || firebase.initializeApp(fetchConfig, 'fetchApp');
@@ -1408,7 +1408,7 @@
         $scope.activeCategoryName = 'ALL PRODUCTS';
         
         $scope.categories = [
-          { id: 0, name: 'ALL PRODUCTS', filter: '', imageUrl: 'https://www.hindustantoys.in/images/all.jpeg' },
+          { id: 0, name: 'ALL PRODUCTS', filter: 'DULHA PAGDI', imageUrl: 'https://www.hindustantoys.in/images/all.jpeg' },
           { id: 42, name: 'INTEX TUB', filter: 'INTEX', imageUrl: 'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2026-01-23T13%3A05%3A21.363Z_INTEX_TUB_d38d958e-f763-4e40-9b41-521a533466d5.jpg?alt=media&token=75753bf8-70a5-46d1-a074-467dbe22b899' },
           { id: 6, name: 'RACKET', filter: 'RACKET', imageUrl: 'https://www.hindustantoys.in/images/racket.jpeg' },
           { id: 9, name: 'MIX TOYS', filter: 'MIX', imageUrl: 'https://www.hindustantoys.in/images/mix.jpeg' },
@@ -1902,4 +1902,5 @@
   </script>
 </body>
 </html>
+
 
