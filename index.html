@@ -978,7 +978,7 @@
                 
                 <div ng-if="!isLoading">
                     <div class="product-grid">
-                        <div class="card" ng-repeat="product in displayedProducts" ng-hide="product.markedForRemoval">
+                        <div class="card" ng-repeat="product in displayedProducts track by product.$id" ng-hide="product.markedForRemoval">
                             <img ng-src="{{product.url}}" alt="{{product.name}}" ng-click="showEnlargedImage(product.url, false)" loading="lazy">
                             <button ng-if="dynamicField2Value === 'sammyadmin'" class="btn btn-danger btn-sm mt-2 mx-2" ng-click="markOutOfStock(product)">
                                 Mark Out of Stock
@@ -1024,7 +1024,7 @@
             </div>
           <div ng-if="!isLoading">
             <div class="product-grid">
-              <div class="card" ng-repeat="image in displayedProducts" ng-hide="image.markedForRemoval">
+              <div class="card" ng-repeat="image in displayedProducts track by image.$id" ng-hide="image.markedForRemoval">
                 <img ng-src="{{image.url}}" alt="{{image.name}}" ng-click="showEnlargedImage(image.url, true)" loading="lazy">
                 <button ng-if="dynamicField2Value === 'sammyadmin'" class="btn btn-danger btn-sm mt-2 mx-2" ng-click="markOutOfStock(image)">
                   Mark Out of Stock
@@ -1613,31 +1613,30 @@
         };
 
         $scope.markOutOfStock = function(image) {
-          try {
-            if (!image || !image.$id || image.markedForRemoval) return;
+  try {
+    if (!image || !image.$id || image.markedForRemoval) return;
 
-            image.markedForRemoval = true;
-            var itemRef = fetchDb.child(image.$id);
-            itemRef.update({ 
-              outOfStock: true,
-              lastModified: firebase.database.ServerValue.TIMESTAMP 
-            }).then(function() {
-              $timeout(function() {
-                const masterIndex = vm.images.findIndex(i => i.$id === image.$id);
-                if (masterIndex > -1) vm.images.splice(masterIndex, 1);
+    // 1. Immediately hide it locally for instant feedback
+    image.markedForRemoval = true;
 
-                const displayIndex = $scope.displayedProducts.findIndex(p => p.$id === image.$id);
-                if (displayIndex > -1) $scope.displayedProducts.splice(displayIndex, 1);
-              }, 200);
-            }).catch(function(error) {
-              console.error("Error marking out of stock:", error);
-              alert("An error occurred: " + error.message);
-              image.markedForRemoval = false;
-            });
-          } catch (e) {
-            console.error("Mark Out of Stock Error:", e);
-          }
-        };
+    // 2. Update Firebase
+    var itemRef = fetchDb.child(image.$id);
+    itemRef.update({ 
+      outOfStock: true,
+      lastModified: firebase.database.ServerValue.TIMESTAMP 
+    }).then(function() {
+      console.log("Product marked out of stock in DB");
+      // Note: The real-time listener (productsListener) will automatically
+      // handle removing it from the array when the DB change syncs back.
+    }).catch(function(error) {
+      console.error("Error marking out of stock:", error);
+      image.markedForRemoval = false; // Re-show if save failed
+      alert("An error occurred: " + error.message);
+    });
+  } catch (e) {
+    console.error("Mark Out of Stock Error:", e);
+  }
+};
 
         $scope.submitData = function(image) {
           try {
@@ -1902,3 +1901,4 @@
   </script>
 </body>
 </html>
+
