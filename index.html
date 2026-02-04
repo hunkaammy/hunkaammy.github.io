@@ -980,9 +980,11 @@
                     <div class="product-grid">
                         <div class="card" ng-repeat="product in displayedProducts track by product.$id" ng-hide="product.markedForRemoval">
                             <img ng-src="{{product.url}}" alt="{{product.name}}" ng-click="showEnlargedImage(product.url, false)" loading="lazy">
-                            <button ng-if="dynamicField2Value === 'sammyadmin'" class="btn btn-danger btn-sm mt-2 mx-2" ng-click="markOutOfStock(product)">
-                                Mark Out of Stock
-                            </button>
+                            <button ng-if="dynamicField2Value === 'sammyadmin'" 
+        class="btn btn-danger btn-sm mt-2 mx-2" 
+        ng-click="$event.stopPropagation(); markOutOfStock(product)">
+    Mark Out of Stock
+</button>
                             <div class="containers">
                                 <span class="saved-feedback" ng-if="product.justSaved">Saved!</span>
                                 <h4 ng-if="priceVisible"><b>{{product.price | currency:"₹":0 }}</b></h4>
@@ -1361,41 +1363,39 @@
 
         // Real-time listener for products
         var productsListener = fetchDb.on('value', function(snapshot) {
-          const allData = [];
-          snapshot.forEach(function(childSnapshot) {
-            var item = childSnapshot.val();
-            item.$id = childSnapshot.key;
-            
-            if (item.price !== undefined && item.price !== null) {
-                var cleanPrice = String(item.price).replace(/[^0-9.]/g, '');
-                item.price = Number(cleanPrice) || 0;
-            } else {
-                item.price = 0;
-            }
-            
-            allData.push(item);
-          });
+  const allData = [];
+  snapshot.forEach(function(childSnapshot) {
+    var item = childSnapshot.val();
+    item.$id = childSnapshot.key;
+    
+    if (item.price !== undefined && item.price !== null) {
+        var cleanPrice = String(item.price).replace(/[^0-9.]/g, '');
+        item.price = Number(cleanPrice) || 0;
+    } else {
+        item.price = 0;
+    }
+    allData.push(item);
+  });
 
-          vm.images = allData.filter(item => !item.outOfStock);
+  vm.images = allData.filter(item => !item.outOfStock);
 
-          $scope.$applyAsync(function() {
-            angular.forEach($scope.categories, function(category) {
-              if (category.filter === '') {
-                category.productCount = vm.images.length;
-              } else {
-                category.productCount = $filter('filter')(vm.images, { name: category.filter }).length;
-              }
-            });
-            $scope.isLoading = false;
-            $scope.isLoadingCategories = false;
-            // Select first category by default
-            if (!$scope.activeTabId && $scope.activeTabId !== 0) {
-              $scope.activeTabId = 0;
-            }
-            $scope.selectCategory($scope.categories.find(c => c.id === $scope.activeTabId)?.filter || '', $scope.activeTabId);
-          });
-        }, function(error) {
-          console.error("Error loading products:", error);
+  $scope.$applyAsync(function() {
+    angular.forEach($scope.categories, function(category) {
+      if (category.filter === '') {
+        category.productCount = vm.images.length;
+      } else {
+        category.productCount = $filter('filter')(vm.images, { name: category.filter }).length;
+      }
+    });
+    
+    $scope.isLoading = false;
+    $scope.isLoadingCategories = false;
+    
+    // FIX: Only update the list, don't trigger the "selectCategory" scroll logic
+    $scope.updateDisplayedProducts(); 
+  });
+}, function(error) {
+  console.error("Error loading products:", error);
           $scope.$applyAsync(function() {
             $scope.isLoading = false;
             $scope.isLoadingCategories = false;
@@ -1901,4 +1901,5 @@
   </script>
 </body>
 </html>
+
 
