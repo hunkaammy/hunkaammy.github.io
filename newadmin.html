@@ -632,15 +632,29 @@
       input.addEventListener('keydown', (e) => { if (e.key === 'Enter') commit(); });
     };
 
-    window.makeEditableVideo = function(el, key, field) {
-      const prev = el.textContent.replace(/^Video URL:\s*/i, '').trim();
+   // Inline editing functions
+    window.makeEditable = function(el, key, field) {
+      const isPrice = field === 'price';
+      const prev = el.textContent.replace(/^Price:\s*/i, '').replace(/^Party Code:\s*/i, '').trim();
       const input = document.createElement('input');
-      input.type = 'url';
-      input.value = prev === 'No video' ? '' : prev;
+      input.type = isPrice ? 'number' : 'text';
+      if (isPrice) input.step = '0.01';
+      input.value = prev;
       input.className = 'w-full border border-gray-300 rounded px-2 py-1';
       el.replaceWith(input);
       input.focus();
-      function commit() { database.ref(key).update({videourl: input.value.trim()}); }
+      input.select();
+      
+      function commit() {
+        let value = input.value.trim();
+        if (isPrice) {
+          // Parse the input and divide by 2
+          let rawPrice = parseFloat(value || '0');
+          value = rawPrice / 2; 
+        }
+        database.ref(key).update({[field]: value});
+      }
+      
       input.addEventListener('blur', commit);
       input.addEventListener('keydown', (e) => { if (e.key === 'Enter') commit(); });
     };
@@ -692,3 +706,4 @@
   </script>
 </body>
 </html>
+
