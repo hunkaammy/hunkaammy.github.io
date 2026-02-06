@@ -2,1085 +2,340 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Product Gallery with Image + Video (Firebase)</title>
+  <title>Hindustan Toys - Turbo v4</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <!-- Tailwind for styles -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Firebase v8 SDKs -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
   <style>
-    .drop-zone {
-      border: 2px dashed #cbd5e1; /* slate-300 */
-      transition: background-color 0.2s ease, border-color 0.2s ease;
-    }
-    .drop-zone:hover, .drop-zone.active {
-      background-color: #f8fafc; /* slate-50 */
-      border-color: #3b82f6; /* blue-500 */
-    }
-    #globalDropOverlay {
-      display: none;
-    }
-    #globalDropOverlay.active {
-      display: flex;
-    }
-    .truncate-2 {
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    img[data-src] {
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    img.loaded {
-      opacity: 1;
-    }
+    .drop-zone { border: 5px dashed #cbd5e1; transition: 0.3s; }
+    .drop-zone.active { background-color: #f0f9ff; border-color: #3b82f6; transform: scale(1.01); }
+    #globalDropOverlay { display: none; pointer-events: none; z-index: 999; }
+    #globalDropOverlay.active { display: flex; pointer-events: all; }
+    img[data-src] { opacity: 0; transition: opacity 0.5s; }
+    img.loaded { opacity: 1; }
+    /* Massive Card Image */
+    .product-card img { height: 400px; width: 100%; object-fit: contain; background: white; }
+    .status-pill { transition: all 0.2s ease-in-out; }
   </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <!-- Global Drag & Drop Overlay -->
-  <div id="globalDropOverlay" class="fixed inset-0 bg-black/50 z-50 items-center justify-center text-white text-xl">
-    Drop files to upload
+<body class="bg-slate-50 min-h-screen">
+
+  <div id="globalDropOverlay" class="fixed inset-0 bg-blue-600/30 items-center justify-center backdrop-blur-sm">
+    <div class="bg-white p-16 rounded-[4rem] shadow-2xl border-8 border-blue-600">
+       <h2 class="text-5xl font-black text-blue-600">DROP TO ADD 🧸</h2>
+    </div>
   </div>
 
-  <div class="max-w-6xl mx-auto px-4 py-6">
-    <h1 class="text-2xl font-bold mb-4">Product Manager</h1>
+  <div class="max-w-[1600px] mx-auto px-6 py-10">
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4">
+      <div>
+        <h1 class="text-5xl font-black text-slate-900 tracking-tight">HINDUSTAN <span class="text-blue-600">TOYS</span></h1>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-xs mt-2">Inventory Management System</p>
+      </div>
+      <div id="uploadStatus" class="hidden bg-blue-600 text-white px-6 py-3 rounded-full font-black animate-pulse shadow-lg">UPLOADING IN PROGRESS...</div>
+    </header>
 
-    <!-- Upload Card -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-      <!-- Left: Upload inputs -->
-      <div class="lg:col-span-1 bg-white rounded-xl shadow p-4">
-        <h2 class="text-lg font-semibold mb-3">Add New Product</h2>
-
-        <div class="space-y-3">
-          <div>
-            <label for="nameInput" class="block text-sm font-medium text-gray-700">Name</label>
-            <input id="nameInput" type="text" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Product name" />
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-10">
+      <div class="xl:col-span-4 space-y-8">
+        <div class="bg-white rounded-[3rem] shadow-2xl p-8 border border-slate-100">
+          <h2 class="text-2xl font-black mb-6">✨ NEW ARRIVALS</h2>
+          
+          <div class="grid grid-cols-1 gap-4 mb-6">
+            <input id="nameInput" type="text" class="w-full rounded-2xl border-slate-200 p-4 font-bold focus:ring-4 focus:ring-blue-100" placeholder="Product Name" />
+            <div class="grid grid-cols-2 gap-4">
+              <input id="priceInput" type="number" class="w-full rounded-2xl border-slate-200 p-4 font-bold" placeholder="Full Price" />
+              <input id="partyCodeInput" type="text" class="w-full rounded-2xl border-slate-200 p-4 font-bold" placeholder="Party Code" />
+            </div>
+            <input id="videourlInput" type="url" class="w-full rounded-2xl border-slate-200 p-4 font-bold" placeholder="Video URL (Link)" />
           </div>
 
-          <div>
-            <label for="priceInput" class="block text-sm font-medium text-gray-700">Price</label>
-            <input id="priceInput" type="number" step="0.01" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="0.00" />
+          <div class="drop-zone rounded-[2.5rem] p-10 text-center cursor-pointer bg-slate-50 border-slate-200" id="imageDropZone">
+            <p class="text-slate-400 font-black uppercase text-xs tracking-widest mb-4">Tap or Drag Images Here</p>
+            <div class="preview flex flex-wrap gap-6 justify-center" id="preview"></div>
+            <input type="file" id="imageInput" class="hidden" accept="image/*" multiple />
           </div>
 
-          <div>
-            <label for="partyCodeInput" class="block text-sm font-medium text-gray-700">Party Code</label>
-            <input id="partyCodeInput" type="text" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., ABC123" />
+          <div class="drop-zone rounded-3xl p-4 text-center cursor-pointer mt-4 bg-slate-50 border-slate-100" id="videoDropZone">
+            <p class="text-slate-400 text-[10px] font-black uppercase" id="videoInfo">Optional: Attach Video File</p>
+            <input type="file" id="videoInput" class="hidden" accept="video/*" />
           </div>
 
-          <div>
-            <label for="videourlInput" class="block text-sm font-medium text-gray-700">
-              Video URL (enter manually or upload below)
-            </label>
-            <input id="videourlInput" type="url" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="https://..." />
-          </div>
+          <button id="uploadBtn" class="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white font-black py-6 rounded-[2.5rem] shadow-2xl shadow-blue-200 transition active:scale-95 text-xl uppercase tracking-wider">
+            Add to Inventory
+          </button>
+          <button id="clearQueueBtn" class="w-full mt-4 text-xs text-red-500 font-black uppercase hidden">Clear Selection</button>
         </div>
-
-        <!-- Image drop zone -->
-        <div class="drop-zone rounded-lg p-4 text-center cursor-pointer mt-4" id="imageDropZone">
-          <div class="text-gray-500">Click to upload or Drag & Drop an image</div>
-          <div class="preview mt-4" id="preview"></div>
-          <input type="file" id="imageInput" class="hidden" accept="image/*" />
-        </div>
-
-        <!-- Video drop zone -->
-        <div class="drop-zone rounded-lg p-4 text-center cursor-pointer mt-4" id="videoDropZone">
-          <div class="text-gray-500">Optional: Click to upload or Drag & Drop a video</div>
-          <div class="preview mt-4" id="videoPreview"></div>
-          <input type="file" id="videoInput" class="hidden" accept="video/*" />
-        </div>
-
-        <button id="uploadBtn" class="w-full mt-5 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg">
-          Upload Product
-        </button>
       </div>
 
-      <!-- Middle: Upload queue / progress -->
-      <div class="lg:col-span-2 bg-white rounded-xl shadow p-4">
-        <h2 class="text-lg font-semibold mb-3">Upload Queue & Progress</h2>
-        <div id="progressList" class="space-y-3"></div>
-      </div>
-    </div>
-
-    <!-- Search Card -->
-    <div class="mt-8 bg-white rounded-xl shadow p-4">
-      <h2 class="text-lg font-semibold mb-3">Search Products</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label for="nameSearchInput" class="block text-sm font-medium text-gray-700">Search by Product Name</label>
-          <input id="nameSearchInput" type="text" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter product name..." />
+      <div class="xl:col-span-8 space-y-10">
+        <div class="bg-white rounded-[3rem] shadow-xl p-8 border border-slate-100">
+          <h2 class="text-2xl font-black mb-6">🔍 QUICK SEARCH</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <input id="nameSearchInput" type="text" class="w-full rounded-2xl border-slate-200 p-5 focus:ring-4 focus:ring-blue-500/10 font-bold" placeholder="Search by name..." />
+            <input id="partyCodeSearchInput" type="text" class="w-full rounded-2xl border-slate-200 p-5 focus:ring-4 focus:ring-blue-500/10 font-bold" placeholder="Search by Party Code..." />
+          </div>
         </div>
-        <div>
-          <label for="partyCodeSearchInput" class="block text-sm font-medium text-gray-700">Search by Party Code</label>
-          <input id="partyCodeSearchInput" type="text" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter party code..." />
-        </div>
-      </div>
-    </div>
 
-    <!-- Gallery -->
-    <div class="mt-8">
-      <h2 class="text-lg font-semibold mb-3">Products</h2>
-      <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
+        <div id="progressGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        
+        <div id="galleryGrid" class="grid grid-cols-1 md:grid-cols-2 gap-10"></div>
+      </div>
     </div>
   </div>
 
   <script>
-    // 1) Firebase init
-    try {
-      const firebaseConfig = {
-        apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
-        authDomain: "htshop-e9c51.firebaseapp.com",
-        databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com",
-        projectId: "htshop-e9c51",
-        storageBucket: "htshop-e9c51.appspot.com",
-        messagingSenderId: "653137640907",
-        appId: "1:653137640907:web:672fd6a9e85ca448a70a4e",
-        measurementId: "G-FJ4Q0FHBEG"
-      };
-      firebase.initializeApp(firebaseConfig);
-      console.log('Firebase initialized successfully');
-    } catch (err) {
-      console.error('Firebase initialization failed:', err);
-      alert('Failed to initialize Firebase. Please check your configuration and try again.');
-    }
+    // --- FIREBASE INITIALIZATION ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
+      authDomain: "htshop-e9c51.firebaseapp.com",
+      databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com",
+      projectId: "htshop-e9c51",
+      storageBucket: "htshop-e9c51.appspot.com",
+      messagingSenderId: "653137640907",
+      appId: "1:653137640907:web:672fd6a9e85ca448a70a4e"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const st = firebase.storage();
 
-    const database = firebase.database();
-    const storage = firebase.storage();
-
-    // 2) Element references
-    const imageDropZone = document.getElementById('imageDropZone');
-    const imageInput = document.getElementById('imageInput');
-    const preview = document.getElementById('preview');
-    const videoDropZone = document.getElementById('videoDropZone');
-    const videoInput = document.getElementById('videoInput');
-    const videoPreview = document.getElementById('videoPreview');
-    const uploadBtn = document.getElementById('uploadBtn');
-    const progressList = document.getElementById('progressList');
-    const galleryGrid = document.getElementById('galleryGrid');
-    const globalDropOverlay = document.getElementById('globalDropOverlay');
-    const nameSearchInput = document.getElementById('nameSearchInput');
-    const partyCodeSearchInput = document.getElementById('partyCodeSearchInput');
-
-    // Verify button exists
-    if (!uploadBtn) {
-      console.error('Upload button not found in DOM');
-      alert('Upload button not found. Please check the page structure.');
-    }
-
-    // 3) State
-    const uploadQueue = [];
+    let selectedFiles = [];
+    let uploadQueue = [];
     let isUploading = false;
-    const loadedImageKeys = new Set();
-    let products = [];
 
-    // 4) Debounce utility
-    function debounce(func, wait) {
-      let timeout;
-      return function (...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
-      };
-    }
-
-    // 5) UI helpers
-    function previewImage(file) {
-      if (!file || !file.type.startsWith('image/')) {
-        console.error('Invalid image file:', file);
-        return;
-      }
-      const url = URL.createObjectURL(file);
-      preview.innerHTML = `
-        <img src="${url}" alt="preview" class="mx-auto w-full rounded-lg object-contain" style="max-height: 240px;" />
-        <div class="text-xs text-gray-500 mt-1 truncate">${file.name}</div>
-      `;
-    }
-    function previewVideo(file) {
-      if (!file || !file.type.startsWith('video/')) {
-        console.error('Invalid video file:', file);
-        return;
-      }
-      const url = URL.createObjectURL(file);
-      videoPreview.innerHTML = `
-        <video src="${url}" controls class="mx-auto w-full rounded-lg" style="max-height: 240px;"></video>
-        <div class="text-xs text-gray-500 mt-1 truncate">${file.name}</div>
-      `;
-    }
-
-    // 6) Lazy load images
-    function setupLazyLoading() {
-      const observer = new IntersectionObserver((entries, obs) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const img = entry.target;
-            img.src = img.dataset.src;
-            img.classList.add('loaded');
-            img.removeAttribute('data-src');
-            obs.unobserve(img);
-          }
-        });
-      }, { rootMargin: '100px' });
-
-      const images = galleryGrid.querySelectorAll('img[data-src]');
-      images.forEach(img => observer.observe(img));
-    }
-
-    // 7) Drag & Drop and Click-to-Upload
-    function setupDropZone(zone, input, previewFn) {
-      zone.addEventListener('click', () => {
-        try {
-          input.click();
-          console.log('Drop zone clicked, triggering file input');
-        } catch (err) {
-          console.error('Failed to trigger file input:', err);
-          alert('Failed to open file picker. Please try again or use drag-and-drop.');
-        }
-      });
-
-      zone.addEventListener('dragenter', (e) => {
-        e.preventDefault();
-        zone.classList.add('active');
-        globalDropOverlay.classList.remove('active');
-      });
-      zone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        zone.classList.add('active');
-      });
-      zone.addEventListener('dragleave', (e) => {
-        e.preventDefault();
-        if (!zone.contains(e.relatedTarget)) {
-          zone.classList.remove('active');
-        }
-      });
-      zone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        zone.classList.remove('active');
-        globalDropOverlay.classList.remove('active');
-        const files = e.dataTransfer.files;
-        if (files.length) {
-          input.files = files;
-          previewFn(files[0]);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-      });
-    }
-
-    setupDropZone(imageDropZone, imageInput, previewImage);
-    setupDropZone(videoDropZone, videoInput, previewVideo);
-
-    window.addEventListener('dragenter', (e) => {
-      e.preventDefault();
-      if (!imageDropZone.contains(e.target) && !videoDropZone.contains(e.target)) {
-        globalDropOverlay.classList.add('active');
-      }
-    });
-    window.addEventListener('dragover', (e) => {
-      e.preventDefault();
-    });
-    window.addEventListener('dragleave', (e) => {
-      e.preventDefault();
-      if (!e.relatedTarget || e.relatedTarget === document.documentElement || e.relatedTarget === document.body) {
-        globalDropOverlay.classList.remove('active');
-      }
-    });
+    // --- NON-LAGGY DRAG & DROP ---
+    const overlay = document.getElementById('globalDropOverlay');
+    let dragCounter = 0;
+    window.addEventListener('dragenter', (e) => { e.preventDefault(); dragCounter++; overlay.classList.add('active'); });
+    window.addEventListener('dragleave', (e) => { dragCounter--; if (dragCounter === 0) overlay.classList.remove('active'); });
+    window.addEventListener('dragover', (e) => e.preventDefault());
     window.addEventListener('drop', (e) => {
-      e.preventDefault();
-      globalDropOverlay.classList.remove('active');
-      if (!imageDropZone.contains(e.target) && !videoDropZone.contains(e.target)) {
-        const files = e.dataTransfer.files;
-        if (files.length) {
-          const file = files[0];
-          if (file.type.startsWith('image/')) {
-            imageInput.files = files;
-            previewImage(file);
-          } else if (file.type.startsWith('video/')) {
-            videoInput.files = files;
-            previewVideo(file);
-          }
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-      }
+      e.preventDefault(); dragCounter = 0; overlay.classList.remove('active');
+      if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
     });
 
-    imageInput.addEventListener('change', () => {
-      if (imageInput.files.length) {
-        console.log('Image selected:', imageInput.files[0].name);
-        previewImage(imageInput.files[0]);
-      }
-    });
-    videoInput.addEventListener('change', () => {
-      if (videoInput.files.length) {
-        console.log('Video selected:', videoInput.files[0].name);
-        previewVideo(videoInput.files[0]);
-      }
-    });
-
-    // 8) Upload flow
-    uploadBtn.addEventListener('click', () => {
-      console.log('Upload button clicked');
-      uploadImage();
-    });
-
-    async function uploadImage() {
-      try {
-        console.log('Starting upload process');
-        const file = imageInput.files && imageInput.files[0];
-        const name = document.getElementById('nameInput').value.trim();
-        const priceInput = parseFloat(document.getElementById('priceInput').value.trim());
-        const partyCode = document.getElementById('partyCodeInput').value.trim();
-        const videourlInputEl = document.getElementById('videourlInput');
-
-        // Detailed validation
-        if (!file) {
-          console.error('No image file selected');
-          alert('Please select an image file.');
-          return;
+    function handleFiles(files) {
+      Array.from(files).forEach(f => {
+        if (f.type.startsWith('image/')) selectedFiles.push(f);
+        else if (f.type.startsWith('video/')) {
+          const dt = new DataTransfer(); dt.items.add(f);
+          document.getElementById('videoInput').files = dt.files;
+          document.getElementById('videoInfo').innerText = "✅ VIDEO READY: " + f.name;
         }
-        if (!name) {
-          console.error('Product name is empty');
-          alert('Please enter a product name.');
-          return;
-        }
-        if (!partyCode) {
-          console.error('Party code is empty');
-          alert('Please enter a party code.');
-          return;
-        }
-        if (isNaN(priceInput) || priceInput <= 0) {
-          console.error('Invalid price:', priceInput);
-          alert('Please enter a valid price greater than 0.');
-          return;
-        }
+      });
+      renderMassivePreview();
+    }
 
-        // Divide price by 2 before uploading
-        const price = priceInput / 2;
-        console.log('Price after division:', price);
+    function renderMassivePreview() {
+      const p = document.getElementById('preview'); p.innerHTML = '';
+      selectedFiles.forEach((f, i) => {
+        const url = URL.createObjectURL(f);
+        // Previews are now w-64 (256px) - Massive!
+        p.innerHTML += `
+          <div class="relative">
+            <img src="${url}" class="w-64 h-64 rounded-[2rem] object-cover shadow-2xl border-8 border-white">
+            <button onclick="removeFile(${i})" class="absolute -top-4 -right-4 bg-red-600 text-white rounded-full w-10 h-10 font-black shadow-xl">✕</button>
+          </div>`;
+      });
+      document.getElementById('clearQueueBtn').classList.toggle('hidden', selectedFiles.length === 0);
+    }
 
-        let finalVideoURL = (videourlInputEl.value || '').trim();
-        if (videoInput.files && videoInput.files[0]) {
-          const videoFile = videoInput.files[0];
-          const now = new Date().toISOString();
-          const videoStorageRef = storage.ref(`${now}_${sanitizePath(name)}_${videoFile.name}`);
+    window.removeFile = (i) => { selectedFiles.splice(i,1); renderMassivePreview(); };
+    document.getElementById('imageDropZone').onclick = () => document.getElementById('imageInput').click();
+    document.getElementById('videoDropZone').onclick = () => document.getElementById('videoInput').click();
+    document.getElementById('imageInput').onchange = (e) => handleFiles(e.target.files);
 
-          const videoStatus = document.createElement('div');
-          videoStatus.className = 'mb-2 text-sm text-blue-600';
-          videoStatus.textContent = 'Uploading video...';
-          videoPreview.appendChild(videoStatus);
+    // --- SURGICAL RENDERER ---
+    function getCardHtml(key, data) {
+      const history = data.partyCodeHistory || [];
+      const statusColor = data.outOfStock ? 'text-red-500' : 'text-green-500';
+      const btnColor = data.outOfStock ? 'bg-red-500' : 'bg-green-600';
+      const statusText = data.outOfStock ? 'SOLD OUT' : 'IN STOCK';
 
-          try {
-            console.log('Uploading video:', videoFile.name);
-            await videoStorageRef.put(videoFile);
-            finalVideoURL = await videoStorageRef.getDownloadURL();
-            videourlInputEl.value = finalVideoURL;
-            videoStatus.textContent = 'Video uploaded.';
-            console.log('Video uploaded, URL:', finalVideoURL);
-          } catch (err) {
-            console.error('Video upload failed:', err);
-            videoStatus.textContent = 'Video upload failed.';
-            alert('Video upload failed. You can still upload the product with a manually entered video URL or try again.');
-          }
-        }
-
-        const thumbDataURL = await fileToDataURL(file);
-        const progressContainer = document.createElement('div');
-        progressContainer.className = 'p-3 bg-gray-100 rounded';
-        progressContainer.innerHTML = `
-          <div class="flex items-center">
-            <img src="${thumbDataURL}" alt="thumbnail" class="w-12 h-12 object-cover rounded mr-4" />
-            <div class="flex-grow">
-              <div class="flex justify-between items-center mb-1">
-                <span class="text-sm font-medium text-gray-800 truncate w-48" title="${file.name}">${file.name}</span>
-                <span class="status text-sm text-blue-600 font-semibold">Uploading...</span>
-              </div>
-              <div class="bg-gray-300 rounded-full h-2.5">
-                <div class="progress-bar bg-blue-600 h-2.5 rounded-full w-0 transition-all duration-300"></div>
-              </div>
+      return `
+        <img data-src="${data.url}" class="w-full">
+        <div class="p-10">
+          <h3 class="text-3xl font-black truncate uppercase mb-6 cursor-pointer" onclick="editField('${key}','name','${data.name}')">${data.name}</h3>
+          
+          <div class="flex justify-between items-end border-b-2 border-slate-50 pb-8 mb-8">
+            <div>
+              <p class="text-xs font-black text-slate-300 uppercase tracking-widest mb-1">Our Price</p>
+              <p class="text-4xl font-black text-green-600 cursor-pointer" onclick="editPrice('${key}',${data.price})">₹${data.price.toFixed(2)}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-xs font-black text-slate-300 uppercase tracking-widest mb-1">Party Code</p>
+              <p class="text-xl font-black text-blue-600 cursor-pointer" onclick="editPartyCode('${key}','${data.partyCode}')">${data.partyCode}</p>
+              <p class="text-[10px] text-slate-300 font-bold">${history.length ? 'Prev: ' + history.join(', ') : ''}</p>
             </div>
           </div>
-        `;
-        progressList.prepend(progressContainer);
 
-        uploadQueue.push({
-          file,
-          name,
-          price,
-          partyCode,
-          videourl: finalVideoURL || '',
-          progressContainer
-        });
-        console.log('Added to upload queue:', { name, price, partyCode, videourl: finalVideoURL });
-
-        // Clear inputs except partyCodeInput
-        imageInput.value = '';
-        videoInput.value = '';
-        document.getElementById('nameInput').value = '';
-        document.getElementById('priceInput').value = '';
-        document.getElementById('videourlInput').value = '';
-        preview.innerHTML = '';
-        videoPreview.innerHTML = '';
-
-        processUploadQueue();
-      } catch (err) {
-        console.error('Upload image failed:', err);
-        alert(`Failed to start upload: ${err.message || 'Unknown error'}. Please try again.`);
-      }
-    }
-
-    function sanitizePath(s) {
-      return s.replace(/[^\w\-]+/g, '_');
-    }
-    function fileToDataURL(fileToRead) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = e => resolve(e.target.result);
-        reader.onerror = err => reject(err);
-        reader.readAsDataURL(fileToRead);
-      });
-    }
-
-    async function processUploadQueue() {
-      if (isUploading) {
-        console.log('Upload in progress, queue length:', uploadQueue.length);
-        return;
-      }
-      if (uploadQueue.length === 0) {
-        console.log('Upload queue empty');
-        return;
-      }
-
-      isUploading = true;
-      const item = uploadQueue.shift();
-      console.log('Processing upload:', item.name);
-
-      const { file, name, price, partyCode, videourl, progressContainer } = item;
-      const progressBar = progressContainer.querySelector('.progress-bar');
-      const statusEl = progressContainer.querySelector('.status');
-
-      const now = new Date().toISOString();
-      const storageRef = storage.ref().child(`${now}_${sanitizePath(name)}_${file.name}`);
-
-      try {
-        await new Promise((resolve, reject) => {
-          const task = storageRef.put(file);
-          task.on('state_changed',
-            (snap) => {
-              const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
-              progressBar.style.width = pct + '%';
-              statusEl.textContent = `Uploading... ${pct}%`;
-              console.log('Upload progress:', pct + '%');
-            },
-            (err) => {
-              console.error('Storage upload error:', err);
-              reject(err);
-            },
-            async () => {
-              try {
-                const imageURL = await storageRef.getDownloadURL();
-                statusEl.textContent = 'Finalizing...';
-                console.log('Image uploaded, URL:', imageURL);
-
-                const data = {
-                  name,
-                  price,
-                  partyCode,
-                  url: imageURL,
-                  videourl: videourl || '',
-                  outOfStock: false,
-                  date: new Date().toISOString()
-                };
-                const ref = database.ref().push();
-                await ref.set(data);
-                console.log('Database entry created:', data);
-
-                statusEl.textContent = 'Done';
-                progressBar.style.width = '100%';
-                setTimeout(() => progressContainer.remove(), 1200);
-
-                resolve();
-              } catch (e) {
-                console.error('Database write error:', e);
-                reject(e);
-              }
-            }
-          );
-        });
-      } catch (err) {
-        console.error('Image upload failed:', err.message || err);
-        statusEl.textContent = `Failed: ${err.message || 'Unknown error'}`;
-        progressBar.classList.remove('bg-blue-600');
-        progressBar.classList.add('bg-red-500');
-        alert(`Image upload failed: ${err.message || 'Unknown error'}. Please check your Firebase permissions or network connection and try again.`);
-      } finally {
-        isUploading = false;
-        if (uploadQueue.length > 0) {
-          console.log('Processing next item in queue');
-          processUploadQueue();
-        }
-      }
-    }
-
-    // 9) Render cards
-    function renderCard(key, data) {
-      const container = document.createElement('div');
-      container.className = 'bg-white rounded-xl shadow overflow-hidden';
-      container.dataset.key = key;
-
-      container.innerHTML = `
-        <img data-src="${data.url}" alt="${escapeHtml(data.name)}"  style="height: 16rem;" class="w-full h-48 object-cover" loading="lazy">
-        <div class="p-4">
-          <h3 class="font-semibold text-lg mb-2 editable-field truncate-2" onclick="makeEditable(this, '${key}', 'name')" title="Click to edit name">
-            ${escapeHtml(data.name)}
-          </h3>
-
-          <p class="text-gray-600 mb-1 editable-field" onclick="makeEditable(this, '${key}', 'price')" title="Click to edit price">
-            Price: ${Number(data.price).toFixed(2)}
-          </p>
-          <p class="text-gray-600 mb-2 editable-field" onclick="makeEditable(this, '${key}', 'partyCode')" title="Click to edit party code">
-            Party Code: ${escapeHtml(data.partyCode || '')}
-          </p>
-
-          <div class="mt-2" id="videoRow-${key}">
-            <p class="text-gray-600 mb-2 editable-field" onclick="makeEditableVideo(this, '${key}', 'videourl')" title="Click to edit video URL">
-              Video URL: ${escapeHtml(data.videourl || 'No video')}
-            </p>
-            ${
-              data.videourl
-                ? `<a href="${data.videourl}" target="_blank" class="text-blue-600 hover:underline text-sm">Watch video</a>`
-                : ''
-            }
-          </div>
-
-          <div class="flex justify-between items-center mt-3">
-            <p class="text-gray-600 status-display-${key}">Status: ${data.outOfStock ? 'Out of Stock' : 'Available'}</p>
-            <button onclick="toggleStockStatus('${key}', ${!!data.outOfStock})"
-              class="text-white py-1 px-3 rounded-full text-sm font-semibold ${data.outOfStock ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}">
-              ${data.outOfStock ? 'Mark Available' : 'Mark Out of Stock'}
+          <div class="flex justify-between items-center mb-8">
+            <span class="text-sm font-black ${statusColor} tracking-tighter">${statusText}</span>
+            <button id="stock-btn-${key}" onclick="toggleStock('${key}', ${!!data.outOfStock})" class="py-4 px-8 rounded-2xl text-xs font-black text-white shadow-xl transition active:scale-95 ${btnColor}">
+              ${data.outOfStock ? 'MARK AVAILABLE' : 'MARK SOLD OUT'}
             </button>
           </div>
 
-          <div class="flex justify-between items-center mt-2">
-            <p class="text-sm text-gray-500 uploaded-date-${key}">Uploaded: ${data.date || new Date().toISOString()}</p>
-            <button onclick="updateUploadDate('${key}')" class="text-white py-1 px-3 rounded-full text-xs font-semibold bg-blue-500 hover:bg-blue-600">
-              Update Date
-            </button>
+          <div class="grid grid-cols-3 gap-3">
+            <button onclick="replaceImage('${key}', '${encodeURIComponent(data.url)}')" class="bg-amber-400 text-amber-900 font-black py-4 rounded-2xl text-[10px] uppercase">Image</button>
+            <button onclick="editVideo('${key}')" class="bg-slate-900 text-white font-black py-4 rounded-2xl text-[10px] uppercase">Video</button>
+            <button onclick="confirmDelete('${key}')" class="bg-slate-100 text-slate-400 font-black py-4 rounded-2xl hover:bg-red-500 hover:text-white transition">Delete</button>
           </div>
-
-          <div class="flex flex-wrap gap-2 items-center mt-4">
-            <button onclick="replaceImage('${key}', '${encodeURIComponent(data.url || '')}')"
-              class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-3 rounded text-sm">
-              Replace Image
-            </button>
-            <button onclick="replaceVideo('${key}', '${encodeURIComponent(data.videourl || '')}')"
-              class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-3 rounded text-sm">
-              Replace Video
-            </button>
-            ${
-              data.videourl
-                ? `<button onclick="removeVideo('${key}', '${encodeURIComponent(data.videourl || '')}')"
-                    class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-3 rounded text-sm">
-                    Remove Video
-                  </button>`
-                : ''
-            }
-            <button onclick="confirmDelete('${key}')"
-              class="ml-auto bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-              Delete
-            </button>
-          </div>
+          ${data.videourl ? `<a href="${data.videourl}" target="_blank" class="block text-center mt-6 text-xs font-bold text-blue-500 underline">Watch Toy Video</a>` : ''}
         </div>
       `;
-      return container;
     }
 
-    function escapeHtml(str) {
-      return String(str || '').replace(/[&<>"']/g, s => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-      }[s]));
-    }
+    // --- RAPID DATABASE ACTIONS ---
+    window.toggleStock = (key, current) => {
+      // Optimistic Update: Change button immediately in UI
+      const btn = document.getElementById(`stock-btn-${key}`);
+      btn.innerText = "UPDATING...";
+      btn.style.opacity = "0.5";
+      db.ref(key).update({ outOfStock: !current });
+    };
 
-    // 10) Optimized Realtime listeners with batch rendering
-    function batchRenderGallery(nameQuery = '', partyCodeQuery = '') {
-      const fragment = document.createDocumentFragment();
-      const nameLower = nameQuery.toLowerCase().trim();
-      const partyCodeLower = partyCodeQuery.toLowerCase().trim();
-
-      const filteredProducts = products.filter(({ data }) => {
-        const nameMatch = !nameLower || (data.name && data.name.toLowerCase().includes(nameLower));
-        const partyCodeMatch = !partyCodeLower || (data.partyCode && data.partyCode.toLowerCase() === partyCodeLower);
-        return nameMatch && partyCodeMatch;
-      });
-
-      filteredProducts.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
-
-      // Batch render only a limited number of items to save bandwidth
-      const batchSize = 20;
-      const batch = filteredProducts.slice(0, batchSize);
-      batch.forEach(({ key, data }) => {
-        const card = renderCard(key, data);
-        fragment.appendChild(card);
-      });
-
-      galleryGrid.innerHTML = '';
-      galleryGrid.appendChild(fragment);
-      console.log('Gallery rendered, products:', batch.length);
-      setupLazyLoading();
-
-      // Load more on scroll
-      let isLoadingMore = false;
-      let lastIndex = batchSize;
-      window.removeEventListener('scroll', window.scrollHandler); // Remove any existing listener
-      window.scrollHandler = () => {
-        if (isLoadingMore || lastIndex >= filteredProducts.length) return;
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
-          isLoadingMore = true;
-          const nextBatch = filteredProducts.slice(lastIndex, lastIndex + batchSize);
-          const nextFragment = document.createDocumentFragment();
-          nextBatch.forEach(({ key, data }) => {
-            const card = renderCard(key, data);
-            nextFragment.appendChild(card);
-          });
-          galleryGrid.appendChild(nextFragment);
-          lastIndex += batchSize;
-          setupLazyLoading();
-          isLoadingMore = false;
-          console.log('Loaded more products, total:', lastIndex);
-        }
+    window.editPrice = (k, c) => { const p = prompt("Enter Full Price:", c*2); if(p) db.ref(k).update({ price: parseFloat(p)/2 }); };
+    window.editField = (k, f, c) => { const v = prompt(`Edit ${f}:`, c); if(v) db.ref(k).update({ [f]: v }); };
+    window.editPartyCode = async (k, c) => {
+      const n = prompt("Change Code:", c);
+      if (n && n !== c) {
+        const snap = await db.ref(k).once('value');
+        const h = snap.val().partyCodeHistory || []; h.push(c);
+        await db.ref(k).update({ partyCode: n, partyCodeHistory: h });
+      }
+    };
+    window.editVideo = (key) => {
+      const v = prompt("Paste Video Link or leave blank to upload file:");
+      if (v) return db.ref(key).update({ videourl: v });
+      const i = document.createElement('input'); i.type = 'file'; i.accept = 'video/*';
+      i.onchange = async () => {
+        const f = i.files[0]; const vRef = st.ref(`vids/${Date.now()}_${f.name}`);
+        await vRef.put(f); const url = await vRef.getDownloadURL();
+        await db.ref(key).update({ videourl: url });
       };
-      window.addEventListener('scroll', window.scrollHandler);
-    }
-
-    database.ref().on('value', (snapshot) => {
-      products = [];
-      loadedImageKeys.clear();
-      snapshot.forEach(childSnapshot => {
-        const key = childSnapshot.key;
-        const data = childSnapshot.val() || {};
-        products.push({ key, data });
-        loadedImageKeys.add(key);
-      });
-      console.log('Database updated, products:', products.length);
-      batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
-    });
-
-    database.ref().on('child_changed', (snapshot) => {
-      const key = snapshot.key;
-      const updatedData = snapshot.val() || {};
-      const index = products.findIndex(p => p.key === key);
-      if (index !== -1) {
-        products[index].data = updatedData;
-      } else {
-        products.push({ key, data: updatedData });
-        loadedImageKeys.add(key);
-      }
-      console.log('Child changed:', key);
-      batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
-    });
-
-    database.ref().on('child_removed', (snapshot) => {
-      const key = snapshot.key;
-      products = products.filter(p => p.key !== key);
-      loadedImageKeys.delete(key);
-      console.log('Child removed:', key);
-      batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
-    });
-
-    // 11) Search functionality with debounce
-    const debouncedSearch = debounce(() => {
-      batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
-    }, 300);
-
-    nameSearchInput.addEventListener('input', debouncedSearch);
-    partyCodeSearchInput.addEventListener('input', debouncedSearch);
-
-    // 12) Optimized Inline editing
-    window.makeEditable = function(el, key, field) {
-      const isPrice = field === 'price';
-      const isPartyCode = field === 'partyCode';
-      // Remove prefixes for display in input
-      const prev = el.textContent
-        .replace(/^Price:\s*/i, '')
-        .replace(/^Party Code:\s*/i, '')
-        .trim();
-      const input = document.createElement('input');
-      input.type = isPrice ? 'number' : 'text';
-      if (isPrice) input.step = '0.01';
-      input.value = prev;
-      input.className = 'w-full border border-gray-300 rounded px-2 py-1';
-      el.replaceWith(input);
-      input.focus();
-      input.select();
-
-      function commit() {
-        let value = input.value.trim();
-        if (isPrice) {
-          value = parseFloat(value || '0') || 0;
-          // Divide price by 2 before updating
-          value = value / 2;
-        }
-        if (!value && isPrice) {
-          alert('Price cannot be empty or zero.');
-          input.replaceWith(el);
-          return;
-        }
-        if (!value && isPartyCode) {
-          alert('Party code cannot be empty.');
-          input.replaceWith(el);
-          return;
-        }
-        if (!value && field === 'name') {
-          alert('Product name cannot be empty.');
-          input.replaceWith(el);
-          return;
-        }
-
-        const updateObj = {};
-        updateObj[field] = value;
-
-        // Update only the specific field in the DOM to avoid full re-render
-        database.ref(key).update(updateObj).then(() => {
-          const newEl = document.createElement(field === 'name' ? 'h3' : 'p');
-          if (field === 'name') {
-            newEl.className = 'font-semibold text-lg mb-2 editable-field truncate-2';
-            newEl.title = 'Click to edit name';
-            newEl.setAttribute('onclick', `makeEditable(this, '${key}', 'name')`);
-            newEl.textContent = escapeHtml(value);
-          } else if (isPrice) {
-            newEl.className = 'text-gray-600 mb-1 editable-field';
-            newEl.title = 'Click to edit price';
-            newEl.setAttribute('onclick', `makeEditable(this, '${key}', 'price')`);
-            newEl.textContent = `Price: ${Number(value).toFixed(2)}`;
-          } else {
-            newEl.className = 'text-gray-600 mb-2 editable-field';
-            newEl.title = 'Click to edit party code';
-            newEl.setAttribute('onclick', `makeEditable(this, '${key}', 'partyCode')`);
-            newEl.textContent = `Party Code: ${escapeHtml(value)}`;
-          }
-          input.replaceWith(newEl);
-        }).catch(err => {
-          console.error('Update failed:', err);
-          alert('Failed to update. Please try again.');
-          input.replaceWith(el);
-        });
-      }
-
-      input.addEventListener('blur', commit);
-      input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') commit();
-        if (e.key === 'Escape') input.replaceWith(el);
-      });
+      i.click();
     };
-
-    // 13) Video URL editing
-    window.makeEditableVideo = function(el, key, field) {
-      const prev = el.textContent.replace(/^Video URL:\s*/i, '').trim();
-      const input = document.createElement('input');
-      input.type = 'url';
-      input.value = prev === 'No video' ? '' : prev;
-      input.className = 'w-full border border-gray-300 rounded px-2 py-1';
-      el.replaceWith(input);
-      input.focus();
-      input.select();
-
-      function commit() {
-        const value = input.value.trim();
-        const updateObj = { videourl: value || '' };
-
-        database.ref(key).update(updateObj).then(() => {
-          const newEl = document.createElement('p');
-          newEl.className = 'text-gray-600 mb-2 editable-field';
-          newEl.title = 'Click to edit video URL';
-          newEl.setAttribute('onclick', `makeEditableVideo(this, '${key}', 'videourl')`);
-          newEl.textContent = `Video URL: ${escapeHtml(value || 'No video')}`;
-          input.replaceWith(newEl);
-        }).catch(err => {
-          console.error('Update video URL failed:', err);
-          alert('Failed to update video URL. Please try again.');
-          input.replaceWith(el);
-        });
-      }
-
-      input.addEventListener('blur', commit);
-      input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') commit();
-        if (e.key === 'Escape') input.replaceWith(el);
-      });
-    };
-
-    // 14) Stock toggle, update date
-    window.toggleStockStatus = function(key, current) {
-      database.ref(key).update({ outOfStock: !current }).catch(err => {
-        console.error('Toggle stock failed:', err);
-        alert('Failed to toggle stock status.');
-      });
-    };
-    window.updateUploadDate = function(key) {
-      database.ref(key).update({ date: new Date().toISOString() }).catch(err => {
-        console.error('Update date failed:', err);
-        alert('Failed to update upload date.');
-      });
-    };
-
-    // 15) Delete product
-    window.confirmDelete = function(key) {
-      if (confirm('Are you sure you want to delete this product? This will also remove its associated image and video from storage.')) {
-        deleteProduct(key);
-      }
-    };
-
-    function isFirebaseStorageUrl(url) {
-      if (!url) return false;
-      return url.startsWith('https://firebasestorage.googleapis.com') ||
-             (typeof firebaseConfig?.storageBucket === 'string' && url.includes(firebaseConfig.storageBucket));
-    }
-
-    async function deleteProduct(key) {
-      const deleteButton = document.querySelector(`[data-key="${key}"] button[onclick*="confirmDelete"]`);
-      if (deleteButton) {
-        deleteButton.disabled = true;
-        deleteButton.textContent = 'Deleting...';
-      }
-
-      try {
-        const snapshot = await database.ref(key).once('value');
-        if (!snapshot.exists()) {
-          throw new Error('Product not found in database');
-        }
-        const data = snapshot.val() || {};
-        const imageUrl = data.url;
-        const videoUrl = data.videourl;
-
-        const deletedElement = document.querySelector(`[data-key="${key}"]`);
-        if (deletedElement) {
-          deletedElement.style.opacity = '0.5';
-          deletedElement.style.pointerEvents = 'none';
-        }
-        products = products.filter(p => p.key !== key);
-        loadedImageKeys.delete(key);
-        batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
-
-        const deletions = [];
-        if (imageUrl && isFirebaseStorageUrl(imageUrl)) {
-          deletions.push(
-            storage.refFromURL(imageUrl).delete().catch(err => {
-              console.warn(`Unable to delete image from storage for ${key}:`, err);
-            })
-          );
-        }
-        if (videoUrl && isFirebaseStorageUrl(videoUrl)) {
-          deletions.push(
-            storage.refFromURL(videoUrl).delete().catch(err => {
-              console.warn(`Unable to delete video from storage for ${key}:`, err);
-            })
-          );
-        }
-
-        await Promise.allSettled(deletions);
-        await database.ref(key).remove();
-
-        alert('Product deleted successfully.');
-      } catch (err) {
-        console.error('Failed to delete product:', err);
-        alert(`Failed to delete product: ${err.message || 'Unknown error'}. Please check your Firebase permissions and try again.`);
-        batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
-      } finally {
-        if (deleteButton) {
-          deleteButton.disabled = false;
-          deleteButton.textContent = 'Delete';
-        }
-      }
-    }
-
-    // 16) Replace image / video
-    window.replaceImage = function(key, currentImageUrlEncoded) {
-      const currentImageUrl = decodeURIComponent(currentImageUrlEncoded || '');
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      input.onchange = async () => {
-        const file = input.files[0];
-        if (!file) return;
-        const now = new Date().toISOString();
-        const storageRefNew = storage.ref().child(`${now}_REPLACE_${file.name}`);
-
-        try {
-          await storageRefNew.put(file);
-          const newUrl = await storageRefNew.getDownloadURL();
-          await database.ref(key).update({ url: newUrl });
-
-          if (currentImageUrl && isFirebaseStorageUrl(currentImageUrl)) {
-            storage.refFromURL(currentImageUrl).delete().catch(err => {
-              console.warn('Old image delete failed:', err);
-            });
-          }
-
-          alert('Image replaced successfully.');
-        } catch (err) {
-          console.error('Replace image failed:', err);
-          alert('Failed to replace image.');
-        }
+    window.confirmDelete = (k) => confirm("Bhaiya, delete this toy?") && db.ref(k).remove();
+    window.replaceImage = (key, old) => {
+      const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*';
+      i.onchange = async () => {
+        const f = i.files[0]; const sRef = st.ref(`stock/${Date.now()}_${f.name}`);
+        await sRef.put(f); const url = await sRef.getDownloadURL();
+        await db.ref(key).update({ url });
       };
-      input.click();
+      i.click();
     };
 
-    window.replaceVideo = function(key, currentVideoUrlEncoded) {
-      const currentVideoUrl = decodeURIComponent(currentVideoUrlEncoded || '');
-      const choice = prompt('Enter a new video URL or click OK to upload a video file:', currentVideoUrl || '');
+    // --- UPLOAD PROCESS ---
+    document.getElementById('uploadBtn').onclick = async () => {
+      const name = document.getElementById('nameInput').value.trim() || "Toy";
+      const price = (parseFloat(document.getElementById('priceInput').value) || 0) / 2;
+      const code = document.getElementById('partyCodeInput').value.trim() || "N/A";
+      const vidFile = document.getElementById('videoInput').files[0];
+      let vUrl = document.getElementById('videourlInput').value.trim();
+
+      if (!selectedFiles.length) return alert("Bhaiya, please select images!");
+
+      document.getElementById('uploadStatus').classList.remove('hidden');
+      if (vidFile) {
+        const vRef = st.ref(`vids/${Date.now()}_${vidFile.name}`);
+        await vRef.put(vidFile);
+        vUrl = await vRef.getDownloadURL();
+      }
+
+      selectedFiles.forEach((file, i) => {
+        const fName = selectedFiles.length > 1 ? `${name} ${i+1}` : name;
+        const prog = document.createElement('div');
+        prog.className = 'bg-white p-5 rounded-3xl border border-slate-100 flex items-center gap-4 shadow-sm';
+        prog.innerHTML = `<div class="flex-1 truncate font-black text-slate-800 text-sm">${fName}</div><div class="w-32 h-2 bg-slate-100 rounded-full overflow-hidden"><div class="progress-bar bg-blue-600 h-full w-0 transition-all"></div></div>`;
+        document.getElementById('progressGrid').appendChild(prog);
+        uploadQueue.push({ file, name: fName, price, partyCode: code, videourl: vUrl, prog });
+      });
+
+      selectedFiles = []; renderMassivePreview();
+      document.getElementById('videoInfo').innerText = "Optional: Attach Video File";
+      processQueue();
+    };
+
+    async function processQueue() {
+      if (isUploading || !uploadQueue.length) {
+          if(!uploadQueue.length) document.getElementById('uploadStatus').classList.add('hidden');
+          return;
+      }
+      isUploading = true;
+      const item = uploadQueue.shift();
+      const bar = item.prog.querySelector('.progress-bar');
+      const sRef = st.ref(`stock/${Date.now()}_${item.file.name}`);
+      const task = sRef.put(item.file);
+
+      task.on('state_changed', (s) => bar.style.width = (s.bytesTransferred/s.totalBytes*100)+'%', null, async () => {
+        const url = await sRef.getDownloadURL();
+        await db.ref().push({
+          name: item.name, price: item.price, partyCode: item.partyCode,
+          url, videourl: item.videourl || '', outOfStock: false,
+          date: new Date().toISOString(), partyCodeHistory: []
+        });
+        item.prog.remove(); isUploading = false; processQueue();
+      });
+    }
+
+    // --- REALTIME LISTENERS (Surgical Updates) ---
+    const grid = document.getElementById('galleryGrid');
+    
+    // Child Added: Fast prepend
+    db.ref().on('child_added', (snap) => {
+        const data = snap.val();
+        if(!data.url) return;
+        const card = document.createElement('div');
+        card.id = `card-${snap.key}`;
+        card.className = 'product-card bg-white rounded-[3rem] shadow-xl overflow-hidden border border-slate-100';
+        card.innerHTML = getCardHtml(snap.key, data);
+        grid.prepend(card);
+        observeImage(card.querySelector('img'));
+    });
+
+    // Child Changed: Surgical Refresh
+    db.ref().on('child_changed', (snap) => {
+        const card = document.getElementById(`card-${snap.key}`);
+        if(card) {
+            card.innerHTML = getCardHtml(snap.key, snap.val());
+            observeImage(card.querySelector('img'));
+        }
+    });
+
+    // Child Removed
+    db.ref().on('child_removed', (snap) => {
+        const card = document.getElementById(`card-${snap.key}`);
+        if(card) card.remove();
+    });
+
+    // Lazy Loading
+    function observeImage(img) {
+      const obs = new IntersectionObserver((es, o) => {
+        es.forEach(e => { if(e.isIntersecting){ e.target.src = e.target.dataset.src; e.target.classList.add('loaded'); o.unobserve(e.target); } });
+      });
+      obs.observe(img);
+    }
+
+    // Search Filter
+    function filterInventory() {
+      const nameQ = document.getElementById('nameSearchInput').value.toLowerCase();
+      const codeQ = document.getElementById('partyCodeSearchInput').value.toLowerCase();
       
-      if (choice === null) return; // User cancelled
+      document.querySelectorAll('.product-card').forEach(card => {
+        const name = card.querySelector('h3').innerText.toLowerCase();
+        const code = card.querySelector('.text-blue-600').innerText.toLowerCase();
+        if(name.includes(nameQ) && code.includes(codeQ)) card.style.display = 'block';
+        else card.style.display = 'none';
+      });
+    }
 
-      if (choice.trim() === '') {
-        // Clear video
-        database.ref(key).update({ videourl: '' }).then(() => {
-          alert('Video removed successfully.');
-        }).catch(err => {
-          console.error('Remove video failed:', err);
-          alert('Failed to remove video.');
-        });
-        return;
-      }
+    document.getElementById('nameSearchInput').oninput = filterInventory;
+    document.getElementById('partyCodeSearchInput').oninput = filterInventory;
 
-      if (choice.trim().startsWith('http')) {
-        // Update with new URL
-        database.ref(key).update({ videourl: choice.trim() }).then(() => {
-          alert('Video URL updated successfully.');
-        }).catch(err => {
-          console.error('Update video URL failed:', err);
-          alert('Failed to update video URL.');
-        });
-      } else {
-        // Upload new video file
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'video/*';
-        input.onchange = async () => {
-          const file = input.files[0];
-          if (!file) return;
-          const now = new Date().toISOString();
-          const storageRefNew = storage.ref().child(`${now}_REPLACE_${file.name}`);
-
-          try {
-            await storageRefNew.put(file);
-            const newUrl = await storageRefNew.getDownloadURL();
-            await database.ref(key).update({ videourl: newUrl });
-
-            if (currentVideoUrl && isFirebaseStorageUrl(currentVideoUrl)) {
-              storage.refFromURL(currentVideoUrl).delete().catch(err => {
-              console.warn('Old video delete failed:', err);
-              });
-            }
-
-            alert('Video replaced successfully.');
-          } catch (err) {
-            console.error('Replace video failed:', err);
-            alert('Failed to replace video.');
-          }
-        };
-        input.click();
-      }
-    };
-
-    // 17) Remove video
-    window.removeVideo = async function(key, currentVideoUrlEncoded) {
-      console.log('removeVideo called with key:', key, 'and encoded URL:', currentVideoUrlEncoded);
-      const currentVideoUrl = decodeURIComponent(currentVideoUrlEncoded || '');
-      if (!currentVideoUrl) {
-        console.warn('No video URL provided for removal');
-        alert('No video to remove.');
-        return;
-      }
-
-      const confirmRemoval = confirm('Are you sure you want to remove this video? This will delete the video from storage if it is hosted on Firebase.');
-      if (!confirmRemoval) {
-        console.log('Video removal cancelled by user');
-        return;
-      }
-
-      const cardElement = document.querySelector(`[data-key="${key}"]`);
-      const removeButton = document.querySelector(`[data-key="${key}"] button[onclick*="removeVideo"]`);
-      if (cardElement) {
-        cardElement.style.opacity = '0.5';
-        cardElement.style.pointerEvents = 'none';
-      }
-      if (removeButton) {
-        removeButton.disabled = true;
-        removeButton.textContent = 'Removing...';
-      }
-
-      try {
-        // Verify product exists
-        const snapshot = await database.ref(key).once('value');
-        if (!snapshot.exists()) {
-          throw new Error('Product not found in database');
-        }
-        console.log('Product found in database for key:', key);
-
-        // Delete video from storage if it's a Firebase URL
-        if (isFirebaseStorageUrl(currentVideoUrl)) {
-          console.log('Attempting to delete video from Firebase storage:', currentVideoUrl);
-          try {
-            await storage.refFromURL(currentVideoUrl).delete();
-            console.log('Video deleted from storage successfully');
-          } catch (err) {
-            console.warn('Failed to delete video from storage:', err.message || err);
-            // Continue to clear videourl even if storage deletion fails
-          }
-        } else {
-          console.log('Video URL is not a Firebase storage URL, skipping storage deletion:', currentVideoUrl);
-        }
-
-        // Update database to clear videourl
-        console.log('Updating database to clear videourl for key:', key);
-        await database.ref(key).update({ videourl: '' });
-        console.log('Database updated, videourl cleared');
-
-        // Force UI update in case listener fails
-        const index = products.findIndex(p => p.key === key);
-        if (index !== -1) {
-          products[index].data.videourl = '';
-        }
-        batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
-
-        alert('Video removed successfully.');
-      } catch (err) {
-        console.error('Remove video failed:', err);
-        let errorMessage = err.message || 'Unknown error';
-        if (err.code === 'storage/unauthorized') {
-          errorMessage = 'Permission denied. Check Firebase Storage rules.';
-        } else if (err.code === 'storage/object-not-found') {
-          errorMessage = 'Video file not found in storage. Clearing URL anyway.';
-          // Attempt to clear videourl even if storage deletion fails
-          try {
-            await database.ref(key).update({ videourl: '' });
-            console.log('Database updated, videourl cleared after storage error');
-            alert('Video file not found in storage, but URL cleared successfully.');
-          } catch (dbErr) {
-            console.error('Database update failed after storage error:', dbErr);
-            alert(`Failed to clear video URL: ${dbErr.message || 'Unknown error'}.`);
-          }
-        }
-        if (err.message !== 'Product not found in database') {
-          alert(`Failed to remove video: ${errorMessage}. Please check your Firebase permissions and try again.`);
-        }
-      } finally {
-        if (cardElement) {
-          cardElement.style.opacity = '1';
-          cardElement.style.pointerEvents = 'auto';
-        }
-        if (removeButton) {
-          removeButton.disabled = false;
-          removeButton.textContent = 'Remove Video';
-        }
-      }
-    };
   </script>
 </body>
 </html>
