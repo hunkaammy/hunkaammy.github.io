@@ -172,6 +172,42 @@
       };
     }
 
+    // --- ADDED: Image Compression Helper ---
+    async function compressImage(file, quality = 0.7) {
+        if (!file.type.startsWith('image/')) return file;
+        return new Promise((resolve) => {
+            const img = new Image();
+            const src = URL.createObjectURL(file);
+            img.src = src;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                const MAX_WIDTH = 1920; 
+                if (width > MAX_WIDTH) {
+                    height *= MAX_WIDTH / width;
+                    width = MAX_WIDTH;
+                }
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                canvas.toBlob((blob) => {
+                    URL.revokeObjectURL(src);
+                    if (blob) {
+                         // Force JPG extension for better compatibility with compression
+                        const newName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
+                        resolve(new File([blob], newName, { type: 'image/jpeg', lastModified: Date.now() }));
+                    } else {
+                        resolve(file);
+                    }
+                }, 'image/jpeg', quality);
+            };
+            img.onerror = () => { URL.revokeObjectURL(src); resolve(file); };
+        });
+    }
+    // ----------------------------------------
+
     // 5) UI helpers - FIXED TO APPEND RATHER THAN REPLACE
     function previewImages() {
       preview.innerHTML = '';
@@ -352,9 +388,16 @@
         }
 
         for (let i = 0; i < selectedImageFiles.length; i++) {
-          const file = selectedImageFiles[i];
+          let file = selectedImageFiles[i]; // Changed from const to let for compression
           const productName = selectedImageFiles.length > 1 ? `${baseName} ${i + 1}` : baseName;
           
+          // --- ADDED: Compress ---
+          try {
+             file = await compressImage(file); 
+             console.log("Compressed file size:", (file.size/1024).toFixed(2), "KB");
+          } catch(e) { console.error("Compression failed", e); }
+          // -----------------------
+
           const thumbDataURL = await fileToDataURL(file);
           const progressContainer = document.createElement('div');
           progressContainer.className = 'p-3 bg-gray-100 rounded border border-gray-200';
@@ -678,7 +721,12 @@
       input.type = 'file';
       input.accept = 'image/*';
       input.onchange = async () => {
-        const file = input.files[0];
+        let file = input.files[0]; // Changed const to let
+        
+        // --- ADDED: Compress ---
+        try { file = await compressImage(file); } catch(e) {}
+        // -----------------------
+
         const ref = storage.ref().child(`images/${new Date().toISOString()}_REPLACE_${file.name}`);
         await ref.put(file);
         const newUrl = await ref.getDownloadURL();
@@ -706,4 +754,3 @@
   </script>
 </body>
 </html>
-
