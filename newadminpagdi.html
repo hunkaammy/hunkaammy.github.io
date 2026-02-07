@@ -5,10 +5,8 @@
   <title>Product Gallery with Image + Video (Firebase)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Tailwind for styles -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Firebase v8 SDKs -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
@@ -44,7 +42,6 @@
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
-  <!-- Global Drag & Drop Overlay -->
   <div id="globalDropOverlay" class="fixed inset-0 bg-black/50 z-50 items-center justify-center text-white text-xl">
     Drop files to upload
   </div>
@@ -52,9 +49,7 @@
   <div class="max-w-6xl mx-auto px-4 py-6">
     <h1 class="text-2xl font-bold mb-4">Product Manager</h1>
 
-    <!-- Upload Card -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-      <!-- Left: Upload inputs -->
       <div class="lg:col-span-1 bg-white rounded-xl shadow p-4">
         <h2 class="text-lg font-semibold mb-3">Add New Product</h2>
 
@@ -82,14 +77,12 @@
           </div>
         </div>
 
-        <!-- Image drop zone -->
         <div class="drop-zone rounded-lg p-4 text-center cursor-pointer mt-4" id="imageDropZone">
-          <div class="text-gray-500">Click to upload or Drag & Drop an image</div>
-          <div class="preview mt-4" id="preview"></div>
-          <input type="file" id="imageInput" class="hidden" accept="image/*" />
+          <div class="text-gray-500">Click to upload or Drag & Drop multiple images</div>
+          <div class="preview mt-4 grid grid-cols-3 gap-2" id="preview"></div>
+          <input type="file" id="imageInput" class="hidden" accept="image/*" multiple />
         </div>
 
-        <!-- Video drop zone -->
         <div class="drop-zone rounded-lg p-4 text-center cursor-pointer mt-4" id="videoDropZone">
           <div class="text-gray-500">Optional: Click to upload or Drag & Drop a video</div>
           <div class="preview mt-4" id="videoPreview"></div>
@@ -97,18 +90,16 @@
         </div>
 
         <button id="uploadBtn" class="w-full mt-5 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg">
-          Upload Product
+          Upload Product(s)
         </button>
       </div>
 
-      <!-- Middle: Upload queue / progress -->
       <div class="lg:col-span-2 bg-white rounded-xl shadow p-4">
         <h2 class="text-lg font-semibold mb-3">Upload Queue & Progress</h2>
         <div id="progressList" class="space-y-3"></div>
       </div>
     </div>
 
-    <!-- Search Card -->
     <div class="mt-8 bg-white rounded-xl shadow p-4">
       <h2 class="text-lg font-semibold mb-3">Search Products</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -123,7 +114,6 @@
       </div>
     </div>
 
-    <!-- Gallery -->
     <div class="mt-8">
       <h2 class="text-lg font-semibold mb-3">Products</h2>
       <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
@@ -167,17 +157,11 @@ measurementId: "G-CXW0QZRHFG"
     const nameSearchInput = document.getElementById('nameSearchInput');
     const partyCodeSearchInput = document.getElementById('partyCodeSearchInput');
 
-    // Verify button exists
-    if (!uploadBtn) {
-      console.error('Upload button not found in DOM');
-      alert('Upload button not found. Please check the page structure.');
-    }
-
     // 3) State
     const uploadQueue = [];
     let isUploading = false;
-    const loadedImageKeys = new Set();
     let products = [];
+    let selectedImageFiles = []; // Accumulator for multiple selections
 
     // 4) Debounce utility
     function debounce(func, wait) {
@@ -188,18 +172,63 @@ measurementId: "G-CXW0QZRHFG"
       };
     }
 
-    // 5) UI helpers
-    function previewImage(file) {
-      if (!file || !file.type.startsWith('image/')) {
-        console.error('Invalid image file:', file);
-        return;
-      }
-      const url = URL.createObjectURL(file);
-      preview.innerHTML = `
-        <img src="${url}" alt="preview" class="mx-auto w-full rounded-lg object-contain" style="max-height: 240px;" />
-        <div class="text-xs text-gray-500 mt-1 truncate">${file.name}</div>
-      `;
+    // --- ADDED: Image Compression Helper ---
+    async function compressImage(file, quality = 0.7) {
+        if (!file.type.startsWith('image/')) return file;
+        return new Promise((resolve) => {
+            const img = new Image();
+            const src = URL.createObjectURL(file);
+            img.src = src;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                const MAX_WIDTH = 1920; 
+                if (width > MAX_WIDTH) {
+                    height *= MAX_WIDTH / width;
+                    width = MAX_WIDTH;
+                }
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                canvas.toBlob((blob) => {
+                    URL.revokeObjectURL(src);
+                    if (blob) {
+                         // Force JPG extension for better compatibility with compression
+                        const newName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
+                        resolve(new File([blob], newName, { type: 'image/jpeg', lastModified: Date.now() }));
+                    } else {
+                        resolve(file);
+                    }
+                }, 'image/jpeg', quality);
+            };
+            img.onerror = () => { URL.revokeObjectURL(src); resolve(file); };
+        });
     }
+    // ----------------------------------------
+
+    // 5) UI helpers - FIXED TO APPEND RATHER THAN REPLACE
+    function previewImages() {
+      preview.innerHTML = '';
+      selectedImageFiles.forEach((file, index) => {
+        if (!file.type.startsWith('image/')) return;
+        const url = URL.createObjectURL(file);
+        const imgDiv = document.createElement('div');
+        imgDiv.className = "relative group";
+        imgDiv.innerHTML = `
+            <img src="${url}" class="w-full h-20 object-cover rounded-lg border" />
+            <button onclick="removeSelectedImage(${index})" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">×</button>
+        `;
+        preview.appendChild(imgDiv);
+      });
+    }
+
+    window.removeSelectedImage = function(index) {
+        selectedImageFiles.splice(index, 1);
+        previewImages();
+    };
+
     function previewVideo(file) {
       if (!file || !file.type.startsWith('video/')) {
         console.error('Invalid video file:', file);
@@ -231,15 +260,9 @@ measurementId: "G-CXW0QZRHFG"
     }
 
     // 7) Drag & Drop and Click-to-Upload
-    function setupDropZone(zone, input, previewFn) {
+    function setupDropZone(zone, input, isImage) {
       zone.addEventListener('click', () => {
-        try {
-          input.click();
-          console.log('Drop zone clicked, triggering file input');
-        } catch (err) {
-          console.error('Failed to trigger file input:', err);
-          alert('Failed to open file picker. Please try again or use drag-and-drop.');
-        }
+        input.click();
       });
 
       zone.addEventListener('dragenter', (e) => {
@@ -263,15 +286,24 @@ measurementId: "G-CXW0QZRHFG"
         globalDropOverlay.classList.remove('active');
         const files = e.dataTransfer.files;
         if (files.length) {
-          input.files = files;
-          previewFn(files[0]);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          handleFiles(files, isImage);
         }
       });
     }
 
-    setupDropZone(imageDropZone, imageInput, previewImage);
-    setupDropZone(videoDropZone, videoInput, previewVideo);
+    function handleFiles(files, isImage) {
+        if (isImage) {
+            selectedImageFiles.push(...Array.from(files));
+            previewImages();
+        } else {
+            videoInput.files = files;
+            previewVideo(files[0]);
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    setupDropZone(imageDropZone, imageInput, true);
+    setupDropZone(videoDropZone, videoInput, false);
 
     window.addEventListener('dragenter', (e) => {
       e.preventDefault();
@@ -294,128 +326,109 @@ measurementId: "G-CXW0QZRHFG"
       if (!imageDropZone.contains(e.target) && !videoDropZone.contains(e.target)) {
         const files = e.dataTransfer.files;
         if (files.length) {
-          const file = files[0];
-          if (file.type.startsWith('image/')) {
-            imageInput.files = files;
-            previewImage(file);
-          } else if (file.type.startsWith('video/')) {
-            videoInput.files = files;
-            previewVideo(file);
+          if (files[0].type.startsWith('image/')) {
+            handleFiles(files, true);
+          } else if (files[0].type.startsWith('video/')) {
+            handleFiles(files, false);
           }
-          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
       }
     });
 
     imageInput.addEventListener('change', () => {
       if (imageInput.files.length) {
-        console.log('Image selected:', imageInput.files[0].name);
-        previewImage(imageInput.files[0]);
+        handleFiles(imageInput.files, true);
+        imageInput.value = ''; // Reset so same file can be picked again
       }
     });
     videoInput.addEventListener('change', () => {
       if (videoInput.files.length) {
-        console.log('Video selected:', videoInput.files[0].name);
         previewVideo(videoInput.files[0]);
       }
     });
 
     // 8) Upload flow
     uploadBtn.addEventListener('click', () => {
-      console.log('Upload button clicked');
-      uploadImage();
+      uploadBatch();
     });
 
-    async function uploadImage() {
+    async function uploadBatch() {
       try {
-        console.log('Starting upload process');
-        const file = imageInput.files && imageInput.files[0];
-        const name = document.getElementById('nameInput').value.trim();
+        const baseName = document.getElementById('nameInput').value.trim();
         const priceInput = parseFloat(document.getElementById('priceInput').value.trim());
         const partyCode = document.getElementById('partyCodeInput').value.trim();
         const videourlInputEl = document.getElementById('videourlInput');
 
-        // Detailed validation
-        if (!file) {
-          console.error('No image file selected');
-          alert('Please select an image file.');
-          return;
-        }
-        if (!name) {
-          console.error('Product name is empty');
-          alert('Please enter a product name.');
-          return;
-        }
-        if (!partyCode) {
-          console.error('Party code is empty');
-          alert('Please enter a party code.');
-          return;
-        }
-        if (isNaN(priceInput) || priceInput <= 0) {
-          console.error('Invalid price:', priceInput);
-          alert('Please enter a valid price greater than 0.');
-          return;
-        }
+        if (!selectedImageFiles.length) return alert('Please select at least one image.');
+        if (!baseName) return alert('Please enter a product name.');
+        if (!partyCode) return alert('Please enter a party code.');
+        if (isNaN(priceInput) || priceInput <= 0) return alert('Please enter a valid price.');
 
-        // Divide price by 2 before uploading
         const price = priceInput / 2;
-        console.log('Price after division:', price);
+        let sharedVideoURL = (videourlInputEl.value || '').trim();
 
-        let finalVideoURL = (videourlInputEl.value || '').trim();
         if (videoInput.files && videoInput.files[0]) {
           const videoFile = videoInput.files[0];
-          const now = new Date().toISOString();
-          const videoStorageRef = storage.ref(`${now}_${sanitizePath(name)}_${videoFile.name}`);
-
+          const vRef = storage.ref(`videos/${new Date().getTime()}_${videoFile.name}`);
+          
           const videoStatus = document.createElement('div');
-          videoStatus.className = 'mb-2 text-sm text-blue-600';
-          videoStatus.textContent = 'Uploading video...';
-          videoPreview.appendChild(videoStatus);
+          videoStatus.className = 'p-2 mb-2 text-sm bg-blue-50 text-blue-700 rounded font-bold';
+          videoStatus.textContent = 'Uploading shared video...';
+          progressList.prepend(videoStatus);
 
           try {
-            console.log('Uploading video:', videoFile.name);
-            await videoStorageRef.put(videoFile);
-            finalVideoURL = await videoStorageRef.getDownloadURL();
-            videourlInputEl.value = finalVideoURL;
-            videoStatus.textContent = 'Video uploaded.';
-            console.log('Video uploaded, URL:', finalVideoURL);
+            await vRef.put(videoFile);
+            sharedVideoURL = await vRef.getDownloadURL();
+            videoStatus.textContent = 'Shared video uploaded.';
+            setTimeout(() => videoStatus.remove(), 2000);
           } catch (err) {
             console.error('Video upload failed:', err);
-            videoStatus.textContent = 'Video upload failed.';
-            alert('Video upload failed. You can still upload the product with a manually entered video URL or try again.');
+            videoStatus.textContent = 'Video upload failed. Continuing with images only.';
           }
         }
 
-        const thumbDataURL = await fileToDataURL(file);
-        const progressContainer = document.createElement('div');
-        progressContainer.className = 'p-3 bg-gray-100 rounded';
-        progressContainer.innerHTML = `
-          <div class="flex items-center">
-            <img src="${thumbDataURL}" alt="thumbnail" class="w-12 h-12 object-cover rounded mr-4" />
-            <div class="flex-grow">
-              <div class="flex justify-between items-center mb-1">
-                <span class="text-sm font-medium text-gray-800 truncate w-48" title="${file.name}">${file.name}</span>
-                <span class="status text-sm text-blue-600 font-semibold">Uploading...</span>
-              </div>
-              <div class="bg-gray-300 rounded-full h-2.5">
-                <div class="progress-bar bg-blue-600 h-2.5 rounded-full w-0 transition-all duration-300"></div>
+        for (let i = 0; i < selectedImageFiles.length; i++) {
+          let file = selectedImageFiles[i]; // Changed from const to let for compression
+          const productName = selectedImageFiles.length > 1 ? `${baseName} ${i + 1}` : baseName;
+          
+          // --- ADDED: Compress ---
+          try {
+             file = await compressImage(file); 
+             console.log("Compressed file size:", (file.size/1024).toFixed(2), "KB");
+          } catch(e) { console.error("Compression failed", e); }
+          // -----------------------
+
+          const thumbDataURL = await fileToDataURL(file);
+          const progressContainer = document.createElement('div');
+          progressContainer.className = 'p-3 bg-gray-100 rounded border border-gray-200';
+          progressContainer.innerHTML = `
+            <div class="flex items-center">
+              <img src="${thumbDataURL}" class="w-12 h-12 object-cover rounded mr-4" />
+              <div class="flex-grow">
+                <div class="flex justify-between items-center mb-1">
+                  <span class="text-sm font-medium text-gray-800 truncate w-48">${productName}</span>
+                  <span class="status text-xs text-blue-600 font-bold italic">Waiting...</span>
+                </div>
+                <div class="bg-gray-300 rounded-full h-2">
+                  <div class="progress-bar bg-blue-600 h-2 rounded-full w-0 transition-all duration-300"></div>
+                </div>
               </div>
             </div>
-          </div>
-        `;
-        progressList.prepend(progressContainer);
+          `;
+          progressList.prepend(progressContainer);
 
-        uploadQueue.push({
-          file,
-          name,
-          price,
-          partyCode,
-          videourl: finalVideoURL || '',
-          progressContainer
-        });
-        console.log('Added to upload queue:', { name, price, partyCode, videourl: finalVideoURL });
+          uploadQueue.push({
+            file,
+            name: productName,
+            price,
+            partyCode,
+            videourl: sharedVideoURL,
+            progressContainer
+          });
+        }
 
-        // Clear inputs except partyCodeInput
+        // Reset state
+        selectedImageFiles = [];
         imageInput.value = '';
         videoInput.value = '';
         document.getElementById('nameInput').value = '';
@@ -426,8 +439,7 @@ measurementId: "G-CXW0QZRHFG"
 
         processUploadQueue();
       } catch (err) {
-        console.error('Upload image failed:', err);
-        alert(`Failed to start upload: ${err.message || 'Unknown error'}. Please try again.`);
+        console.error('Batch prep failed:', err);
       }
     }
 
@@ -444,25 +456,17 @@ measurementId: "G-CXW0QZRHFG"
     }
 
     async function processUploadQueue() {
-      if (isUploading) {
-        console.log('Upload in progress, queue length:', uploadQueue.length);
-        return;
-      }
-      if (uploadQueue.length === 0) {
-        console.log('Upload queue empty');
-        return;
-      }
+      if (isUploading || uploadQueue.length === 0) return;
 
       isUploading = true;
       const item = uploadQueue.shift();
-      console.log('Processing upload:', item.name);
 
       const { file, name, price, partyCode, videourl, progressContainer } = item;
       const progressBar = progressContainer.querySelector('.progress-bar');
       const statusEl = progressContainer.querySelector('.status');
 
       const now = new Date().toISOString();
-      const storageRef = storage.ref().child(`${now}_${sanitizePath(name)}_${file.name}`);
+      const storageRef = storage.ref().child(`images/${now}_${sanitizePath(name)}_${file.name}`);
 
       try {
         await new Promise((resolve, reject) => {
@@ -471,19 +475,12 @@ measurementId: "G-CXW0QZRHFG"
             (snap) => {
               const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
               progressBar.style.width = pct + '%';
-              statusEl.textContent = `Uploading... ${pct}%`;
-              console.log('Upload progress:', pct + '%');
+              statusEl.textContent = `${pct}%`;
             },
-            (err) => {
-              console.error('Storage upload error:', err);
-              reject(err);
-            },
+            reject,
             async () => {
               try {
                 const imageURL = await storageRef.getDownloadURL();
-                statusEl.textContent = 'Finalizing...';
-                console.log('Image uploaded, URL:', imageURL);
-
                 const data = {
                   name,
                   price,
@@ -493,34 +490,21 @@ measurementId: "G-CXW0QZRHFG"
                   outOfStock: false,
                   date: new Date().toISOString()
                 };
-                const ref = database.ref().push();
-                await ref.set(data);
-                console.log('Database entry created:', data);
-
-                statusEl.textContent = 'Done';
+                await database.ref().push().set(data);
+                statusEl.textContent = 'DONE';
                 progressBar.style.width = '100%';
-                setTimeout(() => progressContainer.remove(), 1200);
-
+                setTimeout(() => progressContainer.remove(), 1000);
                 resolve();
-              } catch (e) {
-                console.error('Database write error:', e);
-                reject(e);
-              }
+              } catch (e) { reject(e); }
             }
           );
         });
       } catch (err) {
-        console.error('Image upload failed:', err.message || err);
-        statusEl.textContent = `Failed: ${err.message || 'Unknown error'}`;
-        progressBar.classList.remove('bg-blue-600');
+        statusEl.textContent = 'ERROR';
         progressBar.classList.add('bg-red-500');
-        alert(`Image upload failed: ${err.message || 'Unknown error'}. Please check your Firebase permissions or network connection and try again.`);
       } finally {
         isUploading = false;
-        if (uploadQueue.length > 0) {
-          console.log('Processing next item in queue');
-          processUploadQueue();
-        }
+        processUploadQueue();
       }
     }
 
@@ -607,7 +591,6 @@ measurementId: "G-CXW0QZRHFG"
       }[s]));
     }
 
-    // 10) Optimized Realtime listeners with batch rendering
     function batchRenderGallery(nameQuery = '', partyCodeQuery = '') {
       const fragment = document.createDocumentFragment();
       const nameLower = nameQuery.toLowerCase().trim();
@@ -621,7 +604,6 @@ measurementId: "G-CXW0QZRHFG"
 
       filteredProducts.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
 
-      // Batch render only a limited number of items to save bandwidth
       const batchSize = 20;
       const batch = filteredProducts.slice(0, batchSize);
       batch.forEach(({ key, data }) => {
@@ -631,13 +613,11 @@ measurementId: "G-CXW0QZRHFG"
 
       galleryGrid.innerHTML = '';
       galleryGrid.appendChild(fragment);
-      console.log('Gallery rendered, products:', batch.length);
       setupLazyLoading();
 
-      // Load more on scroll
       let isLoadingMore = false;
       let lastIndex = batchSize;
-      window.removeEventListener('scroll', window.scrollHandler); // Remove any existing listener
+      window.removeEventListener('scroll', window.scrollHandler); 
       window.scrollHandler = () => {
         if (isLoadingMore || lastIndex >= filteredProducts.length) return;
         if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
@@ -652,7 +632,6 @@ measurementId: "G-CXW0QZRHFG"
           lastIndex += batchSize;
           setupLazyLoading();
           isLoadingMore = false;
-          console.log('Loaded more products, total:', lastIndex);
         }
       };
       window.addEventListener('scroll', window.scrollHandler);
@@ -660,56 +639,25 @@ measurementId: "G-CXW0QZRHFG"
 
     database.ref().on('value', (snapshot) => {
       products = [];
-      loadedImageKeys.clear();
       snapshot.forEach(childSnapshot => {
-        const key = childSnapshot.key;
-        const data = childSnapshot.val() || {};
-        products.push({ key, data });
-        loadedImageKeys.add(key);
+        products.push({ key: childSnapshot.key, data: childSnapshot.val() || {} });
       });
-      console.log('Database updated, products:', products.length);
       batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
     });
 
-    database.ref().on('child_changed', (snapshot) => {
-      const key = snapshot.key;
-      const updatedData = snapshot.val() || {};
-      const index = products.findIndex(p => p.key === key);
-      if (index !== -1) {
-        products[index].data = updatedData;
-      } else {
-        products.push({ key, data: updatedData });
-        loadedImageKeys.add(key);
-      }
-      console.log('Child changed:', key);
-      batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
-    });
+    // Event listeners for search
+    nameSearchInput.addEventListener('input', debounce(() => {
+        batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
+    }, 300));
 
-    database.ref().on('child_removed', (snapshot) => {
-      const key = snapshot.key;
-      products = products.filter(p => p.key !== key);
-      loadedImageKeys.delete(key);
-      console.log('Child removed:', key);
-      batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
-    });
+    partyCodeSearchInput.addEventListener('input', debounce(() => {
+        batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
+    }, 300));
 
-    // 11) Search functionality with debounce
-    const debouncedSearch = debounce(() => {
-      batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
-    }, 300);
-
-    nameSearchInput.addEventListener('input', debouncedSearch);
-    partyCodeSearchInput.addEventListener('input', debouncedSearch);
-
-    // 12) Optimized Inline editing
+    // Inline editing functions
     window.makeEditable = function(el, key, field) {
       const isPrice = field === 'price';
-      const isPartyCode = field === 'partyCode';
-      // Remove prefixes for display in input
-      const prev = el.textContent
-        .replace(/^Price:\s*/i, '')
-        .replace(/^Party Code:\s*/i, '')
-        .trim();
+      const prev = el.textContent.replace(/^Price:\s*/i, '').replace(/^Party Code:\s*/i, '').trim();
       const input = document.createElement('input');
       input.type = isPrice ? 'number' : 'text';
       if (isPrice) input.step = '0.01';
@@ -718,370 +666,91 @@ measurementId: "G-CXW0QZRHFG"
       el.replaceWith(input);
       input.focus();
       input.select();
-
       function commit() {
         let value = input.value.trim();
-        if (isPrice) {
-          value = parseFloat(value || '0') || 0;
-          // Divide price by 2 before updating
-          value = value / 2;
-        }
-        if (!value && isPrice) {
-          alert('Price cannot be empty or zero.');
-          input.replaceWith(el);
-          return;
-        }
-        if (!value && isPartyCode) {
-          alert('Party code cannot be empty.');
-          input.replaceWith(el);
-          return;
-        }
-        if (!value && field === 'name') {
-          alert('Product name cannot be empty.');
-          input.replaceWith(el);
-          return;
-        }
-
-        const updateObj = {};
-        updateObj[field] = value;
-
-        // Update only the specific field in the DOM to avoid full re-render
-        database.ref(key).update(updateObj).then(() => {
-          const newEl = document.createElement(field === 'name' ? 'h3' : 'p');
-          if (field === 'name') {
-            newEl.className = 'font-semibold text-lg mb-2 editable-field truncate-2';
-            newEl.title = 'Click to edit name';
-            newEl.setAttribute('onclick', `makeEditable(this, '${key}', 'name')`);
-            newEl.textContent = escapeHtml(value);
-          } else if (isPrice) {
-            newEl.className = 'text-gray-600 mb-1 editable-field';
-            newEl.title = 'Click to edit price';
-            newEl.setAttribute('onclick', `makeEditable(this, '${key}', 'price')`);
-            newEl.textContent = `Price: ${Number(value).toFixed(2)}`;
-          } else {
-            newEl.className = 'text-gray-600 mb-2 editable-field';
-            newEl.title = 'Click to edit party code';
-            newEl.setAttribute('onclick', `makeEditable(this, '${key}', 'partyCode')`);
-            newEl.textContent = `Party Code: ${escapeHtml(value)}`;
-          }
-          input.replaceWith(newEl);
-        }).catch(err => {
-          console.error('Update failed:', err);
-          alert('Failed to update. Please try again.');
-          input.replaceWith(el);
-        });
+        if (isPrice) value = (parseFloat(value || '0') || 0);
+        database.ref(key).update({[field]: value});
       }
-
       input.addEventListener('blur', commit);
-      input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') commit();
-        if (e.key === 'Escape') input.replaceWith(el);
-      });
+      input.addEventListener('keydown', (e) => { if (e.key === 'Enter') commit(); });
     };
 
-    // 13) Video URL editing
-    window.makeEditableVideo = function(el, key, field) {
-      const prev = el.textContent.replace(/^Video URL:\s*/i, '').trim();
+   // Inline editing functions
+    window.makeEditable = function(el, key, field) {
+      const isPrice = field === 'price';
+      const prev = el.textContent.replace(/^Price:\s*/i, '').replace(/^Party Code:\s*/i, '').trim();
       const input = document.createElement('input');
-      input.type = 'url';
-      input.value = prev === 'No video' ? '' : prev;
+      input.type = isPrice ? 'number' : 'text';
+      if (isPrice) input.step = '0.01';
+      input.value = prev;
       input.className = 'w-full border border-gray-300 rounded px-2 py-1';
       el.replaceWith(input);
       input.focus();
       input.select();
-
+      
       function commit() {
-        const value = input.value.trim();
-        const updateObj = { videourl: value || '' };
-
-        database.ref(key).update(updateObj).then(() => {
-          const newEl = document.createElement('p');
-          newEl.className = 'text-gray-600 mb-2 editable-field';
-          newEl.title = 'Click to edit video URL';
-          newEl.setAttribute('onclick', `makeEditableVideo(this, '${key}', 'videourl')`);
-          newEl.textContent = `Video URL: ${escapeHtml(value || 'No video')}`;
-          input.replaceWith(newEl);
-        }).catch(err => {
-          console.error('Update video URL failed:', err);
-          alert('Failed to update video URL. Please try again.');
-          input.replaceWith(el);
-        });
+        let value = input.value.trim();
+        if (isPrice) {
+          // Parse the input and divide by 2
+          let rawPrice = parseFloat(value || '0');
+          value = rawPrice / 2; 
+        }
+        database.ref(key).update({[field]: value});
       }
-
+      
       input.addEventListener('blur', commit);
-      input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') commit();
-        if (e.key === 'Escape') input.replaceWith(el);
-      });
+      input.addEventListener('keydown', (e) => { if (e.key === 'Enter') commit(); });
     };
 
-    // 14) Stock toggle, update date
-    window.toggleStockStatus = function(key, current) {
-      database.ref(key).update({ outOfStock: !current }).catch(err => {
-        console.error('Toggle stock failed:', err);
-        alert('Failed to toggle stock status.');
-      });
-    };
-    window.updateUploadDate = function(key) {
-      database.ref(key).update({ date: new Date().toISOString() }).catch(err => {
-        console.error('Update date failed:', err);
-        alert('Failed to update upload date.');
-      });
-    };
+    window.toggleStockStatus = (key, cur) => database.ref(key).update({outOfStock: !cur});
+    window.updateUploadDate = (key) => database.ref(key).update({date: new Date().toISOString()});
+    window.confirmDelete = (key) => { if(confirm('Delete?')) deleteProduct(key); };
 
-    // 15) Delete product
-    window.confirmDelete = function(key) {
-      if (confirm('Are you sure you want to delete this product? This will also remove its associated image and video from storage.')) {
-        deleteProduct(key);
-      }
-    };
-
-    function isFirebaseStorageUrl(url) {
-      if (!url) return false;
-      return url.startsWith('https://firebasestorage.googleapis.com') ||
-             (typeof firebaseConfig?.storageBucket === 'string' && url.includes(firebaseConfig.storageBucket));
-    }
+    function isFirebaseStorageUrl(url) { return url && url.includes('firebasestorage.googleapis.com'); }
 
     async function deleteProduct(key) {
-      const deleteButton = document.querySelector(`[data-key="${key}"] button[onclick*="confirmDelete"]`);
-      if (deleteButton) {
-        deleteButton.disabled = true;
-        deleteButton.textContent = 'Deleting...';
-      }
-
-      try {
-        const snapshot = await database.ref(key).once('value');
-        if (!snapshot.exists()) {
-          throw new Error('Product not found in database');
-        }
-        const data = snapshot.val() || {};
-        const imageUrl = data.url;
-        const videoUrl = data.videourl;
-
-        const deletedElement = document.querySelector(`[data-key="${key}"]`);
-        if (deletedElement) {
-          deletedElement.style.opacity = '0.5';
-          deletedElement.style.pointerEvents = 'none';
-        }
-        products = products.filter(p => p.key !== key);
-        loadedImageKeys.delete(key);
-        batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
-
-        const deletions = [];
-        if (imageUrl && isFirebaseStorageUrl(imageUrl)) {
-          deletions.push(
-            storage.refFromURL(imageUrl).delete().catch(err => {
-              console.warn(`Unable to delete image from storage for ${key}:`, err);
-            })
-          );
-        }
-        if (videoUrl && isFirebaseStorageUrl(videoUrl)) {
-          deletions.push(
-            storage.refFromURL(videoUrl).delete().catch(err => {
-              console.warn(`Unable to delete video from storage for ${key}:`, err);
-            })
-          );
-        }
-
-        await Promise.allSettled(deletions);
-        await database.ref(key).remove();
-
-        alert('Product deleted successfully.');
-      } catch (err) {
-        console.error('Failed to delete product:', err);
-        alert(`Failed to delete product: ${err.message || 'Unknown error'}. Please check your Firebase permissions and try again.`);
-        batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
-      } finally {
-        if (deleteButton) {
-          deleteButton.disabled = false;
-          deleteButton.textContent = 'Delete';
-        }
-      }
+      const snapshot = await database.ref(key).once('value');
+      const data = snapshot.val();
+      if (data.url && isFirebaseStorageUrl(data.url)) storage.refFromURL(data.url).delete().catch(() => {});
+      if (data.videourl && isFirebaseStorageUrl(data.videourl)) storage.refFromURL(data.videourl).delete().catch(() => {});
+      database.ref(key).remove();
     }
 
-    // 16) Replace image / video
     window.replaceImage = function(key, currentImageUrlEncoded) {
-      const currentImageUrl = decodeURIComponent(currentImageUrlEncoded || '');
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'image/*';
       input.onchange = async () => {
-        const file = input.files[0];
-        if (!file) return;
-        const now = new Date().toISOString();
-        const storageRefNew = storage.ref().child(`${now}_REPLACE_${file.name}`);
+        let file = input.files[0]; // Changed const to let
+        
+        // --- ADDED: Compress ---
+        try { file = await compressImage(file); } catch(e) {}
+        // -----------------------
 
-        try {
-          await storageRefNew.put(file);
-          const newUrl = await storageRefNew.getDownloadURL();
-          await database.ref(key).update({ url: newUrl });
-
-          if (currentImageUrl && isFirebaseStorageUrl(currentImageUrl)) {
-            storage.refFromURL(currentImageUrl).delete().catch(err => {
-              console.warn('Old image delete failed:', err);
-            });
-          }
-
-          alert('Image replaced successfully.');
-        } catch (err) {
-          console.error('Replace image failed:', err);
-          alert('Failed to replace image.');
-        }
+        const ref = storage.ref().child(`images/${new Date().toISOString()}_REPLACE_${file.name}`);
+        await ref.put(file);
+        const newUrl = await ref.getDownloadURL();
+        database.ref(key).update({ url: newUrl });
       };
       input.click();
     };
 
     window.replaceVideo = function(key, currentVideoUrlEncoded) {
-      const currentVideoUrl = decodeURIComponent(currentVideoUrlEncoded || '');
-      const choice = prompt('Enter a new video URL or click OK to upload a video file:', currentVideoUrl || '');
-      
-      if (choice === null) return; // User cancelled
-
-      if (choice.trim() === '') {
-        // Clear video
-        database.ref(key).update({ videourl: '' }).then(() => {
-          alert('Video removed successfully.');
-        }).catch(err => {
-          console.error('Remove video failed:', err);
-          alert('Failed to remove video.');
-        });
-        return;
-      }
-
-      if (choice.trim().startsWith('http')) {
-        // Update with new URL
-        database.ref(key).update({ videourl: choice.trim() }).then(() => {
-          alert('Video URL updated successfully.');
-        }).catch(err => {
-          console.error('Update video URL failed:', err);
-          alert('Failed to update video URL.');
-        });
-      } else {
-        // Upload new video file
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'video/*';
-        input.onchange = async () => {
-          const file = input.files[0];
-          if (!file) return;
-          const now = new Date().toISOString();
-          const storageRefNew = storage.ref().child(`${now}_REPLACE_${file.name}`);
-
-          try {
-            await storageRefNew.put(file);
-            const newUrl = await storageRefNew.getDownloadURL();
-            await database.ref(key).update({ videourl: newUrl });
-
-            if (currentVideoUrl && isFirebaseStorageUrl(currentVideoUrl)) {
-              storage.refFromURL(currentVideoUrl).delete().catch(err => {
-              console.warn('Old video delete failed:', err);
-              });
-            }
-
-            alert('Video replaced successfully.');
-          } catch (err) {
-            console.error('Replace video failed:', err);
-            alert('Failed to replace video.');
-          }
-        };
-        input.click();
-      }
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'video/*';
+      input.onchange = async () => {
+        const file = input.files[0];
+        const ref = storage.ref().child(`videos/${new Date().toISOString()}_REPLACE_${file.name}`);
+        await ref.put(file);
+        const newUrl = await ref.getDownloadURL();
+        database.ref(key).update({ videourl: newUrl });
+      };
+      input.click();
     };
 
-    // 17) Remove video
-    window.removeVideo = async function(key, currentVideoUrlEncoded) {
-      console.log('removeVideo called with key:', key, 'and encoded URL:', currentVideoUrlEncoded);
-      const currentVideoUrl = decodeURIComponent(currentVideoUrlEncoded || '');
-      if (!currentVideoUrl) {
-        console.warn('No video URL provided for removal');
-        alert('No video to remove.');
-        return;
-      }
+    window.removeVideo = async (key) => { if(confirm('Remove video?')) database.ref(key).update({videourl: ''}); };
 
-      const confirmRemoval = confirm('Are you sure you want to remove this video? This will delete the video from storage if it is hosted on Firebase.');
-      if (!confirmRemoval) {
-        console.log('Video removal cancelled by user');
-        return;
-      }
-
-      const cardElement = document.querySelector(`[data-key="${key}"]`);
-      const removeButton = document.querySelector(`[data-key="${key}"] button[onclick*="removeVideo"]`);
-      if (cardElement) {
-        cardElement.style.opacity = '0.5';
-        cardElement.style.pointerEvents = 'none';
-      }
-      if (removeButton) {
-        removeButton.disabled = true;
-        removeButton.textContent = 'Removing...';
-      }
-
-      try {
-        // Verify product exists
-        const snapshot = await database.ref(key).once('value');
-        if (!snapshot.exists()) {
-          throw new Error('Product not found in database');
-        }
-        console.log('Product found in database for key:', key);
-
-        // Delete video from storage if it's a Firebase URL
-        if (isFirebaseStorageUrl(currentVideoUrl)) {
-          console.log('Attempting to delete video from Firebase storage:', currentVideoUrl);
-          try {
-            await storage.refFromURL(currentVideoUrl).delete();
-            console.log('Video deleted from storage successfully');
-          } catch (err) {
-            console.warn('Failed to delete video from storage:', err.message || err);
-            // Continue to clear videourl even if storage deletion fails
-          }
-        } else {
-          console.log('Video URL is not a Firebase storage URL, skipping storage deletion:', currentVideoUrl);
-        }
-
-        // Update database to clear videourl
-        console.log('Updating database to clear videourl for key:', key);
-        await database.ref(key).update({ videourl: '' });
-        console.log('Database updated, videourl cleared');
-
-        // Force UI update in case listener fails
-        const index = products.findIndex(p => p.key === key);
-        if (index !== -1) {
-          products[index].data.videourl = '';
-        }
-        batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
-
-        alert('Video removed successfully.');
-      } catch (err) {
-        console.error('Remove video failed:', err);
-        let errorMessage = err.message || 'Unknown error';
-        if (err.code === 'storage/unauthorized') {
-          errorMessage = 'Permission denied. Check Firebase Storage rules.';
-        } else if (err.code === 'storage/object-not-found') {
-          errorMessage = 'Video file not found in storage. Clearing URL anyway.';
-          // Attempt to clear videourl even if storage deletion fails
-          try {
-            await database.ref(key).update({ videourl: '' });
-            console.log('Database updated, videourl cleared after storage error');
-            alert('Video file not found in storage, but URL cleared successfully.');
-          } catch (dbErr) {
-            console.error('Database update failed after storage error:', dbErr);
-            alert(`Failed to clear video URL: ${dbErr.message || 'Unknown error'}.`);
-          }
-        }
-        if (err.message !== 'Product not found in database') {
-          alert(`Failed to remove video: ${errorMessage}. Please check your Firebase permissions and try again.`);
-        }
-      } finally {
-        if (cardElement) {
-          cardElement.style.opacity = '1';
-          cardElement.style.pointerEvents = 'auto';
-        }
-        if (removeButton) {
-          removeButton.disabled = false;
-          removeButton.textContent = 'Remove Video';
-        }
-      }
-    };
   </script>
 </body>
 </html>
-
