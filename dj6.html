@@ -1,235 +1,1020 @@
-import logging
-import json
-import os
-import threading
-import time
-import shutil
-from flask import Flask, render_template_string, request, jsonify, send_from_directory, Response, stream_with_context
-import yt_dlp
-import requests
+const express = require('express');
+const fs = require('fs').promises;
+const fsSync = require('fs');
+const path = require('path');
+const { exec } = require('child_process');
+const { promisify } = require('util');
+const axios = require('axios');
+const execAsync = promisify(exec);
 
-app = Flask(__name__)
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-# Configure logging
-logging.basicConfig(level=logging.ERROR)
+// --- STORAGE CONFIGURATION ---
+const homeDir = process.env.HOME || '/home';
+const possiblePaths = [
+    '/sdcard/Download/Music/SammyDJ',
+    path.join(homeDir, 'storage/downloads/Music/SammyDJ'),
+    path.join(homeDir, 'Downloads/Music/SammyDJ'),
+    'dj_songs' 
+];
 
-# --- STORAGE CONFIGURATION ---
-termux_music_path = os.path.expanduser('~/storage/music')
-android_music_path = '/sdcard/Music'
+let BASE_DIR = 'dj_songs';
 
-if os.path.exists(termux_music_path):
-    BASE_DIR = termux_music_path
-    DOWNLOAD_FOLDER = os.path.join(BASE_DIR, 'SammyDJ')
-elif os.path.exists(android_music_path) and os.access(android_music_path, os.W_OK):
-    BASE_DIR = android_music_path
-    DOWNLOAD_FOLDER = os.path.join(BASE_DIR, 'SammyDJ')
-else:
-    DOWNLOAD_FOLDER = 'dj_songs'
+for (const p of possiblePaths) {
+    try {
+        if (!fsSync.existsSync(p)) {
+            fsSync.mkdirSync(p, { recursive: true });
+        }
+        fsSync.accessSync(p, fsSync.constants.W_OK);
+        BASE_DIR = p;
+        break; 
+    } catch (e) {
+        continue;
+    }
+}
 
-if not os.path.exists(DOWNLOAD_FOLDER):
-    try: os.makedirs(DOWNLOAD_FOLDER)
-    except: pass
+const DOWNLOAD_FOLDER = BASE_DIR;
 
-# --- DATA FILES & CACHE ---
-HISTORY_FILE = 'dj_history.json'
-CATEGORIES_FILE = 'dj_categories.json'
-PLAYLISTS_FILE = 'dj_playlists.json'
-COOKIES_FILE = 'cookies.txt' 
-SEARCH_MEM_CACHE = {} 
-SCROLL_MEMORY = {} 
+// --- DATA FILES & CACHE ---
+const HISTORY_FILE = path.join(BASE_DIR, 'dj_history.json');
+const CATEGORIES_FILE = path.join(BASE_DIR, 'dj_categories.json');
+const PLAYLISTS_FILE = path.join(BASE_DIR, 'dj_playlists.json');
+const SETTINGS_FILE = path.join(BASE_DIR, 'dj_settings.json');
+const COOKIES_FILE = path.join(BASE_DIR, 'cookies.txt');
+const MIXING_SESSIONS_FILE = path.join(BASE_DIR, 'dj_sessions.json');
 
-active_downloads = set()
-download_lock = threading.Lock()
+const activeDownloads = new Set();
 
-# --- HELPER FUNCTIONS ---
-def get_ydl_opts(base_opts):
-    if os.path.exists(COOKIES_FILE):
-        base_opts['cookiefile'] = COOKIES_FILE
-    base_opts['source_address'] = '0.0.0.0' 
-    return base_opts
+console.log(`[Storage] Data and Music stored at: ${BASE_DIR}`);
 
-def load_json(filename, default):
-    if os.path.exists(filename):
-        try:
-            with open(filename, 'r') as f: return json.load(f)
-        except: pass
-    return default
+// --- HELPER FUNCTIONS ---
+async function loadJson(filename, defaultValue) {
+    try {
+        const data = await fs.readFile(filename, 'utf8');
+        return JSON.parse(data);
+    } catch {
+        return defaultValue;
+    }
+}
 
-def save_json(filename, data):
-    with open(filename, 'w') as f: json.dump(data, f)
+async function saveJson(filename, data) {
+    await fs.writeFile(filename, JSON.stringify(data, null, 2));
+}
 
-def add_track_to_history(track):
-    history = load_json(HISTORY_FILE, [])
-    if not any(t['id'] == track['id'] for t in history):
-        track['category'] = 'Uncategorized'
-        track['added_at'] = time.time()
-        if 'source' not in track: track['source'] = 'yt'
-        history.insert(0, track)
-        save_json(HISTORY_FILE, history)
+async function addTrackToHistory(track) {
+    const history = await loadJson(HISTORY_FILE, []);
+    if (!history.some(t => t.id === track.id)) {
+        track.category = 'Uncategorized';
+        track.added_at = Date.now();
+        if (!track.source) track.source = 'yt';
+        history.unshift(track);
+        await saveJson(HISTORY_FILE, history);
+    }
+}
 
-def get_local_file(video_id):
-    if os.path.exists(DOWNLOAD_FOLDER):
-        for filename in os.listdir(DOWNLOAD_FOLDER):
-            if filename.startswith(str(video_id)): return filename
-    return None
+function getLocalFile(videoId) {
+    try {
+        if (fsSync.existsSync(DOWNLOAD_FOLDER)) {
+            const files = fsSync.readdirSync(DOWNLOAD_FOLDER);
+            return files.find(f => f.startsWith(String(videoId)));
+        }
+    } catch (e) {
+        console.error('Error reading download folder:', e);
+    }
+    return null;
+}
 
-def background_download(track_data):
-    video_id = track_data.get('id')
-    source = track_data.get('source', 'yt')
-    if get_local_file(video_id): return
-    with download_lock:
-        if video_id in active_downloads: return 
-        active_downloads.add(video_id)
-    try:
-        if source == 'ht':
-            stream_url = track_data.get('stream_url')
-            if stream_url:
-                r = requests.get(stream_url, stream=True)
-                if r.status_code == 200:
-                    filename = os.path.join(DOWNLOAD_FOLDER, f"{video_id}.mp3")
-                    with open(filename, 'wb') as f:
-                        for chunk in r.iter_content(chunk_size=8192):
-                            f.write(chunk)
-        else:
-            ydl_opts = get_ydl_opts({'format': 'bestaudio/best', 'outtmpl': os.path.join(DOWNLOAD_FOLDER, f"{video_id}.%(ext)s"), 'quiet': True, 'noplaylist': True})
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl: ydl.download([video_id])
-    except Exception as e:
-        print(f"Download Error: {e}")
-    finally:
-        with download_lock:
-            if video_id in active_downloads: active_downloads.remove(video_id)
+async function backgroundDownload(trackData) {
+    const videoId = trackData.id;
+    const source = trackData.source || 'yt';
+    
+    if (getLocalFile(videoId)) return;
+    
+    if (activeDownloads.has(videoId)) return;
+    activeDownloads.add(videoId);
+    
+    try {
+        if (source === 'ht') {
+            const streamUrl = trackData.stream_url;
+            if (streamUrl) {
+                const response = await axios({
+                    url: streamUrl,
+                    method: 'GET',
+                    responseType: 'stream'
+                });
+                
+                const filename = path.join(DOWNLOAD_FOLDER, `${videoId}.mp3`);
+                const writer = fsSync.createWriteStream(filename);
+                
+                response.data.pipe(writer);
+                
+                await new Promise((resolve, reject) => {
+                    writer.on('finish', resolve);
+                    writer.on('error', reject);
+                });
+            }
+        } else {
+            const outputTemplate = path.join(DOWNLOAD_FOLDER, `${videoId}.%(ext)s`);
+            let cmd = `yt-dlp -f bestaudio --no-playlist -o "${outputTemplate}" --quiet`;
+            
+            if (fsSync.existsSync(COOKIES_FILE)) {
+                cmd += ` --cookies "${COOKIES_FILE}"`;
+            }
+            
+            cmd += ` --source-address 0.0.0.0 "${videoId}"`;
+            
+            await execAsync(cmd);
+        }
+    } catch (e) {
+        console.error(`Download Error for ${videoId}:`, e.message);
+    } finally {
+        activeDownloads.delete(videoId);
+    }
+}
 
-# --- FRONTEND TEMPLATE ---
-HTML_TEMPLATE = """
-<!DOCTYPE html>
+// --- FRONTEND TEMPLATE WITH JOCKEY WHEEL & ADVANCED FEATURES ---
+const HTML_TEMPLATE = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sammy's DJ PRO</title>
+    <title>Sammy's DJ PRO ULTRA</title>
     <style>
-        :root { --primary: #ff5722; --secondary: #00c853; --bg: #000000; --text: #e0e0e0; --accent: #00e5ff; --save-color: #00bcd4; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Courier+Prime:wght@400;700&display=swap');
         
-        .global-search-container  { flex-shrink: 0; padding: 10px; background: #1a1a1a; border-bottom: 1px solid #333; display: flex; gap: 8px; z-index: 100; }
-        .source-select { background: #333; color: white; border: 1px solid #555; border-radius: 4px; padding: 0 10px; font-weight: bold; }
-        .g-input { flex: 1; padding: 10px; background: #333; border: 1px solid #555; color: #fff; border-radius: 4px; font-size: 1rem; }
-        .g-btn { padding: 0 15px; background: var(--primary); color: #000; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; }
-        
-        .global-results { position: absolute; top: 60px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.98); z-index: 200; display: none; flex-direction: column; }
-        .results-header { padding: 10px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; background: #111; }
-        .results-scroll-area { flex: 1; overflow-y: auto; padding: 10px; -webkit-overflow-scrolling: touch; }
-        .close-btn { background: #333; color: white; border: 1px solid #555; padding: 5px 15px; border-radius: 4px; cursor: pointer; }
-        
-        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; background: #000; flex-shrink: 0; }
-        h1 { margin: 0; font-size: 0.9rem; color: #888; font-weight: 800; letter-spacing: 1px; }
-        .head-btns { display: flex; gap: 5px; }
-        .top-btn { background: #222; border: 1px solid #444; color: #ccc; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 0.7rem; }
-        .top-btn.active { background: var(--accent); border-color: var(--accent); color: #000; font-weight: bold; }
-        
-        .main-content { flex: 1; overflow-y: auto; padding: 2px; padding-bottom: 200px; }
-        .decks-container { display: flex; flex-wrap: nowrap; gap: 4px; width: 100%; }
-        .deck-wrapper { flex: 1; min-width: 0; width: 50%; }
-        .deck-box { background: #080808; border: 1px solid #222; border-radius: 4px; padding: 4px; }
-        
-        .video-screen { width: 100%; height: 70px; background: #111; border-bottom: 1px solid #333; position: relative; border-radius: 3px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        canvas { width: 100%; height: 100%; display: block; }
-        .playhead { position: absolute; right: 50%; width: 1px; height: 100%; background: #fff; box-shadow: 0 0 4px #fff; z-index: 5; }
-        .deck-badge { position: absolute; top: 2px; left: 2px; font-weight: bold; color: #444; font-size: 0.6rem; z-index: 6;}
-        .source-indicator { position: absolute; top: 2px; right: 2px; padding: 1px 4px; font-size: 0.5rem; font-weight: bold; border-radius: 2px; z-index: 6; display: none; }
-        .src-disk { background: var(--secondary); color: #000; }
-        .src-online { background: #f44336; color: #fff; }
-        .cue-marker { position: absolute; bottom: 0; width: 2px; height: 8px; background: #ffeb3b; z-index: 7; cursor: pointer; }
+        :root {
+            --primary: #ff5722;
+            --secondary: #00c853;
+            --accent: #00e5ff;
+            --danger: #ff1744;
+            --warning: #ffb300;
+            --bg: #0a0e27;
+            --bg-dark: #050812;
+            --text: #e0e0e0;
+            --text-muted: #888;
+            --border: #1a1f3a;
+            --highlight: #ffd700;
+        }
 
-        .track-info { height: 20px; font-size: 0.75rem; overflow: hidden; white-space: nowrap; margin: 4px 0; font-weight: bold; color: #fff; text-align: center; }
-        .time-display { font-size: 0.7rem; color: var(--accent); margin-bottom: 2px; text-align: center; font-family: monospace; }
-        
-        .transport { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; background: #181818; padding: 3px; border-radius: 4px; }
-        .play-btn { width: 40px; height: 40px; border-radius: 4px; border: 1px solid #444; background: #222; color: #ccc; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .play-btn.playing { border-color: var(--primary); background: #2a1000; color: var(--primary); }
-        .seek-wrap { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-        input[type=range] { width: 100%; accent-color: var(--primary); height: 4px; margin: 0; cursor: pointer; }
-        
-        /* CUE POINTS ROW */
-        .cue-row { display: flex; gap: 2px; margin-bottom: 4px; background: #1a1a1a; padding: 3px; border-radius: 4px; }
-        .cue-btn { flex: 1; background: #222; border: 1px solid #333; color: #888; padding: 5px 0; font-size: 0.65rem; font-weight: bold; border-radius: 3px; cursor: pointer; }
-        .cue-btn.active { background: #ffeb3b; color: #000; border-color: #ffeb3b; }
-        
-        /* TRANSITION CONTROLS */
-        .transition-panel { background: #0a0a0a; border: 1px solid #333; border-radius: 4px; padding: 6px; margin-bottom: 4px; }
-        .trans-header { font-size: 0.6rem; color: #666; font-weight: bold; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .trans-row { display: flex; gap: 4px; margin-bottom: 3px; }
-        .trans-btn { flex: 1; background: linear-gradient(145deg, #222, #1a1a1a); border: 1px solid #333; color: #ccc; padding: 8px 0; font-size: 0.7rem; font-weight: bold; border-radius: 3px; cursor: pointer; transition: all 0.2s; }
-        .trans-btn:active { transform: scale(0.95); }
-        .trans-btn.go { background: linear-gradient(145deg, var(--secondary), #00a043); color: #000; border-color: var(--secondary); }
-        .trans-time { display: flex; gap: 2px; }
-        .time-chip { flex: 1; background: #181818; border: 1px solid #333; color: #888; padding: 4px 0; font-size: 0.65rem; text-align: center; border-radius: 3px; cursor: pointer; }
-        .time-chip.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: bold; }
-        
-        .fx-pause-row { display: flex; gap: 4px; background: #1a1a1a; padding: 4px; border-radius: 4px; margin-bottom: 4px; border: 1px solid #333; }
-        .fx-select { flex: 1; background: #222; color: #fff; border: 1px solid #444; font-size: 0.7rem; border-radius: 3px; }
-        .fx-btn { background: #b71c1c; color: white; border: none; padding: 4px 8px; border-radius: 3px; font-size: 0.7rem; font-weight: bold; cursor: pointer; }
-        
-        .beat-match-row { display: flex; gap: 2px; margin-bottom: 4px; }
-        .bm-btn { flex: 1; background: #222; border: 1px solid #333; color: #ccc; padding: 6px 0; font-size: 0.65rem; font-weight: bold; border-radius: 3px; cursor: pointer; }
-        .bm-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
-        .bpm-display { font-family: monospace; color: var(--accent); font-size: 0.7rem; min-width: 45px; text-align: center; padding-top: 5px;}
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-        .eq-row { display: flex; gap: 2px; justify-content: space-between; background: #181818; padding: 4px; border-radius: 4px; margin-bottom: 4px; }
-        .eq-knob-box { text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; }
-        .eq-knob-box span { font-size: 0.5rem; color: #666; margin-bottom: 2px; font-weight: bold; }
-        
-        .tempo-row { display: flex; align-items: center; gap: 5px; background: #222; padding: 5px; border-radius: 4px; margin-bottom: 4px; border: 1px solid #333; }
-        .tempo-label { font-size: 0.6rem; color: #aaa; font-weight: bold; width: 30px; }
-        
-        .loop-row { display: flex; gap: 2px; }
-        .loop-btn { flex: 1; background: #181818; border: 1px solid #333; color: #888; padding: 8px 0; cursor: pointer; border-radius: 3px; font-size: 0.7rem; font-weight: bold; }
-        .loop-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
-        
-        .track-item { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #333; background: #111; margin-bottom: 2px; border-radius: 4px; }
-        .track-thumb { width: 60px; height: 45px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
-        .btn-group { display: flex; flex-direction: column; gap: 4px; min-width: 60px; }
-        
-        .action-btn { padding: 8px; font-size: 0.85rem; border-radius: 4px; border: none; cursor: pointer; color: #000; font-weight: 900; flex: 1; font-family: 'Segoe UI Black', sans-serif; text-transform: uppercase; }
-        .btn-d1 { background: var(--primary); }
-        .btn-d2 { background: var(--secondary); }
-        .btn-save { background: var(--save-color); width: 100%; }
-        .btn-del { background: #b71c1c; color: #fff; font-size: 0.7rem; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Courier Prime', monospace;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
 
-        .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #000; z-index: 2000; display: none; flex-direction: column; padding: 10px; }
-        .modal-header { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; align-items: center; }
-        .cat-manager { background: #111; padding: 10px; border-radius: 5px; margin-bottom: 10px; }
-        .cat-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
-        .cat-chip { background: #222; padding: 3px 8px; border-radius: 10px; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px; border: 1px solid #333; color: #888;}
-        .cat-chip.active { background: var(--primary); color: #000; border-color: var(--primary); }
-        .lib-list { flex: 1; overflow-y: auto; }
-        
-        .xfader-container { position: fixed; bottom: 0; left: 0; right: 0; background: #080808; padding: 10px; border-top: 1px solid #333; z-index: 90; display: flex; flex-direction: column; align-items: center; gap: 5px;}
-        #xfader { width: 90%; max-width: 600px; height: 30px; }
-        .curve-row { display: flex; gap: 10px; font-size: 0.7rem; color: #666; font-weight: bold; }
-        .curve-btn { cursor: pointer; padding: 2px 8px; border: 1px solid #333; border-radius: 10px; }
-        .curve-btn.active { background: #333; color: white; border-color: #555; }
-        
-        /* AUTO-MIX CONTROLS */
-        .automix-bar { background: #1a1a1a; padding: 8px; margin-bottom: 5px; border-radius: 4px; border: 1px solid #333; display: flex; justify-content: center; gap: 8px; align-items: center; }
-        .automix-btn { background: linear-gradient(145deg, #444, #2a2a2a); color: #fff; border: 1px solid #555; padding: 6px 12px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; cursor: pointer; }
-        .automix-btn.active { background: linear-gradient(145deg, var(--accent), #00b8d4); color: #000; border-color: var(--accent); }
-        
-        .nuclear-btn-small { background: transparent; border: 1px solid #444; color: #b71c1c; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 0.8rem; margin-right: 10px;}
-        .loading-trigger { height: 50px; display: flex; align-items: center; justify-content: center; color: var(--accent); font-weight: bold; font-size: 0.8rem; }
+        /* SEARCH BAR */
+        .global-search-container {
+            flex-shrink: 0;
+            padding: 12px;
+            background: linear-gradient(180deg, #1a1f3a 0%, #0f1428 100%);
+            border-bottom: 2px solid var(--primary);
+            display: flex;
+            gap: 8px;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(255, 87, 34, 0.15);
+        }
 
-        /* --- PLAYLIST STYLES --- */
-        .lib-tabs { display: flex; border-bottom: 1px solid #333; margin-bottom: 10px; }
-        .tab-btn { flex: 1; background: transparent; border: none; color: #666; padding: 10px; cursor: pointer; font-weight: bold; border-bottom: 2px solid transparent; }
-        .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-        
-        .playlist-input-row { display: flex; gap: 5px; margin-bottom: 10px; }
-        .pl-item { background: #1a1a1a; padding: 15px; margin-bottom: 5px; border-radius: 4px; border: 1px solid #333; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .pl-item:hover { background: #222; }
-        .pl-name { font-weight: bold; color: #fff; }
-        .pl-count { font-size: 0.8rem; color: #666; }
-        .back-btn { background: #333; color: white; border: none; padding: 5px 10px; margin-bottom: 10px; border-radius: 3px; cursor: pointer; }
+        .source-select {
+            background: var(--bg-dark);
+            color: var(--accent);
+            border: 1px solid var(--primary);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-weight: bold;
+            font-family: 'Courier Prime', monospace;
+            cursor: pointer;
+        }
+
+        .g-input {
+            flex: 1;
+            padding: 10px 14px;
+            background: rgba(255, 87, 34, 0.05);
+            border: 1px solid var(--primary);
+            color: var(--text);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-family: 'Courier Prime', monospace;
+        }
+
+        .g-btn {
+            padding: 8px 16px;
+            background: var(--primary);
+            color: #000;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .g-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(255, 87, 34, 0.4);
+        }
+
+        .global-results {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 14, 39, 0.98);
+            backdrop-filter: blur(8px);
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+        }
+
+        .results-header {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-dark);
+        }
+
+        .results-scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .close-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* TOP BAR */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: linear-gradient(90deg, var(--bg-dark), #1a0f2e);
+            flex-shrink: 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: var(--highlight);
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .head-btns {
+            display: flex;
+            gap: 6px;
+        }
+
+        .top-btn {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--accent);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .top-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #000;
+            box-shadow: 0 0 12px rgba(255, 87, 34, 0.6);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 4px;
+            padding-bottom: 250px;
+            background: var(--bg);
+        }
+
+        .decks-container {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .deck-wrapper {
+            flex: 1;
+            min-width: 0;
+            width: 50%;
+        }
+
+        .deck-box {
+            background: linear-gradient(135deg, #0f1428 0%, #1a1f3a 100%);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 6px;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .video-screen {
+            width: 100%;
+            height: 70px;
+            background: #000;
+            border: 1px solid var(--primary);
+            position: relative;
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 20px rgba(255, 87, 34, 0.1);
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .playhead {
+            position: absolute;
+            right: 50%;
+            width: 2px;
+            height: 100%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+            z-index: 5;
+        }
+
+        .deck-badge {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 0.7rem;
+            z-index: 6;
+            text-shadow: 0 0 4px rgba(255, 87, 34, 0.8);
+        }
+
+        .source-indicator {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            padding: 2px 6px;
+            font-size: 0.55rem;
+            font-weight: bold;
+            border-radius: 2px;
+            z-index: 6;
+            display: none;
+        }
+
+        .src-disk {
+            background: var(--secondary);
+            color: #000;
+        }
+
+        .src-online {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        .track-info {
+            height: 20px;
+            font-size: 0.75rem;
+            overflow: hidden;
+            white-space: nowrap;
+            margin: 4px 0;
+            font-weight: bold;
+            color: var(--accent);
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .time-display {
+            font-size: 0.7rem;
+            color: var(--highlight);
+            margin-bottom: 3px;
+            text-align: center;
+            font-family: 'Space Mono', monospace;
+            font-weight: bold;
+        }
+
+        /* TRANSPORT CONTROLS */
+        .transport {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 5px;
+            background: rgba(0, 229, 255, 0.05);
+            padding: 4px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        .play-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 4px;
+            border: 1px solid var(--accent);
+            background: var(--bg-dark);
+            color: var(--accent);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+            font-weight: bold;
+        }
+
+        .play-btn.playing {
+            border-color: var(--primary);
+            background: rgba(255, 87, 34, 0.2);
+            color: var(--primary);
+            box-shadow: 0 0 12px rgba(255, 87, 34, 0.5);
+        }
+
+        .seek-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        input[type=range] {
+            width: 100%;
+            accent-color: var(--primary);
+            height: 5px;
+            margin: 0;
+            cursor: pointer;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+
+        /* JOCKEY WHEEL */
+        .jockey-wheel-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 6px;
+            background: rgba(255, 87, 34, 0.05);
+            padding: 6px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+
+        .jockey-wheel {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #1a1f3a, #050812);
+            border: 3px solid var(--primary);
+            box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 87, 34, 0.3);
+            position: relative;
+            cursor: grab;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .jockey-wheel:active {
+            cursor: grabbing;
+        }
+
+        .jockey-wheel-inner {
+            width: 70%;
+            height: 70%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #2a2f4a, #0f1428);
+            border: 2px solid var(--accent);
+            box-shadow: inset 0 2px 8px rgba(0, 229, 255, 0.3);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .jockey-center {
+            width: 8px;
+            height: 8px;
+            background: var(--highlight);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--highlight);
+        }
+
+        .jockey-notch {
+            position: absolute;
+            width: 3px;
+            height: 12px;
+            background: var(--primary);
+            top: -10px;
+            border-radius: 2px;
+        }
+
+        /* CUE BUTTONS */
+        .cue-row {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 4px;
+            background: rgba(0, 200, 83, 0.05);
+            padding: 3px;
+            border-radius: 4px;
+        }
+
+        .cue-btn {
+            flex: 1;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 6px 0;
+            font-size: 0.7rem;
+            font-weight: bold;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .cue-btn.active {
+            background: var(--secondary);
+            color: #000;
+            border-color: var(--secondary);
+            box-shadow: 0 0 8px rgba(0, 200, 83, 0.6);
+        }
+
+        /* FX & EFFECTS */
+        .fx-pause-row {
+            display: flex;
+            gap: 4px;
+            background: rgba(255, 23, 68, 0.05);
+            padding: 4px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            border: 1px solid var(--border);
+        }
+
+        .fx-select {
+            flex: 1;
+            background: var(--bg-dark);
+            color: var(--text);
+            border: 1px solid var(--border);
+            font-size: 0.7rem;
+            border-radius: 3px;
+            padding: 4px;
+            font-family: 'Courier Prime', monospace;
+            cursor: pointer;
+        }
+
+        .fx-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 5px 8px;
+            border-radius: 3px;
+            font-size: 0.65rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .fx-btn:hover {
+            box-shadow: 0 0 10px rgba(255, 23, 68, 0.6);
+        }
+
+        /* BEAT MATCH */
+        .beat-match-row {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 4px;
+            background: rgba(255, 179, 0, 0.05);
+            padding: 3px;
+            border-radius: 4px;
+        }
+
+        .bm-btn {
+            flex: 1;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 6px 0;
+            font-size: 0.65rem;
+            font-weight: bold;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .bm-btn.active {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+        }
+
+        .bpm-display {
+            font-family: 'Space Mono', monospace;
+            color: var(--warning);
+            font-size: 0.8rem;
+            min-width: 50px;
+            text-align: center;
+            padding: 3px;
+            background: rgba(255, 179, 0, 0.1);
+            border-radius: 3px;
+        }
+
+        /* EQ SECTION */
+        .eq-row {
+            display: flex;
+            gap: 2px;
+            justify-content: space-between;
+            background: rgba(0, 229, 255, 0.05);
+            padding: 4px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+
+        .eq-knob-box {
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .eq-knob-box span {
+            font-size: 0.55rem;
+            color: var(--accent);
+            margin-bottom: 2px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* TEMPO & FILTER */
+        .tempo-row {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--bg-dark);
+            padding: 4px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            border: 1px solid var(--border);
+        }
+
+        .tempo-label {
+            font-size: 0.65rem;
+            color: var(--accent);
+            font-weight: bold;
+            width: 28px;
+            text-transform: uppercase;
+        }
+
+        /* LOOP */
+        .loop-row {
+            display: flex;
+            gap: 2px;
+        }
+
+        .loop-btn {
+            flex: 1;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 6px 0;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            transition: all 0.15s;
+        }
+
+        .loop-btn.active {
+            background: var(--primary);
+            color: #000;
+            border-color: var(--primary);
+        }
+
+        /* TRACK ITEM */
+        .track-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-dark);
+            margin-bottom: 2px;
+            border-radius: 4px;
+        }
+
+        .track-thumb {
+            width: 60px;
+            height: 45px;
+            object-fit: cover;
+            border-radius: 4px;
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 60px;
+        }
+
+        .action-btn {
+            padding: 8px;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            color: #000;
+            font-weight: 900;
+            flex: 1;
+            font-family: 'Courier Prime', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+        }
+
+        .btn-d1 {
+            background: var(--primary);
+        }
+
+        .btn-d1:hover {
+            box-shadow: 0 0 12px rgba(255, 87, 34, 0.6);
+        }
+
+        .btn-d2 {
+            background: var(--secondary);
+        }
+
+        .btn-d2:hover {
+            box-shadow: 0 0 12px rgba(0, 200, 83, 0.6);
+        }
+
+        .btn-save {
+            background: var(--accent);
+            width: 100%;
+        }
+
+        .btn-del {
+            background: var(--danger);
+            color: #fff;
+            font-size: 0.7rem;
+        }
+
+        /* MODAL */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 14, 39, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            padding: 12px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .cat-manager {
+            background: var(--bg-dark);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .cat-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .cat-chip {
+            background: var(--bg-dark);
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            transition: all 0.15s;
+        }
+
+        .cat-chip.active {
+            background: var(--primary);
+            color: #000;
+            border-color: var(--primary);
+        }
+
+        .lib-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* XFADER */
+        .xfader-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, #1a1f3a, var(--bg-dark));
+            padding: 12px;
+            border-top: 2px solid var(--primary);
+            z-index: 90;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 -4px 16px rgba(255, 87, 34, 0.2);
+        }
+
+        #xfader {
+            width: 90%;
+            max-width: 600px;
+            height: 35px;
+        }
+
+        .curve-row {
+            display: flex;
+            gap: 10px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: bold;
+        }
+
+        .curve-btn {
+            cursor: pointer;
+            padding: 4px 12px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.2s;
+            background: var(--bg-dark);
+        }
+
+        .curve-btn.active {
+            background: var(--primary);
+            color: #000;
+            border-color: var(--primary);
+        }
+
+        .nuclear-btn-small {
+            background: transparent;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .loading-trigger {
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        /* TABS */
+        .lib-tabs {
+            display: flex;
+            border-bottom: 2px solid var(--primary);
+            margin-bottom: 10px;
+            gap: 2px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            font-family: 'Courier Prime', monospace;
+        }
+
+        .tab-btn.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .playlist-input-row {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .pl-item {
+            background: var(--bg-dark);
+            padding: 15px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pl-item:hover {
+            background: #2a2f4a;
+            border-color: var(--primary);
+        }
+
+        .pl-name {
+            font-weight: bold;
+            color: var(--text);
+        }
+
+        .pl-count {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .back-btn {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 6px 12px;
+            margin-bottom: 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .decks-container {
+                flex-direction: column;
+            }
+
+            .deck-wrapper {
+                width: 100%;
+            }
+
+            h1 {
+                font-size: 0.95rem;
+            }
+        }
+
+        /* ANIMATIONS */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .pulse {
+            animation: pulse 0.8s infinite;
+        }
     </style>
 </head>
 <body>
@@ -252,15 +1037,17 @@ HTML_TEMPLATE = """
     </div>
 
     <div class="top-bar">
-        <h1>Sammy's DJ PRO</h1>
+        <h1>🎧 DJ PRO ULTRA</h1>
         <div class="head-btns">
             <button id="hp-btn" class="top-btn" onclick="toggleSplit()">🎧 Split</button>
             <button class="top-btn" onclick="openLibrary()">📚 Lib</button>
+            <button class="top-btn" onclick="toggleMaster()">🔊 Master</button>
         </div>
     </div>
 
     <div class="main-content">
         <div class="decks-container">
+            <!-- DECK 1 -->
             <div class="deck-wrapper">
                 <div class="deck-box">
                     <div class="video-screen"><span class="deck-badge">DECK 1</span><span id="src-1" class="source-indicator">DISK</span><div class="playhead"></div><canvas id="viz-1"></canvas></div>
@@ -268,6 +1055,16 @@ HTML_TEMPLATE = """
                     <div id="time-1" class="time-display">0:00 / 0:00</div>
                     <div class="transport"><button class="play-btn" id="play-1" onclick="togglePlay(1)">▶</button><div class="seek-wrap"><input type="range" id="seek-1" value="0" min="0" oninput="seek(1, this.value)"></div></div>
                     
+                    <!-- JOCKEY WHEEL -->
+                    <div class="jockey-wheel-section">
+                        <div class="jockey-wheel" id="jockey-1" onmousedown="startJockeyDrag(1, event)" ontouchstart="startJockeyDrag(1, event)">
+                            <div class="jockey-wheel-inner">
+                                <div class="jockey-center"></div>
+                                <div class="jockey-notch"></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="cue-row">
                         <button class="cue-btn" id="cue-a-1" onclick="setCuePoint(1, 'A')">A</button>
                         <button class="cue-btn" id="cue-b-1" onclick="setCuePoint(1, 'B')">B</button>
@@ -275,19 +1072,21 @@ HTML_TEMPLATE = """
                         <button class="cue-btn" onclick="clearAllCues(1)">CLR</button>
                     </div>
                     
-                    <div class="fx-pause-row"><select id="fx-sel-1" class="fx-select"><option value="echo">Echo Stop</option><option value="reverb">Reverb Fade</option><option value="vinyl">Vinyl Stop</option><option value="backspin">Backspin (Fast)</option></select><button class="fx-btn" onclick="triggerFxPause(1)">SMOOTH STOP</button></div>
-                    <div class="beat-match-row"><button class="bm-btn" onclick="tapBpm(1)">TAP BPM</button><span id="bpm-1" class="bpm-display">0.0</span><button class="bm-btn" style="background:var(--secondary); color:#000;" onclick="syncDecks(1)">SYNC</button><button id="pk-1" class="bm-btn" onclick="togglePitchLock(1)">KEY LOCK</button></div>
+                    <div class="fx-pause-row"><select id="fx-sel-1" class="fx-select"><option value="echo">Echo Stop</option><option value="reverb">Reverb</option><option value="vinyl">Vinyl Stop</option><option value="backspin">Backspin</option><option value="stutter">Stutter</option></select><button class="fx-btn" onclick="triggerFxPause(1)">STOP</button></div>
+                    <div class="beat-match-row"><button class="bm-btn" onclick="tapBpm(1)">TAP</button><span id="bpm-1" class="bpm-display">0.0</span><button class="bm-btn" style="background:var(--secondary); color:#000;" onclick="syncDecks(1)">SYNC</button><button id="pk-1" class="bm-btn" onclick="togglePitchLock(1)">KEY</button></div>
                     <div class="eq-row">
                         <div class="eq-knob-box"><span>HI</span><input type="range" id="eq-hi-1" oninput="setEq(1, 'high', this.value)" min="-24" max="6" value="0"></div>
                         <div class="eq-knob-box"><span>MID</span><input type="range" id="eq-mid-1" oninput="setEq(1, 'mid', this.value)" min="-24" max="6" value="0"></div>
-                        <div class="eq-knob-box"><span>LOW</span><input type="range" id="eq-lo-1" oninput="setEq(1, 'low', this.value)" min="-24" max="6" value="0"></div>
+                        <div class="eq-knob-box"><span>LO</span><input type="range" id="eq-lo-1" oninput="setEq(1, 'low', this.value)" min="-24" max="6" value="0"></div>
                     </div>
-                    <div class="tempo-row"><span class="tempo-label" style="color:var(--accent)">FLT</span><input type="range" id="fil-1" oninput="updateFilter(1, this.value)" ondblclick="this.value=0; updateFilter(1,0)" min="-100" max="100" value="0" style="flex:1; accent-color:var(--accent);"></div>
+                    <div class="tempo-row"><span class="tempo-label">FLTR</span><input type="range" id="fil-1" oninput="updateFilter(1, this.value)" ondblclick="this.value=0; updateFilter(1,0)" min="-100" max="100" value="0" style="flex:1;"></div>
                     <div class="tempo-row"><span class="tempo-label">SPD</span><input type="range" id="spd-1" oninput="setSpeed(1, this.value)" ondblclick="resetSpeed(1, this)" min="0.8" max="1.2" step="0.001" value="1" style="flex:1"></div>
                     <div class="loop-row"><button class="loop-btn" id="l2-1" onclick="setLoop(1, 2)">2</button><button class="loop-btn" id="l4-1" onclick="setLoop(1, 4)">4</button><button class="loop-btn" id="l8-1" onclick="setLoop(1, 8)">8</button><button class="loop-btn" id="lx-1" onclick="clearLoop(1)">X</button></div>
                 </div>
                 <audio id="audio-1" crossorigin="anonymous"></audio>
             </div>
+
+            <!-- DECK 2 -->
             <div class="deck-wrapper">
                 <div class="deck-box">
                     <div class="video-screen"><span class="deck-badge">DECK 2</span><span id="src-2" class="source-indicator">DISK</span><div class="playhead"></div><canvas id="viz-2"></canvas></div>
@@ -295,6 +1094,16 @@ HTML_TEMPLATE = """
                     <div id="time-2" class="time-display">0:00 / 0:00</div>
                     <div class="transport"><button class="play-btn" id="play-2" onclick="togglePlay(2)">▶</button><div class="seek-wrap"><input type="range" id="seek-2" value="0" min="0" oninput="seek(2, this.value)"></div></div>
                     
+                    <!-- JOCKEY WHEEL -->
+                    <div class="jockey-wheel-section">
+                        <div class="jockey-wheel" id="jockey-2" onmousedown="startJockeyDrag(2, event)" ontouchstart="startJockeyDrag(2, event)">
+                            <div class="jockey-wheel-inner">
+                                <div class="jockey-center"></div>
+                                <div class="jockey-notch"></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="cue-row">
                         <button class="cue-btn" id="cue-a-2" onclick="setCuePoint(2, 'A')">A</button>
                         <button class="cue-btn" id="cue-b-2" onclick="setCuePoint(2, 'B')">B</button>
@@ -302,14 +1111,14 @@ HTML_TEMPLATE = """
                         <button class="cue-btn" onclick="clearAllCues(2)">CLR</button>
                     </div>
                     
-                    <div class="fx-pause-row"><select id="fx-sel-2" class="fx-select"><option value="echo">Echo Stop</option><option value="reverb">Reverb Fade</option><option value="vinyl">Vinyl Stop</option><option value="backspin">Backspin (Fast)</option></select><button class="fx-btn" onclick="triggerFxPause(2)">SMOOTH STOP</button></div>
-                    <div class="beat-match-row"><button class="bm-btn" onclick="tapBpm(2)">TAP BPM</button><span id="bpm-2" class="bpm-display">0.0</span><button class="bm-btn" style="background:var(--secondary); color:#000;" onclick="syncDecks(2)">SYNC</button><button id="pk-2" class="bm-btn" onclick="togglePitchLock(2)">KEY LOCK</button></div>
+                    <div class="fx-pause-row"><select id="fx-sel-2" class="fx-select"><option value="echo">Echo Stop</option><option value="reverb">Reverb</option><option value="vinyl">Vinyl Stop</option><option value="backspin">Backspin</option><option value="stutter">Stutter</option></select><button class="fx-btn" onclick="triggerFxPause(2)">STOP</button></div>
+                    <div class="beat-match-row"><button class="bm-btn" onclick="tapBpm(2)">TAP</button><span id="bpm-2" class="bpm-display">0.0</span><button class="bm-btn" style="background:var(--secondary); color:#000;" onclick="syncDecks(2)">SYNC</button><button id="pk-2" class="bm-btn" onclick="togglePitchLock(2)">KEY</button></div>
                     <div class="eq-row">
                         <div class="eq-knob-box"><span>HI</span><input type="range" id="eq-hi-2" oninput="setEq(2, 'high', this.value)" min="-24" max="6" value="0"></div>
                         <div class="eq-knob-box"><span>MID</span><input type="range" id="eq-mid-2" oninput="setEq(2, 'mid', this.value)" min="-24" max="6" value="0"></div>
-                        <div class="eq-knob-box"><span>LOW</span><input type="range" id="eq-lo-2" oninput="setEq(2, 'low', this.value)" min="-24" max="6" value="0"></div>
+                        <div class="eq-knob-box"><span>LO</span><input type="range" id="eq-lo-2" oninput="setEq(2, 'low', this.value)" min="-24" max="6" value="0"></div>
                     </div>
-                    <div class="tempo-row"><span class="tempo-label" style="color:var(--accent)">FLT</span><input type="range" id="fil-2" oninput="updateFilter(2, this.value)" ondblclick="this.value=0; updateFilter(2,0)" min="-100" max="100" value="0" style="flex:1; accent-color:var(--accent);"></div>
+                    <div class="tempo-row"><span class="tempo-label">FLTR</span><input type="range" id="fil-2" oninput="updateFilter(2, this.value)" ondblclick="this.value=0; updateFilter(2,0)" min="-100" max="100" value="0" style="flex:1;"></div>
                     <div class="tempo-row"><span class="tempo-label">SPD</span><input type="range" id="spd-2" oninput="setSpeed(2, this.value)" ondblclick="resetSpeed(2, this)" min="0.8" max="1.2" step="0.001" value="1" style="flex:1"></div>
                     <div class="loop-row"><button class="loop-btn" id="l2-2" onclick="setLoop(2, 2)">2</button><button class="loop-btn" id="l4-2" onclick="setLoop(2, 4)">4</button><button class="loop-btn" id="l8-2" onclick="setLoop(2, 8)">8</button><button class="loop-btn" id="lx-2" onclick="clearLoop(2)">X</button></div>
                 </div>
@@ -333,13 +1142,13 @@ HTML_TEMPLATE = """
         </div>
         
         <div class="lib-tabs">
-            <button id="tab-btn-tracks" class="tab-btn active" onclick="switchLibTab('tracks')">My Tracks (<span id="lib-total-count">0</span>)</button>
-            <button id="tab-btn-playlists" class="tab-btn" onclick="switchLibTab('playlists')">YT Playlists</button>
+            <button id="tab-btn-tracks" class="tab-btn active" onclick="switchLibTab('tracks')">Tracks (<span id="lib-total-count">0</span>)</button>
+            <button id="tab-btn-playlists" class="tab-btn" onclick="switchLibTab('playlists')">Playlists</button>
         </div>
 
         <div id="view-tracks" class="lib-list" style="display:flex; flex-direction:column;">
             <div class="cat-manager"><div style="display:flex; gap:5px; align-items:center;"><input type="text" id="new-cat" placeholder="New Playlist..." class="g-input" style="padding:6px; font-size:0.8rem;"><button onclick="addCategory()" class="g-btn" style="padding:0 10px;">+</button></div><div id="cat-chips" class="cat-chips"></div></div>
-            <input type="text" id="lib-search" placeholder="Filter tracks..." onkeyup="renderLibrary()" style="width:100%; padding:8px; background:#222; border:1px solid #333; color:white; margin-bottom:10px;">
+            <input type="text" id="lib-search" placeholder="Filter tracks..." onkeyup="renderLibrary()" style="width:100%; padding:8px; background:var(--bg-dark); border:1px solid var(--border); color:white; margin-bottom:10px; border-radius:4px;">
             <div id="lib-list" style="flex:1; overflow-y:auto;"></div>
         </div>
 
@@ -353,355 +1162,405 @@ HTML_TEMPLATE = """
             </div>
             
             <div id="pl-tracks-view" style="display:none; flex-direction:column; height:100%;">
-                <button class="back-btn" onclick="closePlaylistTracks()">← Back to Playlists</button>
-                <div id="pl-loader" style="text-align:center; padding:20px; color:var(--accent); display:none;">REFRESHING PLAYLIST...</div>
+                <button class="back-btn" onclick="closePlaylistTracks()">← Back</button>
+                <div id="pl-loader" style="text-align:center; padding:20px; color:var(--accent); display:none;">LOADING...</div>
                 <div id="pl-tracks-list" style="flex:1; overflow-y:auto;"></div>
             </div>
         </div>
-
     </div>
 
 <script>
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const merger = ctx.createChannelMerger(2); merger.connect(ctx.destination);
+    const merger = ctx.createChannelMerger(2);
+    merger.connect(ctx.destination);
     
-    const decks = {}; let hpMode = false; let xCurve = 'smooth'; let tapTimes = {1: [], 2: []};
-    let activeCat = 'All'; let libraryData = []; let categories = []; let playlists = [];
-    let searchPage = 1; let isFetching = false; let currentQuery = ''; let searchSource = 'yt';
-    let queryMemory = {}; 
-    let autoMixEnabled = false;
-    let transitionTimes = {1: 16, 2: 16};
-    let activeTransitions = new Set();
+    const decks = {};
+    let hpMode = false;
+    let xCurve = 'smooth';
+    let tapTimes = {1: [], 2: []};
+    let activeCat = 'All';
+    let libraryData = [];
+    let categories = [];
+    let playlists = [];
+    let searchPage = 1;
+    let isFetching = false;
+    let currentQuery = '';
+    let searchSource = 'yt';
+    let queryMemory = {};
+    
+    // JOCKEY WHEEL STATE
+    let jockeyState = {1: {angle: 0, isDragging: false}, 2: {angle: 0, isDragging: false}};
+    let jockeyStartAngle = {1: 0, 2: 0};
 
-    function formatTime(sec) { if (!sec || isNaN(sec)) return "0:00"; const m = Math.floor(sec / 60); const s = Math.floor(sec % 60); return `${m}:${s < 10 ? '0' : ''}${s}`; }
+    function formatTime(sec) {
+        if (!sec || isNaN(sec)) return "0:00";
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60);
+        return \`\${m}:\${s < 10 ? '0' : ''}\${s}\`;
+    }
 
     function initDeck(id) {
-        const audio = document.getElementById('audio-' + id); const source = ctx.createMediaElementSource(audio);
-        const gainMaster = ctx.createGain(); const gainCue = ctx.createGain(); const stopGain = ctx.createGain(); 
-        const low = ctx.createBiquadFilter(); low.type = 'lowshelf'; low.frequency.value = 320;
-        const mid = ctx.createBiquadFilter(); mid.type = 'peaking'; mid.frequency.value = 1000; mid.Q.value = 1;
-        const high = ctx.createBiquadFilter(); high.type = 'highshelf'; high.frequency.value = 3200;
-        const filter = ctx.createBiquadFilter(); filter.type = 'allpass';
-        const analyser = ctx.createAnalyser(); analyser.fftSize = 256;
-        const delay = ctx.createDelay(1.0); delay.delayTime.value = 0.375;
-        const feedback = ctx.createGain(); feedback.gain.value = 0.55; 
-        const fxGain = ctx.createGain(); fxGain.gain.value = 0;
-        const reverb = ctx.createConvolver(); const length = ctx.sampleRate * 2.5; const impulse = ctx.createBuffer(2, length, ctx.sampleRate);
-        for (let i = 0; i < 2; i++) { const chan = impulse.getChannelData(i); for (let j = 0; j < length; j++) chan[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / length, 2.5); }
+        const audio = document.getElementById('audio-' + id);
+        const source = ctx.createMediaElementSource(audio);
+        const gainMaster = ctx.createGain();
+        const gainCue = ctx.createGain();
+        const stopGain = ctx.createGain();
+        
+        const low = ctx.createBiquadFilter();
+        low.type = 'lowshelf';
+        low.frequency.value = 320;
+        
+        const mid = ctx.createBiquadFilter();
+        mid.type = 'peaking';
+        mid.frequency.value = 1000;
+        mid.Q.value = 1;
+        
+        const high = ctx.createBiquadFilter();
+        high.type = 'highshelf';
+        high.frequency.value = 3200;
+        
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'allpass';
+        
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 256;
+        
+        const delay = ctx.createDelay(1.0);
+        delay.delayTime.value = 0.375;
+        const feedback = ctx.createGain();
+        feedback.gain.value = 0.55;
+        const fxGain = ctx.createGain();
+        fxGain.gain.value = 0;
+        
+        const reverb = ctx.createConvolver();
+        const length = ctx.sampleRate * 2.5;
+        const impulse = ctx.createBuffer(2, length, ctx.sampleRate);
+        for (let i = 0; i < 2; i++) {
+            const chan = impulse.getChannelData(i);
+            for (let j = 0; j < length; j++) {
+                chan[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / length, 2.5);
+            }
+        }
         reverb.buffer = impulse;
+
         source.connect(stopGain).connect(low).connect(mid).connect(high).connect(filter).connect(analyser);
-        analyser.connect(gainMaster); analyser.connect(gainCue); analyser.connect(fxGain);
-        fxGain.connect(delay).connect(feedback).connect(delay); delay.connect(merger, 0, 0); delay.connect(merger, 0, 1);
-        fxGain.connect(reverb).connect(merger, 0, 0); reverb.connect(merger, 0, 1);
-        gainMaster.connect(merger, 0, 0); gainMaster.connect(merger, 0, 1);
-        decks[id] = { 
-            audio, gainMaster, gainCue, stopGain, low, mid, high, filter, analyser, fxGain, delay, feedback, reverb, 
-            wave: new Uint8Array(analyser.frequencyBinCount), 
-            loop: {active:false, start:0, len:0}, 
-            bpm: 0, 
+        analyser.connect(gainMaster);
+        analyser.connect(gainCue);
+        analyser.connect(fxGain);
+        
+        fxGain.connect(delay).connect(feedback).connect(delay);
+        delay.connect(merger, 0, 0);
+        delay.connect(merger, 0, 1);
+        
+        fxGain.connect(reverb).connect(merger, 0, 0);
+        reverb.connect(merger, 0, 1);
+        
+        gainMaster.connect(merger, 0, 0);
+        gainMaster.connect(merger, 0, 1);
+
+        decks[id] = {
+            audio,
+            gainMaster,
+            gainCue,
+            stopGain,
+            low,
+            mid,
+            high,
+            filter,
+            analyser,
+            fxGain,
+            delay,
+            feedback,
+            reverb,
+            wave: new Uint8Array(analyser.frequencyBinCount),
+            loop: {active: false, start: 0, len: 0},
+            bpm: 0,
             pitchLock: false,
-            cuePoints: {},
-            transitionActive: false
+            cuePoints: {}
         };
-        audio.ontimeupdate = () => { 
-            if(!isNaN(audio.duration)) { 
-                document.getElementById('seek-'+id).value = audio.currentTime; 
-                document.getElementById('seek-'+id).max = audio.duration; 
-                document.getElementById('time-'+id).innerText = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`; 
-            } 
+
+        audio.ontimeupdate = () => {
+            if(!isNaN(audio.duration)) {
+                document.getElementById('seek-'+id).value = audio.currentTime;
+                document.getElementById('seek-'+id).max = audio.duration;
+                document.getElementById('time-'+id).innerText = \`\${formatTime(audio.currentTime)} / \${formatTime(audio.duration)}\`;
+            }
         };
-        audio.onplay = () => { document.getElementById('play-'+id).innerText = "⏸"; document.getElementById('play-'+id).classList.add('playing'); drawViz(id); decks[id].stopGain.gain.setValueAtTime(1, ctx.currentTime); decks[id].fxGain.gain.setValueAtTime(0, ctx.currentTime); };
-        audio.onpause = () => { document.getElementById('play-'+id).innerText = "▶"; document.getElementById('play-'+id).classList.remove('playing'); };
+
+        audio.onplay = () => {
+            document.getElementById('play-'+id).innerText = "⏸";
+            document.getElementById('play-'+id).classList.add('playing');
+            drawViz(id);
+            decks[id].stopGain.gain.setValueAtTime(1, ctx.currentTime);
+            decks[id].fxGain.gain.setValueAtTime(0, ctx.currentTime);
+        };
+
+        audio.onpause = () => {
+            document.getElementById('play-'+id).innerText = "▶";
+            document.getElementById('play-'+id).classList.remove('playing');
+        };
+    }
+
+    // JOCKEY WHEEL FUNCTIONS
+    function startJockeyDrag(id, event) {
+        event.preventDefault();
+        jockeyState[id].isDragging = true;
+        const clientX = event.type.includes('touch') ? event.touches[0].clientX : event.clientX;
+        const clientY = event.type.includes('touch') ? event.touches[0].clientY : event.clientY;
+        const wheel = document.getElementById(\`jockey-\${id}\`);
+        const rect = wheel.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        jockeyStartAngle[id] = Math.atan2(clientY - centerY, clientX - centerX);
+
+        function handleMove(e) {
+            if (!jockeyState[id].isDragging) return;
+            const moveX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const moveY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            const currentAngle = Math.atan2(moveY - centerY, moveX - centerX);
+            let deltaDegrees = ((currentAngle - jockeyStartAngle[id]) * 180 / Math.PI);
+            
+            jockeyState[id].angle = (jockeyState[id].angle + deltaDegrees) % 360;
+            wheel.style.transform = \`rotate(\${jockeyState[id].angle}deg)\`;
+            
+            // Map wheel movement to pitch/speed
+            const speedAdjust = 1 + (deltaDegrees / 500);
+            const newSpeed = Math.max(0.8, Math.min(1.2, decks[id].audio.playbackRate * speedAdjust));
+            setSpeed(id, newSpeed);
+            document.getElementById(\`spd-\${id}\`).value = newSpeed.toFixed(3);
+
+            jockeyStartAngle[id] = currentAngle;
+        }
+
+        function handleEnd() {
+            jockeyState[id].isDragging = false;
+            document.removeEventListener('mousemove', handleMove);
+            document.removeEventListener('touchmove', handleMove);
+            document.removeEventListener('mouseup', handleEnd);
+            document.removeEventListener('touchend', handleEnd);
+        }
+
+        document.addEventListener('mousemove', handleMove);
+        document.addEventListener('touchmove', handleMove);
+        document.addEventListener('mouseup', handleEnd);
+        document.addEventListener('touchend', handleEnd);
     }
 
     function toggleSplit() {
-        hpMode = !hpMode; const btn = document.getElementById('hp-btn'); const xVal = document.getElementById('xfader').value;
-        decks[1].gainMaster.disconnect(); decks[2].gainMaster.disconnect(); decks[1].gainCue.disconnect(); decks[2].gainCue.disconnect();
+        hpMode = !hpMode;
+        const btn = document.getElementById('hp-btn');
+        const xVal = document.getElementById('xfader').value;
+        
+        decks[1].gainMaster.disconnect();
+        decks[2].gainMaster.disconnect();
+        decks[1].gainCue.disconnect();
+        decks[2].gainCue.disconnect();
+        
         if (hpMode) {
-            btn.classList.add('active'); btn.innerText = "🎧 ON";
-            decks[1].gainMaster.connect(merger, 0, 0); decks[2].gainMaster.connect(merger, 0, 0);
-            decks[1].gainCue.connect(merger, 0, 1); decks[2].gainCue.connect(merger, 0, 1);
+            btn.classList.add('active');
+            btn.innerText = "🎧 ON";
+            decks[1].gainMaster.connect(merger, 0, 0);
+            decks[2].gainMaster.connect(merger, 0, 0);
+            decks[1].gainCue.connect(merger, 0, 1);
+            decks[2].gainCue.connect(merger, 0, 1);
         } else {
-            btn.classList.remove('active'); btn.innerText = "🎧 Split";
-            decks[1].gainMaster.connect(merger, 0, 0); decks[1].gainMaster.connect(merger, 0, 1);
-            decks[2].gainMaster.connect(merger, 0, 0); decks[2].gainMaster.connect(merger, 0, 1);
+            btn.classList.remove('active');
+            btn.innerText = "🎧 Split";
+            decks[1].gainMaster.connect(merger, 0, 0);
+            decks[1].gainMaster.connect(merger, 0, 1);
+            decks[2].gainMaster.connect(merger, 0, 0);
+            decks[2].gainMaster.connect(merger, 0, 1);
         }
         setCrossfader(xVal);
     }
 
-    function setCrossfader(val) { 
-        const x = val / 100; let vol1, vol2;
-        if (xCurve === 'smooth') { vol1 = Math.cos(x * 0.5 * Math.PI); vol2 = Math.cos((1 - x) * 0.5 * Math.PI); }
-        else { vol1 = x < 0.45 ? 1 : Math.max(0, 1 - (x - 0.45) * 10); vol2 = x > 0.55 ? 1 : Math.max(0, x * 10 - 4.5); }
-        decks[1].gainMaster.gain.setTargetAtTime(vol1, ctx.currentTime, 0.02); decks[2].gainMaster.gain.setTargetAtTime(vol2, ctx.currentTime, 0.02);
-        if (hpMode) { decks[1].gainCue.gain.setTargetAtTime(vol2, ctx.currentTime, 0.02); decks[2].gainCue.gain.setTargetAtTime(vol1, ctx.currentTime, 0.02); }
-        else { decks[1].gainCue.gain.value = 0; decks[2].gainCue.gain.value = 0; }
-    }
-
-    // ===== TRANSITION FUNCTIONS =====
-    function setTransTime(id, seconds) {
-        transitionTimes[id] = seconds;
-        document.querySelectorAll(`#deck-${id} .time-chip`).forEach(chip => chip.classList.remove('active'));
-        event.target.classList.add('active');
-    }
-
-    function transitionFade(fromDeck) {
-        if (activeTransitions.has(fromDeck)) return;
-        activeTransitions.add(fromDeck);
+    function setCrossfader(val) {
+        const x = val / 100;
+        let vol1, vol2;
         
-        const toDeck = fromDeck === 1 ? 2 : 1;
-        const duration = transitionTimes[fromDeck];
-        const now = ctx.currentTime;
-        const xfader = document.getElementById('xfader');
-        
-        // Start playing destination deck if not playing
-        if (decks[toDeck].audio.paused) {
-            decks[toDeck].audio.play();
+        if (xCurve === 'smooth') {
+            vol1 = Math.cos(x * 0.5 * Math.PI);
+            vol2 = Math.cos((1 - x) * 0.5 * Math.PI);
+        } else {
+            vol1 = x < 0.45 ? 1 : Math.max(0, 1 - (x - 0.45) * 10);
+            vol2 = x > 0.55 ? 1 : Math.max(0, x * 10 - 4.5);
         }
         
-        // Smooth crossfade
-        const startVal = fromDeck === 1 ? 0 : 100;
-        const endVal = fromDeck === 1 ? 100 : 0;
-        const steps = duration * 20; // 20 steps per second
-        const stepDuration = duration / steps;
-        let currentStep = 0;
+        decks[1].gainMaster.gain.setTargetAtTime(vol1, ctx.currentTime, 0.02);
+        decks[2].gainMaster.gain.setTargetAtTime(vol2, ctx.currentTime, 0.02);
         
-        const fadeInterval = setInterval(() => {
-            currentStep++;
-            const progress = currentStep / steps;
-            const currentVal = startVal + (endVal - startVal) * progress;
-            xfader.value = currentVal;
-            setCrossfader(currentVal);
-            
-            if (currentStep >= steps) {
-                clearInterval(fadeInterval);
-                activeTransitions.delete(fromDeck);
-            }
-        }, stepDuration * 1000);
-    }
-
-    function transitionEcho(fromDeck) {
-        if (activeTransitions.has(fromDeck)) return;
-        activeTransitions.add(fromDeck);
-        
-        const toDeck = fromDeck === 1 ? 2 : 1;
-        const duration = transitionTimes[fromDeck];
-        const now = ctx.currentTime;
-        
-        // Start playing destination
-        if (decks[toDeck].audio.paused) {
-            decks[toDeck].audio.play();
+        if (hpMode) {
+            decks[1].gainCue.gain.setTargetAtTime(vol2, ctx.currentTime, 0.02);
+            decks[2].gainCue.gain.setTargetAtTime(vol1, ctx.currentTime, 0.02);
+        } else {
+            decks[1].gainCue.gain.value = 0;
+            decks[2].gainCue.gain.value = 0;
         }
-        
-        // Enable echo on outgoing deck
-        decks[fromDeck].fxGain.gain.setValueAtTime(0, now);
-        decks[fromDeck].fxGain.gain.linearRampToValueAtTime(2.5, now + duration * 0.3);
-        decks[fromDeck].fxGain.gain.linearRampToValueAtTime(0.001, now + duration);
-        
-        // Fade volumes
-        decks[fromDeck].stopGain.gain.setValueAtTime(1, now);
-        decks[fromDeck].stopGain.gain.linearRampToValueAtTime(0.001, now + duration);
-        
-        // Crossfade
-        const xfader = document.getElementById('xfader');
-        const startVal = fromDeck === 1 ? 0 : 100;
-        const endVal = fromDeck === 1 ? 100 : 0;
-        
-        animateCrossfader(startVal, endVal, duration, () => {
-            activeTransitions.delete(fromDeck);
-        });
     }
 
-    function transitionSpin(fromDeck) {
-        if (activeTransitions.has(fromDeck)) return;
-        activeTransitions.add(fromDeck);
-        
-        const toDeck = fromDeck === 1 ? 2 : 1;
-        const duration = transitionTimes[fromDeck];
-        
-        // Start playing destination
-        if (decks[toDeck].audio.paused) {
-            decks[toDeck].audio.play();
-        }
-        
-        // Vinyl spindown effect on outgoing
-        const startRate = decks[fromDeck].audio.playbackRate;
-        let currentRate = startRate;
-        const spinSteps = duration * 20;
-        const rateDecrement = startRate / spinSteps;
-        
-        const spinInterval = setInterval(() => {
-            currentRate -= rateDecrement;
-            if (currentRate <= 0.05) {
-                clearInterval(spinInterval);
-                decks[fromDeck].audio.pause();
-                decks[fromDeck].audio.playbackRate = startRate;
-            } else {
-                decks[fromDeck].audio.playbackRate = currentRate;
-            }
-        }, (duration / spinSteps) * 1000);
-        
-        // Crossfade
-        const xfader = document.getElementById('xfader');
-        const startVal = fromDeck === 1 ? 0 : 100;
-        const endVal = fromDeck === 1 ? 100 : 0;
-        
-        animateCrossfader(startVal, endVal, duration, () => {
-            activeTransitions.delete(fromDeck);
-        });
-    }
-
-    function autoTransition(fromDeck) {
-        // Intelligent auto-transition with EQ ducking
-        if (activeTransitions.has(fromDeck)) return;
-        activeTransitions.add(fromDeck);
-        
-        const toDeck = fromDeck === 1 ? 2 : 1;
-        const duration = transitionTimes[fromDeck];
-        const now = ctx.currentTime;
-        
-        // Start playing destination
-        if (decks[toDeck].audio.paused) {
-            decks[toDeck].audio.play();
-        }
-        
-        // Phase 1: Duck lows on outgoing (first 1/3)
-        decks[fromDeck].low.gain.setValueAtTime(0, now);
-        decks[fromDeck].low.gain.linearRampToValueAtTime(-12, now + duration / 3);
-        
-        // Phase 2: Bring in incoming (middle 1/3)
-        decks[toDeck].low.gain.setValueAtTime(-12, now + duration / 3);
-        decks[toDeck].low.gain.linearRampToValueAtTime(0, now + (duration * 2 / 3));
-        
-        // Phase 3: Final crossfade (last 1/3)
-        const xfader = document.getElementById('xfader');
-        const startVal = fromDeck === 1 ? 0 : 100;
-        const endVal = fromDeck === 1 ? 100 : 0;
-        
-        setTimeout(() => {
-            animateCrossfader(startVal, endVal, duration / 3, () => {
-                // Reset EQ
-                decks[fromDeck].low.gain.setValueAtTime(-12, ctx.currentTime);
-                decks[fromDeck].low.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
-                activeTransitions.delete(fromDeck);
-            });
-        }, (duration * 2 / 3) * 1000);
-    }
-
-    function animateCrossfader(start, end, duration, callback) {
-        const xfader = document.getElementById('xfader');
-        const steps = duration * 20;
-        const stepDuration = duration / steps;
-        let currentStep = 0;
-        
-        const interval = setInterval(() => {
-            currentStep++;
-            const progress = currentStep / steps;
-            const currentVal = start + (end - start) * progress;
-            xfader.value = currentVal;
-            setCrossfader(currentVal);
-            
-            if (currentStep >= steps) {
-                clearInterval(interval);
-                if (callback) callback();
-            }
-        }, stepDuration * 1000);
-    }
-
-    // ===== CUE POINTS =====
     function setCuePoint(id, label) {
         const audio = decks[id].audio;
         if (audio.paused || isNaN(audio.currentTime)) return;
         
         decks[id].cuePoints[label] = audio.currentTime;
-        document.getElementById(`cue-${label.toLowerCase()}-${id}`).classList.add('active');
+        document.getElementById(\`cue-\${label.toLowerCase()}-\${id}\`).classList.add('active');
         
-        // Visual feedback
         setTimeout(() => {
-            document.getElementById(`cue-${label.toLowerCase()}-${id}`).classList.remove('active');
+            document.getElementById(\`cue-\${label.toLowerCase()}-\${id}\`).classList.remove('active');
         }, 200);
     }
 
     function clearAllCues(id) {
         decks[id].cuePoints = {};
         ['a', 'b', 'c'].forEach(label => {
-            document.getElementById(`cue-${label}-${id}`).classList.remove('active');
+            document.getElementById(\`cue-\${label}-\${id}\`).classList.remove('active');
         });
     }
 
-    // ===== AUTO-MIX MODE =====
-    function toggleAutoMix() {
-        autoMixEnabled = !autoMixEnabled;
-        const btn = document.getElementById('automix-btn');
-        const status = document.getElementById('automix-status');
+    function updateFilter(id, val) {
+        const d = decks[id];
+        const v = parseFloat(val);
+        const now = ctx.currentTime;
         
-        if (autoMixEnabled) {
-            btn.classList.add('active');
-            status.innerText = 'ON - Auto transitions enabled';
-            // Monitor both decks for auto-transition
-            monitorAutoMix();
+        if (v < -2) {
+            d.filter.type = 'lowpass';
+            d.filter.frequency.exponentialRampToValueAtTime(Math.max(25, 20000 * Math.pow(0.002, Math.abs(v) / 100)), now + 0.12);
+        } else if (v > 2) {
+            d.filter.type = 'highpass';
+            d.filter.frequency.exponentialRampToValueAtTime(Math.min(18000, 25 * Math.pow(600, v / 100)), now + 0.12);
         } else {
-            btn.classList.remove('active');
-            status.innerText = 'OFF';
+            d.filter.frequency.setTargetAtTime(20000, now, 0.1);
+            setTimeout(() => {
+                if(Math.abs(val) < 2) d.filter.type = 'allpass';
+            }, 150);
         }
     }
 
-    function monitorAutoMix() {
-        if (!autoMixEnabled) return;
-        
-        // Check if either deck is near end (last 30 seconds)
-        [1, 2].forEach(id => {
-            const audio = decks[id].audio;
-            if (!audio.paused && !isNaN(audio.duration) && !isNaN(audio.currentTime)) {
-                const remaining = audio.duration - audio.currentTime;
-                if (remaining <= 30 && remaining > 29 && !activeTransitions.has(id)) {
-                    // Auto-trigger transition
-                    autoTransition(id);
-                }
-            }
-        });
-        
-        setTimeout(monitorAutoMix, 1000);
+    function togglePlay(id) {
+        if(ctx.state === 'suspended') ctx.resume();
+        const a = decks[id].audio;
+        if (a.paused) {
+            decks[id].stopGain.gain.setValueAtTime(1, ctx.currentTime);
+            a.play();
+        } else {
+            a.pause();
+        }
     }
 
-    function updateFilter(id, val) { const d = decks[id]; const v = parseFloat(val); const now = ctx.currentTime; if (v < -2) { d.filter.type = 'lowpass'; d.filter.frequency.exponentialRampToValueAtTime(Math.max(25, 20000 * Math.pow(0.002, Math.abs(v) / 100)), now + 0.12); } else if (v > 2) { d.filter.type = 'highpass'; d.filter.frequency.exponentialRampToValueAtTime(Math.min(18000, 25 * Math.pow(600, v / 100)), now + 0.12); } else { d.filter.frequency.setTargetAtTime(20000, now, 0.1); setTimeout(() => { if(Math.abs(val) < 2) d.filter.type = 'allpass'; }, 150); } }
-    function togglePlay(id) { if(ctx.state === 'suspended') ctx.resume(); const a = decks[id].audio; if (a.paused) { decks[id].stopGain.gain.setValueAtTime(1, ctx.currentTime); a.play(); } else { a.pause(); } }
-    function seek(id, val) { decks[id].audio.currentTime = val; }
-    function setEq(id, band, val) { decks[id][band].gain.setTargetAtTime(val, ctx.currentTime, 0.1); }
-    function setSpeed(id, val) { decks[id].audio.playbackRate = val; }
-    function resetSpeed(id, el) { el.value = 1; setSpeed(id, 1); }
-    function setLoop(id, beats) { const d = decks[id]; const bpm = 126 * d.audio.playbackRate; d.loop = { active: true, start: d.audio.currentTime, len: (60 / bpm) * beats }; ['2','4','8','x'].forEach(k => document.getElementById(`l${k}-${id}`)?.classList.remove('active')); document.getElementById(`l${beats}-${id}`)?.classList.add('active'); }
-    function clearLoop(id) { decks[id].loop.active = false; ['2','4','8','x'].forEach(k => document.getElementById(`l${k}-${id}`)?.classList.remove('active')); }
-    function drawViz(id) { if(decks[id].audio.paused) return; requestAnimationFrame(() => drawViz(id)); const d = decks[id]; if (d.loop.active && d.audio.currentTime >= (d.loop.start + d.loop.len) - 0.01) { d.audio.currentTime = d.loop.start; } const c = document.getElementById('viz-'+id).getContext('2d'); const w = c.canvas.width = c.canvas.offsetWidth; const h = c.canvas.height = c.canvas.offsetHeight; d.analyser.getByteTimeDomainData(d.wave); c.fillStyle = '#111'; c.fillRect(0,0,w,h); c.lineWidth = 2; c.strokeStyle = id===1 ? '#ff5722' : '#00c853'; c.beginPath(); let slice = w / d.wave.length; let x = 0; for(let i=0; i<d.wave.length; i++) { let y = (d.wave[i]/128.0) * (h/2); i===0 ? c.moveTo(x,y) : c.lineTo(x,y); x+=slice; } c.stroke(); }
-    function setCurve(type) { xCurve = type; document.getElementById('c-smooth').classList.toggle('active', type === 'smooth'); document.getElementById('c-sharp').classList.toggle('active', type === 'sharp'); setCrossfader(document.getElementById('xfader').value); }
-    function togglePitchLock(id) { decks[id].pitchLock = !decks[id].pitchLock; decks[id].audio.preservesPitch = decks[id].pitchLock; document.getElementById(`pk-${id}`).classList.toggle('active', decks[id].pitchLock); }
-    
-    function triggerFxPause(id) { 
-        const d = decks[id]; 
-        if (d.audio.paused) return; 
-        const type = document.getElementById(`fx-sel-${id}`).value; 
-        const now = ctx.currentTime; 
-        const stopDuration = 0.6; 
+    function seek(id, val) {
+        decks[id].audio.currentTime = val;
+    }
+
+    function setEq(id, band, val) {
+        decks[id][band].gain.setTargetAtTime(val, ctx.currentTime, 0.1);
+    }
+
+    function setSpeed(id, val) {
+        decks[id].audio.playbackRate = val;
+    }
+
+    function resetSpeed(id, el) {
+        el.value = 1;
+        setSpeed(id, 1);
+    }
+
+    function setLoop(id, beats) {
+        const d = decks[id];
+        const bpm = 126 * d.audio.playbackRate;
+        d.loop = {
+            active: true,
+            start: d.audio.currentTime,
+            len: (60 / bpm) * beats
+        };
+        ['2','4','8','x'].forEach(k => document.getElementById(\`l\${k}-\${id}\`)?.classList.remove('active'));
+        document.getElementById(\`l\${beats}-\${id}\`)?.classList.add('active');
+    }
+
+    function clearLoop(id) {
+        decks[id].loop.active = false;
+        ['2','4','8','x'].forEach(k => document.getElementById(\`l\${k}-\${id}\`)?.classList.remove('active'));
+    }
+
+    function drawViz(id) {
+        if(decks[id].audio.paused) return;
+        requestAnimationFrame(() => drawViz(id));
         
-        if (type === 'echo' || type === 'reverb') { 
-            d.fxGain.gain.setTargetAtTime(type === 'echo' ? 2.0 : 2.5, now, 0.05); 
-            d.stopGain.gain.setValueAtTime(1.0, now); 
-            d.stopGain.gain.exponentialRampToValueAtTime(0.001, now + stopDuration); 
-            setTimeout(() => { 
-                d.audio.pause(); 
-                d.fxGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 3.0); 
-            }, stopDuration * 1000); 
-        } else if (type === 'vinyl') { 
-            const startRate = d.audio.playbackRate; 
-            let currentRate = startRate; 
-            const vinylTimer = setInterval(() => { 
-                currentRate -= 0.05; 
-                if (currentRate <= 0.05) { 
-                    clearInterval(vinylTimer); d.audio.pause(); d.audio.playbackRate = startRate; 
-                } else { 
-                    d.audio.playbackRate = currentRate; 
-                } 
-            }, 50); 
+        const d = decks[id];
+        if (d.loop.active && d.audio.currentTime >= (d.loop.start + d.loop.len) - 0.01) {
+            d.audio.currentTime = d.loop.start;
+        }
+        
+        const c = document.getElementById('viz-'+id).getContext('2d');
+        const w = c.canvas.width = c.canvas.offsetWidth;
+        const h = c.canvas.height = c.canvas.offsetHeight;
+        
+        d.analyser.getByteTimeDomainData(d.wave);
+        
+        c.fillStyle = '#000';
+        c.fillRect(0,0,w,h);
+        
+        c.lineWidth = 2;
+        c.strokeStyle = id===1 ? '#ff5722' : '#00c853';
+        c.beginPath();
+        
+        let slice = w / d.wave.length;
+        let x = 0;
+        
+        for(let i=0; i<d.wave.length; i++) {
+            let y = (d.wave[i]/128.0) * (h/2);
+            i===0 ? c.moveTo(x,y) : c.lineTo(x,y);
+            x+=slice;
+        }
+        c.stroke();
+    }
+
+    function setCurve(type) {
+        xCurve = type;
+        document.getElementById('c-smooth').classList.toggle('active', type === 'smooth');
+        document.getElementById('c-sharp').classList.toggle('active', type === 'sharp');
+        setCrossfader(document.getElementById('xfader').value);
+    }
+
+    function togglePitchLock(id) {
+        decks[id].pitchLock = !decks[id].pitchLock;
+        decks[id].audio.preservesPitch = decks[id].pitchLock;
+        document.getElementById(\`pk-\${id}\`).classList.toggle('active', decks[id].pitchLock);
+    }
+
+    function toggleMaster() {
+        // Toggle master volume/output
+        const btn = event.target;
+        btn.classList.toggle('active');
+    }
+    
+    function triggerFxPause(id) {
+        const d = decks[id];
+        if (d.audio.paused) return;
+        const type = document.getElementById(\`fx-sel-\${id}\`).value;
+        const now = ctx.currentTime;
+        const stopDuration = 0.6;
+        
+        if (type === 'echo' || type === 'reverb') {
+            d.fxGain.gain.setTargetAtTime(type === 'echo' ? 2.0 : 2.5, now, 0.05);
+            d.stopGain.gain.setValueAtTime(1.0, now);
+            d.stopGain.gain.exponentialRampToValueAtTime(0.001, now + stopDuration);
+            setTimeout(() => {
+                d.audio.pause();
+                d.fxGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 3.0);
+            }, stopDuration * 1000);
+        } else if (type === 'vinyl') {
+            const startRate = d.audio.playbackRate;
+            let currentRate = startRate;
+            const vinylTimer = setInterval(() => {
+                currentRate -= 0.05;
+                if (currentRate <= 0.05) {
+                    clearInterval(vinylTimer);
+                    d.audio.pause();
+                    d.audio.playbackRate = startRate;
+                } else {
+                    d.audio.playbackRate = currentRate;
+                }
+            }, 50);
         } else if (type === 'backspin') {
             const startRate = d.audio.playbackRate;
             let currentRate = startRate;
@@ -716,25 +1575,63 @@ HTML_TEMPLATE = """
                 } else {
                     d.audio.playbackRate = currentRate;
                 }
-            }, 20); 
+            }, 20);
+        } else if (type === 'stutter') {
+            const startRate = d.audio.playbackRate;
+            const stutterTime = d.audio.currentTime;
+            let stutterCount = 0;
+            const stutterTimer = setInterval(() => {
+                stutterCount++;
+                if (stutterCount > 8) {
+                    clearInterval(stutterTimer);
+                    d.audio.currentTime = stutterTime;
+                    d.audio.playbackRate = startRate;
+                } else {
+                    d.audio.currentTime = stutterTime + (stutterCount % 2) * 0.1;
+                }
+            }, 50);
         }
     }
     
-    function tapBpm(id) { const now = Date.now(); const times = tapTimes[id]; if (times.length > 0 && now - times[times.length - 1] > 2000) times.length = 0; times.push(now); if (times.length > 1) { const diffs = []; for(let i=1; i<times.length; i++) diffs.push(times[i] - times[i-1]); const avg = diffs.reduce((a, b) => a + b) / diffs.length; decks[id].bpm = (60000 / avg).toFixed(1); document.getElementById(`bpm-${id}`).innerText = decks[id].bpm; } }
-    function syncDecks(id) { const otherId = id === 1 ? 2 : 1; const otherBpm = parseFloat(document.getElementById(`bpm-${otherId}`).innerText); const thisBpm = parseFloat(document.getElementById(`bpm-${id}`).innerText); if (otherBpm > 0 && thisBpm > 0) { const ratio = otherBpm / thisBpm; setSpeed(id, ratio); document.getElementById(`spd-${id}`).value = ratio.toFixed(3); } }
+    function tapBpm(id) {
+        const now = Date.now();
+        const times = tapTimes[id];
+        if (times.length > 0 && now - times[times.length - 1] > 2000) times.length = 0;
+        times.push(now);
+        if (times.length > 1) {
+            const diffs = [];
+            for(let i=1; i<times.length; i++) diffs.push(times[i] - times[i-1]);
+            const avg = diffs.reduce((a, b) => a + b) / diffs.length;
+            decks[id].bpm = (60000 / avg).toFixed(1);
+            document.getElementById(\`bpm-\${id}\`).innerText = decks[id].bpm;
+        }
+    }
 
-    // --- ENHANCED SEARCH LOGIC ---
-    function doGlobalSearch() { 
-        const q = document.getElementById('g-search').value.trim(); const s = document.getElementById('search-source').value;
-        if(!q) return; 
+    function syncDecks(id) {
+        const otherId = id === 1 ? 2 : 1;
+        const otherBpm = parseFloat(document.getElementById(\`bpm-\${otherId}\`).innerText);
+        const thisBpm = parseFloat(document.getElementById(\`bpm-\${id}\`).innerText);
+        if (otherBpm > 0 && thisBpm > 0) {
+            const ratio = otherBpm / thisBpm;
+            setSpeed(id, ratio);
+            document.getElementById(\`spd-\${id}\`).value = ratio.toFixed(3);
+        }
+    }
+
+    // SEARCH & LIBRARY FUNCTIONS
+    function doGlobalSearch() {
+        const q = document.getElementById('g-search').value.trim();
+        const s = document.getElementById('search-source').value;
+        if(!q) return;
         
         if(currentQuery) {
-            const memKey = `${searchSource}:${currentQuery}`;
+            const memKey = \`\${searchSource}:\${currentQuery}\`;
             if(queryMemory[memKey]) queryMemory[memKey].scrollPos = document.getElementById('g-scroll-area').scrollTop;
         }
 
-        currentQuery = q; searchSource = s;
-        const memKey = `${s}:${q}`;
+        currentQuery = q;
+        searchSource = s;
+        const memKey = \`\${s}:\${q}\`;
         document.getElementById('g-results').style.display = 'flex';
 
         if(queryMemory[memKey] && queryMemory[memKey].tracks.length > 0) {
@@ -742,43 +1639,44 @@ HTML_TEMPLATE = """
             renderSearchItems(queryMemory[memKey].tracks, true);
             setTimeout(() => { document.getElementById('g-scroll-area').scrollTop = queryMemory[memKey].scrollPos || 0; }, 60);
         } else {
-            searchPage = 1; isFetching = false;
+            searchPage = 1;
+            isFetching = false;
             queryMemory[memKey] = { page: 1, tracks: [], scrollPos: 0 };
-            document.getElementById('g-list').innerHTML = ''; 
+            document.getElementById('g-list').innerHTML = '';
             document.getElementById('g-scroll-area').scrollTop = 0;
-            fetchMoreResults(); 
+            fetchMoreResults();
         }
     }
 
     async function fetchMoreResults() {
-        if(isFetching) return; 
-        isFetching = true; 
+        if(isFetching) return;
+        isFetching = true;
         document.getElementById('g-loader').style.display = 'flex';
         
         const fetchQuery = currentQuery;
-        const memKey = `${searchSource}:${fetchQuery}`;
+        const memKey = \`\${searchSource}:\${fetchQuery}\`;
 
         try {
             const currentOffset = (searchPage - 1) * 20;
-            const res = await fetch('/api/search', { 
-                method: 'POST', 
-                headers: {'Content-Type':'application/json'}, 
-                body: JSON.stringify({ query: fetchQuery, page: searchPage, offset: currentOffset, source: searchSource }) 
+            const res = await fetch('/api/search', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ query: fetchQuery, page: searchPage, offset: currentOffset, source: searchSource })
             });
             const tracks = await res.json();
             
-            if (fetchQuery === currentQuery && tracks.length > 0) { 
+            if (fetchQuery === currentQuery && tracks.length > 0) {
                 const existingIds = new Set(queryMemory[memKey].tracks.map(t => t.id));
                 const uniqueTracks = tracks.filter(t => !existingIds.has(t.id));
                 queryMemory[memKey].tracks.push(...uniqueTracks);
                 queryMemory[memKey].page = searchPage + 1;
-                renderSearchItems(uniqueTracks, false); 
-                searchPage++; 
+                renderSearchItems(uniqueTracks, false);
+                searchPage++;
             }
         } catch (e) { console.error(e); }
         
         if (fetchQuery === currentQuery) {
-            isFetching = false; 
+            isFetching = false;
             document.getElementById('g-loader').style.display = 'none';
         }
     }
@@ -787,40 +1685,97 @@ HTML_TEMPLATE = """
         const listDiv = document.getElementById('g-list');
         if(clear) listDiv.innerHTML = '';
         tracks.forEach(track => {
-            const div = document.createElement('div'); div.className = 'track-item';
-            const safeTrack = JSON.stringify(track).replace(/'/g, "\\'").replace(/"/g, "&quot;");
+            const div = document.createElement('div');
+            div.className = 'track-item';
+            const safeTrack = JSON.stringify(track).replace(/'/g, "\\\\'").replace(/"/g, "&quot;");
             const srcTag = track.source === 'yt' ? '<span style="background:red; padding:1px 3px; border-radius:2px; font-size:0.6rem; color:white;">YT</span>' : '<span style="background:cyan; color:black; padding:1px 3px; border-radius:2px; font-size:0.6rem;">HT</span>';
-            div.innerHTML = `<img src="${track.thumbnail}" class="track-thumb"><div style="flex:1; overflow:hidden;"><div style="font-weight:bold; color:white; font-size:0.8rem;">${srcTag} ${track.title}</div></div><div class="btn-group"><div class="load-row"><button class="action-btn btn-d1" onclick="loadTrack(1, ${safeTrack})">D1</button><button class="action-btn btn-d2" onclick="loadTrack(2, ${safeTrack})">D2</button></div><button class="action-btn btn-save" onclick="saveToLibrary(this, ${safeTrack})">SAVE</button></div>`;
-            listDiv.appendChild(div); 
+            div.innerHTML = \`<img src="\${track.thumbnail}" class="track-thumb"><div style="flex:1; overflow:hidden;"><div style="font-weight:bold; color:white; font-size:0.8rem;">\${srcTag} \${track.title}</div></div><div class="btn-group"><div class="load-row"><button class="action-btn btn-d1" onclick="loadTrack(1, \${safeTrack})">D1</button><button class="action-btn btn-d2" onclick="loadTrack(2, \${safeTrack})">D2</button></div><button class="action-btn btn-save" onclick="saveToLibrary(this, \${safeTrack})">SAVE</button></div>\`;
+            listDiv.appendChild(div);
         });
-        document.getElementById('res-count').innerText = `${listDiv.children.length} results`;
+        document.getElementById('res-count').innerText = \`\${listDiv.children.length} results\`;
     }
 
     document.getElementById('g-scroll-area').onscroll = function() {
-        const memKey = `${searchSource}:${currentQuery}`;
+        const memKey = \`\${searchSource}:\${currentQuery}\`;
         if(queryMemory[memKey]) queryMemory[memKey].scrollPos = this.scrollTop;
         if (this.scrollTop + this.clientHeight >= this.scrollHeight - 300) { fetchMoreResults(); }
     };
 
-    async function saveToLibrary(btn, track) { btn.innerText = "⏳"; await fetch('/api/history', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(track)}); await fetch('/api/download', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(track)}); btn.innerText = "✔"; loadData(); }
-    async function loadData() { 
-        try { 
-            const [libRes, catRes, plRes] = await Promise.all([fetch('/api/history'), fetch('/api/categories'), fetch('/api/playlists')]); 
-            libraryData = await libRes.json(); 
-            categories = await catRes.json(); 
+    async function saveToLibrary(btn, track) {
+        btn.innerText = "⏳";
+        await fetch('/api/history', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(track)});
+        await fetch('/api/download', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(track)});
+        btn.innerText = "✔";
+        loadData();
+    }
+
+    async function loadData() {
+        try {
+            const [libRes, catRes, plRes] = await Promise.all([fetch('/api/history'), fetch('/api/categories'), fetch('/api/playlists')]);
+            libraryData = await libRes.json();
+            categories = await catRes.json();
             playlists = await plRes.json();
-            renderCategories(); renderLibrary(); renderPlaylists();
-        } catch (e) {} 
+            renderCategories();
+            renderLibrary();
+            renderPlaylists();
+        } catch (e) {}
     }
     
-    function renderCategories() { const div = document.getElementById('cat-chips'); div.innerHTML = ''; const allChip = document.createElement('div'); allChip.className = `cat-chip ${activeCat === 'All' ? 'active' : ''}`; allChip.innerHTML = `<span onclick="setActiveCat('All')">All</span>`; div.appendChild(allChip); ['Uncategorized', ...categories].forEach(cat => { const chip = document.createElement('div'); chip.className = `cat-chip ${cat === activeCat ? 'active' : ''}`; chip.innerHTML = `<span onclick="setActiveCat('${cat}')">${cat}</span><span style="opacity:0.5;" onclick="deleteCategory('${cat}')">×</span>`; div.appendChild(chip); }); }
-    function setActiveCat(cat) { activeCat = cat; renderCategories(); renderLibrary(); }
-    async function addCategory() { const name = document.getElementById('new-cat').value; if(!name) return; await fetch('/api/categories', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name})}); document.getElementById('new-cat').value = ''; loadData(); }
-    async function deleteCategory(name) { if(confirm(`Delete playlist "${name}"?`)) { await fetch('/api/delete_category', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name})}); if(activeCat === name) activeCat = 'All'; loadData(); } }
-    
-    function renderLibrary() { const filter = document.getElementById('lib-search').value.toLowerCase(); const list = document.getElementById('lib-list'); list.innerHTML = ''; libraryData.forEach(track => { if(filter && !track.title.toLowerCase().includes(filter)) return; if(activeCat !== 'All' && track.category !== activeCat) return; const div = document.createElement('div'); div.className = 'track-item'; const safeTrack = JSON.stringify(track).replace(/'/g, "\\'").replace(/"/g, "&quot;"); let catOpts = ''; categories.forEach(c => catOpts += `<option value="${c}" ${c===track.category?'selected':''}>${c}</option>`); div.innerHTML = `<div style="flex:1; overflow:hidden;"><div style="font-weight:bold; color:white; font-size:0.8rem;">${track.title}</div><select onchange="updateTrackCat('${track.id}', this.value)" style="background:#222; color:#888; border:1px solid #333; font-size:0.7rem;"><option value="Uncategorized">Uncategorized</option>${catOpts}</select></div><div class="btn-group"><div class="load-row"><button class="action-btn btn-d1" onclick="loadTrack(1, ${safeTrack})">D1</button><button class="action-btn btn-d2" onclick="loadTrack(2, ${safeTrack})">D2</button></div><button class="action-btn btn-del" onclick="deleteTrack('${track.id}')">X</button></div>`; list.appendChild(div); }); document.getElementById('lib-total-count').innerText = libraryData.length; }
+    function renderCategories() {
+        const div = document.getElementById('cat-chips');
+        div.innerHTML = '';
+        const allChip = document.createElement('div');
+        allChip.className = \`cat-chip \${activeCat === 'All' ? 'active' : ''}\`;
+        allChip.innerHTML = \`<span onclick="setActiveCat('All')">All</span>\`;
+        div.appendChild(allChip);
+        ['Uncategorized', ...categories].forEach(cat => {
+            const chip = document.createElement('div');
+            chip.className = \`cat-chip \${cat === activeCat ? 'active' : ''}\`;
+            chip.innerHTML = \`<span onclick="setActiveCat('\${cat}')">\${cat}</span><span style="opacity:0.5;" onclick="deleteCategory('\${cat}')">×</span>\`;
+            div.appendChild(chip);
+        });
+    }
 
-    /* --- PLAYLIST LOGIC --- */
+    function setActiveCat(cat) {
+        activeCat = cat;
+        renderCategories();
+        renderLibrary();
+    }
+
+    async function addCategory() {
+        const name = document.getElementById('new-cat').value;
+        if(!name) return;
+        await fetch('/api/categories', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name})});
+        document.getElementById('new-cat').value = '';
+        loadData();
+    }
+
+    async function deleteCategory(name) {
+        if(confirm(\`Delete playlist "\${name}"?\`)) {
+            await fetch('/api/delete_category', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name})});
+            if(activeCat === name) activeCat = 'All';
+            loadData();
+        }
+    }
+    
+    function renderLibrary() {
+        const filter = document.getElementById('lib-search').value.toLowerCase();
+        const list = document.getElementById('lib-list');
+        list.innerHTML = '';
+        libraryData.forEach(track => {
+            if(filter && !track.title.toLowerCase().includes(filter)) return;
+            if(activeCat !== 'All' && track.category !== activeCat) return;
+            const div = document.createElement('div');
+            div.className = 'track-item';
+            const safeTrack = JSON.stringify(track).replace(/'/g, "\\\\'").replace(/"/g, "&quot;");
+            let catOpts = '';
+            categories.forEach(c => catOpts += \`<option value="\${c}" \${c===track.category?'selected':''}>\${c}</option>\`);
+            div.innerHTML = \`<div style="flex:1; overflow:hidden;"><div style="font-weight:bold; color:white; font-size:0.8rem;">\${track.title}</div><select onchange="updateTrackCat('\${track.id}', this.value)" style="background:var(--bg-dark); color:#888; border:1px solid var(--border); font-size:0.7rem; border-radius:3px;"><option value="Uncategorized">Uncategorized</option>\${catOpts}</select></div><div class="btn-group"><div class="load-row"><button class="action-btn btn-d1" onclick="loadTrack(1, \${safeTrack})">D1</button><button class="action-btn btn-d2" onclick="loadTrack(2, \${safeTrack})">D2</button></div><button class="action-btn btn-del" onclick="deleteTrack('\${track.id}')">X</button></div>\`;
+            list.appendChild(div);
+        });
+        document.getElementById('lib-total-count').innerText = libraryData.length;
+    }
+
     function switchLibTab(tab) {
         document.getElementById('view-tracks').style.display = tab === 'tracks' ? 'flex' : 'none';
         document.getElementById('view-playlists').style.display = tab === 'playlists' ? 'flex' : 'none';
@@ -849,7 +1804,7 @@ HTML_TEMPLATE = """
         playlists.forEach(pl => {
             const div = document.createElement('div');
             div.className = 'pl-item';
-            div.innerHTML = `<div class="pl-name">${pl.title}</div><button class="action-btn btn-del" style="flex:0; margin-left:10px;" onclick="event.stopPropagation(); deletePlaylist('${pl.id}')">X</button>`;
+            div.innerHTML = \`<div><div class="pl-name">\${pl.title}</div><div class="pl-count">\${pl.trackCount || 0} tracks</div></div><button class="action-btn btn-del" style="flex:0; margin-left:10px;" onclick="event.stopPropagation(); deletePlaylist('\${pl.id}')">X</button>\`;
             div.onclick = () => openPlaylistTracks(pl.url);
             list.appendChild(div);
         });
@@ -875,13 +1830,14 @@ HTML_TEMPLATE = """
             listDiv.innerHTML = '';
             
             if (tracks.length === 0) {
-                 listDiv.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">No valid tracks found.<br>Playlist might be private or empty.</div>';
+                 listDiv.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">No valid tracks found.</div>';
             }
 
             tracks.forEach(track => {
-                const div = document.createElement('div'); div.className = 'track-item';
-                const safeTrack = JSON.stringify(track).replace(/'/g, "\\'").replace(/"/g, "&quot;");
-                div.innerHTML = `<img src="${track.thumbnail}" class="track-thumb"><div style="flex:1; overflow:hidden;"><div style="font-weight:bold; color:white; font-size:0.8rem;">${track.title}</div></div><div class="btn-group"><div class="load-row"><button class="action-btn btn-d1" onclick="loadTrack(1, ${safeTrack})">D1</button><button class="action-btn btn-d2" onclick="loadTrack(2, ${safeTrack})">D2</button></div></div>`;
+                const div = document.createElement('div');
+                div.className = 'track-item';
+                const safeTrack = JSON.stringify(track).replace(/'/g, "\\\\'").replace(/"/g, "&quot;");
+                div.innerHTML = \`<img src="\${track.thumbnail}" class="track-thumb"><div style="flex:1; overflow:hidden;"><div style="font-weight:bold; color:white; font-size:0.8rem;">\${track.title}</div></div><div class="btn-group"><div class="load-row"><button class="action-btn btn-d1" onclick="loadTrack(1, \${safeTrack})">D1</button><button class="action-btn btn-d2" onclick="loadTrack(2, \${safeTrack})">D2</button></div></div>\`;
                 listDiv.appendChild(div);
             });
         } catch(e) { alert("Error fetching playlist"); }
@@ -893,203 +1849,384 @@ HTML_TEMPLATE = """
         document.getElementById('pl-main-view').style.display = 'block';
     }
 
-    /* --- END PLAYLIST LOGIC --- */
-
     async function loadTrack(deckId, track) {
-        closeResults(); closeLibrary();
-        document.getElementById(`fil-${deckId}`).value = 0; updateFilter(deckId, 0);
-        document.getElementById(`spd-${deckId}`).value = 1; setSpeed(deckId, 1);
-        document.getElementById(`eq-hi-${deckId}`).value = 0; setEq(deckId, 'high', 0);
-        document.getElementById(`eq-mid-${deckId}`).value = 0; setEq(deckId, 'mid', 0);
-        document.getElementById(`eq-lo-${deckId}`).value = 0; setEq(deckId, 'low', 0);
+        closeResults();
+        closeLibrary();
+        document.getElementById(\`fil-\${deckId}\`).value = 0;
+        updateFilter(deckId, 0);
+        document.getElementById(\`spd-\${deckId}\`).value = 1;
+        setSpeed(deckId, 1);
+        document.getElementById(\`eq-hi-\${deckId}\`).value = 0;
+        setEq(deckId, 'high', 0);
+        document.getElementById(\`eq-mid-\${deckId}\`).value = 0;
+        setEq(deckId, 'mid', 0);
+        document.getElementById(\`eq-lo-\${deckId}\`).value = 0;
+        setEq(deckId, 'low', 0);
         clearAllCues(deckId);
+        
         const res = await fetch('/api/play', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(track)});
         const data = await res.json();
-        const indicator = document.getElementById(`src-${deckId}`); indicator.innerText = data.is_local ? 'DISK' : 'LIVE';
-        indicator.className = data.is_local ? 'source-indicator src-disk' : 'source-indicator src-online'; indicator.style.display = 'block';
-        const audio = document.getElementById('audio-'+deckId); audio.src = data.url; audio.load();
-        audio.oncanplay = () => { document.getElementById('title-'+deckId).innerText = track.title; audio.play(); };
+        const indicator = document.getElementById(\`src-\${deckId}\`);
+        indicator.innerText = data.is_local ? 'DISK' : 'LIVE';
+        indicator.className = data.is_local ? 'source-indicator src-disk' : 'source-indicator src-online';
+        indicator.style.display = 'block';
+        
+        const audio = document.getElementById('audio-'+deckId);
+        audio.src = data.url;
+        audio.load();
+        audio.oncanplay = () => {
+            document.getElementById('title-'+deckId).innerText = track.title;
+            audio.play();
+        };
         fetch('/api/history', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(track)});
     }
 
-    async function deleteTrack(id) { if(confirm('Delete track?')) { await fetch('/api/delete_track', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id})}); loadData(); } }
-    async function updateTrackCat(id, cat) { await fetch('/api/update_category', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id, category:cat})}); }
-    async function nuclearReset() { if(confirm("☢️ DELETE EVERYTHING?")) { await fetch('/api/clear_all_data', {method:'POST'}); window.location.reload(); } }
-    function openLibrary() { document.getElementById('lib-modal').style.display = 'flex'; loadData(); }
-    function closeLibrary() { document.getElementById('lib-modal').style.display = 'none'; if(document.getElementById('g-results').style.display === 'flex') { const memKey = `${searchSource}:${currentQuery}`; document.getElementById('g-scroll-area').scrollTop = queryMemory[memKey].scrollPos || 0; } }
-    function closeResults() { document.getElementById('g-results').style.display='none'; }
-    window.onload = () => { initDeck(1); initDeck(2); setCrossfader(50); loadData(); };
+    async function deleteTrack(id) {
+        if(confirm('Delete track?')) {
+            await fetch('/api/delete_track', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id})});
+            loadData();
+        }
+    }
+
+    async function updateTrackCat(id, cat) {
+        await fetch('/api/update_category', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id, category:cat})});
+    }
+
+    async function nuclearReset() {
+        if(confirm("☢️ DELETE EVERYTHING?")) {
+            await fetch('/api/clear_all_data', {method:'POST'});
+            window.location.reload();
+        }
+    }
+
+    function openLibrary() {
+        document.getElementById('lib-modal').style.display = 'flex';
+        loadData();
+    }
+
+    function closeLibrary() {
+        document.getElementById('lib-modal').style.display = 'none';
+        if(document.getElementById('g-results').style.display === 'flex') {
+            const memKey = \`\${searchSource}:\${currentQuery}\`;
+            document.getElementById('g-scroll-area').scrollTop = queryMemory[memKey].scrollPos || 0;
+        }
+    }
+
+    function closeResults() {
+        document.getElementById('g-results').style.display = 'none';
+    }
+
+    window.onload = () => {
+        initDeck(1);
+        initDeck(2);
+        setCrossfader(50);
+        loadData();
+    };
 </script>
 </body>
 </html>
-"""
+`;
 
-# --- BACKEND API ROUTES ---
-@app.route('/')
-def index(): return render_template_string(HTML_TEMPLATE)
+// --- BACKEND ROUTES (Same as original with minor enhancements) ---
+app.get('/', (req, res) => {
+    res.send(HTML_TEMPLATE);
+});
 
-@app.route('/api/search', methods=['POST'])
-def api_search():
-    data = request.json
-    q, p, offset, source = data.get('query'), data.get('page', 1), data.get('offset', 0), data.get('source', 'yt')
-    try:
-        if source == 'ht':
-            api_url = f"https://api-v2.hearthis.at/search?t={q}&page={p}&count=20"
-            r = requests.get(api_url).json()
-            return jsonify([{'id': str(t['id']), 'title': t['title'], 'thumbnail': t.get('thumb','') or t.get('artwork_url',''), 'stream_url': t.get('stream_url',''), 'source':'ht'} for t in r])
-        else:
-            with yt_dlp.YoutubeDL({'quiet': True, 'extract_flat': True}) as ydl:
-                fetch_count = offset + 25 
-                info = ydl.extract_info(f"ytsearch{fetch_count}:{q}", download=False)
-                entries = info.get('entries', [])
-                new_entries = entries[offset:]
-                return jsonify([{'id': e['id'], 'title': e['title'], 'thumbnail': f"https://i.ytimg.com/vi/{e['id']}/mqdefault.jpg", 'source':'yt'} for e in new_entries])
-    except: return jsonify([])
-
-@app.route('/api/categories', methods=['GET', 'POST'])
-def api_cats():
-    cats = load_json(CATEGORIES_FILE, [])
-    if request.method == 'POST':
-        name = request.json.get('name')
-        if name and name not in cats: cats.append(name); save_json(CATEGORIES_FILE, cats)
-    return jsonify(cats)
-
-@app.route('/api/delete_category', methods=['POST'])
-def del_cat():
-    name = request.json.get('name'); cats = load_json(CATEGORIES_FILE, [])
-    if name in cats:
-        cats.remove(name); save_json(CATEGORIES_FILE, cats)
-        hist = load_json(HISTORY_FILE, [])
-        for t in hist:
-            if t['category'] == name: t['category'] = 'Uncategorized'
-        save_json(HISTORY_FILE, hist)
-    return jsonify({'ok':True})
-
-@app.route('/api/play', methods=['POST'])
-def api_play():
-    track = request.json
-    vid, src = track.get('id'), track.get('source', 'yt')
-    local = get_local_file(vid)
-    if local: return jsonify({'url': f"/stream_local/{local}", 'is_local': True})
+app.post('/api/search', async (req, res) => {
+    const { query, page = 1, offset = 0, source = 'yt' } = req.body;
     
-    threading.Thread(target=background_download, args=(track,)).start()
-    
-    if src == 'ht': return jsonify({'url': f"/stream_proxy/ht/{vid}?url={track.get('stream_url')}", 'is_local': False})
-    return jsonify({'url': f"/stream_proxy/yt/{vid}", 'is_local': False})
-
-@app.route('/api/history', methods=['GET', 'POST'])
-def api_history():
-    if request.method == 'POST': add_track_to_history(request.json); return jsonify({'ok':True})
-    return jsonify(load_json(HISTORY_FILE, []))
-
-@app.route('/api/update_category', methods=['POST'])
-def upd_track_cat():
-    data = request.json; hist = load_json(HISTORY_FILE, [])
-    for t in hist:
-        if t['id'] == data['id']: t['category'] = data['category']
-    save_json(HISTORY_FILE, hist); return jsonify({'ok':True})
-
-@app.route('/api/delete_track', methods=['POST'])
-def del_track():
-    vid = request.json.get('id'); hist = [t for t in load_json(HISTORY_FILE, []) if t['id'] != vid]
-    save_json(HISTORY_FILE, hist); local = get_local_file(vid)
-    if local:
-        try: os.remove(os.path.join(DOWNLOAD_FOLDER, local))
-        except: pass
-    return jsonify({'ok':True})
-
-@app.route('/api/playlists', methods=['GET', 'POST'])
-def api_playlists():
-    pls = load_json(PLAYLISTS_FILE, [])
-    if request.method == 'POST':
-        url = request.json.get('url')
-        if url:
-            try:
-                with yt_dlp.YoutubeDL({'quiet':True, 'extract_flat':True, 'ignoreerrors':True}) as ydl:
-                    info = ydl.extract_info(url, download=False)
-                    title = info.get('title', 'Unknown Playlist')
-                    pid = info.get('id')
-                    if not any(p['id'] == pid for p in pls):
-                        pls.append({'id': pid, 'title': title, 'url': url})
-                        save_json(PLAYLISTS_FILE, pls)
-            except: pass
-    return jsonify(pls)
-
-@app.route('/api/delete_playlist', methods=['POST'])
-def api_del_playlist():
-    pid = request.json.get('id'); pls = [p for p in load_json(PLAYLISTS_FILE, []) if p['id'] != pid]
-    save_json(PLAYLISTS_FILE, pls)
-    return jsonify({'ok':True})
-
-@app.route('/api/get_playlist_tracks', methods=['POST'])
-def api_get_pl_tracks():
-    url = request.json.get('url')
-    opts = {
-        'quiet': True,
-        'extract_flat': True,
-        'ignoreerrors': True,
-        'playlist_items': '1-100',
-        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-    }
-    try:
-        with yt_dlp.YoutubeDL(opts) as ydl:
-            info = ydl.extract_info(url, download=False)
+    try {
+        if (source === 'ht') {
+            const apiUrl = \`https://api-v2.hearthis.at/search?t=\${encodeURIComponent(query)}&page=\${page}&count=20\`;
+            const response = await axios.get(apiUrl);
+            const tracks = response.data.map(t => ({
+                id: String(t.id),
+                title: t.title,
+                thumbnail: t.thumb || t.artwork_url || '',
+                stream_url: t.stream_url || '',
+                source: 'ht'
+            }));
+            return res.json(tracks);
+        } else {
+            const fetchCount = offset + 25;
+            const cmd = \`yt-dlp --flat-playlist --dump-json "ytsearch\${fetchCount}:\${query.replace(/"/g, '\\\\"')}" --quiet 2>/dev/null\`;
             
-            entries = []
-            if 'entries' in info:
-                entries = list(info['entries'])
-            elif '_type' in info and info['_type'] == 'playlist':
-                 entries = list(info.get('entries', []))
-            elif 'id' in info:
-                entries = [info]
+            try {
+                const { stdout } = await execAsync(cmd, { maxBuffer: 10 * 1024 * 1024 });
+                const lines = stdout.trim().split('\\n').filter(l => l);
+                const entries = lines.slice(offset).map(line => {
+                    try {
+                        return JSON.parse(line);
+                    } catch {
+                        return null;
+                    }
+                }).filter(e => e && e.id);
+                
+                const tracks = entries.map(e => ({
+                    id: e.id,
+                    title: e.title,
+                    thumbnail: \`https://i.ytimg.com/vi/\${e.id}/mqdefault.jpg\`,
+                    source: 'yt'
+                }));
+                
+                return res.json(tracks);
+            } catch (e) {
+                console.error('Search error:', e);
+                return res.json([]);
+            }
+        }
+    } catch (e) {
+        console.error('Search error:', e);
+        res.json([]);
+    }
+});
 
-            tracks = []
-            for e in entries:
-                if not e: continue
-                title = e.get('title', '')
-                if title in ['[Private video]', '[Deleted video]', '[Geoblocked]']: continue
+app.get('/api/categories', async (req, res) => {
+    const cats = await loadJson(CATEGORIES_FILE, []);
+    res.json(cats);
+});
 
-                thumb = None
-                if e.get('thumbnails'): thumb = e['thumbnails'][-1].get('url')
-                if not thumb: thumb = f"https://i.ytimg.com/vi/{e['id']}/mqdefault.jpg"
+app.post('/api/categories', async (req, res) => {
+    const { name } = req.body;
+    const cats = await loadJson(CATEGORIES_FILE, []);
+    if (name && !cats.includes(name)) {
+        cats.push(name);
+        await saveJson(CATEGORIES_FILE, cats);
+    }
+    res.json(cats);
+});
 
-                tracks.append({
-                    'id': e['id'],
-                    'title': title,
-                    'thumbnail': thumb,
-                    'source': 'yt'
-                })
-            return jsonify(tracks)
-    except Exception as e:
-        print(f"Playlist Error: {e}")
-        return jsonify([])
+app.post('/api/delete_category', async (req, res) => {
+    const { name } = req.body;
+    let cats = await loadJson(CATEGORIES_FILE, []);
+    if (cats.includes(name)) {
+        cats = cats.filter(c => c !== name);
+        await saveJson(CATEGORIES_FILE, cats);
+        
+        const hist = await loadJson(HISTORY_FILE, []);
+        hist.forEach(t => {
+            if (t.category === name) t.category = 'Uncategorized';
+        });
+        await saveJson(HISTORY_FILE, hist);
+    }
+    res.json({ ok: true });
+});
 
-@app.route('/api/clear_all_data', methods=['POST'])
-def clear_all():
-    if os.path.exists(HISTORY_FILE): os.remove(HISTORY_FILE)
-    if os.path.exists(CATEGORIES_FILE): os.remove(CATEGORIES_FILE)
-    if os.path.exists(PLAYLISTS_FILE): os.remove(PLAYLISTS_FILE)
-    if os.path.exists(DOWNLOAD_FOLDER): shutil.rmtree(DOWNLOAD_FOLDER); os.makedirs(DOWNLOAD_FOLDER)
-    return jsonify({'status': 'ok'})
+app.post('/api/play', async (req, res) => {
+    const track = req.body;
+    const { id: vid, source = 'yt' } = track;
+    const local = getLocalFile(vid);
+    
+    if (local) {
+        return res.json({ url: \`/stream_local/\${local}\`, is_local: true });
+    }
+    
+    backgroundDownload(track).catch(e => console.error('Background download error:', e));
+    
+    if (source === 'ht') {
+        return res.json({
+            url: \`/stream_proxy/ht/\${vid}?url=\${encodeURIComponent(track.stream_url)}\`,
+            is_local: false
+        });
+    }
+    
+    return res.json({ url: \`/stream_proxy/yt/\${vid}\`, is_local: false });
+});
 
-@app.route('/stream_proxy/<ptype>/<vid>')
-def stream_proxy(ptype, vid):
-    if ptype == 'ht':
-        r = requests.get(request.args.get('url'), stream=True)
-        return Response(stream_with_context(r.iter_content(65536)), content_type='audio/mpeg')
-    else:
-        with yt_dlp.YoutubeDL({'format':'bestaudio', 'quiet':True}) as ydl:
-            info = ydl.extract_info(vid, download=False)
-            r = requests.get(info['url'], stream=True)
-            return Response(stream_with_context(r.iter_content(65536)), content_type=r.headers.get('Content-Type'))
+app.get('/api/history', async (req, res) => {
+    const history = await loadJson(HISTORY_FILE, []);
+    res.json(history);
+});
 
-@app.route('/stream_local/<path:filename>')
-def stream_local(filename): return send_from_directory(DOWNLOAD_FOLDER, filename)
+app.post('/api/history', async (req, res) => {
+    await addTrackToHistory(req.body);
+    res.json({ ok: true });
+});
 
-@app.route('/api/download', methods=['POST'])
-def api_download():
-    threading.Thread(target=background_download, args=(request.json,)).start()
-    return jsonify({'ok':True})
+app.post('/api/update_category', async (req, res) => {
+    const { id, category } = req.body;
+    const hist = await loadJson(HISTORY_FILE, []);
+    const track = hist.find(t => t.id === id);
+    if (track) {
+        track.category = category;
+        await saveJson(HISTORY_FILE, hist);
+    }
+    res.json({ ok: true });
+});
 
-if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000)
+app.post('/api/delete_track', async (req, res) => {
+    const { id: vid } = req.body;
+    let hist = await loadJson(HISTORY_FILE, []);
+    hist = hist.filter(t => t.id !== vid);
+    await saveJson(HISTORY_FILE, hist);
+    
+    const local = getLocalFile(vid);
+    if (local) {
+        try {
+            await fs.unlink(path.join(DOWNLOAD_FOLDER, local));
+        } catch (e) {
+            console.error('Error deleting file:', e);
+        }
+    }
+    res.json({ ok: true });
+});
+
+app.get('/api/playlists', async (req, res) => {
+    const pls = await loadJson(PLAYLISTS_FILE, []);
+    res.json(pls);
+});
+
+app.post('/api/playlists', async (req, res) => {
+    const { url } = req.body;
+    const pls = await loadJson(PLAYLISTS_FILE, []);
+    
+    if (url) {
+        try {
+            const cmd = \`yt-dlp --flat-playlist --dump-json "\${url.replace(/"/g, '\\\\"')}" --quiet --ignore-errors 2>/dev/null | head -1\`;
+            const { stdout } = await execAsync(cmd);
+            const info = JSON.parse(stdout.trim());
+            const title = info.title || 'Unknown Playlist';
+            const pid = info.id;
+            
+            if (!pls.some(p => p.id === pid)) {
+                pls.push({ id: pid, title, url });
+                await saveJson(PLAYLISTS_FILE, pls);
+            }
+        } catch (e) {
+            console.error('Playlist add error:', e);
+        }
+    }
+    res.json(pls);
+});
+
+app.post('/api/delete_playlist', async (req, res) => {
+    const { id: pid } = req.body;
+    let pls = await loadJson(PLAYLISTS_FILE, []);
+    pls = pls.filter(p => p.id !== pid);
+    await saveJson(PLAYLISTS_FILE, pls);
+    res.json({ ok: true });
+});
+
+app.post('/api/get_playlist_tracks', async (req, res) => {
+    const { url } = req.body;
+    
+    try {
+        const cmd = \`yt-dlp --flat-playlist --dump-json "\${url.replace(/"/g, '\\\\"')}" --quiet --ignore-errors --playlist-items 1-100 2>/dev/null\`;
+        const { stdout } = await execAsync(cmd, { maxBuffer: 10 * 1024 * 1024 });
+        
+        const lines = stdout.trim().split('\\n').filter(l => l);
+        const tracks = [];
+        
+        for (const line of lines) {
+            try {
+                const e = JSON.parse(line);
+                if (!e || !e.id) continue;
+                
+                const title = e.title || '';
+                if (['[Private video]', '[Deleted video]', '[Geoblocked]'].includes(title)) continue;
+                
+                let thumb = null;
+                if (e.thumbnails && e.thumbnails.length > 0) {
+                    thumb = e.thumbnails[e.thumbnails.length - 1].url;
+                }
+                if (!thumb) thumb = \`https://i.ytimg.com/vi/\${e.id}/mqdefault.jpg\`;
+                
+                tracks.push({
+                    id: e.id,
+                    title: title,
+                    thumbnail: thumb,
+                    source: 'yt'
+                });
+            } catch (parseErr) {
+                continue;
+            }
+        }
+        
+        res.json(tracks);
+    } catch (e) {
+        console.error('Playlist tracks error:', e);
+        res.json([]);
+    }
+});
+
+app.post('/api/clear_all_data', async (req, res) => {
+    try {
+        if (fsSync.existsSync(HISTORY_FILE)) await fs.unlink(HISTORY_FILE);
+        if (fsSync.existsSync(CATEGORIES_FILE)) await fs.unlink(CATEGORIES_FILE);
+        if (fsSync.existsSync(PLAYLISTS_FILE)) await fs.unlink(PLAYLISTS_FILE);
+        
+        if (fsSync.existsSync(DOWNLOAD_FOLDER)) {
+            await fs.rm(DOWNLOAD_FOLDER, { recursive: true, force: true });
+            await fs.mkdir(DOWNLOAD_FOLDER, { recursive: true });
+        }
+    } catch (e) {
+        console.error('Clear data error:', e);
+    }
+    res.json({ status: 'ok' });
+});
+
+app.get('/stream_proxy/:ptype/:vid', async (req, res) => {
+    const { ptype, vid } = req.params;
+    
+    try {
+        if (ptype === 'ht') {
+            const streamUrl = req.query.url;
+            const response = await axios({
+                url: streamUrl,
+                method: 'GET',
+                responseType: 'stream'
+            });
+            
+            res.setHeader('Content-Type', 'audio/mpeg');
+            response.data.pipe(res);
+        } else {
+            const cmd = \`yt-dlp -f bestaudio --get-url "\${vid}" --quiet 2>/dev/null\`;
+            const { stdout } = await execAsync(cmd);
+            const streamUrl = stdout.trim();
+            
+            const response = await axios({
+                url: streamUrl,
+                method: 'GET',
+                responseType: 'stream',
+                headers: {
+                    'Range': req.headers.range || ''
+                }
+            });
+            
+            res.setHeader('Content-Type', response.headers['content-type'] || 'audio/webm');
+            if (response.headers['content-length']) {
+                res.setHeader('Content-Length', response.headers['content-length']);
+            }
+            if (response.headers['content-range']) {
+                res.setHeader('Content-Range', response.headers['content-range']);
+                res.status(206);
+            }
+            
+            response.data.pipe(res);
+        }
+    } catch (e) {
+        console.error('Stream error:', e);
+        res.status(500).send('Stream error');
+    }
+});
+
+app.get('/stream_local/:filename', (req, res) => {
+    const filename = req.params.filename;
+    const filePath = path.join(DOWNLOAD_FOLDER, filename);
+    
+    if (!fsSync.existsSync(filePath)) {
+        return res.status(404).send('File not found');
+    }
+    
+    res.sendFile(path.resolve(filePath));
+});
+
+app.post('/api/download', async (req, res) => {
+    backgroundDownload(req.body).catch(e => console.error('Download error:', e));
+    res.json({ ok: true });
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, '127.0.0.1', () => {
+    console.log(\`🎧 Sammy's DJ PRO ULTRA running on http://127.0.0.1:\${PORT}\`);
+});
