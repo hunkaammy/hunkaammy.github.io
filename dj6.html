@@ -19,159 +19,140 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      font-size: 14px;
-      color: var(--dark-gray);
       background-color: var(--light-gray);
       margin: 0;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
 
-    #content, #login-container { max-width: 768px; margin: 0 auto; }
-
-    /* Selection Styles */
-    .card {
-      transition: transform 0.2s, border 0.2s;
-      position: relative;
-      border: 2px solid transparent;
-    }
+    /* Navbar & Layout */
+    .navbar { background: #fff; padding: 10px; position: fixed; width: 100%; top: 0; z-index: 1030; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .main-content-layout { display: flex; gap: 15px; max-width: 900px; margin: 70px auto 0; padding: 10px; }
     
-    .card.is-selected {
-      border-color: var(--whatsapp-color) !important;
-      background-color: #e8f5e9 !important;
-      transform: scale(0.96);
-    }
-
-    .selection-indicator {
-      position: absolute;
-      top: 8px;
-      left: 8px;
-      background: var(--whatsapp-color);
-      color: white;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      z-index: 5;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    /* Selection UI */
+    .card { position: relative; transition: all 0.2s; border: 2px solid transparent; border-radius: 12px; overflow: hidden; background: #fff; }
+    .card.is-selected { border-color: var(--whatsapp-color) !important; background-color: #f0fff4 !important; transform: scale(0.97); }
+    
+    .select-checkbox {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 50;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
     }
 
     /* Floating Share Button */
-    .share-btn-fab {
+    .share-fab {
       position: fixed;
       bottom: 90px;
       right: 20px;
-      z-index: 1080;
+      z-index: 2000;
       background-color: var(--whatsapp-color);
       color: white;
       border: none;
       border-radius: 50px;
-      padding: 12px 20px;
-      font-weight: 600;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      padding: 15px 25px;
+      font-weight: bold;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
       display: flex;
       align-items: center;
       gap: 10px;
-      animation: slideIn 0.3s ease-out;
+      animation: bounceIn 0.4s ease;
     }
 
-    @keyframes slideIn {
-      from { transform: translateY(100px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+    @keyframes bounceIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      70% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
     }
 
-    /* Rest of your existing CSS remains the same */
-    .navbar { background-color: #fff; padding: 8px 15px; position: fixed; width: 100%; max-width: 768px; top: 0; z-index: 1030; box-shadow: 0 2px 4px rgba(0,0,0,0.1); left: 50%; transform: translateX(-50%); }
-    .main-content-layout { display: flex; gap: 20px; max-width: 768px; margin: 70px auto 0; padding: 10px; }
-    .sidebar-container { width: 180px; position: sticky; top: 80px; align-self: flex-start; max-height: calc(100vh - 110px); overflow-y: auto; }
-    .tab-item { display: flex; flex-direction: column; align-items: center; padding: 10px; background: #fff; border-radius: 12px; margin-bottom: 8px; cursor: pointer; }
+    /* Grid & Sidebar */
+    .sidebar-container { width: 100px; }
+    .tab-item { text-align: center; padding: 10px; background: #fff; border-radius: 10px; margin-bottom: 10px; cursor: pointer; font-size: 11px; border: 1px solid #eee; }
     .tab-item.active { background: var(--primary-color); color: white; }
-    .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .card img { width: 100%; object-fit: contain; }
-    .qtyclass { height: 32px; width: 50px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
-    .fixed-order-button { position: fixed; bottom: 20px; right: 20px; z-index: 1070; background: var(--primary-color); color: #fff; border: none; border-radius: 50px; padding: 8px 16px; }
+    .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; flex: 1; }
+    .card img { width: 100%; height: 150px; object-fit: contain; background: #fff; }
     
-    @media (max-width: 767px) {
-      .sidebar-container { width: 80px; }
-      .tab-text { font-size: 10px; }
-    }
+    .fixed-order-button { position: fixed; bottom: 20px; right: 20px; z-index: 1070; background: var(--primary-color); color: #fff; border: none; border-radius: 50px; padding: 10px 20px; box-shadow: 0 3px 10px rgba(0,0,0,0.2); }
+    
+    [ng-cloak] { display: none !important; }
   </style>
 </head>
 
-<body ng-controller="imagesController as vm">
-  <div id="login-container" style="background-image: url('https://hunkaammy.github.io/mywebsite/NEWWEBSITE/loginpg.jpeg'); min-height: 100vh; display: flex; justify-content: center; align-items: center;">
-    <div id="inside" style="background: rgba(255,255,255,0.9); padding: 30px; border-radius: 15px; text-align: center; width: 90%;">
-      <h2>HINDUSTAN TOYS</h2>
-      <input type="text" id="name" placeholder="Shop Name" class="form-control mb-2">
-      <input type="tel" id="mobile" placeholder="Mobile Number" class="form-control mb-3">
-      <button class="btn btn-success w-100" onclick="validateLogin()">Login</button>
+<body ng-controller="imagesController as vm" ng-cloak>
+
+  <div id="login-container" ng-if="!dynamicField2Value" style="height:100vh; display:flex; justify-content:center; align-items:center; background:#eee;">
+    <div style="background:#fff; padding:30px; border-radius:15px; width:90%; max-width:400px; text-align:center;">
+      <h3 class="mb-4">Hindustan Toys</h3>
+      <input type="text" ng-model="loginName" placeholder="Shop Name" class="form-control mb-2">
+      <input type="tel" ng-model="loginMobile" placeholder="Mobile" class="form-control mb-3">
+      <button class="btn btn-success w-100" ng-click="doLogin(loginName, loginMobile)">Login</button>
     </div>
   </div>
 
-  <div id="content" style="display: none;">
+  <div id="content" ng-if="dynamicField2Value">
     <div class="navbar">
-      <div class="d-flex w-100 align-items-center">
-        <input type="text" ng-model="searchQuery" ng-change="onSearchChange()" placeholder="Search toys..." class="form-control form-control-sm me-2">
-        <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#myModal"><i class="fas fa-shopping-cart"></i></button>
+      <div class="d-flex w-100 align-items-center justify-content-between">
+        <input type="text" ng-model="searchQuery" ng-change="updateDisplayedProducts()" placeholder="Search..." class="form-control form-control-sm w-50">
+        
+        <div class="d-flex gap-2">
+            <button class="btn btn-sm" ng-class="isSelectMode ? 'btn-danger' : 'btn-outline-success'" ng-click="toggleSelectMode()">
+                <i class="fas" ng-class="isSelectMode ? 'fa-times' : 'fa-check-double'"></i>
+                {{ isSelectMode ? 'Cancel' : 'Select' }}
+            </button>
+            <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#orderModal"><i class="fas fa-shopping-cart"></i></button>
+        </div>
       </div>
     </div>
 
-    <button class="share-btn-fab" ng-if="selectedCount > 0" ng-click="shareToWhatsApp()">
-        <i class="fab fa-whatsapp fa-lg"></i> 
-        Share ({{selectedCount}}) Items
+    <button class="share-fab" ng-if="selectedCount > 0" ng-click="shareToWhatsApp()">
+        <i class="fab fa-whatsapp fa-lg"></i>
+        Share {{selectedCount}} Item(s)
     </button>
 
     <div class="main-content-layout">
       <div class="sidebar-container">
         <div class="tab-item" ng-repeat="cat in categories" ng-class="{'active': activeTabId === cat.id}" ng-click="selectCategory(cat.filter, cat.id)">
-          <img ng-src="{{cat.imageUrl}}" style="width:30px; height:30px; border-radius:4px;">
-          <span class="tab-text">{{cat.name}}</span>
+          <img ng-src="{{cat.imageUrl}}" style="width:30px; margin-bottom:5px; border-radius:5px;">
+          <div>{{cat.name}}</div>
         </div>
       </div>
 
-      <div class="products-container" style="flex:1;">
-        <div class="product-grid">
-          <div class="card" 
-               ng-repeat="product in displayedProducts track by product.$id"
-               ng-class="{'is-selected': product.selected}"
-               ng-mousedown="startPress(product)"
-               ng-mouseup="endPress(product)"
-               ng-touchstart="startPress(product)"
-               ng-touchend="endPress(product)">
-            
-            <div class="selection-indicator" ng-if="product.selected">
-              <i class="fas fa-check"></i>
-            </div>
-
-            <img ng-src="{{product.url}}" ng-click="handleProductClick(product, $event)">
-            
-            <div class="containers p-2 text-center">
-              <h6 ng-if="priceVisible">₹{{product.price}}</h6>
-              <p style="font-size:11px; margin-bottom:5px;">{{product.name}}</p>
-              <input type="number" class="qtyclass" ng-model="product.field3" ng-change="submitData(product)" placeholder="Qty">
-            </div>
+      <div class="product-grid">
+        <div class="card" ng-repeat="product in displayedProducts" ng-class="{'is-selected': product.selected}">
+          <input type="checkbox" class="select-checkbox" ng-if="isSelectMode" ng-model="product.selected" ng-change="syncSelection()">
+          
+          <img ng-src="{{product.url}}" ng-click="handleItemClick(product)">
+          
+          <div class="p-2 text-center">
+            <div class="fw-bold" style="font-size:12px;">{{product.name}}</div>
+            <div class="text-success small" ng-if="priceVisible">₹{{product.price}}</div>
+            <input type="number" class="form-control form-control-sm mt-1 mx-auto" style="width:60px;" ng-model="product.field3" ng-change="submitOrder(product)" placeholder="Qty">
           </div>
         </div>
       </div>
     </div>
 
-    <button class="fixed-order-button" ng-click="openOrderModal()">Your Order</button>
+    <button class="fixed-order-button" data-bs-toggle="modal" data-bs-target="#orderModal">
+        <i class="fas fa-list me-2"></i>Your Order
+    </button>
   </div>
 
-  <div class="modal fade" id="myModal" tabindex="-1">
-    <div class="modal-dialog">
+  <div class="modal fade" id="orderModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
-        <div class="modal-header"><h5>Your Orders</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
-        <div class="modal-body">
-          <ul class="list-group">
-            <li class="list-group-item d-flex justify-content-between" ng-repeat="item in allOrders | filter:isPendingOrder">
-              <span>{{item.productName}} ({{item.field3}})</span>
-              <span>₹{{item.productPrice * item.field3}}</span>
+        <div class="modal-header"><h6>{{dynamicField2Value}}'s Order</h6><button class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body p-0">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center" ng-repeat="order in myOrders">
+              <img ng-src="{{order.field1}}" style="width:40px; height:40px; object-fit:cover; border-radius:5px;">
+              <span class="flex-grow-1 ms-3 small">{{order.productName}}</span>
+              <span class="badge bg-primary rounded-pill">{{order.field3}}</span>
             </li>
           </ul>
+          <div ng-if="myOrders.length === 0" class="p-4 text-center text-muted">No items in your order.</div>
         </div>
       </div>
     </div>
@@ -185,62 +166,57 @@
   <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
 
   <script>
-    // --- Login Logic ---
-    window.validateLogin = function() {
-        const name = document.getElementById('name').value;
-        const mobile = document.getElementById('mobile').value;
-        if(name.length > 3 && mobile.length === 10) {
-            localStorage.setItem('name', name);
-            localStorage.setItem('mobile', mobile);
-            location.reload();
-        } else { alert("Enter valid details"); }
-    };
-
-    if(localStorage.getItem('name')) {
-        document.getElementById('login-container').style.display = 'none';
-        document.getElementById('content').style.display = 'block';
-    }
-
-    // --- Angular App ---
     var app = angular.module('myApp', ['firebase']);
     app.controller('imagesController', function($scope, $firebaseArray, $timeout) {
+      
+      // Firebase Setup
       const fetchConfig = { databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com" };
       const submitConfig = { databaseURL: "https://notes-12519-default-rtdb.firebaseio.com" };
-      
       const fetchApp = firebase.initializeApp(fetchConfig, 'fetchApp');
       const submitApp = firebase.initializeApp(submitConfig, 'submitApp');
-      
       const fetchDb = fetchApp.database().ref();
       const submitDb = submitApp.database().ref();
 
       $scope.dynamicField2Value = localStorage.getItem('name');
       $scope.priceVisible = true;
+      $scope.isSelectMode = false;
+      $scope.selectedCount = 0;
+
       $scope.categories = [
           { id: 0, name: 'ALL', filter: '', imageUrl: 'https://www.hindustantoys.in/images/all.jpeg' },
-          { id: 1, name: 'RACKET', filter: 'RACKET', imageUrl: 'https://www.hindustantoys.in/images/racket.jpeg' }
+          { id: 1, name: 'RACKET', filter: 'RACKET', imageUrl: 'https://www.hindustantoys.in/images/racket.jpeg' },
+          { id: 2, name: 'REMOTE', filter: 'REMOTE', imageUrl: 'https://www.hindustantoys.in/images/remote.jpeg' }
       ];
 
-      $scope.displayedProducts = [];
-      let allProductsRaw = [];
-
+      // Load Data
+      let rawProducts = [];
       fetchDb.on('value', snap => {
           let list = [];
           snap.forEach(child => {
               let item = child.val();
               item.$id = child.key;
+              item.selected = false;
               list.push(item);
           });
-          allProductsRaw = list;
+          rawProducts = list;
           $scope.$apply(() => { $scope.updateDisplayedProducts(); });
       });
 
-      $scope.allOrders = $firebaseArray(submitDb);
-      $scope.isPendingOrder = (item) => item.field2 === $scope.dynamicField2Value;
+      $scope.myOrders = $firebaseArray(submitDb);
+
+      $scope.doLogin = function(n, m) {
+          if(n && m && m.length === 10) {
+              localStorage.setItem('name', n);
+              localStorage.setItem('mobile', m);
+              location.reload();
+          } else { alert("Enter valid shop name and 10-digit mobile"); }
+      };
 
       $scope.updateDisplayedProducts = function() {
-          $scope.displayedProducts = allProductsRaw.filter(p => {
-              return $scope.productNameFilter ? p.name.includes($scope.productNameFilter) : true;
-          });
+          let filtered = rawProducts;
+          if($scope.productNameFilter) filtered = filtered.filter(p => p.name.includes($scope.productNameFilter));
+          if($scope.searchQuery) filtered = filtered.filter(p => p.name.toLowerCase().includes($scope.searchQuery.toLowerCase()));
+          $scope.displayedProducts = filtered;
       };
 
       $scope.selectCategory = function(f, id) {
@@ -249,67 +225,74 @@
           $scope.updateDisplayedProducts();
       };
 
-      // --- NEW: LONG PRESS & SELECTION LOGIC ---
-      $scope.selectedCount = 0;
-      let pressTimer;
-
-      $scope.startPress = function(product) {
-          pressTimer = $timeout(() => {
-              $scope.toggleSelect(product);
-          }, 600); // 0.6 seconds long press
-      };
-
-      $scope.endPress = function() {
-          $timeout.cancel(pressTimer);
-      };
-
-      $scope.toggleSelect = function(product) {
-          product.selected = !product.selected;
-          $scope.selectedCount = $scope.displayedProducts.filter(p => p.selected).length;
-          if (window.navigator.vibrate) window.navigator.vibrate(50);
-      };
-
-      $scope.handleProductClick = function(product, event) {
-          // If already in selection mode, toggle instead of enlarging
-          if ($scope.selectedCount > 0) {
-              event.preventDefault();
-              $scope.toggleSelect(product);
-          } else {
-              // Standard behavior: show image
-              alert("Showing image: " + product.name); 
+      // Selection Logic
+      $scope.toggleSelectMode = function() {
+          $scope.isSelectMode = !$scope.isSelectMode;
+          if(!$scope.isSelectMode) {
+              rawProducts.forEach(p => p.selected = false);
+              $scope.syncSelection();
           }
       };
 
-      $scope.shareToWhatsApp = function() {
-          const selected = $scope.displayedProducts.filter(p => p.selected);
-          let msg = `*Order/Inquiry from ${$scope.dynamicField2Value}*\n\n`;
-          
-          selected.forEach((p, i) => {
-              msg += `*${i+1}. ${p.name}*\nPrice: ₹${p.price}\nLink: ${p.url}\n\n`;
-          });
-
-          const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
-          window.open(url, '_blank');
-
-          // Reset selection
-          $scope.displayedProducts.forEach(p => p.selected = false);
-          $scope.selectedCount = 0;
+      $scope.syncSelection = function() {
+          $scope.selectedCount = rawProducts.filter(p => p.selected).length;
       };
 
-      $scope.submitData = function(image) {
-          if (!image.field3 || image.field3 <= 0) return;
-          const id = $scope.dynamicField2Value + '-' + image.$id;
-          submitDb.child(id).set({
-              field1: image.url,
+      $scope.handleItemClick = function(p) {
+          if($scope.isSelectMode) {
+              p.selected = !p.selected;
+              $scope.syncSelection();
+          } else {
+              // Standard View behavior
+              alert("Viewing: " + p.name);
+          }
+      };
+
+      // SHARING LOGIC
+      $scope.shareToWhatsApp = async function() {
+          const selected = rawProducts.filter(p => p.selected);
+          
+          // IF SINGLE ITEM -> Try sharing ACTUAL IMAGE FILE
+          if(selected.length === 1 && navigator.canShare) {
+              try {
+                  const response = await fetch(selected[0].url);
+                  const blob = await response.blob();
+                  const file = new File([blob], 'product.jpg', { type: 'image/jpeg' });
+
+                  if (navigator.canShare({ files: [file] })) {
+                      await navigator.share({
+                          files: [file],
+                          title: selected[0].name,
+                          text: `Hindustan Toys: ${selected[0].name} - Price: ₹${selected[0].price}`
+                      });
+                      $scope.$apply(() => $scope.toggleSelectMode());
+                      return;
+                  }
+              } catch (e) { console.log("Native share failed, using link."); }
+          }
+
+          // MULTI-ITEM or Fallback -> Share text list
+          let msg = `*Hindustan Toys Inquiry*\nShop: ${$scope.dynamicField2Value}\n\n`;
+          selected.forEach((p, i) => {
+              msg += `${i+1}. *${p.name}*\nPrice: ₹${p.price}\nLink: ${p.url}\n\n`;
+          });
+
+          window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+          $scope.toggleSelectMode();
+      };
+
+      $scope.submitOrder = function(p) {
+          if(!p.field3 || p.field3 <= 0) return;
+          const orderId = $scope.dynamicField2Value + '-' + p.$id;
+          submitDb.child(orderId).set({
+              field1: p.url,
               field2: $scope.dynamicField2Value,
-              field3: image.field3,
-              productName: image.name,
-              productPrice: image.price,
+              field3: p.field3,
+              productName: p.name,
+              productPrice: p.price,
               serverTimestamp: firebase.database.ServerValue.TIMESTAMP
           });
       };
-      
-      $scope.openOrderModal = () => new bootstrap.Modal(document.getElementById('myModal')).show();
 
     });
   </script>
