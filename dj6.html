@@ -1,2232 +1,317 @@
-const express = require('express');
-const fs = require('fs').promises;
-const fsSync = require('fs');
-const path = require('path');
-const { exec } = require('child_process');
-const { promisify } = require('util');
-const axios = require('axios');
-const execAsync = promisify(exec);
-
-const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// --- STORAGE CONFIGURATION ---
-const homeDir = process.env.HOME || '/home';
-const possiblePaths = [
-    '/sdcard/Download/Music/SammyDJ',
-    path.join(homeDir, 'storage/downloads/Music/SammyDJ'),
-    path.join(homeDir, 'Downloads/Music/SammyDJ'),
-    'dj_songs' 
-];
-
-let BASE_DIR = 'dj_songs';
-
-for (const p of possiblePaths) {
-    try {
-        if (!fsSync.existsSync(p)) {
-            fsSync.mkdirSync(p, { recursive: true });
-        }
-        fsSync.accessSync(p, fsSync.constants.W_OK);
-        BASE_DIR = p;
-        break; 
-    } catch (e) {
-        continue;
-    }
-}
-
-const DOWNLOAD_FOLDER = BASE_DIR;
-
-// --- DATA FILES & CACHE ---
-const HISTORY_FILE = path.join(BASE_DIR, 'dj_history.json');
-const CATEGORIES_FILE = path.join(BASE_DIR, 'dj_categories.json');
-const PLAYLISTS_FILE = path.join(BASE_DIR, 'dj_playlists.json');
-const SETTINGS_FILE = path.join(BASE_DIR, 'dj_settings.json');
-const COOKIES_FILE = path.join(BASE_DIR, 'cookies.txt');
-const MIXING_SESSIONS_FILE = path.join(BASE_DIR, 'dj_sessions.json');
-
-const activeDownloads = new Set();
-
-console.log(`[Storage] Data and Music stored at: ${BASE_DIR}`);
-
-// --- HELPER FUNCTIONS ---
-async function loadJson(filename, defaultValue) {
-    try {
-        const data = await fs.readFile(filename, 'utf8');
-        return JSON.parse(data);
-    } catch {
-        return defaultValue;
-    }
-}
-
-async function saveJson(filename, data) {
-    await fs.writeFile(filename, JSON.stringify(data, null, 2));
-}
-
-async function addTrackToHistory(track) {
-    const history = await loadJson(HISTORY_FILE, []);
-    if (!history.some(t => t.id === track.id)) {
-        track.category = 'Uncategorized';
-        track.added_at = Date.now();
-        if (!track.source) track.source = 'yt';
-        history.unshift(track);
-        await saveJson(HISTORY_FILE, history);
-    }
-}
-
-function getLocalFile(videoId) {
-    try {
-        if (fsSync.existsSync(DOWNLOAD_FOLDER)) {
-            const files = fsSync.readdirSync(DOWNLOAD_FOLDER);
-            return files.find(f => f.startsWith(String(videoId)));
-        }
-    } catch (e) {
-        console.error('Error reading download folder:', e);
-    }
-    return null;
-}
-
-async function backgroundDownload(trackData) {
-    const videoId = trackData.id;
-    const source = trackData.source || 'yt';
-    
-    if (getLocalFile(videoId)) return;
-    
-    if (activeDownloads.has(videoId)) return;
-    activeDownloads.add(videoId);
-    
-    try {
-        if (source === 'ht') {
-            const streamUrl = trackData.stream_url;
-            if (streamUrl) {
-                const response = await axios({
-                    url: streamUrl,
-                    method: 'GET',
-                    responseType: 'stream'
-                });
-                
-                const filename = path.join(DOWNLOAD_FOLDER, `${videoId}.mp3`);
-                const writer = fsSync.createWriteStream(filename);
-                
-                response.data.pipe(writer);
-                
-                await new Promise((resolve, reject) => {
-                    writer.on('finish', resolve);
-                    writer.on('error', reject);
-                });
-            }
-        } else {
-            const outputTemplate = path.join(DOWNLOAD_FOLDER, `${videoId}.%(ext)s`);
-            let cmd = `yt-dlp -f bestaudio --no-playlist -o "${outputTemplate}" --quiet`;
-            
-            if (fsSync.existsSync(COOKIES_FILE)) {
-                cmd += ` --cookies "${COOKIES_FILE}"`;
-            }
-            
-            cmd += ` --source-address 0.0.0.0 "${videoId}"`;
-            
-            await execAsync(cmd);
-        }
-    } catch (e) {
-        console.error(`Download Error for ${videoId}:`, e.message);
-    } finally {
-        activeDownloads.delete(videoId);
-    }
-}
-
-// --- FRONTEND TEMPLATE WITH JOCKEY WHEEL & ADVANCED FEATURES ---
-const HTML_TEMPLATE = `<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp" ng-cloak>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sammy's DJ PRO ULTRA</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Courier+Prime:wght@400;700&display=swap');
-        
-        :root {
-            --primary: #ff5722;
-            --secondary: #00c853;
-            --accent: #00e5ff;
-            --danger: #ff1744;
-            --warning: #ffb300;
-            --bg: #0a0e27;
-            --bg-dark: #050812;
-            --text: #e0e0e0;
-            --text-muted: #888;
-            --border: #1a1f3a;
-            --highlight: #ffd700;
-        }
-
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'Courier Prime', monospace;
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* SEARCH BAR */
-        .global-search-container {
-            flex-shrink: 0;
-            padding: 12px;
-            background: linear-gradient(180deg, #1a1f3a 0%, #0f1428 100%);
-            border-bottom: 2px solid var(--primary);
-            display: flex;
-            gap: 8px;
-            z-index: 100;
-            box-shadow: 0 4px 12px rgba(255, 87, 34, 0.15);
-        }
-
-        .source-select {
-            background: var(--bg-dark);
-            color: var(--accent);
-            border: 1px solid var(--primary);
-            border-radius: 6px;
-            padding: 8px 12px;
-            font-weight: bold;
-            font-family: 'Courier Prime', monospace;
-            cursor: pointer;
-        }
-
-        .g-input {
-            flex: 1;
-            padding: 10px 14px;
-            background: rgba(255, 87, 34, 0.05);
-            border: 1px solid var(--primary);
-            color: var(--text);
-            border-radius: 6px;
-            font-size: 0.9rem;
-            font-family: 'Courier Prime', monospace;
-        }
-
-        .g-btn {
-            padding: 8px 16px;
-            background: var(--primary);
-            color: #000;
-            font-weight: bold;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .g-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(255, 87, 34, 0.4);
-        }
-
-        .global-results {
-            position: absolute;
-            top: 60px;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(10, 14, 39, 0.98);
-            backdrop-filter: blur(8px);
-            z-index: 200;
-            display: none;
-            flex-direction: column;
-        }
-
-        .results-header {
-            padding: 12px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--bg-dark);
-        }
-
-        .results-scroll-area {
-            flex: 1;
-            overflow-y: auto;
-            padding: 10px;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .close-btn {
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* TOP BAR */
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 12px;
-            background: linear-gradient(90deg, var(--bg-dark), #1a0f2e);
-            flex-shrink: 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-        h1 {
-            margin: 0;
-            font-size: 1.2rem;
-            color: var(--highlight);
-            font-weight: 800;
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-        }
-
-        .head-btns {
-            display: flex;
-            gap: 6px;
-        }
-
-        .top-btn {
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
-            color: var(--accent);
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: bold;
-            transition: all 0.2s;
-        }
-
-        .top-btn.active {
-            background: var(--primary);
-            border-color: var(--primary);
-            color: #000;
-            box-shadow: 0 0 12px rgba(255, 87, 34, 0.6);
-        }
-
-        /* MAIN CONTENT */
-        .main-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 4px;
-            padding-bottom: 250px;
-            background: var(--bg);
-        }
-
-        .decks-container {
-            display: flex;
-            flex-wrap: nowrap;
-            gap: 6px;
-            width: 100%;
-        }
-
-        .deck-wrapper {
-            flex: 1;
-            min-width: 0;
-            width: 50%;
-        }
-
-        .deck-box {
-            background: linear-gradient(135deg, #0f1428 0%, #1a1f3a 100%);
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            padding: 6px;
-            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
-        }
-
-        .video-screen {
-            width: 100%;
-            height: 70px;
-            background: #000;
-            border: 1px solid var(--primary);
-            position: relative;
-            border-radius: 4px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: inset 0 0 20px rgba(255, 87, 34, 0.1);
-        }
-
-        canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        .playhead {
-            position: absolute;
-            right: 50%;
-            width: 2px;
-            height: 100%;
-            background: var(--accent);
-            box-shadow: 0 0 8px var(--accent);
-            z-index: 5;
-        }
-
-        .deck-badge {
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            font-weight: bold;
-            color: var(--primary);
-            font-size: 0.7rem;
-            z-index: 6;
-            text-shadow: 0 0 4px rgba(255, 87, 34, 0.8);
-        }
-
-        .source-indicator {
-            position: absolute;
-            top: 3px;
-            right: 3px;
-            padding: 2px 6px;
-            font-size: 0.55rem;
-            font-weight: bold;
-            border-radius: 2px;
-            z-index: 6;
-            display: none;
-        }
-
-        .src-disk {
-            background: var(--secondary);
-            color: #000;
-        }
-
-        .src-online {
-            background: var(--danger);
-            color: #fff;
-        }
-
-        .track-info {
-            height: 20px;
-            font-size: 0.75rem;
-            overflow: hidden;
-            white-space: nowrap;
-            margin: 4px 0;
-            font-weight: bold;
-            color: var(--accent);
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .time-display {
-            font-size: 0.7rem;
-            color: var(--highlight);
-            margin-bottom: 3px;
-            text-align: center;
-            font-family: 'Space Mono', monospace;
-            font-weight: bold;
-        }
-
-        /* TRANSPORT CONTROLS */
-        .transport {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            margin-bottom: 5px;
-            background: rgba(0, 229, 255, 0.05);
-            padding: 4px;
-            border-radius: 4px;
-            border: 1px solid var(--border);
-        }
-
-        .play-btn {
-            width: 38px;
-            height: 38px;
-            border-radius: 4px;
-            border: 1px solid var(--accent);
-            background: var(--bg-dark);
-            color: var(--accent);
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: all 0.2s;
-            font-weight: bold;
-        }
-
-        .play-btn.playing {
-            border-color: var(--primary);
-            background: rgba(255, 87, 34, 0.2);
-            color: var(--primary);
-            box-shadow: 0 0 12px rgba(255, 87, 34, 0.5);
-        }
-
-        .seek-wrap {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        input[type=range] {
-            width: 100%;
-            accent-color: var(--primary);
-            height: 5px;
-            margin: 0;
-            cursor: pointer;
-            border-radius: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-        }
-
-        /* JOCKEY WHEEL */
-        .jockey-wheel-section {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 6px;
-            background: rgba(255, 87, 34, 0.05);
-            padding: 6px;
-            border-radius: 6px;
-            border: 1px solid var(--border);
-        }
-
-        .jockey-wheel {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #1a1f3a, #050812);
-            border: 3px solid var(--primary);
-            box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 87, 34, 0.3);
-            position: relative;
-            cursor: grab;
-            user-select: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .jockey-wheel:active {
-            cursor: grabbing;
-        }
-
-        .jockey-wheel-inner {
-            width: 70%;
-            height: 70%;
-            border-radius: 50%;
-            background: radial-gradient(circle at 35% 35%, #2a2f4a, #0f1428);
-            border: 2px solid var(--accent);
-            box-shadow: inset 0 2px 8px rgba(0, 229, 255, 0.3);
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .jockey-center {
-            width: 8px;
-            height: 8px;
-            background: var(--highlight);
-            border-radius: 50%;
-            box-shadow: 0 0 8px var(--highlight);
-        }
-
-        .jockey-notch {
-            position: absolute;
-            width: 3px;
-            height: 12px;
-            background: var(--primary);
-            top: -10px;
-            border-radius: 2px;
-        }
-
-        /* CUE BUTTONS */
-        .cue-row {
-            display: flex;
-            gap: 2px;
-            margin-bottom: 4px;
-            background: rgba(0, 200, 83, 0.05);
-            padding: 3px;
-            border-radius: 4px;
-        }
-
-        .cue-btn {
-            flex: 1;
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            padding: 6px 0;
-            font-size: 0.7rem;
-            font-weight: bold;
-            border-radius: 3px;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .cue-btn.active {
-            background: var(--secondary);
-            color: #000;
-            border-color: var(--secondary);
-            box-shadow: 0 0 8px rgba(0, 200, 83, 0.6);
-        }
-
-        /* FX & EFFECTS */
-        .fx-pause-row {
-            display: flex;
-            gap: 4px;
-            background: rgba(255, 23, 68, 0.05);
-            padding: 4px;
-            border-radius: 4px;
-            margin-bottom: 4px;
-            border: 1px solid var(--border);
-        }
-
-        .fx-select {
-            flex: 1;
-            background: var(--bg-dark);
-            color: var(--text);
-            border: 1px solid var(--border);
-            font-size: 0.7rem;
-            border-radius: 3px;
-            padding: 4px;
-            font-family: 'Courier Prime', monospace;
-            cursor: pointer;
-        }
-
-        .fx-btn {
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 5px 8px;
-            border-radius: 3px;
-            font-size: 0.65rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .fx-btn:hover {
-            box-shadow: 0 0 10px rgba(255, 23, 68, 0.6);
-        }
-
-        /* BEAT MATCH */
-        .beat-match-row {
-            display: flex;
-            gap: 2px;
-            margin-bottom: 4px;
-            background: rgba(255, 179, 0, 0.05);
-            padding: 3px;
-            border-radius: 4px;
-        }
-
-        .bm-btn {
-            flex: 1;
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            padding: 6px 0;
-            font-size: 0.65rem;
-            font-weight: bold;
-            border-radius: 3px;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .bm-btn.active {
-            background: var(--accent);
-            color: #000;
-            border-color: var(--accent);
-        }
-
-        .bpm-display {
-            font-family: 'Space Mono', monospace;
-            color: var(--warning);
-            font-size: 0.8rem;
-            min-width: 50px;
-            text-align: center;
-            padding: 3px;
-            background: rgba(255, 179, 0, 0.1);
-            border-radius: 3px;
-        }
-
-        /* EQ SECTION */
-        .eq-row {
-            display: flex;
-            gap: 2px;
-            justify-content: space-between;
-            background: rgba(0, 229, 255, 0.05);
-            padding: 4px;
-            border-radius: 4px;
-            margin-bottom: 4px;
-        }
-
-        .eq-knob-box {
-            text-align: center;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .eq-knob-box span {
-            font-size: 0.55rem;
-            color: var(--accent);
-            margin-bottom: 2px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        /* TEMPO & FILTER */
-        .tempo-row {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            background: var(--bg-dark);
-            padding: 4px;
-            border-radius: 4px;
-            margin-bottom: 4px;
-            border: 1px solid var(--border);
-        }
-
-        .tempo-label {
-            font-size: 0.65rem;
-            color: var(--accent);
-            font-weight: bold;
-            width: 28px;
-            text-transform: uppercase;
-        }
-
-        /* LOOP */
-        .loop-row {
-            display: flex;
-            gap: 2px;
-        }
-
-        .loop-btn {
-            flex: 1;
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            padding: 6px 0;
-            cursor: pointer;
-            border-radius: 3px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            transition: all 0.15s;
-        }
-
-        .loop-btn.active {
-            background: var(--primary);
-            color: #000;
-            border-color: var(--primary);
-        }
-
-        /* TRACK ITEM */
-        .track-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            border-bottom: 1px solid var(--border);
-            background: var(--bg-dark);
-            margin-bottom: 2px;
-            border-radius: 4px;
-        }
-
-        .track-thumb {
-            width: 60px;
-            height: 45px;
-            object-fit: cover;
-            border-radius: 4px;
-            flex-shrink: 0;
-            border: 1px solid var(--border);
-        }
-
-        .btn-group {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            min-width: 60px;
-        }
-
-        .action-btn {
-            padding: 8px;
-            font-size: 0.8rem;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-            color: #000;
-            font-weight: 900;
-            flex: 1;
-            font-family: 'Courier Prime', monospace;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: all 0.2s;
-        }
-
-        .btn-d1 {
-            background: var(--primary);
-        }
-
-        .btn-d1:hover {
-            box-shadow: 0 0 12px rgba(255, 87, 34, 0.6);
-        }
-
-        .btn-d2 {
-            background: var(--secondary);
-        }
-
-        .btn-d2:hover {
-            box-shadow: 0 0 12px rgba(0, 200, 83, 0.6);
-        }
-
-        .btn-save {
-            background: var(--accent);
-            width: 100%;
-        }
-
-        .btn-del {
-            background: var(--danger);
-            color: #fff;
-            font-size: 0.7rem;
-        }
-
-        /* MODAL */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(10, 14, 39, 0.95);
-            backdrop-filter: blur(8px);
-            z-index: 2000;
-            display: none;
-            flex-direction: column;
-            padding: 12px;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 2px solid var(--primary);
-            padding-bottom: 10px;
-            margin-bottom: 10px;
-            align-items: center;
-        }
-
-        .cat-manager {
-            background: var(--bg-dark);
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            border: 1px solid var(--border);
-        }
-
-        .cat-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-top: 8px;
-        }
-
-        .cat-chip {
-            background: var(--bg-dark);
-            padding: 4px 10px;
-            border-radius: 10px;
-            font-size: 0.75rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            transition: all 0.15s;
-        }
-
-        .cat-chip.active {
-            background: var(--primary);
-            color: #000;
-            border-color: var(--primary);
-        }
-
-        .lib-list {
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        /* XFADER */
-        .xfader-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(180deg, #1a1f3a, var(--bg-dark));
-            padding: 12px;
-            border-top: 2px solid var(--primary);
-            z-index: 90;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 -4px 16px rgba(255, 87, 34, 0.2);
-        }
-
-        #xfader {
-            width: 90%;
-            max-width: 600px;
-            height: 35px;
-        }
-
-        .curve-row {
-            display: flex;
-            gap: 10px;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            font-weight: bold;
-        }
-
-        .curve-btn {
-            cursor: pointer;
-            padding: 4px 12px;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            transition: all 0.2s;
-            background: var(--bg-dark);
-        }
-
-        .curve-btn.active {
-            background: var(--primary);
-            color: #000;
-            border-color: var(--primary);
-        }
-
-        .nuclear-btn-small {
-            background: transparent;
-            border: 1px solid var(--danger);
-            color: var(--danger);
-            padding: 4px 8px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 0.75rem;
-            margin-right: 10px;
-            font-weight: bold;
-        }
-
-        .loading-trigger {
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent);
-            font-weight: bold;
-            font-size: 0.8rem;
-        }
-
-        /* TABS */
-        .lib-tabs {
-            display: flex;
-            border-bottom: 2px solid var(--primary);
-            margin-bottom: 10px;
-            gap: 2px;
-        }
-
-        .tab-btn {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            padding: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            border-bottom: 3px solid transparent;
-            transition: all 0.2s;
-            font-family: 'Courier Prime', monospace;
-        }
-
-        .tab-btn.active {
-            color: var(--accent);
-            border-bottom-color: var(--accent);
-        }
-
-        .playlist-input-row {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 10px;
-        }
-
-        .pl-item {
-            background: var(--bg-dark);
-            padding: 15px;
-            margin-bottom: 5px;
-            border-radius: 4px;
-            border: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .pl-item:hover {
-            background: #2a2f4a;
-            border-color: var(--primary);
-        }
-
-        .pl-name {
-            font-weight: bold;
-            color: var(--text);
-        }
-
-        .pl-count {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        .back-btn {
-            background: var(--primary);
-            color: #000;
-            border: none;
-            padding: 6px 12px;
-            margin-bottom: 10px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .decks-container {
-                flex-direction: column;
-            }
-
-            .deck-wrapper {
-                width: 100%;
-            }
-
-            h1 {
-                font-size: 0.95rem;
-            }
-        }
-
-        /* ANIMATIONS */
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        .pulse {
-            animation: pulse 0.8s infinite;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hindustan Toys - Order Portal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <style>
+    :root {
+      --primary-color: #388e3c;
+      --secondary-color: #0d6efd;
+      --danger-color: #dc3545;
+      --light-gray: #f8f9fa;
+      --dark-gray: #333;
+      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --whatsapp-color: #25D366;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      font-size: 14px;
+      color: var(--dark-gray);
+      background-color: var(--light-gray);
+      margin: 0;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    #content, #login-container { max-width: 768px; margin: 0 auto; }
+
+    /* Selection Styles */
+    .card {
+      transition: transform 0.2s, border 0.2s;
+      position: relative;
+      border: 2px solid transparent;
+    }
+    
+    .card.is-selected {
+      border-color: var(--whatsapp-color) !important;
+      background-color: #e8f5e9 !important;
+      transform: scale(0.96);
+    }
+
+    .selection-indicator {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: var(--whatsapp-color);
+      color: white;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      z-index: 5;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    /* Floating Share Button */
+    .share-btn-fab {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      z-index: 1080;
+      background-color: var(--whatsapp-color);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 12px 20px;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(100px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Rest of your existing CSS remains the same */
+    .navbar { background-color: #fff; padding: 8px 15px; position: fixed; width: 100%; max-width: 768px; top: 0; z-index: 1030; box-shadow: 0 2px 4px rgba(0,0,0,0.1); left: 50%; transform: translateX(-50%); }
+    .main-content-layout { display: flex; gap: 20px; max-width: 768px; margin: 70px auto 0; padding: 10px; }
+    .sidebar-container { width: 180px; position: sticky; top: 80px; align-self: flex-start; max-height: calc(100vh - 110px); overflow-y: auto; }
+    .tab-item { display: flex; flex-direction: column; align-items: center; padding: 10px; background: #fff; border-radius: 12px; margin-bottom: 8px; cursor: pointer; }
+    .tab-item.active { background: var(--primary-color); color: white; }
+    .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .card img { width: 100%; object-fit: contain; }
+    .qtyclass { height: 32px; width: 50px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
+    .fixed-order-button { position: fixed; bottom: 20px; right: 20px; z-index: 1070; background: var(--primary-color); color: #fff; border: none; border-radius: 50px; padding: 8px 16px; }
+    
+    @media (max-width: 767px) {
+      .sidebar-container { width: 80px; }
+      .tab-text { font-size: 10px; }
+    }
+  </style>
 </head>
-<body>
 
-    <div class="global-search-container">
-        <select id="search-source" class="source-select">
-            <option value="yt">YouTube</option>
-            <option value="ht">Hearthis</option>
-        </select>
-        <input type="text" id="g-search" class="g-input" placeholder="Search track name..." onkeypress="if(event.key==='Enter') doGlobalSearch()">
-        <button class="g-btn" onclick="doGlobalSearch()">🔎</button>
+<body ng-controller="imagesController as vm">
+  <div id="login-container" style="background-image: url('https://hunkaammy.github.io/mywebsite/NEWWEBSITE/loginpg.jpeg'); min-height: 100vh; display: flex; justify-content: center; align-items: center;">
+    <div id="inside" style="background: rgba(255,255,255,0.9); padding: 30px; border-radius: 15px; text-align: center; width: 90%;">
+      <h2>HINDUSTAN TOYS</h2>
+      <input type="text" id="name" placeholder="Shop Name" class="form-control mb-2">
+      <input type="tel" id="mobile" placeholder="Mobile Number" class="form-control mb-3">
+      <button class="btn btn-success w-100" onclick="validateLogin()">Login</button>
+    </div>
+  </div>
+
+  <div id="content" style="display: none;">
+    <div class="navbar">
+      <div class="d-flex w-100 align-items-center">
+        <input type="text" ng-model="searchQuery" ng-change="onSearchChange()" placeholder="Search toys..." class="form-control form-control-sm me-2">
+        <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#myModal"><i class="fas fa-shopping-cart"></i></button>
+      </div>
     </div>
 
-    <div id="g-results" class="global-results">
-        <div class="results-header"><span id="res-count">Results</span><button class="close-btn" onclick="closeResults()">Close</button></div>
-        <div id="g-scroll-area" class="results-scroll-area">
-            <div id="g-list"></div>
-            <div id="g-loader" class="loading-trigger" style="display:none;">FETCHING...</div>
+    <button class="share-btn-fab" ng-if="selectedCount > 0" ng-click="shareToWhatsApp()">
+        <i class="fab fa-whatsapp fa-lg"></i> 
+        Share ({{selectedCount}}) Items
+    </button>
+
+    <div class="main-content-layout">
+      <div class="sidebar-container">
+        <div class="tab-item" ng-repeat="cat in categories" ng-class="{'active': activeTabId === cat.id}" ng-click="selectCategory(cat.filter, cat.id)">
+          <img ng-src="{{cat.imageUrl}}" style="width:30px; height:30px; border-radius:4px;">
+          <span class="tab-text">{{cat.name}}</span>
         </div>
-    </div>
+      </div>
 
-    <div class="top-bar">
-        <h1>🎧 DJ PRO ULTRA</h1>
-        <div class="head-btns">
-            <button id="hp-btn" class="top-btn" onclick="toggleSplit()">🎧 Split</button>
-            <button class="top-btn" onclick="openLibrary()">📚 Lib</button>
-            <button class="top-btn" onclick="toggleMaster()">🔊 Master</button>
-        </div>
-    </div>
-
-    <div class="main-content">
-        <div class="decks-container">
-            <!-- DECK 1 -->
-            <div class="deck-wrapper">
-                <div class="deck-box">
-                    <div class="video-screen"><span class="deck-badge">DECK 1</span><span id="src-1" class="source-indicator">DISK</span><div class="playhead"></div><canvas id="viz-1"></canvas></div>
-                    <div class="track-info" id="title-1">Empty</div>
-                    <div id="time-1" class="time-display">0:00 / 0:00</div>
-                    <div class="transport"><button class="play-btn" id="play-1" onclick="togglePlay(1)">▶</button><div class="seek-wrap"><input type="range" id="seek-1" value="0" min="0" oninput="seek(1, this.value)"></div></div>
-                    
-                    <!-- JOCKEY WHEEL -->
-                    <div class="jockey-wheel-section">
-                        <div class="jockey-wheel" id="jockey-1" onmousedown="startJockeyDrag(1, event)" ontouchstart="startJockeyDrag(1, event)">
-                            <div class="jockey-wheel-inner">
-                                <div class="jockey-center"></div>
-                                <div class="jockey-notch"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="cue-row">
-                        <button class="cue-btn" id="cue-a-1" onclick="setCuePoint(1, 'A')">A</button>
-                        <button class="cue-btn" id="cue-b-1" onclick="setCuePoint(1, 'B')">B</button>
-                        <button class="cue-btn" id="cue-c-1" onclick="setCuePoint(1, 'C')">C</button>
-                        <button class="cue-btn" onclick="clearAllCues(1)">CLR</button>
-                    </div>
-                    
-                    <div class="fx-pause-row"><select id="fx-sel-1" class="fx-select"><option value="echo">Echo Stop</option><option value="reverb">Reverb</option><option value="vinyl">Vinyl Stop</option><option value="backspin">Backspin</option><option value="stutter">Stutter</option></select><button class="fx-btn" onclick="triggerFxPause(1)">STOP</button></div>
-                    <div class="beat-match-row"><button class="bm-btn" onclick="tapBpm(1)">TAP</button><span id="bpm-1" class="bpm-display">0.0</span><button class="bm-btn" style="background:var(--secondary); color:#000;" onclick="syncDecks(1)">SYNC</button><button id="pk-1" class="bm-btn" onclick="togglePitchLock(1)">KEY</button></div>
-                    <div class="eq-row">
-                        <div class="eq-knob-box"><span>HI</span><input type="range" id="eq-hi-1" oninput="setEq(1, 'high', this.value)" min="-24" max="6" value="0"></div>
-                        <div class="eq-knob-box"><span>MID</span><input type="range" id="eq-mid-1" oninput="setEq(1, 'mid', this.value)" min="-24" max="6" value="0"></div>
-                        <div class="eq-knob-box"><span>LO</span><input type="range" id="eq-lo-1" oninput="setEq(1, 'low', this.value)" min="-24" max="6" value="0"></div>
-                    </div>
-                    <div class="tempo-row"><span class="tempo-label">FLTR</span><input type="range" id="fil-1" oninput="updateFilter(1, this.value)" ondblclick="this.value=0; updateFilter(1,0)" min="-100" max="100" value="0" style="flex:1;"></div>
-                    <div class="tempo-row"><span class="tempo-label">SPD</span><input type="range" id="spd-1" oninput="setSpeed(1, this.value)" ondblclick="resetSpeed(1, this)" min="0.8" max="1.2" step="0.001" value="1" style="flex:1"></div>
-                    <div class="loop-row"><button class="loop-btn" id="l2-1" onclick="setLoop(1, 2)">2</button><button class="loop-btn" id="l4-1" onclick="setLoop(1, 4)">4</button><button class="loop-btn" id="l8-1" onclick="setLoop(1, 8)">8</button><button class="loop-btn" id="lx-1" onclick="clearLoop(1)">X</button></div>
-                </div>
-                <audio id="audio-1" crossorigin="anonymous"></audio>
-            </div>
-
-            <!-- DECK 2 -->
-            <div class="deck-wrapper">
-                <div class="deck-box">
-                    <div class="video-screen"><span class="deck-badge">DECK 2</span><span id="src-2" class="source-indicator">DISK</span><div class="playhead"></div><canvas id="viz-2"></canvas></div>
-                    <div class="track-info" id="title-2">Empty</div>
-                    <div id="time-2" class="time-display">0:00 / 0:00</div>
-                    <div class="transport"><button class="play-btn" id="play-2" onclick="togglePlay(2)">▶</button><div class="seek-wrap"><input type="range" id="seek-2" value="0" min="0" oninput="seek(2, this.value)"></div></div>
-                    
-                    <!-- JOCKEY WHEEL -->
-                    <div class="jockey-wheel-section">
-                        <div class="jockey-wheel" id="jockey-2" onmousedown="startJockeyDrag(2, event)" ontouchstart="startJockeyDrag(2, event)">
-                            <div class="jockey-wheel-inner">
-                                <div class="jockey-center"></div>
-                                <div class="jockey-notch"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="cue-row">
-                        <button class="cue-btn" id="cue-a-2" onclick="setCuePoint(2, 'A')">A</button>
-                        <button class="cue-btn" id="cue-b-2" onclick="setCuePoint(2, 'B')">B</button>
-                        <button class="cue-btn" id="cue-c-2" onclick="setCuePoint(2, 'C')">C</button>
-                        <button class="cue-btn" onclick="clearAllCues(2)">CLR</button>
-                    </div>
-                    
-                    <div class="fx-pause-row"><select id="fx-sel-2" class="fx-select"><option value="echo">Echo Stop</option><option value="reverb">Reverb</option><option value="vinyl">Vinyl Stop</option><option value="backspin">Backspin</option><option value="stutter">Stutter</option></select><button class="fx-btn" onclick="triggerFxPause(2)">STOP</button></div>
-                    <div class="beat-match-row"><button class="bm-btn" onclick="tapBpm(2)">TAP</button><span id="bpm-2" class="bpm-display">0.0</span><button class="bm-btn" style="background:var(--secondary); color:#000;" onclick="syncDecks(2)">SYNC</button><button id="pk-2" class="bm-btn" onclick="togglePitchLock(2)">KEY</button></div>
-                    <div class="eq-row">
-                        <div class="eq-knob-box"><span>HI</span><input type="range" id="eq-hi-2" oninput="setEq(2, 'high', this.value)" min="-24" max="6" value="0"></div>
-                        <div class="eq-knob-box"><span>MID</span><input type="range" id="eq-mid-2" oninput="setEq(2, 'mid', this.value)" min="-24" max="6" value="0"></div>
-                        <div class="eq-knob-box"><span>LO</span><input type="range" id="eq-lo-2" oninput="setEq(2, 'low', this.value)" min="-24" max="6" value="0"></div>
-                    </div>
-                    <div class="tempo-row"><span class="tempo-label">FLTR</span><input type="range" id="fil-2" oninput="updateFilter(2, this.value)" ondblclick="this.value=0; updateFilter(2,0)" min="-100" max="100" value="0" style="flex:1;"></div>
-                    <div class="tempo-row"><span class="tempo-label">SPD</span><input type="range" id="spd-2" oninput="setSpeed(2, this.value)" ondblclick="resetSpeed(2, this)" min="0.8" max="1.2" step="0.001" value="1" style="flex:1"></div>
-                    <div class="loop-row"><button class="loop-btn" id="l2-2" onclick="setLoop(2, 2)">2</button><button class="loop-btn" id="l4-2" onclick="setLoop(2, 4)">4</button><button class="loop-btn" id="l8-2" onclick="setLoop(2, 8)">8</button><button class="loop-btn" id="lx-2" onclick="clearLoop(2)">X</button></div>
-                </div>
-                <audio id="audio-2" crossorigin="anonymous"></audio>
-            </div>
-        </div>
-    </div>
-
-    <div class="xfader-container">
-        <div class="curve-row"><span id="c-smooth" class="curve-btn active" onclick="setCurve('smooth')">SMOOTH</span><span id="c-sharp" class="curve-btn" onclick="setCurve('sharp')">SHARP</span></div>
-        <input type="range" id="xfader" min="0" max="100" value="50" oninput="setCrossfader(this.value)">
-    </div>
-
-    <div id="lib-modal" class="modal">
-        <div class="modal-header">
-            <h3>Library</h3>
-            <div>
-                <button class="nuclear-btn-small" onclick="nuclearReset()">☢️ Reset</button>
-                <button onclick="closeLibrary()" class="close-btn">X</button>
-            </div>
-        </div>
-        
-        <div class="lib-tabs">
-            <button id="tab-btn-tracks" class="tab-btn active" onclick="switchLibTab('tracks')">Tracks (<span id="lib-total-count">0</span>)</button>
-            <button id="tab-btn-playlists" class="tab-btn" onclick="switchLibTab('playlists')">Playlists</button>
-        </div>
-
-        <div id="view-tracks" class="lib-list" style="display:flex; flex-direction:column;">
-            <div class="cat-manager"><div style="display:flex; gap:5px; align-items:center;"><input type="text" id="new-cat" placeholder="New Playlist..." class="g-input" style="padding:6px; font-size:0.8rem;"><button onclick="addCategory()" class="g-btn" style="padding:0 10px;">+</button></div><div id="cat-chips" class="cat-chips"></div></div>
-            <input type="text" id="lib-search" placeholder="Filter tracks..." onkeyup="renderLibrary()" style="width:100%; padding:8px; background:var(--bg-dark); border:1px solid var(--border); color:white; margin-bottom:10px; border-radius:4px;">
-            <div id="lib-list" style="flex:1; overflow-y:auto;"></div>
-        </div>
-
-        <div id="view-playlists" class="lib-list" style="display:none; flex-direction:column;">
-            <div id="pl-main-view">
-                <div class="playlist-input-row">
-                    <input type="text" id="new-pl-url" placeholder="Paste YouTube Playlist URL..." class="g-input" style="font-size:0.8rem;">
-                    <button onclick="addPlaylist()" class="g-btn">ADD</button>
-                </div>
-                <div id="pl-list" style="flex:1; overflow-y:auto;"></div>
-            </div>
+      <div class="products-container" style="flex:1;">
+        <div class="product-grid">
+          <div class="card" 
+               ng-repeat="product in displayedProducts track by product.$id"
+               ng-class="{'is-selected': product.selected}"
+               ng-mousedown="startPress(product)"
+               ng-mouseup="endPress(product)"
+               ng-touchstart="startPress(product)"
+               ng-touchend="endPress(product)">
             
-            <div id="pl-tracks-view" style="display:none; flex-direction:column; height:100%;">
-                <button class="back-btn" onclick="closePlaylistTracks()">← Back</button>
-                <div id="pl-loader" style="text-align:center; padding:20px; color:var(--accent); display:none;">LOADING...</div>
-                <div id="pl-tracks-list" style="flex:1; overflow-y:auto;"></div>
+            <div class="selection-indicator" ng-if="product.selected">
+              <i class="fas fa-check"></i>
             </div>
+
+            <img ng-src="{{product.url}}" ng-click="handleProductClick(product, $event)">
+            
+            <div class="containers p-2 text-center">
+              <h6 ng-if="priceVisible">₹{{product.price}}</h6>
+              <p style="font-size:11px; margin-bottom:5px;">{{product.name}}</p>
+              <input type="number" class="qtyclass" ng-model="product.field3" ng-change="submitData(product)" placeholder="Qty">
+            </div>
+          </div>
         </div>
+      </div>
     </div>
 
-<script>
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const merger = ctx.createChannelMerger(2);
-    merger.connect(ctx.destination);
-    
-    const decks = {};
-    let hpMode = false;
-    let xCurve = 'smooth';
-    let tapTimes = {1: [], 2: []};
-    let activeCat = 'All';
-    let libraryData = [];
-    let categories = [];
-    let playlists = [];
-    let searchPage = 1;
-    let isFetching = false;
-    let currentQuery = '';
-    let searchSource = 'yt';
-    let queryMemory = {};
-    
-    // JOCKEY WHEEL STATE
-    let jockeyState = {1: {angle: 0, isDragging: false}, 2: {angle: 0, isDragging: false}};
-    let jockeyStartAngle = {1: 0, 2: 0};
+    <button class="fixed-order-button" ng-click="openOrderModal()">Your Order</button>
+  </div>
 
-    function formatTime(sec) {
-        if (!sec || isNaN(sec)) return "0:00";
-        const m = Math.floor(sec / 60);
-        const s = Math.floor(sec % 60);
-        return \`\${m}:\${s < 10 ? '0' : ''}\${s}\`;
-    }
+  <div class="modal fade" id="myModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header"><h5>Your Orders</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between" ng-repeat="item in allOrders | filter:isPendingOrder">
+              <span>{{item.productName}} ({{item.field3}})</span>
+              <span>₹{{item.productPrice * item.field3}}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    function initDeck(id) {
-        const audio = document.getElementById('audio-' + id);
-        const source = ctx.createMediaElementSource(audio);
-        const gainMaster = ctx.createGain();
-        const gainCue = ctx.createGain();
-        const stopGain = ctx.createGain();
-        
-        const low = ctx.createBiquadFilter();
-        low.type = 'lowshelf';
-        low.frequency.value = 320;
-        
-        const mid = ctx.createBiquadFilter();
-        mid.type = 'peaking';
-        mid.frequency.value = 1000;
-        mid.Q.value = 1;
-        
-        const high = ctx.createBiquadFilter();
-        high.type = 'highshelf';
-        high.frequency.value = 3200;
-        
-        const filter = ctx.createBiquadFilter();
-        filter.type = 'allpass';
-        
-        const analyser = ctx.createAnalyser();
-        analyser.fftSize = 256;
-        
-        const delay = ctx.createDelay(1.0);
-        delay.delayTime.value = 0.375;
-        const feedback = ctx.createGain();
-        feedback.gain.value = 0.55;
-        const fxGain = ctx.createGain();
-        fxGain.gain.value = 0;
-        
-        const reverb = ctx.createConvolver();
-        const length = ctx.sampleRate * 2.5;
-        const impulse = ctx.createBuffer(2, length, ctx.sampleRate);
-        for (let i = 0; i < 2; i++) {
-            const chan = impulse.getChannelData(i);
-            for (let j = 0; j < length; j++) {
-                chan[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / length, 2.5);
-            }
-        }
-        reverb.buffer = impulse;
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
 
-        source.connect(stopGain).connect(low).connect(mid).connect(high).connect(filter).connect(analyser);
-        analyser.connect(gainMaster);
-        analyser.connect(gainCue);
-        analyser.connect(fxGain);
-        
-        fxGain.connect(delay).connect(feedback).connect(delay);
-        delay.connect(merger, 0, 0);
-        delay.connect(merger, 0, 1);
-        
-        fxGain.connect(reverb).connect(merger, 0, 0);
-        reverb.connect(merger, 0, 1);
-        
-        gainMaster.connect(merger, 0, 0);
-        gainMaster.connect(merger, 0, 1);
-
-        decks[id] = {
-            audio,
-            gainMaster,
-            gainCue,
-            stopGain,
-            low,
-            mid,
-            high,
-            filter,
-            analyser,
-            fxGain,
-            delay,
-            feedback,
-            reverb,
-            wave: new Uint8Array(analyser.frequencyBinCount),
-            loop: {active: false, start: 0, len: 0},
-            bpm: 0,
-            pitchLock: false,
-            cuePoints: {}
-        };
-
-        audio.ontimeupdate = () => {
-            if(!isNaN(audio.duration)) {
-                document.getElementById('seek-'+id).value = audio.currentTime;
-                document.getElementById('seek-'+id).max = audio.duration;
-                document.getElementById('time-'+id).innerText = \`\${formatTime(audio.currentTime)} / \${formatTime(audio.duration)}\`;
-            }
-        };
-
-        audio.onplay = () => {
-            document.getElementById('play-'+id).innerText = "⏸";
-            document.getElementById('play-'+id).classList.add('playing');
-            drawViz(id);
-            decks[id].stopGain.gain.setValueAtTime(1, ctx.currentTime);
-            decks[id].fxGain.gain.setValueAtTime(0, ctx.currentTime);
-        };
-
-        audio.onpause = () => {
-            document.getElementById('play-'+id).innerText = "▶";
-            document.getElementById('play-'+id).classList.remove('playing');
-        };
-    }
-
-    // JOCKEY WHEEL FUNCTIONS
-    function startJockeyDrag(id, event) {
-        event.preventDefault();
-        jockeyState[id].isDragging = true;
-        const clientX = event.type.includes('touch') ? event.touches[0].clientX : event.clientX;
-        const clientY = event.type.includes('touch') ? event.touches[0].clientY : event.clientY;
-        const wheel = document.getElementById(\`jockey-\${id}\`);
-        const rect = wheel.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        jockeyStartAngle[id] = Math.atan2(clientY - centerY, clientX - centerX);
-
-        function handleMove(e) {
-            if (!jockeyState[id].isDragging) return;
-            const moveX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-            const moveY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-            const currentAngle = Math.atan2(moveY - centerY, moveX - centerX);
-            let deltaDegrees = ((currentAngle - jockeyStartAngle[id]) * 180 / Math.PI);
-            
-            jockeyState[id].angle = (jockeyState[id].angle + deltaDegrees) % 360;
-            wheel.style.transform = \`rotate(\${jockeyState[id].angle}deg)\`;
-            
-            // Map wheel movement to pitch/speed
-            const speedAdjust = 1 + (deltaDegrees / 500);
-            const newSpeed = Math.max(0.8, Math.min(1.2, decks[id].audio.playbackRate * speedAdjust));
-            setSpeed(id, newSpeed);
-            document.getElementById(\`spd-\${id}\`).value = newSpeed.toFixed(3);
-
-            jockeyStartAngle[id] = currentAngle;
-        }
-
-        function handleEnd() {
-            jockeyState[id].isDragging = false;
-            document.removeEventListener('mousemove', handleMove);
-            document.removeEventListener('touchmove', handleMove);
-            document.removeEventListener('mouseup', handleEnd);
-            document.removeEventListener('touchend', handleEnd);
-        }
-
-        document.addEventListener('mousemove', handleMove);
-        document.addEventListener('touchmove', handleMove);
-        document.addEventListener('mouseup', handleEnd);
-        document.addEventListener('touchend', handleEnd);
-    }
-
-    function toggleSplit() {
-        hpMode = !hpMode;
-        const btn = document.getElementById('hp-btn');
-        const xVal = document.getElementById('xfader').value;
-        
-        decks[1].gainMaster.disconnect();
-        decks[2].gainMaster.disconnect();
-        decks[1].gainCue.disconnect();
-        decks[2].gainCue.disconnect();
-        
-        if (hpMode) {
-            btn.classList.add('active');
-            btn.innerText = "🎧 ON";
-            decks[1].gainMaster.connect(merger, 0, 0);
-            decks[2].gainMaster.connect(merger, 0, 0);
-            decks[1].gainCue.connect(merger, 0, 1);
-            decks[2].gainCue.connect(merger, 0, 1);
-        } else {
-            btn.classList.remove('active');
-            btn.innerText = "🎧 Split";
-            decks[1].gainMaster.connect(merger, 0, 0);
-            decks[1].gainMaster.connect(merger, 0, 1);
-            decks[2].gainMaster.connect(merger, 0, 0);
-            decks[2].gainMaster.connect(merger, 0, 1);
-        }
-        setCrossfader(xVal);
-    }
-
-    function setCrossfader(val) {
-        const x = val / 100;
-        let vol1, vol2;
-        
-        if (xCurve === 'smooth') {
-            vol1 = Math.cos(x * 0.5 * Math.PI);
-            vol2 = Math.cos((1 - x) * 0.5 * Math.PI);
-        } else {
-            vol1 = x < 0.45 ? 1 : Math.max(0, 1 - (x - 0.45) * 10);
-            vol2 = x > 0.55 ? 1 : Math.max(0, x * 10 - 4.5);
-        }
-        
-        decks[1].gainMaster.gain.setTargetAtTime(vol1, ctx.currentTime, 0.02);
-        decks[2].gainMaster.gain.setTargetAtTime(vol2, ctx.currentTime, 0.02);
-        
-        if (hpMode) {
-            decks[1].gainCue.gain.setTargetAtTime(vol2, ctx.currentTime, 0.02);
-            decks[2].gainCue.gain.setTargetAtTime(vol1, ctx.currentTime, 0.02);
-        } else {
-            decks[1].gainCue.gain.value = 0;
-            decks[2].gainCue.gain.value = 0;
-        }
-    }
-
-    function setCuePoint(id, label) {
-        const audio = decks[id].audio;
-        if (audio.paused || isNaN(audio.currentTime)) return;
-        
-        decks[id].cuePoints[label] = audio.currentTime;
-        document.getElementById(\`cue-\${label.toLowerCase()}-\${id}\`).classList.add('active');
-        
-        setTimeout(() => {
-            document.getElementById(\`cue-\${label.toLowerCase()}-\${id}\`).classList.remove('active');
-        }, 200);
-    }
-
-    function clearAllCues(id) {
-        decks[id].cuePoints = {};
-        ['a', 'b', 'c'].forEach(label => {
-            document.getElementById(\`cue-\${label}-\${id}\`).classList.remove('active');
-        });
-    }
-
-    function updateFilter(id, val) {
-        const d = decks[id];
-        const v = parseFloat(val);
-        const now = ctx.currentTime;
-        
-        if (v < -2) {
-            d.filter.type = 'lowpass';
-            d.filter.frequency.exponentialRampToValueAtTime(Math.max(25, 20000 * Math.pow(0.002, Math.abs(v) / 100)), now + 0.12);
-        } else if (v > 2) {
-            d.filter.type = 'highpass';
-            d.filter.frequency.exponentialRampToValueAtTime(Math.min(18000, 25 * Math.pow(600, v / 100)), now + 0.12);
-        } else {
-            d.filter.frequency.setTargetAtTime(20000, now, 0.1);
-            setTimeout(() => {
-                if(Math.abs(val) < 2) d.filter.type = 'allpass';
-            }, 150);
-        }
-    }
-
-    function togglePlay(id) {
-        if(ctx.state === 'suspended') ctx.resume();
-        const a = decks[id].audio;
-        if (a.paused) {
-            decks[id].stopGain.gain.setValueAtTime(1, ctx.currentTime);
-            a.play();
-        } else {
-            a.pause();
-        }
-    }
-
-    function seek(id, val) {
-        decks[id].audio.currentTime = val;
-    }
-
-    function setEq(id, band, val) {
-        decks[id][band].gain.setTargetAtTime(val, ctx.currentTime, 0.1);
-    }
-
-    function setSpeed(id, val) {
-        decks[id].audio.playbackRate = val;
-    }
-
-    function resetSpeed(id, el) {
-        el.value = 1;
-        setSpeed(id, 1);
-    }
-
-    function setLoop(id, beats) {
-        const d = decks[id];
-        const bpm = 126 * d.audio.playbackRate;
-        d.loop = {
-            active: true,
-            start: d.audio.currentTime,
-            len: (60 / bpm) * beats
-        };
-        ['2','4','8','x'].forEach(k => document.getElementById(\`l\${k}-\${id}\`)?.classList.remove('active'));
-        document.getElementById(\`l\${beats}-\${id}\`)?.classList.add('active');
-    }
-
-    function clearLoop(id) {
-        decks[id].loop.active = false;
-        ['2','4','8','x'].forEach(k => document.getElementById(\`l\${k}-\${id}\`)?.classList.remove('active'));
-    }
-
-    function drawViz(id) {
-        if(decks[id].audio.paused) return;
-        requestAnimationFrame(() => drawViz(id));
-        
-        const d = decks[id];
-        if (d.loop.active && d.audio.currentTime >= (d.loop.start + d.loop.len) - 0.01) {
-            d.audio.currentTime = d.loop.start;
-        }
-        
-        const c = document.getElementById('viz-'+id).getContext('2d');
-        const w = c.canvas.width = c.canvas.offsetWidth;
-        const h = c.canvas.height = c.canvas.offsetHeight;
-        
-        d.analyser.getByteTimeDomainData(d.wave);
-        
-        c.fillStyle = '#000';
-        c.fillRect(0,0,w,h);
-        
-        c.lineWidth = 2;
-        c.strokeStyle = id===1 ? '#ff5722' : '#00c853';
-        c.beginPath();
-        
-        let slice = w / d.wave.length;
-        let x = 0;
-        
-        for(let i=0; i<d.wave.length; i++) {
-            let y = (d.wave[i]/128.0) * (h/2);
-            i===0 ? c.moveTo(x,y) : c.lineTo(x,y);
-            x+=slice;
-        }
-        c.stroke();
-    }
-
-    function setCurve(type) {
-        xCurve = type;
-        document.getElementById('c-smooth').classList.toggle('active', type === 'smooth');
-        document.getElementById('c-sharp').classList.toggle('active', type === 'sharp');
-        setCrossfader(document.getElementById('xfader').value);
-    }
-
-    function togglePitchLock(id) {
-        decks[id].pitchLock = !decks[id].pitchLock;
-        decks[id].audio.preservesPitch = decks[id].pitchLock;
-        document.getElementById(\`pk-\${id}\`).classList.toggle('active', decks[id].pitchLock);
-    }
-
-    function toggleMaster() {
-        // Toggle master volume/output
-        const btn = event.target;
-        btn.classList.toggle('active');
-    }
-    
-    function triggerFxPause(id) {
-        const d = decks[id];
-        if (d.audio.paused) return;
-        const type = document.getElementById(\`fx-sel-\${id}\`).value;
-        const now = ctx.currentTime;
-        const stopDuration = 0.6;
-        
-        if (type === 'echo' || type === 'reverb') {
-            d.fxGain.gain.setTargetAtTime(type === 'echo' ? 2.0 : 2.5, now, 0.05);
-            d.stopGain.gain.setValueAtTime(1.0, now);
-            d.stopGain.gain.exponentialRampToValueAtTime(0.001, now + stopDuration);
-            setTimeout(() => {
-                d.audio.pause();
-                d.fxGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 3.0);
-            }, stopDuration * 1000);
-        } else if (type === 'vinyl') {
-            const startRate = d.audio.playbackRate;
-            let currentRate = startRate;
-            const vinylTimer = setInterval(() => {
-                currentRate -= 0.05;
-                if (currentRate <= 0.05) {
-                    clearInterval(vinylTimer);
-                    d.audio.pause();
-                    d.audio.playbackRate = startRate;
-                } else {
-                    d.audio.playbackRate = currentRate;
-                }
-            }, 50);
-        } else if (type === 'backspin') {
-            const startRate = d.audio.playbackRate;
-            let currentRate = startRate;
-            d.stopGain.gain.setValueAtTime(1.5, now);
-            const spinTimer = setInterval(() => {
-                currentRate -= 0.15;
-                if (currentRate <= 0.05) {
-                    clearInterval(spinTimer);
-                    d.audio.pause();
-                    d.audio.playbackRate = startRate;
-                    d.stopGain.gain.setValueAtTime(1.0, ctx.currentTime);
-                } else {
-                    d.audio.playbackRate = currentRate;
-                }
-            }, 20);
-        } else if (type === 'stutter') {
-            const startRate = d.audio.playbackRate;
-            const stutterTime = d.audio.currentTime;
-            let stutterCount = 0;
-            const stutterTimer = setInterval(() => {
-                stutterCount++;
-                if (stutterCount > 8) {
-                    clearInterval(stutterTimer);
-                    d.audio.currentTime = stutterTime;
-                    d.audio.playbackRate = startRate;
-                } else {
-                    d.audio.currentTime = stutterTime + (stutterCount % 2) * 0.1;
-                }
-            }, 50);
-        }
-    }
-    
-    function tapBpm(id) {
-        const now = Date.now();
-        const times = tapTimes[id];
-        if (times.length > 0 && now - times[times.length - 1] > 2000) times.length = 0;
-        times.push(now);
-        if (times.length > 1) {
-            const diffs = [];
-            for(let i=1; i<times.length; i++) diffs.push(times[i] - times[i-1]);
-            const avg = diffs.reduce((a, b) => a + b) / diffs.length;
-            decks[id].bpm = (60000 / avg).toFixed(1);
-            document.getElementById(\`bpm-\${id}\`).innerText = decks[id].bpm;
-        }
-    }
-
-    function syncDecks(id) {
-        const otherId = id === 1 ? 2 : 1;
-        const otherBpm = parseFloat(document.getElementById(\`bpm-\${otherId}\`).innerText);
-        const thisBpm = parseFloat(document.getElementById(\`bpm-\${id}\`).innerText);
-        if (otherBpm > 0 && thisBpm > 0) {
-            const ratio = otherBpm / thisBpm;
-            setSpeed(id, ratio);
-            document.getElementById(\`spd-\${id}\`).value = ratio.toFixed(3);
-        }
-    }
-
-    // SEARCH & LIBRARY FUNCTIONS
-    function doGlobalSearch() {
-        const q = document.getElementById('g-search').value.trim();
-        const s = document.getElementById('search-source').value;
-        if(!q) return;
-        
-        if(currentQuery) {
-            const memKey = \`\${searchSource}:\${currentQuery}\`;
-            if(queryMemory[memKey]) queryMemory[memKey].scrollPos = document.getElementById('g-scroll-area').scrollTop;
-        }
-
-        currentQuery = q;
-        searchSource = s;
-        const memKey = \`\${s}:\${q}\`;
-        document.getElementById('g-results').style.display = 'flex';
-
-        if(queryMemory[memKey] && queryMemory[memKey].tracks.length > 0) {
-            searchPage = queryMemory[memKey].page;
-            renderSearchItems(queryMemory[memKey].tracks, true);
-            setTimeout(() => { document.getElementById('g-scroll-area').scrollTop = queryMemory[memKey].scrollPos || 0; }, 60);
-        } else {
-            searchPage = 1;
-            isFetching = false;
-            queryMemory[memKey] = { page: 1, tracks: [], scrollPos: 0 };
-            document.getElementById('g-list').innerHTML = '';
-            document.getElementById('g-scroll-area').scrollTop = 0;
-            fetchMoreResults();
-        }
-    }
-
-    async function fetchMoreResults() {
-        if(isFetching) return;
-        isFetching = true;
-        document.getElementById('g-loader').style.display = 'flex';
-        
-        const fetchQuery = currentQuery;
-        const memKey = \`\${searchSource}:\${fetchQuery}\`;
-
-        try {
-            const currentOffset = (searchPage - 1) * 20;
-            const res = await fetch('/api/search', {
-                method: 'POST',
-                headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({ query: fetchQuery, page: searchPage, offset: currentOffset, source: searchSource })
-            });
-            const tracks = await res.json();
-            
-            if (fetchQuery === currentQuery && tracks.length > 0) {
-                const existingIds = new Set(queryMemory[memKey].tracks.map(t => t.id));
-                const uniqueTracks = tracks.filter(t => !existingIds.has(t.id));
-                queryMemory[memKey].tracks.push(...uniqueTracks);
-                queryMemory[memKey].page = searchPage + 1;
-                renderSearchItems(uniqueTracks, false);
-                searchPage++;
-            }
-        } catch (e) { console.error(e); }
-        
-        if (fetchQuery === currentQuery) {
-            isFetching = false;
-            document.getElementById('g-loader').style.display = 'none';
-        }
-    }
-
-    function renderSearchItems(tracks, clear) {
-        const listDiv = document.getElementById('g-list');
-        if(clear) listDiv.innerHTML = '';
-        tracks.forEach(track => {
-            const div = document.createElement('div');
-            div.className = 'track-item';
-            const safeTrack = JSON.stringify(track).replace(/'/g, "\\\\'").replace(/"/g, "&quot;");
-            const srcTag = track.source === 'yt' ? '<span style="background:red; padding:1px 3px; border-radius:2px; font-size:0.6rem; color:white;">YT</span>' : '<span style="background:cyan; color:black; padding:1px 3px; border-radius:2px; font-size:0.6rem;">HT</span>';
-            div.innerHTML = \`<img src="\${track.thumbnail}" class="track-thumb"><div style="flex:1; overflow:hidden;"><div style="font-weight:bold; color:white; font-size:0.8rem;">\${srcTag} \${track.title}</div></div><div class="btn-group"><div class="load-row"><button class="action-btn btn-d1" onclick="loadTrack(1, \${safeTrack})">D1</button><button class="action-btn btn-d2" onclick="loadTrack(2, \${safeTrack})">D2</button></div><button class="action-btn btn-save" onclick="saveToLibrary(this, \${safeTrack})">SAVE</button></div>\`;
-            listDiv.appendChild(div);
-        });
-        document.getElementById('res-count').innerText = \`\${listDiv.children.length} results\`;
-    }
-
-    document.getElementById('g-scroll-area').onscroll = function() {
-        const memKey = \`\${searchSource}:\${currentQuery}\`;
-        if(queryMemory[memKey]) queryMemory[memKey].scrollPos = this.scrollTop;
-        if (this.scrollTop + this.clientHeight >= this.scrollHeight - 300) { fetchMoreResults(); }
+  <script>
+    // --- Login Logic ---
+    window.validateLogin = function() {
+        const name = document.getElementById('name').value;
+        const mobile = document.getElementById('mobile').value;
+        if(name.length > 3 && mobile.length === 10) {
+            localStorage.setItem('name', name);
+            localStorage.setItem('mobile', mobile);
+            location.reload();
+        } else { alert("Enter valid details"); }
     };
 
-    async function saveToLibrary(btn, track) {
-        btn.innerText = "⏳";
-        await fetch('/api/history', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(track)});
-        await fetch('/api/download', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(track)});
-        btn.innerText = "✔";
-        loadData();
+    if(localStorage.getItem('name')) {
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
     }
 
-    async function loadData() {
-        try {
-            const [libRes, catRes, plRes] = await Promise.all([fetch('/api/history'), fetch('/api/categories'), fetch('/api/playlists')]);
-            libraryData = await libRes.json();
-            categories = await catRes.json();
-            playlists = await plRes.json();
-            renderCategories();
-            renderLibrary();
-            renderPlaylists();
-        } catch (e) {}
-    }
-    
-    function renderCategories() {
-        const div = document.getElementById('cat-chips');
-        div.innerHTML = '';
-        const allChip = document.createElement('div');
-        allChip.className = \`cat-chip \${activeCat === 'All' ? 'active' : ''}\`;
-        allChip.innerHTML = \`<span onclick="setActiveCat('All')">All</span>\`;
-        div.appendChild(allChip);
-        ['Uncategorized', ...categories].forEach(cat => {
-            const chip = document.createElement('div');
-            chip.className = \`cat-chip \${cat === activeCat ? 'active' : ''}\`;
-            chip.innerHTML = \`<span onclick="setActiveCat('\${cat}')">\${cat}</span><span style="opacity:0.5;" onclick="deleteCategory('\${cat}')">×</span>\`;
-            div.appendChild(chip);
-        });
-    }
+    // --- Angular App ---
+    var app = angular.module('myApp', ['firebase']);
+    app.controller('imagesController', function($scope, $firebaseArray, $timeout) {
+      const fetchConfig = { databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com" };
+      const submitConfig = { databaseURL: "https://notes-12519-default-rtdb.firebaseio.com" };
+      
+      const fetchApp = firebase.initializeApp(fetchConfig, 'fetchApp');
+      const submitApp = firebase.initializeApp(submitConfig, 'submitApp');
+      
+      const fetchDb = fetchApp.database().ref();
+      const submitDb = submitApp.database().ref();
 
-    function setActiveCat(cat) {
-        activeCat = cat;
-        renderCategories();
-        renderLibrary();
-    }
+      $scope.dynamicField2Value = localStorage.getItem('name');
+      $scope.priceVisible = true;
+      $scope.categories = [
+          { id: 0, name: 'ALL', filter: '', imageUrl: 'https://www.hindustantoys.in/images/all.jpeg' },
+          { id: 1, name: 'RACKET', filter: 'RACKET', imageUrl: 'https://www.hindustantoys.in/images/racket.jpeg' }
+      ];
 
-    async function addCategory() {
-        const name = document.getElementById('new-cat').value;
-        if(!name) return;
-        await fetch('/api/categories', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name})});
-        document.getElementById('new-cat').value = '';
-        loadData();
-    }
+      $scope.displayedProducts = [];
+      let allProductsRaw = [];
 
-    async function deleteCategory(name) {
-        if(confirm(\`Delete playlist "\${name}"?\`)) {
-            await fetch('/api/delete_category', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name})});
-            if(activeCat === name) activeCat = 'All';
-            loadData();
-        }
-    }
-    
-    function renderLibrary() {
-        const filter = document.getElementById('lib-search').value.toLowerCase();
-        const list = document.getElementById('lib-list');
-        list.innerHTML = '';
-        libraryData.forEach(track => {
-            if(filter && !track.title.toLowerCase().includes(filter)) return;
-            if(activeCat !== 'All' && track.category !== activeCat) return;
-            const div = document.createElement('div');
-            div.className = 'track-item';
-            const safeTrack = JSON.stringify(track).replace(/'/g, "\\\\'").replace(/"/g, "&quot;");
-            let catOpts = '';
-            categories.forEach(c => catOpts += \`<option value="\${c}" \${c===track.category?'selected':''}>\${c}</option>\`);
-            div.innerHTML = \`<div style="flex:1; overflow:hidden;"><div style="font-weight:bold; color:white; font-size:0.8rem;">\${track.title}</div><select onchange="updateTrackCat('\${track.id}', this.value)" style="background:var(--bg-dark); color:#888; border:1px solid var(--border); font-size:0.7rem; border-radius:3px;"><option value="Uncategorized">Uncategorized</option>\${catOpts}</select></div><div class="btn-group"><div class="load-row"><button class="action-btn btn-d1" onclick="loadTrack(1, \${safeTrack})">D1</button><button class="action-btn btn-d2" onclick="loadTrack(2, \${safeTrack})">D2</button></div><button class="action-btn btn-del" onclick="deleteTrack('\${track.id}')">X</button></div>\`;
-            list.appendChild(div);
-        });
-        document.getElementById('lib-total-count').innerText = libraryData.length;
-    }
+      fetchDb.on('value', snap => {
+          let list = [];
+          snap.forEach(child => {
+              let item = child.val();
+              item.$id = child.key;
+              list.push(item);
+          });
+          allProductsRaw = list;
+          $scope.$apply(() => { $scope.updateDisplayedProducts(); });
+      });
 
-    function switchLibTab(tab) {
-        document.getElementById('view-tracks').style.display = tab === 'tracks' ? 'flex' : 'none';
-        document.getElementById('view-playlists').style.display = tab === 'playlists' ? 'flex' : 'none';
-        document.getElementById('tab-btn-tracks').classList.toggle('active', tab === 'tracks');
-        document.getElementById('tab-btn-playlists').classList.toggle('active', tab === 'playlists');
-        if(tab === 'playlists') {
-            document.getElementById('pl-main-view').style.display = 'block';
-            document.getElementById('pl-tracks-view').style.display = 'none';
-        }
-    }
+      $scope.allOrders = $firebaseArray(submitDb);
+      $scope.isPendingOrder = (item) => item.field2 === $scope.dynamicField2Value;
 
-    async function addPlaylist() {
-        const url = document.getElementById('new-pl-url').value;
-        if (!url) return;
-        const btn = document.querySelector('#view-playlists button');
-        btn.innerText = "ADDING...";
-        await fetch('/api/playlists', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({url})});
-        document.getElementById('new-pl-url').value = '';
-        btn.innerText = "ADD";
-        loadData();
-    }
+      $scope.updateDisplayedProducts = function() {
+          $scope.displayedProducts = allProductsRaw.filter(p => {
+              return $scope.productNameFilter ? p.name.includes($scope.productNameFilter) : true;
+          });
+      };
 
-    function renderPlaylists() {
-        const list = document.getElementById('pl-list');
-        list.innerHTML = '';
-        playlists.forEach(pl => {
-            const div = document.createElement('div');
-            div.className = 'pl-item';
-            div.innerHTML = \`<div><div class="pl-name">\${pl.title}</div><div class="pl-count">\${pl.trackCount || 0} tracks</div></div><button class="action-btn btn-del" style="flex:0; margin-left:10px;" onclick="event.stopPropagation(); deletePlaylist('\${pl.id}')">X</button>\`;
-            div.onclick = () => openPlaylistTracks(pl.url);
-            list.appendChild(div);
-        });
-    }
+      $scope.selectCategory = function(f, id) {
+          $scope.productNameFilter = f;
+          $scope.activeTabId = id;
+          $scope.updateDisplayedProducts();
+      };
 
-    async function deletePlaylist(id) {
-        if(confirm('Remove playlist?')) {
-            await fetch('/api/delete_playlist', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id})});
-            loadData();
-        }
-    }
+      // --- NEW: LONG PRESS & SELECTION LOGIC ---
+      $scope.selectedCount = 0;
+      let pressTimer;
 
-    async function openPlaylistTracks(url) {
-        document.getElementById('pl-main-view').style.display = 'none';
-        document.getElementById('pl-tracks-view').style.display = 'flex';
-        document.getElementById('pl-loader').style.display = 'block';
-        document.getElementById('pl-tracks-list').innerHTML = '';
-        
-        try {
-            const res = await fetch('/api/get_playlist_tracks', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({url})});
-            const tracks = await res.json();
-            const listDiv = document.getElementById('pl-tracks-list');
-            listDiv.innerHTML = '';
-            
-            if (tracks.length === 0) {
-                 listDiv.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">No valid tracks found.</div>';
-            }
+      $scope.startPress = function(product) {
+          pressTimer = $timeout(() => {
+              $scope.toggleSelect(product);
+          }, 600); // 0.6 seconds long press
+      };
 
-            tracks.forEach(track => {
-                const div = document.createElement('div');
-                div.className = 'track-item';
-                const safeTrack = JSON.stringify(track).replace(/'/g, "\\\\'").replace(/"/g, "&quot;");
-                div.innerHTML = \`<img src="\${track.thumbnail}" class="track-thumb"><div style="flex:1; overflow:hidden;"><div style="font-weight:bold; color:white; font-size:0.8rem;">\${track.title}</div></div><div class="btn-group"><div class="load-row"><button class="action-btn btn-d1" onclick="loadTrack(1, \${safeTrack})">D1</button><button class="action-btn btn-d2" onclick="loadTrack(2, \${safeTrack})">D2</button></div></div>\`;
-                listDiv.appendChild(div);
-            });
-        } catch(e) { alert("Error fetching playlist"); }
-        document.getElementById('pl-loader').style.display = 'none';
-    }
+      $scope.endPress = function() {
+          $timeout.cancel(pressTimer);
+      };
 
-    function closePlaylistTracks() {
-        document.getElementById('pl-tracks-view').style.display = 'none';
-        document.getElementById('pl-main-view').style.display = 'block';
-    }
+      $scope.toggleSelect = function(product) {
+          product.selected = !product.selected;
+          $scope.selectedCount = $scope.displayedProducts.filter(p => p.selected).length;
+          if (window.navigator.vibrate) window.navigator.vibrate(50);
+      };
 
-    async function loadTrack(deckId, track) {
-        closeResults();
-        closeLibrary();
-        document.getElementById(\`fil-\${deckId}\`).value = 0;
-        updateFilter(deckId, 0);
-        document.getElementById(\`spd-\${deckId}\`).value = 1;
-        setSpeed(deckId, 1);
-        document.getElementById(\`eq-hi-\${deckId}\`).value = 0;
-        setEq(deckId, 'high', 0);
-        document.getElementById(\`eq-mid-\${deckId}\`).value = 0;
-        setEq(deckId, 'mid', 0);
-        document.getElementById(\`eq-lo-\${deckId}\`).value = 0;
-        setEq(deckId, 'low', 0);
-        clearAllCues(deckId);
-        
-        const res = await fetch('/api/play', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(track)});
-        const data = await res.json();
-        const indicator = document.getElementById(\`src-\${deckId}\`);
-        indicator.innerText = data.is_local ? 'DISK' : 'LIVE';
-        indicator.className = data.is_local ? 'source-indicator src-disk' : 'source-indicator src-online';
-        indicator.style.display = 'block';
-        
-        const audio = document.getElementById('audio-'+deckId);
-        audio.src = data.url;
-        audio.load();
-        audio.oncanplay = () => {
-            document.getElementById('title-'+deckId).innerText = track.title;
-            audio.play();
-        };
-        fetch('/api/history', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(track)});
-    }
+      $scope.handleProductClick = function(product, event) {
+          // If already in selection mode, toggle instead of enlarging
+          if ($scope.selectedCount > 0) {
+              event.preventDefault();
+              $scope.toggleSelect(product);
+          } else {
+              // Standard behavior: show image
+              alert("Showing image: " + product.name); 
+          }
+      };
 
-    async function deleteTrack(id) {
-        if(confirm('Delete track?')) {
-            await fetch('/api/delete_track', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id})});
-            loadData();
-        }
-    }
+      $scope.shareToWhatsApp = function() {
+          const selected = $scope.displayedProducts.filter(p => p.selected);
+          let msg = `*Order/Inquiry from ${$scope.dynamicField2Value}*\n\n`;
+          
+          selected.forEach((p, i) => {
+              msg += `*${i+1}. ${p.name}*\nPrice: ₹${p.price}\nLink: ${p.url}\n\n`;
+          });
 
-    async function updateTrackCat(id, cat) {
-        await fetch('/api/update_category', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id, category:cat})});
-    }
+          const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+          window.open(url, '_blank');
 
-    async function nuclearReset() {
-        if(confirm("☢️ DELETE EVERYTHING?")) {
-            await fetch('/api/clear_all_data', {method:'POST'});
-            window.location.reload();
-        }
-    }
+          // Reset selection
+          $scope.displayedProducts.forEach(p => p.selected = false);
+          $scope.selectedCount = 0;
+      };
 
-    function openLibrary() {
-        document.getElementById('lib-modal').style.display = 'flex';
-        loadData();
-    }
+      $scope.submitData = function(image) {
+          if (!image.field3 || image.field3 <= 0) return;
+          const id = $scope.dynamicField2Value + '-' + image.$id;
+          submitDb.child(id).set({
+              field1: image.url,
+              field2: $scope.dynamicField2Value,
+              field3: image.field3,
+              productName: image.name,
+              productPrice: image.price,
+              serverTimestamp: firebase.database.ServerValue.TIMESTAMP
+          });
+      };
+      
+      $scope.openOrderModal = () => new bootstrap.Modal(document.getElementById('myModal')).show();
 
-    function closeLibrary() {
-        document.getElementById('lib-modal').style.display = 'none';
-        if(document.getElementById('g-results').style.display === 'flex') {
-            const memKey = \`\${searchSource}:\${currentQuery}\`;
-            document.getElementById('g-scroll-area').scrollTop = queryMemory[memKey].scrollPos || 0;
-        }
-    }
-
-    function closeResults() {
-        document.getElementById('g-results').style.display = 'none';
-    }
-
-    window.onload = () => {
-        initDeck(1);
-        initDeck(2);
-        setCrossfader(50);
-        loadData();
-    };
-</script>
+    });
+  </script>
 </body>
 </html>
-`;
-
-// --- BACKEND ROUTES (Same as original with minor enhancements) ---
-app.get('/', (req, res) => {
-    res.send(HTML_TEMPLATE);
-});
-
-app.post('/api/search', async (req, res) => {
-    const { query, page = 1, offset = 0, source = 'yt' } = req.body;
-    
-    try {
-        if (source === 'ht') {
-            const apiUrl = \`https://api-v2.hearthis.at/search?t=\${encodeURIComponent(query)}&page=\${page}&count=20\`;
-            const response = await axios.get(apiUrl);
-            const tracks = response.data.map(t => ({
-                id: String(t.id),
-                title: t.title,
-                thumbnail: t.thumb || t.artwork_url || '',
-                stream_url: t.stream_url || '',
-                source: 'ht'
-            }));
-            return res.json(tracks);
-        } else {
-            const fetchCount = offset + 25;
-            const cmd = \`yt-dlp --flat-playlist --dump-json "ytsearch\${fetchCount}:\${query.replace(/"/g, '\\\\"')}" --quiet 2>/dev/null\`;
-            
-            try {
-                const { stdout } = await execAsync(cmd, { maxBuffer: 10 * 1024 * 1024 });
-                const lines = stdout.trim().split('\\n').filter(l => l);
-                const entries = lines.slice(offset).map(line => {
-                    try {
-                        return JSON.parse(line);
-                    } catch {
-                        return null;
-                    }
-                }).filter(e => e && e.id);
-                
-                const tracks = entries.map(e => ({
-                    id: e.id,
-                    title: e.title,
-                    thumbnail: \`https://i.ytimg.com/vi/\${e.id}/mqdefault.jpg\`,
-                    source: 'yt'
-                }));
-                
-                return res.json(tracks);
-            } catch (e) {
-                console.error('Search error:', e);
-                return res.json([]);
-            }
-        }
-    } catch (e) {
-        console.error('Search error:', e);
-        res.json([]);
-    }
-});
-
-app.get('/api/categories', async (req, res) => {
-    const cats = await loadJson(CATEGORIES_FILE, []);
-    res.json(cats);
-});
-
-app.post('/api/categories', async (req, res) => {
-    const { name } = req.body;
-    const cats = await loadJson(CATEGORIES_FILE, []);
-    if (name && !cats.includes(name)) {
-        cats.push(name);
-        await saveJson(CATEGORIES_FILE, cats);
-    }
-    res.json(cats);
-});
-
-app.post('/api/delete_category', async (req, res) => {
-    const { name } = req.body;
-    let cats = await loadJson(CATEGORIES_FILE, []);
-    if (cats.includes(name)) {
-        cats = cats.filter(c => c !== name);
-        await saveJson(CATEGORIES_FILE, cats);
-        
-        const hist = await loadJson(HISTORY_FILE, []);
-        hist.forEach(t => {
-            if (t.category === name) t.category = 'Uncategorized';
-        });
-        await saveJson(HISTORY_FILE, hist);
-    }
-    res.json({ ok: true });
-});
-
-app.post('/api/play', async (req, res) => {
-    const track = req.body;
-    const { id: vid, source = 'yt' } = track;
-    const local = getLocalFile(vid);
-    
-    if (local) {
-        return res.json({ url: \`/stream_local/\${local}\`, is_local: true });
-    }
-    
-    backgroundDownload(track).catch(e => console.error('Background download error:', e));
-    
-    if (source === 'ht') {
-        return res.json({
-            url: \`/stream_proxy/ht/\${vid}?url=\${encodeURIComponent(track.stream_url)}\`,
-            is_local: false
-        });
-    }
-    
-    return res.json({ url: \`/stream_proxy/yt/\${vid}\`, is_local: false });
-});
-
-app.get('/api/history', async (req, res) => {
-    const history = await loadJson(HISTORY_FILE, []);
-    res.json(history);
-});
-
-app.post('/api/history', async (req, res) => {
-    await addTrackToHistory(req.body);
-    res.json({ ok: true });
-});
-
-app.post('/api/update_category', async (req, res) => {
-    const { id, category } = req.body;
-    const hist = await loadJson(HISTORY_FILE, []);
-    const track = hist.find(t => t.id === id);
-    if (track) {
-        track.category = category;
-        await saveJson(HISTORY_FILE, hist);
-    }
-    res.json({ ok: true });
-});
-
-app.post('/api/delete_track', async (req, res) => {
-    const { id: vid } = req.body;
-    let hist = await loadJson(HISTORY_FILE, []);
-    hist = hist.filter(t => t.id !== vid);
-    await saveJson(HISTORY_FILE, hist);
-    
-    const local = getLocalFile(vid);
-    if (local) {
-        try {
-            await fs.unlink(path.join(DOWNLOAD_FOLDER, local));
-        } catch (e) {
-            console.error('Error deleting file:', e);
-        }
-    }
-    res.json({ ok: true });
-});
-
-app.get('/api/playlists', async (req, res) => {
-    const pls = await loadJson(PLAYLISTS_FILE, []);
-    res.json(pls);
-});
-
-app.post('/api/playlists', async (req, res) => {
-    const { url } = req.body;
-    const pls = await loadJson(PLAYLISTS_FILE, []);
-    
-    if (url) {
-        try {
-            const cmd = \`yt-dlp --flat-playlist --dump-json "\${url.replace(/"/g, '\\\\"')}" --quiet --ignore-errors 2>/dev/null | head -1\`;
-            const { stdout } = await execAsync(cmd);
-            const info = JSON.parse(stdout.trim());
-            const title = info.title || 'Unknown Playlist';
-            const pid = info.id;
-            
-            if (!pls.some(p => p.id === pid)) {
-                pls.push({ id: pid, title, url });
-                await saveJson(PLAYLISTS_FILE, pls);
-            }
-        } catch (e) {
-            console.error('Playlist add error:', e);
-        }
-    }
-    res.json(pls);
-});
-
-app.post('/api/delete_playlist', async (req, res) => {
-    const { id: pid } = req.body;
-    let pls = await loadJson(PLAYLISTS_FILE, []);
-    pls = pls.filter(p => p.id !== pid);
-    await saveJson(PLAYLISTS_FILE, pls);
-    res.json({ ok: true });
-});
-
-app.post('/api/get_playlist_tracks', async (req, res) => {
-    const { url } = req.body;
-    
-    try {
-        const cmd = \`yt-dlp --flat-playlist --dump-json "\${url.replace(/"/g, '\\\\"')}" --quiet --ignore-errors --playlist-items 1-100 2>/dev/null\`;
-        const { stdout } = await execAsync(cmd, { maxBuffer: 10 * 1024 * 1024 });
-        
-        const lines = stdout.trim().split('\\n').filter(l => l);
-        const tracks = [];
-        
-        for (const line of lines) {
-            try {
-                const e = JSON.parse(line);
-                if (!e || !e.id) continue;
-                
-                const title = e.title || '';
-                if (['[Private video]', '[Deleted video]', '[Geoblocked]'].includes(title)) continue;
-                
-                let thumb = null;
-                if (e.thumbnails && e.thumbnails.length > 0) {
-                    thumb = e.thumbnails[e.thumbnails.length - 1].url;
-                }
-                if (!thumb) thumb = \`https://i.ytimg.com/vi/\${e.id}/mqdefault.jpg\`;
-                
-                tracks.push({
-                    id: e.id,
-                    title: title,
-                    thumbnail: thumb,
-                    source: 'yt'
-                });
-            } catch (parseErr) {
-                continue;
-            }
-        }
-        
-        res.json(tracks);
-    } catch (e) {
-        console.error('Playlist tracks error:', e);
-        res.json([]);
-    }
-});
-
-app.post('/api/clear_all_data', async (req, res) => {
-    try {
-        if (fsSync.existsSync(HISTORY_FILE)) await fs.unlink(HISTORY_FILE);
-        if (fsSync.existsSync(CATEGORIES_FILE)) await fs.unlink(CATEGORIES_FILE);
-        if (fsSync.existsSync(PLAYLISTS_FILE)) await fs.unlink(PLAYLISTS_FILE);
-        
-        if (fsSync.existsSync(DOWNLOAD_FOLDER)) {
-            await fs.rm(DOWNLOAD_FOLDER, { recursive: true, force: true });
-            await fs.mkdir(DOWNLOAD_FOLDER, { recursive: true });
-        }
-    } catch (e) {
-        console.error('Clear data error:', e);
-    }
-    res.json({ status: 'ok' });
-});
-
-app.get('/stream_proxy/:ptype/:vid', async (req, res) => {
-    const { ptype, vid } = req.params;
-    
-    try {
-        if (ptype === 'ht') {
-            const streamUrl = req.query.url;
-            const response = await axios({
-                url: streamUrl,
-                method: 'GET',
-                responseType: 'stream'
-            });
-            
-            res.setHeader('Content-Type', 'audio/mpeg');
-            response.data.pipe(res);
-        } else {
-            const cmd = \`yt-dlp -f bestaudio --get-url "\${vid}" --quiet 2>/dev/null\`;
-            const { stdout } = await execAsync(cmd);
-            const streamUrl = stdout.trim();
-            
-            const response = await axios({
-                url: streamUrl,
-                method: 'GET',
-                responseType: 'stream',
-                headers: {
-                    'Range': req.headers.range || ''
-                }
-            });
-            
-            res.setHeader('Content-Type', response.headers['content-type'] || 'audio/webm');
-            if (response.headers['content-length']) {
-                res.setHeader('Content-Length', response.headers['content-length']);
-            }
-            if (response.headers['content-range']) {
-                res.setHeader('Content-Range', response.headers['content-range']);
-                res.status(206);
-            }
-            
-            response.data.pipe(res);
-        }
-    } catch (e) {
-        console.error('Stream error:', e);
-        res.status(500).send('Stream error');
-    }
-});
-
-app.get('/stream_local/:filename', (req, res) => {
-    const filename = req.params.filename;
-    const filePath = path.join(DOWNLOAD_FOLDER, filename);
-    
-    if (!fsSync.existsSync(filePath)) {
-        return res.status(404).send('File not found');
-    }
-    
-    res.sendFile(path.resolve(filePath));
-});
-
-app.post('/api/download', async (req, res) => {
-    backgroundDownload(req.body).catch(e => console.error('Download error:', e));
-    res.json({ ok: true });
-});
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, '127.0.0.1', () => {
-    console.log(\`🎧 Sammy's DJ PRO ULTRA running on http://127.0.0.1:\${PORT}\`);
-});
