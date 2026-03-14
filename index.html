@@ -920,10 +920,13 @@ function($scope,$firebaseArray,$filter,$window,$timeout,$sce){
       document.body.appendChild(o);
       o.querySelector('#_waob').addEventListener('click', function(){
         document.body.removeChild(o);
-        if (isPWA && isAndroid) {
-          window.location.href = 'intent://send/#Intent;package=com.whatsapp;scheme=whatsapp;end';
+        if (isAndroid) {
+          // Android: intent URI opens WhatsApp app directly to the home screen
+          // User then picks a chat and attaches from gallery
+          window.location.href = 'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=com.whatsapp;end';
         } else {
-          window.open('https://wa.me/', '_blank');
+          // iOS: whatsapp:// deep link opens the app directly
+          window.location.href = 'whatsapp://';
         }
         $scope.$apply(function(){ $scope.clearSelection(); });
       });
