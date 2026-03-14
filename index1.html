@@ -515,6 +515,148 @@
 
     .price-sep { color: var(--ink-muted); font-size: 12px; }
 
+    /* Sort buttons */
+    .sort-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--cream);
+      border: 1.5px solid transparent;
+      border-radius: 8px;
+      padding: 6px 9px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--ink-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .sort-btn:hover {
+      border-color: var(--green-bright);
+      color: var(--green-mid);
+      background: var(--green-pale);
+    }
+
+    .sort-btn.active {
+      background: var(--green-deep);
+      color: white;
+      border-color: var(--green-deep);
+    }
+
+    .filter-divider {
+      width: 1px;
+      height: 20px;
+      background: var(--cream-dark);
+      flex-shrink: 0;
+    }
+
+    /* Order modal tabs */
+    .order-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--cream);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 14px;
+    }
+
+    .order-tab-btn {
+      flex: 1;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 7px;
+      font-family: 'Figtree', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: transparent;
+      color: var(--ink-muted);
+    }
+
+    .order-tab-btn.active {
+      background: var(--white);
+      color: var(--green-deep);
+      box-shadow: var(--card-shadow);
+    }
+
+    /* History item */
+    .history-date-group {
+      margin-bottom: 14px;
+    }
+
+    .history-date-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: 6px;
+      padding: 0 2px;
+    }
+
+    .history-item {
+      background: var(--white);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 6px;
+      opacity: 0.85;
+    }
+
+    .history-img {
+      width: 42px; height: 42px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: var(--cream-dark);
+      flex-shrink: 0;
+    }
+
+    .history-info { flex: 1; min-width: 0; }
+
+    .history-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .history-meta {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px;
+      color: var(--ink-muted);
+      margin-top: 2px;
+    }
+
+    .history-qty {
+      font-family: 'Geist Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      flex-shrink: 0;
+    }
+
+    .completed-badge {
+      font-family: 'Geist Mono', monospace;
+      font-size: 8px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      background: var(--green-pale);
+      color: var(--green-mid);
+      padding: 2px 7px;
+      border-radius: 100px;
+      flex-shrink: 0;
+    }
+
     .clear-filter-btn {
       width: 26px; height: 26px;
       border: none;
@@ -985,7 +1127,251 @@
       .tab-item { padding: 8px 3px; }
     }
 
+    /* ── MULTI SELECT MODE ── */
+
+    /* Hidden by default, shown only when body has multi-select-mode class */
+    .select-checkbox-wrap {
+      display: none;
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      z-index: 10;
+    }
+
+    body.multi-select-mode .select-checkbox-wrap {
+      display: block;
+    }
+
+    /* Active state for the dropdown item */
+    .multi-select-active {
+      background: var(--green-pale) !important;
+      color: var(--green-deep) !important;
+      font-weight: 600 !important;
+    }
+
+    .badge-on {
+      display: inline-block;
+      background: var(--green-bright);
+      color: white;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 100px;
+      letter-spacing: 0.5px;
+      vertical-align: middle;
+    }
+
     #videoModal { z-index: 1060; }
+
+    /* ══════════════════════════════════════
+       PRODUCT SELECTION & BULK SHARE
+    ══════════════════════════════════════ */
+
+    /* Checkbox overlay on card image */
+    .product-card {
+      position: relative;
+    }
+
+    .select-checkbox {
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      border: 2px solid rgba(255,255,255,0.85);
+      background: rgba(255,255,255,0.25);
+      backdrop-filter: blur(4px);
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      transition: all 0.18s;
+      display: block;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+    }
+
+    .select-checkbox:checked {
+      background: var(--green-bright);
+      border-color: var(--green-bright);
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 12 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='1,5 4.5,8.5 11,1' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 11px;
+    }
+
+    .product-card.selected {
+      outline: 2.5px solid var(--green-bright);
+      outline-offset: -2px;
+      box-shadow: 0 0 0 4px rgba(82,183,136,0.18), var(--card-shadow-hover);
+    }
+
+    /* card-actions row */
+    .card-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    /* Single share btn (kept small, per-card) */
+    .wa-share-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #e8f8ef;
+      color: #128c3e;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 8px;
+      font-family: 'Figtree', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .wa-share-btn:hover { background: #25d366; color: white; transform: translateY(-1px); }
+    .wa-share-btn:active { transform: translateY(0); }
+    .wa-share-btn .wa-icon { width: 13px; height: 13px; flex-shrink: 0; }
+
+    /* ── BULK SHARE FLOATING BAR ── */
+    .bulk-bar {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      z-index: 1080;
+      background: var(--green-deep);
+      color: white;
+      border-radius: 100px;
+      padding: 12px 8px 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 12px 40px rgba(26,61,43,0.45), 0 4px 12px rgba(0,0,0,0.2);
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      max-width: calc(100vw - 32px);
+      white-space: nowrap;
+    }
+
+    .bulk-bar.visible {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .bulk-bar-count {
+      font-family: 'Geist Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      background: rgba(255,255,255,0.15);
+      padding: 4px 10px;
+      border-radius: 100px;
+      min-width: 28px;
+      text-align: center;
+    }
+
+    .bulk-bar-label {
+      font-family: 'Figtree', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      flex: 1;
+    }
+
+    .bulk-bar-share-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: #25d366;
+      color: white;
+      border: none;
+      border-radius: 100px;
+      padding: 10px 18px;
+      font-family: 'Figtree', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      flex-shrink: 0;
+    }
+
+    .bulk-bar-share-btn:hover { background: #1fbe59; transform: scale(1.03); }
+    .bulk-bar-share-btn:active { transform: scale(1); }
+    .bulk-bar-share-btn .wa-icon { width: 16px; height: 16px; }
+
+    .bulk-bar-clear-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px; height: 34px;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.2s, color 0.2s;
+      flex-shrink: 0;
+    }
+
+    .bulk-bar-clear-btn:hover { background: rgba(255,255,255,0.2); color: white; }
+
+    /* Progress overlay during download */
+    .download-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10,20,15,0.7);
+      backdrop-filter: blur(6px);
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      color: white;
+    }
+
+    .download-overlay-box {
+      background: white;
+      border-radius: 20px;
+      padding: 28px 32px;
+      text-align: center;
+      max-width: 300px;
+      width: 90%;
+      color: var(--ink);
+    }
+
+    .download-overlay-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .download-overlay-title {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--green-deep);
+    }
+
+    .download-overlay-sub {
+      font-size: 12px;
+      color: var(--ink-muted);
+      line-height: 1.5;
+    }
+
+    .download-progress-bar-wrap {
+      width: 100%;
+      height: 6px;
+      background: var(--cream-dark);
+      border-radius: 100px;
+      overflow: hidden;
+      margin-top: 16px;
+    }
+
+    .download-progress-bar {
+      height: 100%;
+      background: var(--green-bright);
+      border-radius: 100px;
+      transition: width 0.3s ease;
+    }
   </style>
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
@@ -1034,6 +1420,15 @@
               <i class="fas fa-shopping-cart me-2" style="color:var(--green-bright);"></i>Your Order
             </a></li>
             <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item" href="#" ng-click="toggleMultiSelectMode($event)"
+                 ng-class="{'multi-select-active': multiSelectMode}">
+                <i class="fas fa-check-square me-2" style="color:var(--green-bright);"></i>
+                Multi Select
+                <span ng-if="multiSelectMode" class="ms-1 badge-on">ON</span>
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item text-danger" href="#" ng-click="logout()">
               <i class="fas fa-sign-out-alt me-2"></i>Logout
             </a></li>
@@ -1071,6 +1466,30 @@
       <div class="search-header" style="padding-top: 90px;">
         <div class="search-title">Results for <span class="search-query">"{{ searchQuery }}"</span></div>
       </div>
+      <!-- Search filter bar -->
+      <div style="padding: 0 14px 10px;">
+        <div class="filter-bar">
+          <span class="filter-label">₹</span>
+          <input type="number" class="price-input" placeholder="Min"
+                 ng-model="searchPriceFilter.min" ng-change="applySearchFilters()">
+          <span class="price-sep">–</span>
+          <input type="number" class="price-input" placeholder="Max"
+                 ng-model="searchPriceFilter.max" ng-change="applySearchFilters()">
+          <button class="clear-filter-btn" ng-click="clearSearchPriceFilter()"
+                  ng-if="searchPriceFilter.min || searchPriceFilter.max" title="Clear">
+            <i class="fas fa-times"></i>
+          </button>
+          <div class="filter-divider"></div>
+          <button class="sort-btn" ng-class="{'active': searchPriceSort === 'asc'}"
+                  ng-click="setSearchPriceSort('asc')">
+            <i class="fas fa-arrow-up"></i> Low
+          </button>
+          <button class="sort-btn" ng-class="{'active': searchPriceSort === 'desc'}"
+                  ng-click="setSearchPriceSort('desc')">
+            <i class="fas fa-arrow-down"></i> High
+          </button>
+        </div>
+      </div>
       <div style="padding: 0 14px 80px;">
         <div ng-if="isLoadingSearchResults" class="product-grid">
           <div class="skeleton-card" ng-repeat="i in [1,2,3,4]">
@@ -1081,7 +1500,13 @@
         </div>
         <div ng-if="!isLoadingSearchResults">
           <div class="product-grid">
-            <div class="product-card" ng-repeat="product in searchResults">
+            <div class="product-card" ng-repeat="product in filteredSearchResults"
+                 ng-class="{'selected': isSelected(product)}">
+              <div class="select-checkbox-wrap" ng-show="multiSelectMode">
+                <input type="checkbox" class="select-checkbox"
+                       ng-checked="isSelected(product)"
+                       ng-click="$event.stopPropagation(); toggleSelect(product)">
+              </div>
               <img class="product-card-img" ng-src="{{product.url}}" alt="{{product.name}}" ng-click="showEnlargedImage(product.url)" loading="lazy">
               <div class="product-card-body">
                 <span class="saved-badge" ng-if="product.justSaved">Saved!</span>
@@ -1092,12 +1517,14 @@
                     <i class="fas fa-play-circle"></i> Watch Video
                   </a>
                 </div>
-                <input type="number" class="qty-input" placeholder="Qty" ng-model="product.field3"
-                       ng-change="submitData(product)" ng-model-options="{ debounce: 800 }">
+                <div class="card-actions">
+                  <input type="number" class="qty-input" placeholder="Qty" ng-model="product.field3"
+                         ng-change="submitData(product)" ng-model-options="{ debounce: 800 }">
+                </div>
               </div>
             </div>
           </div>
-          <div ng-if="searchResults.length === 0" class="empty-state">
+          <div ng-if="filteredSearchResults.length === 0" class="empty-state">
             <div class="empty-icon">🔍</div>
             <div class="empty-text">No products found for your search.</div>
           </div>
@@ -1133,15 +1560,24 @@
       <div class="products-area">
         <!-- FILTER BAR -->
         <div class="filter-bar">
-          <span class="filter-label">Price</span>
-          <input type="number" class="price-input" placeholder="Min ₹"
+          <span class="filter-label">₹</span>
+          <input type="number" class="price-input" placeholder="Min"
                  ng-model="priceFilter.min" ng-change="updateDisplayedProducts()">
           <span class="price-sep">–</span>
-          <input type="number" class="price-input" placeholder="Max ₹"
+          <input type="number" class="price-input" placeholder="Max"
                  ng-model="priceFilter.max" ng-change="updateDisplayedProducts()">
           <button class="clear-filter-btn" ng-click="clearPriceFilter()"
                   ng-if="priceFilter.min || priceFilter.max" title="Clear filter">
             <i class="fas fa-times"></i>
+          </button>
+          <div class="filter-divider"></div>
+          <button class="sort-btn" ng-class="{'active': priceSort === 'asc'}"
+                  ng-click="setPriceSort('asc')" title="Price: Low to High">
+            <i class="fas fa-arrow-up"></i> Low
+          </button>
+          <button class="sort-btn" ng-class="{'active': priceSort === 'desc'}"
+                  ng-click="setPriceSort('desc')" title="Price: High to Low">
+            <i class="fas fa-arrow-down"></i> High
           </button>
         </div>
 
@@ -1159,7 +1595,14 @@
           <div class="product-grid">
             <div class="product-card"
                  ng-repeat="product in displayedProducts track by product.$id"
-                 ng-hide="product.markedForRemoval">
+                 ng-hide="product.markedForRemoval"
+                 ng-class="{'selected': isSelected(product)}">
+              <!-- Selection checkbox -->
+              <div class="select-checkbox-wrap" ng-show="multiSelectMode">
+                <input type="checkbox" class="select-checkbox"
+                       ng-checked="isSelected(product)"
+                       ng-click="$event.stopPropagation(); toggleSelect(product)">
+              </div>
               <img class="product-card-img"
                    ng-src="{{product.url}}"
                    alt="{{product.name}}"
@@ -1179,10 +1622,12 @@
                     <i class="fas fa-play-circle"></i> Watch Video
                   </a>
                 </div>
-                <input type="number" class="qty-input" placeholder="Qty"
-                       ng-model="product.field3"
-                       ng-change="submitData(product)"
-                       ng-model-options="{ debounce: 800 }">
+                <div class="card-actions">
+                  <input type="number" class="qty-input" placeholder="Qty"
+                         ng-model="product.field3"
+                         ng-change="submitData(product)"
+                         ng-model-options="{ debounce: 800 }">
+                </div>
               </div>
             </div>
           </div>
@@ -1193,9 +1638,33 @@
         </div>
       </div>
     </div>
+  <!-- ════════════════════ BULK SHARE BAR ════════════════════ -->
+  <div class="bulk-bar" ng-class="{'visible': selectedProducts.length > 0}">
+    <span class="bulk-bar-count">{{selectedProducts.length}}</span>
+    <span class="bulk-bar-label" ng-if="selectedProducts.length <= 9">image<span ng-if="selectedProducts.length !== 1">s</span> selected</span>
+    <span class="bulk-bar-label" ng-if="selectedProducts.length > 9">images · {{Math.ceil(selectedProducts.length / 9)}} batches</span>
+    <button class="bulk-bar-share-btn" ng-click="bulkShareWhatsApp()">
+      <svg class="wa-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+      Share on WhatsApp
+    </button>
+    <button class="bulk-bar-clear-btn" ng-click="clearSelection()" title="Clear selection">
+      <i class="fas fa-times"></i>
+    </button>
   </div>
 
-  <!-- ════════════════════ VIDEO MODAL ════════════════════ -->
+  <!-- Download progress overlay -->
+  <div class="download-overlay" id="downloadOverlay" style="display:none;">
+    <div class="download-overlay-box">
+      <div class="download-overlay-icon">⬇️</div>
+      <div class="download-overlay-title">Downloading Images</div>
+      <div class="download-overlay-sub" id="downloadOverlaySub">Preparing your images…</div>
+      <div class="download-progress-bar-wrap">
+        <div class="download-progress-bar" id="downloadProgressBar" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+</div> <!-- end #content -->
   <div class="modal fade" id="videoModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -1223,36 +1692,84 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">{{dynamicField2Value}}'s Order</h5>
+          <h5 class="modal-title">{{dynamicField2Value}}'s Orders</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <ul class="order-list">
-            <li class="order-item"
-                ng-repeat="item in allOrders | filter:isPendingOrder | orderBy:'-serverTimestamp'">
-              <img ng-src="{{item.field1}}" class="order-item-img" alt="">
-              <div class="order-item-info">
-                <div class="order-item-name">{{item.productName}}</div>
-                <div class="order-item-price" ng-if="priceVisible">{{item.productPrice | currency:"₹":0}}</div>
+          <!-- Tabs -->
+          <div class="order-tabs">
+            <button class="order-tab-btn" ng-class="{'active': orderTab === 'pending'}"
+                    ng-click="orderTab = 'pending'">
+              <i class="fas fa-clock me-1"></i> Pending
+              <span ng-if="(allOrders | filter:isPendingOrder).length > 0"
+                    style="background:var(--green-bright);color:white;border-radius:100px;padding:1px 6px;font-size:10px;margin-left:4px;">
+                {{(allOrders | filter:isPendingOrder).length}}
+              </span>
+            </button>
+            <button class="order-tab-btn" ng-class="{'active': orderTab === 'history'}"
+                    ng-click="orderTab = 'history'">
+              <i class="fas fa-history me-1"></i> History
+            </button>
+          </div>
+
+          <!-- PENDING TAB -->
+          <div ng-if="orderTab === 'pending'">
+            <ul class="order-list">
+              <li class="order-item"
+                  ng-repeat="item in allOrders | filter:isPendingOrder | orderBy:'-serverTimestamp'">
+                <img ng-src="{{item.field1}}" class="order-item-img" alt="">
+                <div class="order-item-info">
+                  <div class="order-item-name">{{item.productName}}</div>
+                  <div class="order-item-price" ng-if="priceVisible">{{item.productPrice | currency:"₹":0}}</div>
+                  <div style="font-family:'Geist Mono',monospace;font-size:9px;color:var(--ink-muted);margin-top:2px;">
+                    {{item.submitDate}} {{item.submitTime}}
+                  </div>
+                </div>
+                <div class="qty-ctrl">
+                  <button class="qty-btn" ng-click="decrementOrderItem(item)">−</button>
+                  <span class="qty-num">{{item.field3}}</span>
+                  <button class="qty-btn" ng-click="incrementOrderItem(item)">+</button>
+                </div>
+                <button class="delete-btn" ng-click="deleteOrderItem(item)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </li>
+            </ul>
+            <div ng-if="(allOrders | filter:isPendingOrder).length === 0" class="empty-state">
+              <div class="empty-icon">🛒</div>
+              <div class="empty-text">No pending items.</div>
+            </div>
+          </div>
+
+          <!-- HISTORY TAB -->
+          <div ng-if="orderTab === 'history'">
+            <div ng-if="getOrderHistory().length === 0" class="empty-state">
+              <div class="empty-icon">📋</div>
+              <div class="empty-text">No order history yet.</div>
+            </div>
+            <div ng-repeat="group in getGroupedHistory()">
+              <div class="history-date-label">{{group.date}}</div>
+              <div class="history-item" ng-repeat="item in group.items">
+                <img ng-src="{{item.field1}}" class="history-img" alt="">
+                <div class="history-info">
+                  <div class="history-name">{{item.productName}}</div>
+                  <div class="history-meta">
+                    {{item.submitTime}}
+                    <span ng-if="priceVisible"> · ₹{{item.productPrice | number:0}}</span>
+                  </div>
+                </div>
+                <div class="history-qty">×{{item.field3}}</div>
+                <div class="completed-badge" ng-if="item.status === 'completed'">DONE</div>
               </div>
-              <div class="qty-ctrl">
-                <button class="qty-btn" ng-click="decrementOrderItem(item)">−</button>
-                <span class="qty-num">{{item.field3}}</span>
-                <button class="qty-btn" ng-click="incrementOrderItem(item)">+</button>
-              </div>
-              <button class="delete-btn" ng-click="deleteOrderItem(item)">
-                <i class="fas fa-trash"></i>
-              </button>
-            </li>
-          </ul>
-          <div ng-if="(allOrders | filter:isPendingOrder).length === 0" class="empty-state">
-            <div class="empty-icon">🛒</div>
-            <div class="empty-text">Your order list is empty.</div>
+            </div>
           </div>
         </div>
         <div class="modal-footer" style="display:flex;justify-content:space-between;align-items:center;">
-          <span class="order-total" ng-if="priceVisible">
+          <span class="order-total" ng-if="priceVisible && orderTab === 'pending'">
             Total: {{ calculateOrderTotal() | currency:"₹":0 }}
+          </span>
+          <span class="order-total" ng-if="priceVisible && orderTab === 'history'" style="font-size:14px;color:var(--ink-muted);">
+            {{getOrderHistory().length}} item<span ng-if="getOrderHistory().length !== 1">s</span> in history
           </span>
           <button type="button" class="modal-close-btn" data-bs-dismiss="modal">Close</button>
         </div>
@@ -1502,11 +2019,15 @@
               history.pushState({ state: 'search' }, null, location.href);
               $timeout(function() {
                 $scope.searchResults = $filter('filter')(vm.images, { name: $scope.searchQuery }) || [];
+                $scope.searchPriceFilter = { min: null, max: null };
+                $scope.searchPriceSort = null;
+                $scope.applySearchFilters();
                 $scope.isLoadingSearchResults = false;
               }, 100);
             } else {
               $scope.isSearching = false;
               $scope.searchResults = [];
+              $scope.filteredSearchResults = [];
               history.pushState({ state: 'home' }, null, location.href);
             }
           } catch(e) { console.error(e); $scope.isSearching = false; $scope.isLoadingSearchResults = false; }
@@ -1521,6 +2042,7 @@
             $scope.activeTabId = tabId;
             $scope.priceFilter.min = null;
             $scope.priceFilter.max = null;
+            $scope.priceSort = null;
             $scope.updateDisplayedProducts();
             $timeout(function() { window.scrollTo(0, 0); }, 0);
           } catch(e) { console.error(e); }
@@ -1669,24 +2191,327 @@
           } catch(e) { console.error(e); }
         };
 
+        $scope.priceSort = null; // null | 'asc' | 'desc'
+        $scope.orderTab  = 'pending';
+
+        // Search price filter
+        $scope.searchPriceFilter = { min: null, max: null };
+        $scope.searchPriceSort   = null;
+        $scope.filteredSearchResults = [];
+
+        $scope.setPriceSort = function(dir) {
+          $scope.priceSort = ($scope.priceSort === dir) ? null : dir;
+          $scope.updateDisplayedProducts();
+        };
+
+        $scope.setSearchPriceSort = function(dir) {
+          $scope.searchPriceSort = ($scope.searchPriceSort === dir) ? null : dir;
+          $scope.applySearchFilters();
+        };
+
+        $scope.clearSearchPriceFilter = function() {
+          $scope.searchPriceFilter.min = null;
+          $scope.searchPriceFilter.max = null;
+          $scope.applySearchFilters();
+        };
+
+        $scope.applySearchFilters = function() {
+          var results = $scope.searchResults.slice();
+          var min = $scope.searchPriceFilter.min;
+          var max = $scope.searchPriceFilter.max;
+          results = results.filter(function(item) {
+            if (min !== null && min !== undefined && min !== '' && item.price < min) return false;
+            if (max !== null && max !== undefined && max !== '' && item.price > max) return false;
+            return true;
+          });
+          if ($scope.searchPriceSort === 'asc')  results = $filter('orderBy')(results, 'price');
+          else if ($scope.searchPriceSort === 'desc') results = $filter('orderBy')(results, '-price');
+          $scope.filteredSearchResults = results;
+        };
+
+        // Order history helpers
+        $scope.getOrderHistory = function() {
+          if (!$scope.allOrders) return [];
+          return $scope.allOrders.filter(function(item) {
+            return item.field2 === $scope.dynamicField2Value;
+          });
+        };
+
+        $scope.getGroupedHistory = function() {
+          var items = $scope.getOrderHistory()
+            .slice()
+            .sort(function(a, b) { return (b.serverTimestamp || 0) - (a.serverTimestamp || 0); });
+
+          var groups = [];
+          var dateMap = {};
+          items.forEach(function(item) {
+            var d = item.submitDate || 'Unknown Date';
+            if (!dateMap[d]) {
+              dateMap[d] = [];
+              groups.push({ date: d, items: dateMap[d] });
+            }
+            dateMap[d].push(item);
+          });
+          return groups;
+        };
+
         $scope.updateDisplayedProducts = function() {
           try {
             if ($scope.isLoading || !$scope.dynamicField2Value) return;
             var filtered = vm.images.slice();
             if ($scope.productNameFilter) filtered = $filter('filter')(filtered, { name: $scope.productNameFilter }) || [];
-            if ($scope.searchQuery)       filtered = $filter('filter')(filtered, { name: $scope.searchQuery })       || [];
+            if ($scope.searchQuery)       filtered = $filter('filter')(filtered, { name: $scope.searchQuery }) || [];
 
             var min = $scope.priceFilter.min;
             var max = $scope.priceFilter.max;
             filtered = filtered.filter(function(item) {
-              if (min !== null && min !== undefined && item.price < min) return false;
-              if (max !== null && max !== undefined && item.price > max) return false;
+              if (min !== null && min !== undefined && min !== '' && item.price < min) return false;
+              if (max !== null && max !== undefined && max !== '' && item.price > max) return false;
               return true;
             });
 
-            $scope.displayedProducts = $filter('orderBy')(filtered, '-date');
+            // Sort
+            if ($scope.priceSort === 'asc')       filtered = $filter('orderBy')(filtered, 'price');
+            else if ($scope.priceSort === 'desc')  filtered = $filter('orderBy')(filtered, '-price');
+            else                                   filtered = $filter('orderBy')(filtered, '-date');
+
+            $scope.displayedProducts = filtered;
           } catch(e) { console.error(e); }
         };
+
+        // ── SELECTION & BULK SHARE ──
+        $scope.selectedProducts = [];
+        $scope.multiSelectMode  = false;
+
+        $scope.toggleMultiSelectMode = function(event) {
+          try {
+            if (event) { event.preventDefault(); event.stopPropagation(); }
+            $scope.multiSelectMode = !$scope.multiSelectMode;
+            if ($scope.multiSelectMode) {
+              document.body.classList.add('multi-select-mode');
+            } else {
+              document.body.classList.remove('multi-select-mode');
+              $scope.selectedProducts = [];
+            }
+            // Force digest in case called from outside Angular context
+            if (!$scope.$$phase) { $scope.$apply(); }
+          } catch(e) { console.error(e); }
+        };
+
+        $scope.isSelected = function(product) {
+          return $scope.selectedProducts.some(function(p) { return p.$id === product.$id || p.url === product.url; });
+        };
+
+        $scope.toggleSelect = function(product) {
+          try {
+            var idx = $scope.selectedProducts.findIndex(function(p) { return p.$id === product.$id || p.url === product.url; });
+            if (idx > -1) {
+              $scope.selectedProducts.splice(idx, 1);
+            } else {
+              $scope.selectedProducts.push(product);
+            }
+          } catch(e) { console.error(e); }
+        };
+
+        $scope.clearSelection = function() {
+          $scope.selectedProducts = [];
+          $scope.multiSelectMode  = false;
+          document.body.classList.remove('multi-select-mode');
+        };
+
+        // Single product share via Web Share API (actual file) or fallback
+        $scope.shareOnWhatsApp = function(event, product) {
+          try {
+            if (event) { event.preventDefault(); event.stopPropagation(); }
+            shareSingleImage(product);
+          } catch(e) { console.error(e); }
+        };
+
+        function shareSingleImage(product) {
+          fetchImageAsBlob(product.url, product.name).then(function(result) {
+            if (navigator.share && navigator.canShare && result.file) {
+              var shareData = { files: [result.file] };
+              try {
+                if (navigator.canShare(shareData)) {
+                  navigator.share(shareData).catch(function(err) {
+                    if (err.name !== 'AbortError') console.error('Share failed:', err);
+                  });
+                  return;
+                }
+              } catch(e) {}
+            }
+            // Web Share not available — just download
+            downloadBlob(result.blob, result.filename);
+          }).catch(function(e) {
+            console.error('Could not fetch image:', e);
+            alert('Could not load this image for sharing.');
+          });
+        }
+
+        $scope.bulkShareWhatsApp = function() {
+          try {
+            var products = $scope.selectedProducts.slice();
+            if (!products.length) return;
+
+            var BATCH_SIZE = 9;
+            var overlay = document.getElementById('downloadOverlay');
+            var subEl   = document.getElementById('downloadOverlaySub');
+            var barEl   = document.getElementById('downloadProgressBar');
+
+            // Split into batches of 9
+            var batches = [];
+            for (var i = 0; i < products.length; i += BATCH_SIZE) {
+              batches.push(products.slice(i, i + BATCH_SIZE));
+            }
+
+            overlay.style.display = 'flex';
+            barEl.style.width = '0%';
+            subEl.textContent = 'Loading images…';
+
+            // Fetch all blobs first
+            var allPromises = products.map(function(p, idx) {
+              return fetchImageAsBlob(p.url, p.name).then(function(res) {
+                barEl.style.width = Math.round(((idx + 1) / products.length) * 80) + '%';
+                subEl.textContent = 'Downloaded ' + (idx + 1) + ' of ' + products.length + '…';
+                return res;
+              });
+            });
+
+            Promise.all(allPromises).then(function(allResults) {
+              barEl.style.width = '100%';
+              overlay.style.display = 'none';
+
+              // Split results into batches of 9
+              var resultBatches = [];
+              for (var i = 0; i < allResults.length; i += BATCH_SIZE) {
+                resultBatches.push(allResults.slice(i, i + BATCH_SIZE));
+              }
+
+              // Share batches sequentially — each batch opens one share sheet
+              function shareBatch(batchIndex) {
+                if (batchIndex >= resultBatches.length) {
+                  $scope.$apply(function() { $scope.clearSelection(); });
+                  return;
+                }
+
+                var batch = resultBatches[batchIndex];
+                var files = batch.filter(function(r) { return r.file; }).map(function(r) { return r.file; });
+
+                if (navigator.share && navigator.canShare && files.length) {
+                  var shareData = { files: files };
+                  try {
+                    if (navigator.canShare(shareData)) {
+                      navigator.share(shareData).then(function() {
+                        if (batchIndex + 1 < resultBatches.length) {
+                          subEl.textContent = 'Batch ' + (batchIndex + 1) + ' done. Opening next…';
+                          overlay.style.display = 'flex';
+                          barEl.style.width = '100%';
+                          $timeout(function() {
+                            overlay.style.display = 'none';
+                            shareBatch(batchIndex + 1);
+                          }, 800);
+                        } else {
+                          $scope.$apply(function() { $scope.clearSelection(); });
+                        }
+                      }).catch(function(err) {
+                        overlay.style.display = 'none';
+                        if (err.name !== 'AbortError') {
+                          console.error('Share failed:', err);
+                          alert('Sharing failed. Please try again.');
+                        }
+                      });
+                      return;
+                    }
+                  } catch(e) { console.error(e); }
+                }
+
+                // Web Share not supported on this browser
+                overlay.style.display = 'none';
+                alert('Sharing is not supported on this browser. Please use Chrome on Android or Safari on iPhone.');
+                $scope.clearSelection();
+              }
+
+              shareBatch(0);
+
+            }).catch(function(err) {
+              console.error('Bulk share error:', err);
+              overlay.style.display = 'none';
+              alert('Could not load some images. Please try again.');
+            });
+
+          } catch(e) { console.error(e); }
+        };
+
+        // ── HELPERS ──
+        // Load image via HTMLImageElement → canvas → blob
+        // This bypasses CORS fetch restrictions on Firebase Storage URLs
+        function fetchImageAsBlob(url, name) {
+          return new Promise(function(resolve, reject) {
+            var img = new Image();
+            img.crossOrigin = 'anonymous';
+
+            img.onload = function() {
+              try {
+                var canvas = document.createElement('canvas');
+                canvas.width  = img.naturalWidth  || img.width;
+                canvas.height = img.naturalHeight || img.height;
+                var ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                canvas.toBlob(function(blob) {
+                  if (!blob) { reject(new Error('Canvas toBlob failed')); return; }
+                  var safeName = (name || 'product').replace(/[^a-zA-Z0-9\s]/g, '').trim().replace(/\s+/g, '_') || 'product';
+                  var filename = safeName + '.jpg';
+                  var file = null;
+                  try { file = new File([blob], filename, { type: 'image/jpeg' }); } catch(e) {}
+                  resolve({ blob: blob, file: file, filename: filename });
+                }, 'image/jpeg', 0.92);
+              } catch(e) {
+                // Canvas tainted (CORS) — fallback to direct fetch
+                directFetch(url, name).then(resolve).catch(reject);
+              }
+            };
+
+            img.onerror = function() {
+              // Try direct fetch as last resort
+              directFetch(url, name).then(resolve).catch(reject);
+            };
+
+            // Add cache-bust to avoid cached non-CORS response
+            img.src = url + (url.indexOf('?') > -1 ? '&' : '?') + '_t=' + Date.now();
+          });
+        }
+
+        function directFetch(url, name) {
+          return fetch(url)
+            .then(function(res) { return res.blob(); })
+            .then(function(blob) {
+              var safeName = (name || 'product').replace(/[^a-zA-Z0-9\s]/g, '').trim().replace(/\s+/g, '_') || 'product';
+              var ext = blob.type === 'image/png' ? '.png' : blob.type === 'image/webp' ? '.webp' : '.jpg';
+              var filename = safeName + ext;
+              var file = null;
+              try { file = new File([blob], filename, { type: blob.type }); } catch(e) {}
+              return { blob: blob, file: file, filename: filename };
+            });
+        }
+
+        function downloadBlob(blob, filename) {
+          var url = URL.createObjectURL(blob);
+          var a   = document.createElement('a');
+          a.href  = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          $timeout(function() { URL.revokeObjectURL(url); }, 1000);
+        }
+
+        function openWhatsApp(text) {
+          window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+        }
+
+        function fallbackWALink(text) {
+          window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+        }
 
         $scope.logout = function() {
           try {
