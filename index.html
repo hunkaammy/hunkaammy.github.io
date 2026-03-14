@@ -2036,22 +2036,19 @@
             text += '\n_Hindustan Toys_';
 
             if (navigator.share && navigator.canShare && result.file) {
-              var shareData = { files: [result.file], text: text };
+              var shareData = { files: [result.file] };
               if (navigator.canShare(shareData)) {
                 navigator.share(shareData).catch(function(err) {
-                  if (err.name !== 'AbortError') fallbackWALink(text);
+                  if (err.name !== 'AbortError') downloadBlob(result.blob, result.filename);
                 });
                 return;
               }
             }
-            // Download image + open WA
+            // Download image only
             downloadBlob(result.blob, result.filename);
-            $timeout(function() { openWhatsApp(text); }, 600);
           }).catch(function() {
-            var text = '*' + product.name + '*';
-            if ($scope.priceVisible && product.price) text += '\n₹' + Math.round(product.price);
-            text += '\n' + product.url + '\n_Hindustan Toys_';
-            openWhatsApp(text);
+            // If fetch fails, nothing to share
+            console.error('Could not fetch image for sharing');
           });
         }
 
@@ -2085,35 +2082,27 @@
                 overlay.style.display = 'none';
 
                 var files = results.filter(function(r) { return r.file; }).map(function(r) { return r.file; });
-                var textLines = products.map(function(p) {
-                  var line = '• *' + p.name + '*';
-                  if ($scope.priceVisible && p.price) line += ' — ₹' + Math.round(p.price);
-                  return line;
-                });
-                var text = '*Hindustan Toys — Product List*\n\n' + textLines.join('\n');
 
-                // Try Web Share API with files
+                // Try Web Share API with files only - no text
                 if (navigator.share && navigator.canShare && files.length) {
-                  var shareData = { files: files, text: text };
+                  var shareData = { files: files };
                   if (navigator.canShare(shareData)) {
                     navigator.share(shareData)
                       .then(function() { $scope.$apply(function() { $scope.clearSelection(); }); })
                       .catch(function(err) {
                         if (err.name !== 'AbortError') {
-                          // Fallback: download all + open WA
+                          // Fallback: download all images only
                           results.forEach(function(r) { downloadBlob(r.blob, r.filename); });
-                          $timeout(function() { openWhatsApp(text); }, 800);
                         }
                       });
                     return;
                   }
                 }
 
-                // Fallback: download all images then open WA with caption
+                // Fallback: download all images only
                 results.forEach(function(r, idx) {
                   $timeout(function() { downloadBlob(r.blob, r.filename); }, idx * 300);
                 });
-                $timeout(function() { openWhatsApp(text); }, results.length * 300 + 500);
                 $scope.clearSelection();
 
               }, 400);
