@@ -986,8 +986,14 @@
     }
 
     /* ── MULTI SELECT MODE ── */
+
+    /* Hidden by default, shown only when body has multi-select-mode class */
     .select-checkbox-wrap {
-      display: none; /* hidden by default */
+      display: none;
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      z-index: 10;
     }
 
     body.multi-select-mode .select-checkbox-wrap {
@@ -1022,13 +1028,6 @@
     /* Checkbox overlay on card image */
     .product-card {
       position: relative;
-    }
-
-    .select-checkbox-wrap {
-      position: absolute;
-      top: 8px;
-      left: 8px;
-      z-index: 10;
     }
 
     .select-checkbox {
@@ -1337,7 +1336,7 @@
           <div class="product-grid">
             <div class="product-card" ng-repeat="product in searchResults"
                  ng-class="{'selected': isSelected(product)}">
-              <div class="select-checkbox-wrap">
+              <div class="select-checkbox-wrap" ng-show="multiSelectMode">
                 <input type="checkbox" class="select-checkbox"
                        ng-checked="isSelected(product)"
                        ng-click="$event.stopPropagation(); toggleSelect(product)">
@@ -1424,7 +1423,7 @@
                  ng-hide="product.markedForRemoval"
                  ng-class="{'selected': isSelected(product)}">
               <!-- Selection checkbox -->
-              <div class="select-checkbox-wrap">
+              <div class="select-checkbox-wrap" ng-show="multiSelectMode">
                 <input type="checkbox" class="select-checkbox"
                        ng-checked="isSelected(product)"
                        ng-click="$event.stopPropagation(); toggleSelect(product)">
@@ -1984,6 +1983,22 @@
 
         // ── SELECTION & BULK SHARE ──
         $scope.selectedProducts = [];
+        $scope.multiSelectMode  = false;
+
+        $scope.toggleMultiSelectMode = function(event) {
+          try {
+            if (event) { event.preventDefault(); event.stopPropagation(); }
+            $scope.multiSelectMode = !$scope.multiSelectMode;
+            if ($scope.multiSelectMode) {
+              document.body.classList.add('multi-select-mode');
+            } else {
+              document.body.classList.remove('multi-select-mode');
+              $scope.selectedProducts = [];
+            }
+            // Force digest in case called from outside Angular context
+            if (!$scope.$$phase) { $scope.$apply(); }
+          } catch(e) { console.error(e); }
+        };
 
         $scope.isSelected = function(product) {
           return $scope.selectedProducts.some(function(p) { return p.$id === product.$id || p.url === product.url; });
@@ -2002,6 +2017,8 @@
 
         $scope.clearSelection = function() {
           $scope.selectedProducts = [];
+          $scope.multiSelectMode  = false;
+          document.body.classList.remove('multi-select-mode');
         };
 
         // Single product share via Web Share API (actual file) or fallback
