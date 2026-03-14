@@ -1,68 +1,38 @@
-const CACHE_NAME = 'ht-portal-v1';
-const CACHE_URLS = [
-  './index.html',
-  './manifest.json'
-];
+const CACHE = 'ht-portal-v2';
+const SHELL = ['./index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
-// Install - cache app shell
-self.addEventListener('install', function(event) {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(function(cache) {
-      return cache.addAll(CACHE_URLS);
-    }).then(function() {
-      return self.skipWaiting();
-    })
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
   );
 });
 
-// Activate - clean old caches
-self.addEventListener('activate', function(event) {
-  event.waitUntil(
-    caches.keys().then(function(keys) {
-      return Promise.all(
-        keys.filter(function(k) { return k !== CACHE_NAME; })
-            .map(function(k) { return caches.delete(k); })
-      );
-    }).then(function() {
-      return self.clients.claim();
-    })
-  );
-});
-
-// Fetch - network first for Firebase/images, cache first for app shell
-self.addEventListener('fetch', function(event) {
-  var url = event.request.url;
-
-  // Always network for Firebase and external APIs
+self.addEventListener('fetch', e => {
+  const url = e.request.url;
   if (url.includes('firebase') || url.includes('googleapis') ||
-      url.includes('firebasestorage') || url.includes('hindustantoys.in/images')) {
-    event.respondWith(
-      fetch(event.request).catch(function() {
-        return caches.match(event.request);
-      })
-    );
+      url.includes('firebasestorage') || url.includes('gstatic') ||
+      url.includes('jsdelivr') || url.includes('cdnjs') ||
+      url.includes('hindustantoys.in/images')) {
+    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
     return;
   }
-
-  // Cache first for app shell
-  event.respondWith(
-    caches.match(event.request).then(function(cached) {
-      return cached || fetch(event.request).then(function(response) {
-        if (response && response.status === 200 && response.type === 'basic') {
-          var clone = response.clone();
-          caches.open(CACHE_NAME).then(function(cache) {
-            cache.put(event.request, clone);
-          });
-        }
-        return response;
-      });
-    })
+  e.respondWith(
+    caches.match(e.request).then(cached => cached || fetch(e.request).then(res => {
+      if (res && res.status === 200 && res.type === 'basic') {
+        const clone = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone));
+      }
+      return res;
+    }))
   );
 });
 
-// Message handler - receive download progress requests from main thread
-self.addEventListener('message', function(event) {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
+self.addEventListener('message', e => {
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
