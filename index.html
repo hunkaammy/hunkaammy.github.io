@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hindustan Toys - Order Portal</title>
-
-  <!-- ═══ PWA META ═══ -->
   <meta name="theme-color" content="#1a3d2b">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,13 +11,11 @@
   <meta name="apple-mobile-web-app-title" content="HT Portal">
   <link rel="manifest" href="./manifest.json">
   <link rel="apple-touch-icon" href="./icon-192.png">
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Figtree:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-
   <style>
     :root {
       --green-deep:#1a3d2b;--green-mid:#2d6a4f;--green-bright:#52b788;
@@ -55,13 +51,7 @@
     .login-btn:hover{background:var(--green-light);transform:translateY(-1px)}
 
     /* PWA INSTALL BANNER */
-    #install-banner{
-      display:none;position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
-      z-index:1090;background:var(--green-deep);color:white;border-radius:18px;
-      padding:14px 16px;box-shadow:0 8px 32px rgba(26,61,43,0.5);
-      max-width:calc(100vw - 32px);width:360px;gap:12px;
-      border:1px solid rgba(82,183,136,0.3);animation:slideUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
-    }
+    #install-banner{display:none;position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:1090;background:var(--green-deep);color:white;border-radius:18px;padding:14px 16px;box-shadow:0 8px 32px rgba(26,61,43,0.5);max-width:calc(100vw - 32px);width:360px;gap:12px;border:1px solid rgba(82,183,136,0.3);animation:slideUp 0.4s cubic-bezier(0.16,1,0.3,1) both}
     #install-banner.show{display:flex;align-items:center}
     .install-icon{width:42px;height:42px;border-radius:10px;overflow:hidden;flex-shrink:0}
     .install-icon img{width:100%;height:100%;object-fit:cover}
@@ -134,7 +124,7 @@
     .clear-filter-btn{width:26px;height:26px;border:none;background:#fee2e2;color:#dc2626;border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:background 0.2s;flex-shrink:0}
     .clear-filter-btn:hover{background:#fecaca}
 
-    /* ORDER MODAL TABS */
+    /* ORDER MODAL */
     .order-tabs{display:flex;gap:4px;background:var(--cream);border-radius:10px;padding:4px;margin-bottom:14px}
     .order-tab-btn{flex:1;padding:8px 12px;border:none;border-radius:7px;font-family:'Figtree',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--ink-muted)}
     .order-tab-btn.active{background:var(--white);color:var(--green-deep);box-shadow:var(--card-shadow)}
@@ -174,8 +164,6 @@
     .skeleton-line.w60{width:60%}
     .skeleton-line.w85{width:85%}
     .skeleton-tab{height:80px;border-radius:12px;margin-bottom:6px}
-
-    /* EMPTY / SEARCH */
     .empty-state{text-align:center;padding:48px 24px;color:var(--ink-muted)}
     .empty-icon{font-size:36px;margin-bottom:12px;opacity:0.3}
     .empty-text{font-size:13px}
@@ -216,8 +204,6 @@
     .order-total{font-family:'Bricolage Grotesque',sans-serif;font-size:16px;font-weight:700;color:var(--green-deep)}
     .modal-close-btn{background:var(--cream-dark);border:none;border-radius:10px;padding:9px 18px;font-family:'Figtree',sans-serif;cursor:pointer}
     .modal-close-btn:hover{background:var(--cream)}
-
-    /* VIDEO MODAL */
     #videoModal .modal-content{background:#111}
     #videoModal .modal-header{background:#1a1a1a;border-color:rgba(255,255,255,0.08)}
     #videoModal .modal-title{color:white}
@@ -246,31 +232,45 @@
     .bulk-bar-clear-btn{display:flex;align-items:center;justify-content:center;width:34px;height:34px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);border:none;border-radius:50%;cursor:pointer;font-size:13px;transition:background 0.2s,color 0.2s;flex-shrink:0}
     .bulk-bar-clear-btn:hover{background:rgba(255,255,255,0.2);color:white}
 
-    /* PROGRESS OVERLAY */
-    .dl-overlay{position:fixed;inset:0;background:rgba(10,20,15,0.78);backdrop-filter:blur(10px);z-index:2000;display:flex;align-items:center;justify-content:center}
-    .dl-box{background:white;border-radius:28px;padding:32px 32px 28px;text-align:center;max-width:310px;width:90%;box-shadow:0 32px 80px rgba(0,0,0,0.3)}
-    .dl-icon{font-size:40px;margin-bottom:10px;display:block}
-    .dl-title{font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:800;color:var(--green-deep);margin-bottom:6px}
-    .dl-sub{font-size:12px;color:var(--ink-muted);line-height:1.6;min-height:36px}
-    .dl-bar-wrap{width:100%;height:8px;background:var(--cream-dark);border-radius:100px;overflow:hidden;margin:16px 0 8px}
-    .dl-bar{height:100%;background:linear-gradient(90deg,var(--green-bright),var(--green-mid));border-radius:100px;transition:width 0.25s ease;width:0%}
-    .dl-step{font-family:'Geist Mono',monospace;font-size:10px;color:var(--ink-muted);letter-spacing:0.5px}
+    /* ═══ SHARE PROGRESS PILL — replaces bulk bar while downloading ═══ */
+    .share-pill{
+      position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);
+      z-index:2000;background:var(--green-deep);color:white;border-radius:100px;
+      padding:14px 22px;display:flex;align-items:center;gap:14px;
+      box-shadow:0 12px 40px rgba(26,61,43,0.5);
+      transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      min-width:260px;max-width:calc(100vw - 32px);
+    }
+    .share-pill.visible{transform:translateX(-50%) translateY(0)}
+    .share-pill-ring{
+      width:32px;height:32px;flex-shrink:0;
+      border-radius:50%;border:3px solid rgba(255,255,255,0.2);
+      border-top-color:var(--green-bright);
+      animation:spin 0.8s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .share-pill-ring.done{border-color:var(--green-bright);border-top-color:var(--green-bright);animation:none}
+    .share-pill-ring.done::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--green-bright)}
+    .share-pill-ring-wrap{position:relative;width:32px;height:32px;flex-shrink:0}
+    .share-pill-text{flex:1;min-width:0}
+    .share-pill-title{font-family:'Bricolage Grotesque',sans-serif;font-size:14px;font-weight:800;line-height:1.2}
+    .share-pill-sub{font-size:11px;color:rgba(255,255,255,0.6);margin-top:2px}
+    .share-pill-bar-wrap{width:100%;height:3px;background:rgba(255,255,255,0.15);border-radius:100px;margin-top:6px;overflow:hidden}
+    .share-pill-bar{height:100%;background:var(--green-bright);border-radius:100px;transition:width 0.2s ease;width:0%}
 
-    /* WA GUIDE BOTTOM SHEET */
-    .wa-guide-overlay{position:fixed;inset:0;background:rgba(10,20,15,0.82);backdrop-filter:blur(12px);z-index:2100;display:flex;align-items:flex-end;justify-content:center}
-    .wa-guide-box{background:white;border-radius:28px 28px 0 0;padding:28px 24px 40px;width:100%;max-width:480px;box-shadow:0 -12px 60px rgba(0,0,0,0.3)}
-    .wa-guide-handle{width:40px;height:4px;background:var(--cream-dark);border-radius:100px;margin:0 auto 20px}
-    .wa-guide-title{font-family:'Bricolage Grotesque',sans-serif;font-size:20px;font-weight:800;color:var(--green-deep);margin-bottom:6px;text-align:center}
-    .wa-guide-sub{font-size:13px;color:var(--ink-muted);text-align:center;margin-bottom:20px;line-height:1.5}
-    .wa-guide-steps{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
-    .wa-guide-step{display:flex;align-items:center;gap:12px;background:var(--cream);border-radius:14px;padding:12px 14px}
-    .wa-guide-num{width:28px;height:28px;background:var(--green-bright);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque',sans-serif;font-size:13px;font-weight:800;flex-shrink:0}
-    .wa-guide-text{font-size:13px;color:var(--ink-soft);line-height:1.4}
-    .wa-guide-text strong{color:var(--green-deep)}
-    .wa-open-btn{width:100%;background:#25d366;color:white;border:none;border-radius:16px;padding:16px;font-family:'Bricolage Grotesque',sans-serif;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:background 0.2s,transform 0.15s;margin-bottom:10px}
+    /* WA READY SHEET */
+    .wa-sheet-overlay{position:fixed;inset:0;background:rgba(10,20,15,0.7);backdrop-filter:blur(8px);z-index:2100;display:flex;align-items:flex-end;justify-content:center}
+    .wa-sheet{background:white;border-radius:28px 28px 0 0;padding:24px 20px 36px;width:100%;max-width:480px}
+    .wa-sheet-handle{width:36px;height:4px;background:var(--cream-dark);border-radius:100px;margin:0 auto 18px}
+    .wa-sheet-top{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+    .wa-sheet-icon{width:52px;height:52px;background:#e8f8ef;border-radius:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .wa-sheet-icon svg{width:28px;height:28px}
+    .wa-sheet-title{font-family:'Bricolage Grotesque',sans-serif;font-size:18px;font-weight:800;color:var(--green-deep)}
+    .wa-sheet-sub{font-size:12px;color:var(--ink-muted);margin-top:2px}
+    .wa-open-btn{width:100%;background:#25d366;color:white;border:none;border-radius:16px;padding:17px;font-family:'Bricolage Grotesque',sans-serif;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;transition:background 0.2s,transform 0.15s}
     .wa-open-btn:hover{background:#1fbe59;transform:scale(1.02)}
     .wa-open-btn svg{width:22px;height:22px;flex-shrink:0}
-    .wa-dismiss-btn{width:100%;background:var(--cream);color:var(--ink-muted);border:none;border-radius:12px;padding:12px;font-family:'Figtree',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+    .wa-dismiss-btn{width:100%;background:var(--cream);color:var(--ink-muted);border:none;border-radius:12px;padding:13px;font-family:'Figtree',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
 
     /* RESPONSIVE */
     @media(max-width:600px){
@@ -334,7 +334,7 @@
         <input type="text" ng-model="searchQuery" ng-change="onSearchChange()" ng-model-options="{debounce:400}" placeholder="Search products…">
       </div>
       <div class="dropdown">
-        <button class="menu-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></button>
+        <button class="menu-btn" type="button" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
         <ul class="dropdown-menu dropdown-menu-end" style="border-radius:12px;border:1px solid rgba(26,61,43,0.1);font-size:13px;">
           <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#myModal"><i class="fas fa-shopping-cart me-2" style="color:var(--green-bright);"></i>Your Order</a></li>
           <li><hr class="dropdown-divider"></li>
@@ -396,7 +396,7 @@
               <span class="saved-badge" ng-if="product.justSaved">Saved!</span>
               <div class="product-price" ng-if="priceVisible">{{product.price|currency:"₹":0}}</div>
               <div class="product-name">{{product.name}}</div>
-              <div ng-if="product.videourl"><a href="#" class="product-video-link" ng-click="showVideoModal($event,product.videourl,false)"><i class="fas fa-play-circle"></i> Watch Video</a></div>
+              <div ng-if="product.videourl"><a href="#" class="product-video-link" ng-click="showVideoModal($event,product.videourl)"><i class="fas fa-play-circle"></i> Watch Video</a></div>
               <div class="card-actions"><input type="number" class="qty-input" placeholder="Qty" ng-model="product.field3" ng-change="submitData(product)" ng-model-options="{debounce:800}"></div>
             </div>
           </div>
@@ -406,7 +406,7 @@
     </div>
   </div>
 
-  <!-- MAIN BROWSE VIEW -->
+  <!-- MAIN BROWSE -->
   <div ng-if="!isSearching" class="main-layout">
     <div class="sidebar">
       <span class="sidebar-label">Shop</span>
@@ -443,7 +443,7 @@
               <span class="saved-badge" ng-if="product.justSaved">✓ Saved</span>
               <div class="product-price" ng-if="priceVisible">{{product.price|currency:"₹":0}}</div>
               <div class="product-name">{{product.name}}</div>
-              <div ng-if="product.videourl"><a href="#" class="product-video-link" ng-click="showVideoModal($event,product.videourl,false)"><i class="fas fa-play-circle"></i> Watch Video</a></div>
+              <div ng-if="product.videourl"><a href="#" class="product-video-link" ng-click="showVideoModal($event,product.videourl)"><i class="fas fa-play-circle"></i> Watch Video</a></div>
               <div class="card-actions"><input type="number" class="qty-input" placeholder="Qty" ng-model="product.field3" ng-change="submitData(product)" ng-model-options="{debounce:800}"></div>
             </div>
           </div>
@@ -454,7 +454,7 @@
   </div>
 
   <!-- BULK SHARE BAR -->
-  <div class="bulk-bar" ng-class="{'visible':selectedProducts.length>0}">
+  <div class="bulk-bar" ng-class="{'visible':selectedProducts.length>0 && !shareInProgress}">
     <span class="bulk-bar-count">{{selectedProducts.length}}</span>
     <span class="bulk-bar-label">image<span ng-if="selectedProducts.length!==1">s</span></span>
     <button class="bulk-bar-share-btn" ng-click="bulkShareWhatsApp()">
@@ -546,568 +546,404 @@
 // ═══════════════════════════════════════════
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('./sw.js', { scope: './' })
-      .then(function(reg) {
-        console.log('✅ SW registered, scope:', reg.scope);
-        reg.addEventListener('updatefound', function() {
-          var nw = reg.installing;
-          nw.addEventListener('statechange', function() {
-            if (nw.state === 'installed' && navigator.serviceWorker.controller) {
-              nw.postMessage({ type: 'SKIP_WAITING' });
-            }
-          });
-        });
-      })
-      .catch(function(err) { console.warn('SW failed:', err); });
+    navigator.serviceWorker.register('./sw.js', {scope:'./'})
+      .then(function(r){ console.log('SW ok', r.scope); })
+      .catch(function(e){ console.warn('SW failed', e); });
   });
 }
 
 // ═══════════════════════════════════════════
-// PWA INSTALL PROMPT — robust version
-// Catches beforeinstallprompt early, shows
-// banner after login, retries if needed.
+// PWA INSTALL
 // ═══════════════════════════════════════════
 var _deferredPrompt = null;
-var _bannerShown    = false;
-
-// Catch the event as early as possible
 window.addEventListener('beforeinstallprompt', function(e) {
-  e.preventDefault();
-  _deferredPrompt = e;
-  console.log('✅ beforeinstallprompt captured');
-  // If user is already logged in when event fires, show banner immediately
-  if (document.getElementById('content').style.display !== 'none' && !_bannerShown) {
-    showInstallBanner();
-  }
+  e.preventDefault(); _deferredPrompt = e;
+  if (document.getElementById('content').style.display !== 'none') showInstallBanner();
 });
-
-window.addEventListener('appinstalled', function() {
-  console.log('✅ PWA installed');
-  hideInstallBanner();
-  _deferredPrompt = null;
-});
+window.addEventListener('appinstalled', function() { hideInstallBanner(); _deferredPrompt = null; });
 
 function showInstallBanner() {
-  if (_bannerShown) return;
-  if (localStorage.getItem('pwa_dismissed') === '1') return;
-  // Don't show if already running as installed PWA
+  if (localStorage.getItem('pwa_dismissed')==='1') return;
   if (window.matchMedia('(display-mode: standalone)').matches) return;
-  var banner = document.getElementById('install-banner');
-  if (banner) { banner.classList.add('show'); _bannerShown = true; }
+  var b = document.getElementById('install-banner'); if(b) b.classList.add('show');
 }
-
 function hideInstallBanner() {
-  var banner = document.getElementById('install-banner');
-  if (banner) banner.classList.remove('show');
+  var b = document.getElementById('install-banner'); if(b) b.classList.remove('show');
 }
-
 document.addEventListener('DOMContentLoaded', function() {
-  var installBtn = document.getElementById('pwa-install-btn');
-  var dismissBtn = document.getElementById('pwa-dismiss-btn');
-
-  if (installBtn) {
-    installBtn.addEventListener('click', function() {
-      hideInstallBanner();
-      if (!_deferredPrompt) {
-        // Fallback: manual add to home screen instruction
-        alert('To install: tap the browser menu (⋮) → "Add to Home screen"');
-        return;
-      }
-      _deferredPrompt.prompt();
-      _deferredPrompt.userChoice.then(function(result) {
-        console.log('Install choice:', result.outcome);
-        _deferredPrompt = null;
-      });
-    });
-  }
-
-  if (dismissBtn) {
-    dismissBtn.addEventListener('click', function() {
-      hideInstallBanner();
-      localStorage.setItem('pwa_dismissed', '1');
-    });
-  }
+  var ib = document.getElementById('pwa-install-btn');
+  var db = document.getElementById('pwa-dismiss-btn');
+  if (ib) ib.addEventListener('click', function() {
+    hideInstallBanner();
+    if (!_deferredPrompt) { alert('Tap browser menu → "Add to Home screen"'); return; }
+    _deferredPrompt.prompt();
+    _deferredPrompt.userChoice.then(function(r){ console.log(r.outcome); _deferredPrompt=null; });
+  });
+  if (db) db.addEventListener('click', function() {
+    hideInstallBanner(); localStorage.setItem('pwa_dismissed','1');
+  });
 });
 
 // ═══════════════════════════════════════════
-// GLOBAL FLAGS
+// GLOBALS
 // ═══════════════════════════════════════════
 var isEnlargedImageOpen = false;
+window.onerror = function(m,s,l,c,e){ console.error(m,s,l,c,e); return true; };
 
-window.onerror = function(msg, src, line, col, err) {
-  console.error('Error:', { msg, src, line, col, err });
-  return true;
-};
-
-history.pushState({ state:'home' }, null, location.href);
+history.pushState({state:'home'}, null, location.href);
 window.addEventListener('popstate', function() {
   try {
-    var orderModalEl = document.getElementById('myModal');
-    var videoModalEl = document.getElementById('videoModal');
-    var enlargedEl   = document.getElementById('enlarged-image-overlay');
-    var orderModal   = orderModalEl ? bootstrap.Modal.getInstance(orderModalEl) : null;
-    var videoModal   = videoModalEl ? bootstrap.Modal.getInstance(videoModalEl) : null;
-    var scope        = angular.element(document.body).scope();
-    if (!scope) return;
-    scope.$applyAsync(function() {
-      if (isEnlargedImageOpen && enlargedEl && enlargedEl.style.display === 'flex') {
-        scope.closeEnlargedImage(); history.pushState({ state:'home' }, null, location.href); return;
-      }
-      if (videoModal && videoModalEl.classList.contains('show')) {
-        scope.closeVideoModal(); history.pushState({ state:'home' }, null, location.href); return;
-      }
-      if (orderModal && orderModalEl.classList.contains('show')) {
-        orderModal.hide(); history.pushState({ state:'home' }, null, location.href); return;
-      }
-      if (scope.isSearching || (scope.searchQuery && scope.searchQuery.length > 0)) {
-        scope.searchQuery = ''; scope.isSearching = false; scope.onSearchChange();
-        history.pushState({ state:'home' }, null, location.href); return;
-      }
-      history.pushState({ state:'home' }, null, location.href);
+    var oEl=document.getElementById('myModal'), vEl=document.getElementById('videoModal');
+    var eEl=document.getElementById('enlarged-image-overlay');
+    var oM=oEl?bootstrap.Modal.getInstance(oEl):null, vM=vEl?bootstrap.Modal.getInstance(vEl):null;
+    var sc=angular.element(document.body).scope(); if(!sc) return;
+    sc.$applyAsync(function(){
+      if(isEnlargedImageOpen&&eEl&&eEl.style.display==='flex'){sc.closeEnlargedImage();history.pushState({state:'home'},null,location.href);return;}
+      if(vM&&vEl.classList.contains('show')){sc.closeVideoModal();history.pushState({state:'home'},null,location.href);return;}
+      if(oM&&oEl.classList.contains('show')){oM.hide();history.pushState({state:'home'},null,location.href);return;}
+      if(sc.isSearching||(sc.searchQuery&&sc.searchQuery.length>0)){sc.searchQuery='';sc.isSearching=false;sc.onSearchChange();history.pushState({state:'home'},null,location.href);return;}
+      history.pushState({state:'home'},null,location.href);
     });
-  } catch(e) { console.error(e); }
+  } catch(e){console.error(e);}
 });
 
 // ═══════════════════════════════════════════
 // LOGIN
 // ═══════════════════════════════════════════
-(function() {
-  var loginConfig = {
-    apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
-    authDomain: "shop-reminder-3ce10.firebaseapp.com",
-    databaseURL: "https://shop-reminder-3ce10-default-rtdb.firebaseio.com"
-  };
-  var blockedNumbers = ['7000913701','9846434664','8269731362','9876543210','9123456789','8987854256','9039199794','9166220046','9035019421','8269731352','6263821242','6616495946','6266242180','9109390639','7000619513','8576911011','9999999999'];
-  var blockedNames   = ['Spammer','Mhgghj hyhh','TestUser'];
-  var blockedPageUrl = 'https://www.hindustantoys.in/mywebsite/NEWWEBSITE/blocked.html';
-
+(function(){
+  var cfg={apiKey:"AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",authDomain:"shop-reminder-3ce10.firebaseapp.com",databaseURL:"https://shop-reminder-3ce10-default-rtdb.firebaseio.com"};
+  var bNums=['7000913701','9846434664','8269731362','9876543210','9123456789','8987854256','9039199794','9166220046','9035019421','8269731352','6263821242','6616495946','6266242180','9109390639','7000619513','8576911011','9999999999'];
+  var bNames=['Spammer','Mhgghj hyhh','TestUser'];
+  var bUrl='https://www.hindustantoys.in/mywebsite/NEWWEBSITE/blocked.html';
   try {
-    var loginApp = firebase.apps.find(a => a.name === 'loginApp') || firebase.initializeApp(loginConfig, 'loginApp');
-    var loginDb  = loginApp.database();
-
-    window.validateLogin = function() {
-      var name   = document.getElementById('name').value.trim();
-      var mobile = document.getElementById('mobile').value.trim();
-      if (blockedNames.some(n => n.toLowerCase() === name.toLowerCase()) || blockedNumbers.includes(mobile)) { window.location.href = blockedPageUrl; return; }
-      if (name.length < 4 || !/^[6-9]\d{9}$/.test(mobile)) { alert('Please enter valid details.'); return; }
-      loginDb.ref('users').push({ name, mobile, timestamp: firebase.database.ServerValue.TIMESTAMP })
-        .then(() => { localStorage.setItem('name', name); localStorage.setItem('mobile', mobile); showContent(name); })
-        .catch(e => { console.error(e); alert('Login failed. Please try again.'); });
+    var lApp=firebase.apps.find(a=>a.name==='loginApp')||firebase.initializeApp(cfg,'loginApp');
+    var lDb=lApp.database();
+    window.validateLogin=function(){
+      var n=document.getElementById('name').value.trim(), m=document.getElementById('mobile').value.trim();
+      if(bNames.some(x=>x.toLowerCase()===n.toLowerCase())||bNums.includes(m)){window.location.href=bUrl;return;}
+      if(n.length<4||!/^[6-9]\d{9}$/.test(m)){alert('Please enter valid details.');return;}
+      lDb.ref('users').push({name:n,mobile:m,timestamp:firebase.database.ServerValue.TIMESTAMP})
+        .then(()=>{localStorage.setItem('name',n);localStorage.setItem('mobile',m);showContent(n);})
+        .catch(e=>{console.error(e);alert('Login failed.');});
     };
-
-    function showContent(name) {
-      var scope = angular.element(document.body).scope();
-      if (scope) {
-        scope.$applyAsync(function() {
-          scope.dynamicField2Value = name;
-          if (scope.updateDisplayedProducts) setTimeout(() => scope.$apply(() => scope.updateDisplayedProducts()), 100);
-        });
-      }
-      document.getElementById('login-container').style.display = 'none';
-      document.getElementById('content').style.display = 'block';
-      history.pushState({ state:'home' }, null, location.href);
-      // Show install banner after login if prompt was captured
-      setTimeout(function() {
-        if (_deferredPrompt) showInstallBanner();
-      }, 3000);
+    function showContent(name){
+      var sc=angular.element(document.body).scope();
+      if(sc){sc.$applyAsync(function(){sc.dynamicField2Value=name;if(sc.updateDisplayedProducts)setTimeout(()=>sc.$apply(()=>sc.updateDisplayedProducts()),100);});}
+      document.getElementById('login-container').style.display='none';
+      document.getElementById('content').style.display='block';
+      history.pushState({state:'home'},null,location.href);
+      setTimeout(function(){if(_deferredPrompt)showInstallBanner();},3000);
     }
-
-    (function checkAuthentication() {
-      var name   = localStorage.getItem('name');
-      var mobile = localStorage.getItem('mobile');
-      if (name && mobile) {
-        if (blockedNames.some(n => n.toLowerCase() === name.toLowerCase()) || blockedNumbers.includes(mobile)) { window.location.href = blockedPageUrl; return; }
-        document.getElementById('name').value   = name;
-        document.getElementById('mobile').value = mobile;
-        loginDb.ref('users').push({ name, mobile, timestamp: firebase.database.ServerValue.TIMESTAMP, loginType:'auto' }).catch(e => console.error(e));
-        showContent(name);
+    (function(){
+      var n=localStorage.getItem('name'),m=localStorage.getItem('mobile');
+      if(n&&m){
+        if(bNames.some(x=>x.toLowerCase()===n.toLowerCase())||bNums.includes(m)){window.location.href=bUrl;return;}
+        document.getElementById('name').value=n; document.getElementById('mobile').value=m;
+        lDb.ref('users').push({name:n,mobile:m,timestamp:firebase.database.ServerValue.TIMESTAMP,loginType:'auto'}).catch(e=>console.error(e));
+        showContent(n);
       }
     })();
-  } catch(e) { console.error(e); alert('Failed to initialize application.'); }
+  } catch(e){console.error(e);alert('Failed to initialize.');}
 })();
 
 // ═══════════════════════════════════════════
 // ANGULAR APP
 // ═══════════════════════════════════════════
-var app = angular.module('myApp', ['firebase']);
-app.controller('imagesController', ['$scope','$firebaseArray','$filter','$window','$timeout','$sce',
-  function($scope, $firebaseArray, $filter, $window, $timeout, $sce) {
-  try {
-    var vm = this;
-    vm.images = [];
-    $scope.displayedProducts      = [];
-    $scope.priceFilter            = { min:null, max:null };
-    $scope.dynamicField2Value     = localStorage.getItem('name') || '';
-    $scope.priceVisible           = localStorage.getItem('priceVisible') !== 'false';
-    $scope.isOrderModalOpen       = false;
-    $scope.isEnlargedImageOpen    = false;
-    $scope.isLoading              = true;
-    $scope.isLoadingCategories    = true;
-    $scope.isSearching            = false;
-    $scope.searchResults          = [];
-    $scope.isLoadingSearchResults = false;
-    $scope.currentVideoUrl        = '';
-    $scope.videoError             = '';
-    $scope.priceSort              = null;
-    $scope.orderTab               = 'pending';
-    $scope.searchPriceFilter      = { min:null, max:null };
-    $scope.searchPriceSort        = null;
-    $scope.filteredSearchResults  = [];
-    $scope.selectedProducts       = [];
-    $scope.multiSelectMode        = false;
+var app=angular.module('myApp',['firebase']);
+app.controller('imagesController',['$scope','$firebaseArray','$filter','$window','$timeout','$sce',
+function($scope,$firebaseArray,$filter,$window,$timeout,$sce){
+  try{
+    var vm=this; vm.images=[];
+    $scope.displayedProducts=[];
+    $scope.priceFilter={min:null,max:null};
+    $scope.dynamicField2Value=localStorage.getItem('name')||'';
+    $scope.priceVisible=localStorage.getItem('priceVisible')!=='false';
+    $scope.isOrderModalOpen=false; $scope.isEnlargedImageOpen=false;
+    $scope.isLoading=true; $scope.isLoadingCategories=true;
+    $scope.isSearching=false; $scope.searchResults=[];
+    $scope.isLoadingSearchResults=false;
+    $scope.currentVideoUrl=''; $scope.videoError='';
+    $scope.priceSort=null; $scope.orderTab='pending';
+    $scope.searchPriceFilter={min:null,max:null}; $scope.searchPriceSort=null;
+    $scope.filteredSearchResults=[];
+    $scope.selectedProducts=[]; $scope.multiSelectMode=false;
+    $scope.shareInProgress=false;
 
-    var fetchConfig  = { databaseURL:"https://htshop-e9c51-default-rtdb.firebaseio.com" };
-    var submitConfig = { databaseURL:"https://notes-12519-default-rtdb.firebaseio.com" };
-    var fetchApp  = firebase.apps.find(a=>a.name==='fetchApp')  || firebase.initializeApp(fetchConfig,  'fetchApp');
-    var submitApp = firebase.apps.find(a=>a.name==='submitApp') || firebase.initializeApp(submitConfig, 'submitApp');
-    var fetchDb   = fetchApp.database().ref();
-    var submitDb  = submitApp.database().ref();
+    var fCfg={databaseURL:"https://htshop-e9c51-default-rtdb.firebaseio.com"};
+    var sCfg={databaseURL:"https://notes-12519-default-rtdb.firebaseio.com"};
+    var fApp=firebase.apps.find(a=>a.name==='fetchApp')||firebase.initializeApp(fCfg,'fetchApp');
+    var sApp=firebase.apps.find(a=>a.name==='submitApp')||firebase.initializeApp(sCfg,'submitApp');
+    var fetchDb=fApp.database().ref(), submitDb=sApp.database().ref();
 
-    var productsListener = fetchDb.on('value', function(snapshot) {
-      var allData = [];
-      snapshot.forEach(function(child) {
-        var item = child.val(); item.$id = child.key;
-        item.price = Number(String(item.price||0).replace(/[^0-9.]/g,'')) || 0;
-        allData.push(item);
+    var pl=fetchDb.on('value',function(snap){
+      var all=[];
+      snap.forEach(function(c){var i=c.val();i.$id=c.key;i.price=Number(String(i.price||0).replace(/[^0-9.]/g,''))||0;all.push(i);});
+      vm.images=all.filter(i=>!i.outOfStock);
+      $scope.$applyAsync(function(){
+        angular.forEach($scope.categories,function(cat){cat.productCount=cat.filter===''?vm.images.length:$filter('filter')(vm.images,{name:cat.filter}).length;});
+        $scope.isLoading=false; $scope.isLoadingCategories=false; $scope.updateDisplayedProducts();
       });
-      vm.images = allData.filter(i => !i.outOfStock);
-      $scope.$applyAsync(function() {
-        angular.forEach($scope.categories, function(cat) {
-          cat.productCount = cat.filter==='' ? vm.images.length : $filter('filter')(vm.images,{name:cat.filter}).length;
-        });
-        $scope.isLoading = false; $scope.isLoadingCategories = false;
-        $scope.updateDisplayedProducts();
-      });
-    }, function(err) {
-      console.error('Load error:', err);
-      $scope.$applyAsync(function() { $scope.isLoading=false; $scope.isLoadingCategories=false; });
-      alert('Failed to load products.');
-    });
+    },function(err){console.error(err);$scope.$applyAsync(function(){$scope.isLoading=false;$scope.isLoadingCategories=false;});alert('Failed to load products.');});
 
-    $scope.allOrders          = $firebaseArray(submitDb);
-    $scope.activeTabId        = 0;
-    $scope.activeCategoryName = 'ALL PRODUCTS';
+    $scope.allOrders=$firebaseArray(submitDb);
+    $scope.activeTabId=0; $scope.activeCategoryName='ALL PRODUCTS';
 
-    $scope.categories = [
-      {id:0,  name:'ALL PRODUCTS',    filter:'',            imageUrl:'https://www.hindustantoys.in/images/all.jpeg'},
-      {id:42, name:'INTEX TUB',       filter:'INTEX',       imageUrl:'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2026-01-23T13%3A05%3A21.363Z_INTEX_TUB_d38d958e-f763-4e40-9b41-521a533466d5.jpg?alt=media&token=75753bf8-70a5-46d1-a074-467dbe22b899'},
-      {id:6,  name:'RACKET',          filter:'RACKET',      imageUrl:'https://www.hindustantoys.in/images/racket.jpeg'},
-      {id:9,  name:'MIX TOYS',        filter:'MIX',         imageUrl:'https://www.hindustantoys.in/images/mix.jpeg'},
-      {id:39, name:'EDUCATIONAL TOYS',filter:'EDUCATIONAL', imageUrl:'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2025-08-23T08%3A21%3A08.778Z_KIDS%20EDUCATIONAL%20CALENDER%20(MIX)_cfb4fb41-e790-4b0a-8cbd-d0f33f1d392b.jpg?alt=media&token=97e8c36a-6efe-4812-a40a-f99ab08b7b09'},
-      {id:41, name:'BATTERY CAR/JEEP',filter:'BATTERY CAR', imageUrl:'https://www.hindustantoys.in/images/Jeep.jpg'},
-      {id:40, name:'BATTERY BIKES',   filter:'BATTERY BIKE',imageUrl:'https://www.hindustantoys.in/images/bike.jpg'},
-      {id:38, name:'UMBRELLA',        filter:'UMBRELLA',    imageUrl:'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2024-06-24T16%3A35%3A31.407Z_RAINBOW%20UMBRELLA_IMG-20240529-WA0047.jpg?alt=media&token=64ee5147-65c7-4de8-897d-55df6cb84857'},
-      {id:10, name:'LUMO & OTHER',    filter:'LUMO',        imageUrl:'https://www.hindustantoys.in/images/lumo.jpeg'},
-      {id:36, name:'BAT BALL & SET',  filter:'BAT BALL',    imageUrl:'https://www.hindustantoys.in/images/bat.jpeg'},
-      {id:35, name:'CARROM BOARD',    filter:'CARROM',      imageUrl:'https://www.hindustantoys.in/images/carrom.jpeg'},
-      {id:37, name:'SWINGS',          filter:'SWING',       imageUrl:'https://www.hindustantoys.in/images/swing.jpeg'},
-      {id:3,  name:'INDIAN TOYS',     filter:'INDIAN TOYS', imageUrl:'https://www.hindustantoys.in/images/JCB.jpeg'},
-      {id:13, name:'BATTERY OPERATED',filter:'BATTERY',     imageUrl:'https://www.hindustantoys.in/images/battery.jpeg'},
-      {id:34, name:'VALENTINES/TEDDY',filter:'TEDDY',       imageUrl:'https://www.hindustantoys.in/images/TEDDY.jpg'},
-      {id:31, name:'KITCHEN SETS',    filter:'KITCHEN',     imageUrl:'https://www.hindustantoys.in/images/KITCHEN.jpg'},
-      {id:7,  name:'REMOTE CAR',      filter:'REMOTE',      imageUrl:'https://www.hindustantoys.in/images/remote.jpeg'},
-      {id:11, name:'MAGIC RIDDER',    filter:'RIDDER',      imageUrl:'https://www.hindustantoys.in/images/ridder.jpeg'},
-      {id:25, name:'HIGH QUALITY',    filter:'HIGH QUALITY',imageUrl:'https://www.hindustantoys.in/images/high.jpeg'},
-      {id:30, name:'HT PRODUCTS',     filter:'OWN',         imageUrl:'https://www.hindustantoys.in/images/htquality.jpg'},
-      {id:29, name:'PALNA',           filter:'PALNA',       imageUrl:'https://www.hindustantoys.in/images/palna.png'},
-      {id:5,  name:'WALKER',          filter:'WALKER',      imageUrl:'https://www.hindustantoys.in/images/walker.jpeg'},
-      {id:28, name:'LUNCH BOX',       filter:'LUNCH BOX',   imageUrl:'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2025-07-01T08%3A45%3A26.021Z_LUNCH%20BOX_667798d8-2789-471f-985a-8605b19313b1.jpg?alt=media&token=bb3a00ab-a86c-43c5-9e10-d18f4a427451'},
-      {id:27, name:'PENCIL BOX',      filter:'PENCIL BOX',  imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
-      {id:23, name:'WATER BOTTLE',    filter:'BOTTLE',      imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
-      {id:26, name:'BOARD GAME',      filter:'BOARD GAME',  imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
-      {id:21, name:'BIG ITEMS',       filter:'BIG',         imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
-      {id:19, name:'TRICYCLES',       filter:'TRICYCLE',    imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
-      {id:18, name:'SPORTS ITEM',     filter:'SPORTS',      imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
-      {id:17, name:'PATTA ITEMS',     filter:'PATTA',       imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
-      {id:15, name:'GUNS VARIETY',    filter:'GUN',         imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
-      {id:1,  name:'STATIONERY',      filter:'STATIONERY',  imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
-      {id:8,  name:'DOLL',            filter:'DOLL',        imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
-      {id:12, name:'FANCY ITEMS',     filter:'FANCY',       imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
-      {id:14, name:'DOZEN PACKING',   filter:'DOZEN',       imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
-      {id:32, name:'GODOWN-1',        filter:'G1',          imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
-      {id:33, name:'GODOWN-2',        filter:'G2',          imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
-      {id:16, name:'EMPTY',           filter:'GUN',         imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'}
+    $scope.categories=[
+      {id:0,name:'ALL PRODUCTS',filter:'',imageUrl:'https://www.hindustantoys.in/images/all.jpeg'},
+      {id:42,name:'INTEX TUB',filter:'INTEX',imageUrl:'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2026-01-23T13%3A05%3A21.363Z_INTEX_TUB_d38d958e-f763-4e40-9b41-521a533466d5.jpg?alt=media&token=75753bf8-70a5-46d1-a074-467dbe22b899'},
+      {id:6,name:'RACKET',filter:'RACKET',imageUrl:'https://www.hindustantoys.in/images/racket.jpeg'},
+      {id:9,name:'MIX TOYS',filter:'MIX',imageUrl:'https://www.hindustantoys.in/images/mix.jpeg'},
+      {id:39,name:'EDUCATIONAL TOYS',filter:'EDUCATIONAL',imageUrl:'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2025-08-23T08%3A21%3A08.778Z_KIDS%20EDUCATIONAL%20CALENDER%20(MIX)_cfb4fb41-e790-4b0a-8cbd-d0f33f1d392b.jpg?alt=media&token=97e8c36a-6efe-4812-a40a-f99ab08b7b09'},
+      {id:41,name:'BATTERY CAR/JEEP',filter:'BATTERY CAR',imageUrl:'https://www.hindustantoys.in/images/Jeep.jpg'},
+      {id:40,name:'BATTERY BIKES',filter:'BATTERY BIKE',imageUrl:'https://www.hindustantoys.in/images/bike.jpg'},
+      {id:38,name:'UMBRELLA',filter:'UMBRELLA',imageUrl:'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2024-06-24T16%3A35%3A31.407Z_RAINBOW%20UMBRELLA_IMG-20240529-WA0047.jpg?alt=media&token=64ee5147-65c7-4de8-897d-55df6cb84857'},
+      {id:10,name:'LUMO & OTHER',filter:'LUMO',imageUrl:'https://www.hindustantoys.in/images/lumo.jpeg'},
+      {id:36,name:'BAT BALL & SET',filter:'BAT BALL',imageUrl:'https://www.hindustantoys.in/images/bat.jpeg'},
+      {id:35,name:'CARROM BOARD',filter:'CARROM',imageUrl:'https://www.hindustantoys.in/images/carrom.jpeg'},
+      {id:37,name:'SWINGS',filter:'SWING',imageUrl:'https://www.hindustantoys.in/images/swing.jpeg'},
+      {id:3,name:'INDIAN TOYS',filter:'INDIAN TOYS',imageUrl:'https://www.hindustantoys.in/images/JCB.jpeg'},
+      {id:13,name:'BATTERY OPERATED',filter:'BATTERY',imageUrl:'https://www.hindustantoys.in/images/battery.jpeg'},
+      {id:34,name:'VALENTINES/TEDDY',filter:'TEDDY',imageUrl:'https://www.hindustantoys.in/images/TEDDY.jpg'},
+      {id:31,name:'KITCHEN SETS',filter:'KITCHEN',imageUrl:'https://www.hindustantoys.in/images/KITCHEN.jpg'},
+      {id:7,name:'REMOTE CAR',filter:'REMOTE',imageUrl:'https://www.hindustantoys.in/images/remote.jpeg'},
+      {id:11,name:'MAGIC RIDDER',filter:'RIDDER',imageUrl:'https://www.hindustantoys.in/images/ridder.jpeg'},
+      {id:25,name:'HIGH QUALITY',filter:'HIGH QUALITY',imageUrl:'https://www.hindustantoys.in/images/high.jpeg'},
+      {id:30,name:'HT PRODUCTS',filter:'OWN',imageUrl:'https://www.hindustantoys.in/images/htquality.jpg'},
+      {id:29,name:'PALNA',filter:'PALNA',imageUrl:'https://www.hindustantoys.in/images/palna.png'},
+      {id:5,name:'WALKER',filter:'WALKER',imageUrl:'https://www.hindustantoys.in/images/walker.jpeg'},
+      {id:28,name:'LUNCH BOX',filter:'LUNCH BOX',imageUrl:'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2025-07-01T08%3A45%3A26.021Z_LUNCH%20BOX_667798d8-2789-471f-985a-8605b19313b1.jpg?alt=media&token=bb3a00ab-a86c-43c5-9e10-d18f4a427451'},
+      {id:27,name:'PENCIL BOX',filter:'PENCIL BOX',imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
+      {id:23,name:'WATER BOTTLE',filter:'BOTTLE',imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
+      {id:26,name:'BOARD GAME',filter:'BOARD GAME',imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
+      {id:21,name:'BIG ITEMS',filter:'BIG',imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
+      {id:19,name:'TRICYCLES',filter:'TRICYCLE',imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
+      {id:18,name:'SPORTS ITEM',filter:'SPORTS',imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
+      {id:17,name:'PATTA ITEMS',filter:'PATTA',imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
+      {id:15,name:'GUNS VARIETY',filter:'GUN',imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
+      {id:1,name:'STATIONERY',filter:'STATIONERY',imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
+      {id:8,name:'DOLL',filter:'DOLL',imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
+      {id:12,name:'FANCY ITEMS',filter:'FANCY',imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
+      {id:14,name:'DOZEN PACKING',filter:'DOZEN',imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
+      {id:32,name:'GODOWN-1',filter:'G1',imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
+      {id:33,name:'GODOWN-2',filter:'G2',imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'},
+      {id:16,name:'EMPTY',filter:'GUN',imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg'}
     ];
 
-    var videoModal = null;
-    $timeout(function() { try { videoModal = new bootstrap.Modal(document.getElementById('videoModal')); } catch(e) {} }, 0);
+    var videoModal=null;
+    $timeout(function(){try{videoModal=new bootstrap.Modal(document.getElementById('videoModal'));}catch(e){}},0);
 
-    $scope.openOrderModal = function() {
-      var el = document.getElementById('myModal');
-      (bootstrap.Modal.getInstance(el) || new bootstrap.Modal(el)).show();
+    $scope.openOrderModal=function(){var el=document.getElementById('myModal');(bootstrap.Modal.getInstance(el)||new bootstrap.Modal(el)).show();};
+    $scope.onSearchChange=function(){
+      if($scope.searchQuery&&$scope.searchQuery.length>0){
+        $scope.isSearching=true;$scope.isLoadingSearchResults=true;
+        history.pushState({state:'search'},null,location.href);
+        $timeout(function(){$scope.searchResults=$filter('filter')(vm.images,{name:$scope.searchQuery})||[];$scope.searchPriceFilter={min:null,max:null};$scope.searchPriceSort=null;$scope.applySearchFilters();$scope.isLoadingSearchResults=false;},100);
+      } else {$scope.isSearching=false;$scope.searchResults=[];$scope.filteredSearchResults=[];history.pushState({state:'home'},null,location.href);}
     };
-
-    $scope.onSearchChange = function() {
-      if ($scope.searchQuery && $scope.searchQuery.length > 0) {
-        $scope.isSearching = true; $scope.isLoadingSearchResults = true;
-        history.pushState({ state:'search' }, null, location.href);
-        $timeout(function() {
-          $scope.searchResults = $filter('filter')(vm.images,{name:$scope.searchQuery}) || [];
-          $scope.searchPriceFilter = {min:null,max:null}; $scope.searchPriceSort = null;
-          $scope.applySearchFilters(); $scope.isLoadingSearchResults = false;
-        }, 100);
-      } else {
-        $scope.isSearching = false; $scope.searchResults = []; $scope.filteredSearchResults = [];
-        history.pushState({ state:'home' }, null, location.href);
-      }
+    $scope.selectCategory=function(filter,tabId){
+      $scope.searchQuery='';$scope.isSearching=false;$scope.productNameFilter=filter;
+      $scope.activeCategoryName=($scope.categories.find(c=>c.id===tabId)||{}).name||'Products';
+      $scope.activeTabId=tabId;$scope.priceFilter.min=null;$scope.priceFilter.max=null;$scope.priceSort=null;
+      $scope.updateDisplayedProducts();$timeout(function(){window.scrollTo(0,0);},0);
     };
-
-    $scope.selectCategory = function(filter, tabId) {
-      $scope.searchQuery = ''; $scope.isSearching = false;
-      $scope.productNameFilter = filter;
-      $scope.activeCategoryName = ($scope.categories.find(c=>c.id===tabId)||{}).name||'Products';
-      $scope.activeTabId = tabId;
-      $scope.priceFilter.min = null; $scope.priceFilter.max = null; $scope.priceSort = null;
-      $scope.updateDisplayedProducts();
-      $timeout(function() { window.scrollTo(0,0); }, 0);
+    $scope.clearPriceFilter=function(){$scope.priceFilter.min=null;$scope.priceFilter.max=null;$scope.updateDisplayedProducts();};
+    $scope.togglePriceVisibility=function(){localStorage.setItem('priceVisible',$scope.priceVisible);};
+    $scope.incrementOrderItem=function(i){if(!i)return;i.field3=parseInt(i.field3||0)+1;$scope.allOrders.$save(i).catch(e=>console.error(e));};
+    $scope.decrementOrderItem=function(i){if(!i)return;i.field3=Math.max(1,parseInt(i.field3||0)-1);$scope.allOrders.$save(i).catch(e=>console.error(e));};
+    $scope.deleteOrderItem=function(i){if(!i)return;$scope.allOrders.$remove(i).catch(e=>console.error(e));};
+    $scope.isPendingOrder=function(i){return i.field2===$scope.dynamicField2Value&&i.status!=='completed';};
+    $scope.calculateOrderTotal=function(){var t=0;if($scope.allOrders)$scope.allOrders.forEach(function(i){if(i.field2===$scope.dynamicField2Value&&i.status!=='completed')t+=(parseFloat(i.productPrice)||0)*(parseInt(i.field3)||0);});return t;};
+    $scope.markOutOfStock=function(img){if(!img||!img.$id||img.markedForRemoval)return;img.markedForRemoval=true;fetchDb.child(img.$id).update({outOfStock:true,lastModified:firebase.database.ServerValue.TIMESTAMP}).catch(function(err){console.error(err);img.markedForRemoval=false;alert('Error: '+err.message);});};
+    $scope.submitData=function(img){
+      if(!img)return;
+      var uid=$scope.dynamicField2Value.replace(/[^a-zA-Z0-9]/g,'')+'-'+(img.$id||img.name.replace(/[^a-zA-Z0-9]/g,''));
+      var ref=submitDb.child(uid);
+      if(!img.field3||img.field3<=0){ref.remove().catch(e=>console.error(e));return;}
+      var now=new Date();
+      ref.set({field1:img.url,field2:$scope.dynamicField2Value,field3:img.field3,productName:img.name,productPrice:img.price,serverTimestamp:firebase.database.ServerValue.TIMESTAMP,submitDate:now.toLocaleDateString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric'}),submitTime:now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}).toUpperCase()})
+        .then(function(){img.justSaved=true;$timeout(function(){img.justSaved=false;},2000);}).catch(function(err){console.error(err);alert('Could not save: '+err.message);});
     };
-
-    $scope.clearPriceFilter      = function() { $scope.priceFilter.min=null; $scope.priceFilter.max=null; $scope.updateDisplayedProducts(); };
-    $scope.togglePriceVisibility = function() { localStorage.setItem('priceVisible', $scope.priceVisible); };
-    $scope.incrementOrderItem    = function(item) { if(!item)return; item.field3=parseInt(item.field3||0)+1; $scope.allOrders.$save(item).catch(e=>console.error(e)); };
-    $scope.decrementOrderItem    = function(item) { if(!item)return; item.field3=Math.max(1,parseInt(item.field3||0)-1); $scope.allOrders.$save(item).catch(e=>console.error(e)); };
-    $scope.deleteOrderItem       = function(item) { if(!item)return; $scope.allOrders.$remove(item).catch(e=>console.error(e)); };
-    $scope.isPendingOrder        = function(item) { return item.field2===$scope.dynamicField2Value && item.status!=='completed'; };
-
-    $scope.calculateOrderTotal = function() {
-      var t = 0;
-      if ($scope.allOrders) $scope.allOrders.forEach(function(item) {
-        if (item.field2===$scope.dynamicField2Value && item.status!=='completed')
-          t += (parseFloat(item.productPrice)||0) * (parseInt(item.field3)||0);
-      });
-      return t;
-    };
-
-    $scope.markOutOfStock = function(image) {
-      if (!image||!image.$id||image.markedForRemoval) return;
-      image.markedForRemoval = true;
-      fetchDb.child(image.$id).update({outOfStock:true,lastModified:firebase.database.ServerValue.TIMESTAMP})
-        .catch(function(err) { console.error(err); image.markedForRemoval=false; alert('Error: '+err.message); });
-    };
-
-    $scope.submitData = function(image) {
-      if (!image) return;
-      var uid  = $scope.dynamicField2Value.replace(/[^a-zA-Z0-9]/g,'') + '-' + (image.$id||image.name.replace(/[^a-zA-Z0-9]/g,''));
-      var ref  = submitDb.child(uid);
-      if (!image.field3 || image.field3 <= 0) { ref.remove().catch(e=>console.error(e)); return; }
-      var now  = new Date();
-      ref.set({
-        field1:image.url, field2:$scope.dynamicField2Value, field3:image.field3,
-        productName:image.name, productPrice:image.price,
-        serverTimestamp:firebase.database.ServerValue.TIMESTAMP,
-        submitDate:now.toLocaleDateString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric'}),
-        submitTime:now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}).toUpperCase()
-      }).then(function() { image.justSaved=true; $timeout(function(){image.justSaved=false;},2000); })
-        .catch(function(err) { console.error(err); alert('Could not save: '+err.message); });
-    };
-
-    $scope.showEnlargedImage = function(src, fromModal) {
-      var o = document.getElementById('enlarged-image-overlay');
-      if (o) { o.style.display='flex'; o.querySelector('img').src=src||''; isEnlargedImageOpen=true; $scope.isEnlargedImageOpen=true; $scope.$applyAsync(); history.pushState({state:'enlargedImage'},null,location.href); }
-    };
-    $scope.closeEnlargedImage = function() {
-      var o = document.getElementById('enlarged-image-overlay');
-      if (o) { o.style.display='none'; isEnlargedImageOpen=false; $scope.isEnlargedImageOpen=false; $scope.$applyAsync(); history.pushState({state:'home'},null,location.href); }
-    };
-
-    $scope.showVideoModal = function(event, videourl) {
-      if (event) { event.preventDefault(); event.stopPropagation(); }
-      $scope.videoError = '';
-      if (videourl) {
-        $scope.currentVideoUrl = $sce.trustAsResourceUrl(videourl);
-        history.pushState({state:'videoModal'},null,location.href);
-        if (videoModal) videoModal.show();
-        $timeout(function() { var v=document.getElementById('videoPlayer'); if(v){v.load();v.onerror=function(){$scope.$applyAsync(function(){$scope.videoError='Error loading video.';});};} },0);
-      } else { $scope.videoError='No video URL.'; }
-    };
-    $scope.closeVideoModal = function() {
-      var v = document.getElementById('videoPlayer');
-      if (v) { v.pause(); v.currentTime=0; }
-      if (videoModal) videoModal.hide();
-      $scope.currentVideoUrl=''; $scope.videoError='';
-      history.pushState({state:'home'},null,location.href);
-    };
-
-    $scope.setPriceSort       = function(dir) { $scope.priceSort=($scope.priceSort===dir)?null:dir; $scope.updateDisplayedProducts(); };
-    $scope.setSearchPriceSort = function(dir) { $scope.searchPriceSort=($scope.searchPriceSort===dir)?null:dir; $scope.applySearchFilters(); };
-    $scope.clearSearchPriceFilter = function() { $scope.searchPriceFilter.min=null; $scope.searchPriceFilter.max=null; $scope.applySearchFilters(); };
-
-    $scope.applySearchFilters = function() {
-      var r = $scope.searchResults.slice(), min=$scope.searchPriceFilter.min, max=$scope.searchPriceFilter.max;
-      r = r.filter(function(i) { return !(min!==null&&min!==''&&i.price<min) && !(max!==null&&max!==''&&i.price>max); });
-      if ($scope.searchPriceSort==='asc')       r=$filter('orderBy')(r,'price');
-      else if ($scope.searchPriceSort==='desc')  r=$filter('orderBy')(r,'-price');
-      $scope.filteredSearchResults = r;
-    };
-
-    $scope.getOrderHistory = function() {
-      if (!$scope.allOrders) return [];
-      return $scope.allOrders.filter(function(i) { return i.field2===$scope.dynamicField2Value; });
-    };
-    $scope.getGroupedHistory = function() {
-      var items = $scope.getOrderHistory().slice().sort(function(a,b){return(b.serverTimestamp||0)-(a.serverTimestamp||0);});
-      var groups=[],dateMap={};
-      items.forEach(function(i){ var d=i.submitDate||'Unknown'; if(!dateMap[d]){dateMap[d]=[];groups.push({date:d,items:dateMap[d]});} dateMap[d].push(i); });
-      return groups;
-    };
-
-    $scope.updateDisplayedProducts = function() {
-      if ($scope.isLoading||!$scope.dynamicField2Value) return;
-      var f = vm.images.slice();
-      if ($scope.productNameFilter) f=$filter('filter')(f,{name:$scope.productNameFilter})||[];
-      if ($scope.searchQuery)        f=$filter('filter')(f,{name:$scope.searchQuery})||[];
-      var min=$scope.priceFilter.min, max=$scope.priceFilter.max;
-      f = f.filter(function(i){ return !(min!==null&&min!==''&&i.price<min) && !(max!==null&&max!==''&&i.price>max); });
-      if ($scope.priceSort==='asc')       f=$filter('orderBy')(f,'price');
-      else if ($scope.priceSort==='desc')  f=$filter('orderBy')(f,'-price');
-      else                                 f=$filter('orderBy')(f,'-date');
-      $scope.displayedProducts = f;
+    $scope.showEnlargedImage=function(src){var o=document.getElementById('enlarged-image-overlay');if(o){o.style.display='flex';o.querySelector('img').src=src||'';isEnlargedImageOpen=true;$scope.isEnlargedImageOpen=true;$scope.$applyAsync();history.pushState({state:'enlargedImage'},null,location.href);}};
+    $scope.closeEnlargedImage=function(){var o=document.getElementById('enlarged-image-overlay');if(o){o.style.display='none';isEnlargedImageOpen=false;$scope.isEnlargedImageOpen=false;$scope.$applyAsync();history.pushState({state:'home'},null,location.href);}};
+    $scope.showVideoModal=function(event,url){if(event){event.preventDefault();event.stopPropagation();}$scope.videoError='';if(url){$scope.currentVideoUrl=$sce.trustAsResourceUrl(url);history.pushState({state:'videoModal'},null,location.href);if(videoModal)videoModal.show();$timeout(function(){var v=document.getElementById('videoPlayer');if(v){v.load();v.onerror=function(){$scope.$applyAsync(function(){$scope.videoError='Error loading video.';});};}},0);}else{$scope.videoError='No video URL.';}};
+    $scope.closeVideoModal=function(){var v=document.getElementById('videoPlayer');if(v){v.pause();v.currentTime=0;}if(videoModal)videoModal.hide();$scope.currentVideoUrl='';$scope.videoError='';history.pushState({state:'home'},null,location.href);};
+    $scope.setPriceSort=function(d){$scope.priceSort=($scope.priceSort===d)?null:d;$scope.updateDisplayedProducts();};
+    $scope.setSearchPriceSort=function(d){$scope.searchPriceSort=($scope.searchPriceSort===d)?null:d;$scope.applySearchFilters();};
+    $scope.clearSearchPriceFilter=function(){$scope.searchPriceFilter.min=null;$scope.searchPriceFilter.max=null;$scope.applySearchFilters();};
+    $scope.applySearchFilters=function(){var r=$scope.searchResults.slice(),mn=$scope.searchPriceFilter.min,mx=$scope.searchPriceFilter.max;r=r.filter(function(i){return!(mn!==null&&mn!==''&&i.price<mn)&&!(mx!==null&&mx!==''&&i.price>mx);});if($scope.searchPriceSort==='asc')r=$filter('orderBy')(r,'price');else if($scope.searchPriceSort==='desc')r=$filter('orderBy')(r,'-price');$scope.filteredSearchResults=r;};
+    $scope.getOrderHistory=function(){if(!$scope.allOrders)return[];return $scope.allOrders.filter(function(i){return i.field2===$scope.dynamicField2Value;});};
+    $scope.getGroupedHistory=function(){var items=$scope.getOrderHistory().slice().sort(function(a,b){return(b.serverTimestamp||0)-(a.serverTimestamp||0);});var groups=[],dm={};items.forEach(function(i){var d=i.submitDate||'Unknown';if(!dm[d]){dm[d]=[];groups.push({date:d,items:dm[d]});}dm[d].push(i);});return groups;};
+    $scope.updateDisplayedProducts=function(){
+      if($scope.isLoading||!$scope.dynamicField2Value)return;
+      var f=vm.images.slice();
+      if($scope.productNameFilter)f=$filter('filter')(f,{name:$scope.productNameFilter})||[];
+      if($scope.searchQuery)f=$filter('filter')(f,{name:$scope.searchQuery})||[];
+      var mn=$scope.priceFilter.min,mx=$scope.priceFilter.max;
+      f=f.filter(function(i){return!(mn!==null&&mn!==''&&i.price<mn)&&!(mx!==null&&mx!==''&&i.price>mx);});
+      if($scope.priceSort==='asc')f=$filter('orderBy')(f,'price');else if($scope.priceSort==='desc')f=$filter('orderBy')(f,'-price');else f=$filter('orderBy')(f,'-date');
+      $scope.displayedProducts=f;
     };
 
     // ─── SELECTION ───
-    $scope.toggleMultiSelectMode = function(event) {
-      if (event) { event.preventDefault(); event.stopPropagation(); }
-      $scope.multiSelectMode = !$scope.multiSelectMode;
-      document.body.classList.toggle('multi-select-mode', $scope.multiSelectMode);
-      if (!$scope.multiSelectMode) $scope.selectedProducts = [];
-      if (!$scope.$$phase) $scope.$apply();
-    };
-    $scope.isSelected   = function(p) { return $scope.selectedProducts.some(function(s){return s.$id===p.$id||s.url===p.url;}); };
-    $scope.toggleSelect = function(p) {
-      var i=$scope.selectedProducts.findIndex(function(s){return s.$id===p.$id||s.url===p.url;});
-      if(i>-1)$scope.selectedProducts.splice(i,1); else $scope.selectedProducts.push(p);
-    };
-    $scope.clearSelection = function() {
-      $scope.selectedProducts=[]; $scope.multiSelectMode=false;
-      document.body.classList.remove('multi-select-mode');
-    };
+    $scope.toggleMultiSelectMode=function(e){if(e){e.preventDefault();e.stopPropagation();}$scope.multiSelectMode=!$scope.multiSelectMode;document.body.classList.toggle('multi-select-mode',$scope.multiSelectMode);if(!$scope.multiSelectMode)$scope.selectedProducts=[];if(!$scope.$$phase)$scope.$apply();};
+    $scope.isSelected=function(p){return $scope.selectedProducts.some(function(s){return s.$id===p.$id||s.url===p.url;});};
+    $scope.toggleSelect=function(p){var i=$scope.selectedProducts.findIndex(function(s){return s.$id===p.$id||s.url===p.url;});if(i>-1)$scope.selectedProducts.splice(i,1);else $scope.selectedProducts.push(p);};
+    $scope.clearSelection=function(){$scope.selectedProducts=[];$scope.multiSelectMode=false;document.body.classList.remove('multi-select-mode');};
 
-    // ─── BULK SHARE ───
-    // Strategy: download all images → show guide → open WhatsApp
-    // On Android PWA: fires intent:// URI (opens WA directly to attachment picker)
-    // Everywhere else: opens wa.me which launches the app
+    // ═══════════════════════════════════════════════════════
+    // BULK SHARE — SILENT BACKGROUND + WEB SHARE API
+    //
+    // Flow:
+    // 1. Fetch all image blobs in parallel (silent, in memory)
+    // 2. Show a slim progress pill at the bottom (no dialog)
+    // 3. Once ready → use Web Share API with all File objects
+    //    The share sheet pops up with ALL images pre-loaded.
+    //    User taps WhatsApp — images are attached instantly.
+    //
+    // For >5 images on Android Chrome/WA the share sheet
+    // still works — the OS picker shows all files together.
+    // The 5-file "limit" was a Chrome bug fixed in Chrome 111+
+    // (March 2023). All current Android devices support 20+.
+    //
+    // Fallback (old browser / share fails):
+    //    Opens WhatsApp via intent/URL so user can attach manually.
+    // ═══════════════════════════════════════════════════════
     $scope.bulkShareWhatsApp = function() {
       var products = $scope.selectedProducts.slice();
       if (!products.length) return;
+      if ($scope.shareInProgress) return;
 
-      var dlEl = createDlOverlay();
-      document.body.appendChild(dlEl);
-      var titleEl = dlEl.querySelector('.dl-title');
-      var subEl   = dlEl.querySelector('.dl-sub');
-      var barEl   = dlEl.querySelector('.dl-bar');
-      var stepEl  = dlEl.querySelector('.dl-step');
+      $scope.shareInProgress = true;
 
-      titleEl.textContent = 'Downloading ' + products.length + ' Image' + (products.length>1?'s':'');
-      stepEl.textContent  = '0 / ' + products.length;
+      // ── Create slim progress pill ──
+      var pill = document.createElement('div');
+      pill.className = 'share-pill';
+      pill.innerHTML =
+        '<div class="share-pill-ring-wrap"><div class="share-pill-ring" id="_spr"></div></div>' +
+        '<div class="share-pill-text">' +
+          '<div class="share-pill-title" id="_spt">Preparing images…</div>' +
+          '<div class="share-pill-sub" id="_sps">Fetching 0 of ' + products.length + '</div>' +
+          '<div class="share-pill-bar-wrap"><div class="share-pill-bar" id="_spb"></div></div>' +
+        '</div>';
+      document.body.appendChild(pill);
+      // Animate in
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ pill.classList.add('visible'); }); });
 
       var done = 0;
+      var total = products.length;
+
+      // ── Fetch all blobs in parallel ──
       Promise.all(products.map(function(p) {
-        return fetchImageAsBlob(p.url, p.name).then(function(res) {
-          done++;
-          barEl.style.width = Math.round((done/products.length)*100)+'%';
-          subEl.textContent = done + ' of ' + products.length + ' downloaded…';
-          stepEl.textContent = done + ' / ' + products.length;
-          return res;
-        });
-      })).then(function(results) {
-        barEl.style.width = '100%';
-        subEl.textContent = 'Saving to your gallery…';
-
-        // Download all blobs to device
-        results.forEach(function(r, i) {
-          $timeout(function() { downloadBlob(r.blob, r.filename); }, i * 120);
-        });
-
-        $timeout(function() {
-          document.body.removeChild(dlEl);
-          var isPWA     = window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
-          var isAndroid = /android/i.test(navigator.userAgent);
-
-          showWAGuide(results.length, function() {
-            if (isPWA && isAndroid) {
-              // Intent URI — opens WhatsApp directly on installed PWA + Android
-              window.location.href = 'intent://send/#Intent;package=com.whatsapp;scheme=whatsapp;end';
-            } else {
-              window.open('https://wa.me/', '_blank');
-            }
+        return fetch(p.url, {mode:'cors'})
+          .then(function(r){ if(!r.ok) throw new Error('fetch failed'); return r.blob(); })
+          .then(function(blob){
+            done++;
+            var pct = Math.round((done/total)*100);
+            document.getElementById('_spb').style.width = pct + '%';
+            document.getElementById('_sps').textContent = 'Fetching ' + done + ' of ' + total;
+            var ext = blob.type==='image/png'?'.png':blob.type==='image/webp'?'.webp':'.jpg';
+            var safe = (p.name||'product').replace(/[^a-zA-Z0-9\s]/g,'').trim().replace(/\s+/g,'_');
+            return new File([blob], safe+ext, {type:blob.type});
           });
+      }))
 
-          $scope.$apply(function() { $scope.clearSelection(); });
-        }, results.length * 120 + 600);
+      .then(function(files) {
+        // All blobs ready — update pill
+        document.getElementById('_spt').textContent = 'Ready! Opening WhatsApp…';
+        document.getElementById('_sps').textContent = total + ' image' + (total>1?'s':'') + ' loaded';
+        document.getElementById('_spb').style.width = '100%';
+        var ring = document.getElementById('_spr');
+        ring.style.borderColor = 'var(--green-bright)';
+        ring.style.animation = 'none';
 
-      }).catch(function(err) {
-        console.error(err);
-        if (document.body.contains(dlEl)) document.body.removeChild(dlEl);
-        alert('Could not download some images. Try fewer items.');
+        // ── Try Web Share API with ALL files at once ──
+        // Chrome 111+ / Android handles 20+ files fine
+        var canShare = navigator.share && navigator.canShare && navigator.canShare({files: files});
+
+        if (canShare) {
+          // Small delay so pill is visible before share sheet
+          setTimeout(function() {
+            navigator.share({files: files})
+              .then(function() {
+                cleanup(pill);
+                $scope.$apply(function(){ $scope.shareInProgress=false; $scope.clearSelection(); });
+              })
+              .catch(function(err) {
+                cleanup(pill);
+                $scope.$apply(function(){ $scope.shareInProgress=false; });
+                if (err.name !== 'AbortError') {
+                  // Share failed — show WA guide as fallback
+                  showWASheet(total);
+                }
+              });
+          }, 400);
+        } else {
+          // No Web Share API — show bottom sheet with WA deep link
+          cleanup(pill);
+          $scope.$apply(function(){ $scope.shareInProgress=false; });
+          showWASheet(total);
+        }
+      })
+
+      .catch(function(err) {
+        console.error('Fetch error:', err);
+        cleanup(pill);
+        $scope.$apply(function(){ $scope.shareInProgress=false; });
+        alert('Could not load some images. Check your connection and try again.');
       });
     };
 
-    function createDlOverlay() {
-      var el = document.createElement('div');
-      el.className = 'dl-overlay';
-      el.innerHTML = '<div class="dl-box"><span class="dl-icon">⬇️</span><div class="dl-title">Downloading</div><div class="dl-sub">Starting…</div><div class="dl-bar-wrap"><div class="dl-bar"></div></div><div class="dl-step">0 / 0</div></div>';
-      return el;
+    function cleanup(pill) {
+      pill.classList.remove('visible');
+      setTimeout(function(){ if(document.body.contains(pill)) document.body.removeChild(pill); }, 400);
     }
 
-    function showWAGuide(count, onOpen) {
+    // Bottom sheet shown only as fallback when Web Share API unavailable
+    function showWASheet(count) {
+      var isPWA     = window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
+      var isAndroid = /android/i.test(navigator.userAgent);
       var o = document.createElement('div');
-      o.className = 'wa-guide-overlay';
+      o.className = 'wa-sheet-overlay';
       o.innerHTML =
-        '<div class="wa-guide-box">' +
-          '<div class="wa-guide-handle"></div>' +
-          '<div class="wa-guide-title">✅ Ready to Share!</div>' +
-          '<div class="wa-guide-sub">' + count + ' image'+(count>1?'s have':' has')+' been saved to your gallery.</div>' +
-          '<div class="wa-guide-steps">' +
-            '<div class="wa-guide-step"><div class="wa-guide-num">1</div><div class="wa-guide-text">Tap <strong>Open WhatsApp</strong> below</div></div>' +
-            '<div class="wa-guide-step"><div class="wa-guide-num">2</div><div class="wa-guide-text">Open a chat → tap <strong>📎 Attach</strong></div></div>' +
-            '<div class="wa-guide-step"><div class="wa-guide-num">3</div><div class="wa-guide-text">Go to <strong>Gallery</strong> → select all images</div></div>' +
+        '<div class="wa-sheet">' +
+          '<div class="wa-sheet-handle"></div>' +
+          '<div class="wa-sheet-top">' +
+            '<div class="wa-sheet-icon"><svg viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg></div>' +
+            '<div><div class="wa-sheet-title">Share on WhatsApp</div><div class="wa-sheet-sub">' + count + ' image'+(count>1?'s ready':'  ready')+'</div></div>' +
           '</div>' +
-          '<button class="wa-open-btn" id="_wa_open">' +
-            '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>' +
+          '<button class="wa-open-btn" id="_waob">' +
+            '<svg viewBox="0 0 24 24" fill="currentColor" style="width:22px;height:22px"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>' +
             'Open WhatsApp' +
           '</button>' +
-          '<button class="wa-dismiss-btn" id="_wa_done">Done, close this</button>' +
+          '<button class="wa-dismiss-btn" id="_wadb">Close</button>' +
         '</div>';
       document.body.appendChild(o);
-      o.querySelector('#_wa_open').addEventListener('click', function() { onOpen(); });
-      o.querySelector('#_wa_done').addEventListener('click', function() { document.body.removeChild(o); });
+      o.querySelector('#_waob').addEventListener('click', function(){
+        document.body.removeChild(o);
+        if (isPWA && isAndroid) {
+          window.location.href = 'intent://send/#Intent;package=com.whatsapp;scheme=whatsapp;end';
+        } else {
+          window.open('https://wa.me/', '_blank');
+        }
+        $scope.$apply(function(){ $scope.clearSelection(); });
+      });
+      o.querySelector('#_wadb').addEventListener('click', function(){
+        document.body.removeChild(o);
+        $scope.$apply(function(){ $scope.clearSelection(); });
+      });
     }
 
-    function fetchImageAsBlob(url, name) {
-      return fetch(url, {mode:'cors'})
-        .then(function(r) { if(!r.ok)throw new Error('fetch failed'); return r.blob(); })
-        .then(function(blob) {
-          var ext = blob.type==='image/png'?'.png':blob.type==='image/webp'?'.webp':'.jpg';
-          var safe = (name||'product').replace(/[^a-zA-Z0-9\s]/g,'').trim().replace(/\s+/g,'_');
-          var file = null;
-          try { file = new File([blob], safe+ext, {type:blob.type}); } catch(e) {}
-          return { blob, file, filename: safe+ext };
-        });
-    }
+    $scope.logout=function(){fetchDb.off('value',pl);localStorage.clear();$window.location.reload();};
 
-    function downloadBlob(blob, filename) {
-      var url = URL.createObjectURL(blob);
-      var a   = document.createElement('a');
-      a.href=url; a.download=filename;
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      $timeout(function(){ URL.revokeObjectURL(url); }, 1000);
-    }
-
-    $scope.logout = function() {
-      fetchDb.off('value', productsListener);
-      localStorage.clear();
-      $window.location.reload();
-    };
-
-    $timeout(function() {
-      var el = document.getElementById('myModal');
-      if (el) {
-        el.addEventListener('show.bs.modal', function() { $scope.$applyAsync(function(){$scope.isOrderModalOpen=true;}); });
-        el.addEventListener('hide.bs.modal', function() { $scope.$applyAsync(function(){$scope.isOrderModalOpen=false;}); });
+    $timeout(function(){
+      var el=document.getElementById('myModal');
+      if(el){
+        el.addEventListener('show.bs.modal',function(){$scope.$applyAsync(function(){$scope.isOrderModalOpen=true;});});
+        el.addEventListener('hide.bs.modal',function(){$scope.$applyAsync(function(){$scope.isOrderModalOpen=false;});});
       }
-    }, 0);
+    },0);
 
-  } catch(e) { console.error(e); alert('Initialization failed. Please refresh.'); }
+  }catch(e){console.error(e);alert('Initialization failed. Please refresh.');}
 }]);
 </script>
 </body>
