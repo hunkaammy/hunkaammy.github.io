@@ -734,7 +734,7 @@ function($scope,$firebaseArray,$filter,$window,$timeout,$sce){
         .then(function(){img.justSaved=true;$timeout(function(){img.justSaved=false;},2000);}).catch(function(err){console.error(err);alert('Could not save: '+err.message);});
     };
     // ─── ENLARGED IMAGE w/ SWIPE NAVIGATION + ORDER PANEL ───
-    var _enlargedList = [], _enlargedIndex = 0, _enlargedBusy = false;
+    var _enlargedList = [], _enlargedIndex = 0, _enlargedBusy = false, _enlargedAnimTimer1 = null;
 
     function _eopUpdate() {
       var product = _enlargedList[_enlargedIndex];
@@ -823,6 +823,8 @@ function($scope,$firebaseArray,$filter,$window,$timeout,$sce){
         return;
       }
 
+      if (_enlargedAnimTimer1) { clearTimeout(_enlargedAnimTimer1); _enlargedAnimTimer1 = null; }
+
       if (_enlargedBusy) {
         img.style.transition = 'none';
         img.style.opacity = '1';
@@ -834,12 +836,17 @@ function($scope,$firebaseArray,$filter,$window,$timeout,$sce){
       var enterX = dir === 1 ? '50px' : '-50px';
       _enlargedBusy = true;
 
+      var currentAnimId = Date.now() + Math.random().toString();
+      img.dataset.animId = currentAnimId;
+
       // Faster exit (100ms)
       img.style.transition = 'transform 0.1s ease-in, opacity 0.08s ease-in';
       img.style.transform = 'translateX(' + exitX + ')';
       img.style.opacity = '0';
 
-      setTimeout(function() {
+      _enlargedAnimTimer1 = setTimeout(function() {
+        if (img.dataset.animId !== currentAnimId) return;
+        _enlargedAnimTimer1 = null;
         img.src = src || '';
         img.style.transition = 'none';
         img.style.transform = 'translateX(' + enterX + ')';
@@ -847,11 +854,12 @@ function($scope,$firebaseArray,$filter,$window,$timeout,$sce){
 
         requestAnimationFrame(function() {
           requestAnimationFrame(function() {
+            if (img.dataset.animId !== currentAnimId) return;
             // Faster enter (150ms)
             img.style.transition = 'transform 0.15s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.12s ease-out';
             img.style.transform = 'translateX(0)';
             img.style.opacity = '1';
-            setTimeout(function() { _enlargedBusy = false; }, 160);
+            setTimeout(function() { if (img.dataset.animId === currentAnimId) _enlargedBusy = false; }, 160);
           });
         });
 
