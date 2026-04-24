@@ -169,32 +169,50 @@
     .cart-fab:hover{background:var(--green-mid);transform:translateY(-2px);box-shadow:0 12px 32px rgba(26,61,43,0.4)}
 
     /* ENLARGED IMAGE */
-    #enlarged-image-overlay{position:fixed;inset:0;background:rgba(10,20,15,0.85);backdrop-filter:blur(8px);display:none;justify-content:center;align-items:center;z-index:1060;cursor:zoom-out}
-    .enlarged-image-content{max-width:92%;max-height:92%;border-radius:12px;object-fit:contain;box-shadow:0 24px 80px rgba(0,0,0,0.5)}
+    #enlarged-image-overlay{position:fixed;inset:0;background:rgba(10,20,15,0.85);backdrop-filter:blur(8px);display:none;justify-content:center;align-items:center;z-index:1060;cursor:zoom-out;overflow:hidden;}
+    .enlarged-image-content{max-width:92%;max-height:85vh;border-radius:12px;object-fit:contain;box-shadow:0 24px 80px rgba(0,0,0,0.5);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1),opacity 0.2s ease;user-select:none;-webkit-user-drag:none;}
+    .eop-close-btn{position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.45);backdrop-filter:blur(6px);border:none;color:white;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:30;transition:background 0.2s;-webkit-tap-highlight-color:transparent;}
+    .eop-close-btn:hover{background:rgba(0,0,0,0.65);}
+    .eop-swipe-hint{position:absolute;bottom:84px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,0.7);font-size:12px;font-weight:500;pointer-events:none;z-index:30;letter-spacing:0.5px;text-align:center;}
+    #enlarged-counter{position:absolute;top:16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.45);backdrop-filter:blur(6px);color:rgba(255,255,255,0.85);font-family:'Geist Mono',monospace;font-size:12px;font-weight:600;padding:5px 14px;border-radius:100px;pointer-events:none;letter-spacing:0.5px;}
+    /* ENLARGED ORDER PANEL */
+    #enlarged-order-panel{position:absolute;bottom:0;left:0;right:0;background:rgba(10,20,15,0.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,0.1);padding:14px 16px 20px;display:flex;align-items:center;gap:12px;z-index:20;}
+    #enlarged-order-panel .eop-info{flex:1;min-width:0;}
+    #enlarged-order-panel .eop-name{font-family:'Figtree',sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,0.92);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;}
+    #enlarged-order-panel .eop-price{font-family:'Bricolage Grotesque',sans-serif;font-size:15px;font-weight:700;color:var(--green-bright);margin-top:2px;}
+    #enlarged-order-panel .eop-qty-wrap{display:flex;align-items:center;gap:0;background:rgba(255,255,255,0.1);border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.15);flex-shrink:0;}
+    #enlarged-order-panel .eop-qty-btn{width:36px;height:36px;border:none;background:transparent;color:white;font-size:18px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s;-webkit-tap-highlight-color:transparent;}
+    #enlarged-order-panel .eop-qty-btn:active{background:rgba(255,255,255,0.15);}
+    #enlarged-order-panel .eop-qty-val{font-family:'Geist Mono',monospace;font-size:14px;font-weight:700;color:white;min-width:32px;text-align:center;padding:0 2px;}
+    #enlarged-order-panel .eop-saved-tick{font-size:11px;font-weight:700;color:var(--green-bright);font-family:'Geist Mono',monospace;opacity:0;transition:opacity 0.25s;letter-spacing:0.3px;white-space:nowrap;}
+    #enlarged-order-panel .eop-saved-tick.show{opacity:1;}
 
     /* MODALS */
     .modal-dialog{max-width:780px;margin:1.75rem auto}
     .modal-content{border:none;border-radius:20px;overflow:hidden;box-shadow:0 24px 80px rgba(26,61,43,0.2)}
     .modal-header{background:var(--white);border-bottom:1px solid rgba(26,61,43,0.07);padding:16px 20px;display:flex;align-items:center;gap:12px}
     .modal-title{font-family:'Bricolage Grotesque',sans-serif;font-size:17px;font-weight:700;color:var(--ink);flex:1}
-    .modal-body{background:var(--cream);padding:16px}
+    .modal-body{background:var(--cream);padding:16px;max-height:75vh;overflow-y:auto}
     .modal-footer{background:var(--white);border-top:1px solid rgba(26,61,43,0.07);padding:12px 20px}
     .btn-close{width:32px;height:32px;background:var(--cream);border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);font-size:12px;flex-shrink:0;transition:background 0.2s}
     .btn-close:hover{background:var(--cream-dark)}
     .btn-close::before{content:'✕'}
-    .order-list{list-style:none;display:flex;flex-direction:column;gap:10px}
-    .order-item{background:var(--white);border-radius:var(--radius-sm);padding:12px;display:flex;align-items:center;gap:12px;box-shadow:var(--card-shadow)}
-    .order-item-img{width:52px;height:52px;border-radius:10px;object-fit:cover;background:var(--cream-dark);flex-shrink:0}
-    .order-item-info{flex:1;min-width:0}
-    .order-item-name{font-weight:600;font-size:13px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .order-item-price{font-size:12px;color:var(--green-mid);font-weight:500}
-    .qty-ctrl{display:flex;align-items:center;gap:8px}
-    .qty-btn{width:28px;height:28px;border-radius:8px;border:none;background:var(--cream);color:var(--ink);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s}
-    .qty-btn:hover{background:var(--green-pale)}
-    .qty-num{font-family:'Geist Mono',monospace;font-size:16px;font-weight:700;min-width:24px;text-align:center;color:var(--ink)}
-    .delete-btn{width:32px;height:32px;border-radius:8px;border:none;background:#fee2e2;color:#dc2626;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:background 0.2s;flex-shrink:0}
-    .delete-btn:hover{background:#fecaca}
-    .order-total{font-family:'Bricolage Grotesque',sans-serif;font-size:16px;font-weight:700;color:var(--green-deep)}
+    .order-list{list-style:none;display:flex;flex-direction:column;gap:12px;padding-left:0;margin:0;}
+    .order-item{background:var(--white);border-radius:16px;padding:12px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 10px rgba(26,61,43,0.06);border:1px solid rgba(26,61,43,0.05);transition:transform 0.2s, box-shadow 0.2s}
+    .order-item:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(26,61,43,0.1)}
+    .order-item-sl{width:26px;height:26px;border-radius:50%;background:var(--cream);display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:12px;color:var(--ink-soft);flex-shrink:0;box-shadow:inset 0 2px 4px rgba(0,0,0,0.02)}
+    .order-item-img{width:60px;height:60px;border-radius:12px;object-fit:cover;background:var(--cream-dark);flex-shrink:0;border:1px solid rgba(26,61,43,0.06)}
+    .order-item-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+    .order-item-name{font-family:'Figtree',sans-serif;font-weight:600;font-size:13px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2}
+    .order-item-bottom-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .order-item-price{font-family:'Bricolage Grotesque',sans-serif;font-size:13px;color:var(--green-deep);font-weight:700;background:var(--green-pale);padding:2px 8px;border-radius:6px;display:inline-flex}
+    .qty-ctrl{display:flex;align-items:center;gap:4px;background:var(--cream);border-radius:12px;padding:4px;border:1px solid rgba(26,61,43,0.05)}
+    .qty-btn{width:28px;height:28px;border-radius:8px;border:none;background:var(--white);color:var(--ink-soft);font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+    .qty-btn:hover{background:var(--green-pale);color:var(--green-deep)}
+    .qty-num{font-family:'Geist Mono',monospace;font-size:14px;font-weight:700;min-width:28px;text-align:center;color:var(--ink)}
+    .delete-btn{width:36px;height:36px;border-radius:12px;border:none;background:transparent;color:#f87171;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all 0.2s;flex-shrink:0}
+    .delete-btn:hover{background:#fee2e2;color:#dc2626}
+    .order-total{font-family:'Bricolage Grotesque',sans-serif;font-size:18px;font-weight:800;color:var(--green-deep)}
     .modal-close-btn{background:var(--cream-dark);border:none;border-radius:10px;padding:9px 18px;font-family:'Figtree',sans-serif;cursor:pointer}
     .modal-close-btn:hover{background:var(--cream)}
     #videoModal .modal-content{background:#111}
@@ -277,7 +295,7 @@
       .tab-item{padding:9px 4px 8px;gap:5px;border-radius:12px}
       .products-area{padding:12px 10px 100px}
       .product-grid{gap:8px}
-      .cart-fab{bottom:80px;right:14px;padding:10px 16px 10px 13px;font-size:12px}
+      .cart-fab{bottom:30px;right:14px;padding:10px 16px 10px 13px;font-size:12px}
       .modal-dialog{max-width:none;margin:0;width:100%;height:100%}
       .modal-content{height:100%;border-radius:0}
     }
@@ -377,7 +395,7 @@
         <div class="product-grid">
           <div class="product-card" ng-repeat="product in filteredSearchResults" ng-class="{'selected':isSelected(product)}">
             <div class="select-checkbox-wrap" ng-show="multiSelectMode"><input type="checkbox" class="select-checkbox" ng-checked="isSelected(product)" ng-click="$event.stopPropagation();toggleSelect(product)"></div>
-            <img class="product-card-img" ng-src="{{product.url}}" alt="{{product.name}}" ng-click="showEnlargedImage(product.url)" loading="lazy">
+            <img class="product-card-img" ng-src="{{product.url}}" alt="{{product.name}}" ng-click="showEnlargedImage(filteredSearchResults,$index)" loading="lazy">
             <div class="product-card-body">
               <span class="saved-badge" ng-if="product.justSaved">Saved!</span>
               <div class="product-price" ng-if="priceVisible">{{product.price|currency:"₹":0}}</div>
@@ -427,7 +445,7 @@
         <div class="product-grid">
           <div class="product-card" ng-repeat="product in displayedProducts track by product.$id" ng-hide="product.markedForRemoval" ng-class="{'selected':isSelected(product)}">
             <div class="select-checkbox-wrap" ng-show="multiSelectMode"><input type="checkbox" class="select-checkbox" ng-checked="isSelected(product)" ng-click="$event.stopPropagation();toggleSelect(product)"></div>
-            <img class="product-card-img" ng-src="{{product.url}}" alt="{{product.name}}" ng-click="showEnlargedImage(product.url,false)" loading="lazy">
+            <img class="product-card-img" ng-src="{{product.url}}" alt="{{product.name}}" ng-click="showEnlargedImage(displayedProducts,$index)" loading="lazy">
             <button class="admin-btn" ng-if="dynamicField2Value==='sammyadmin'" ng-click="$event.stopPropagation();markOutOfStock(product)"><i class="fas fa-ban me-1"></i>Out of Stock</button>
             <div class="product-card-body">
               <span class="saved-badge" ng-if="product.justSaved">✓ Saved</span>
@@ -468,54 +486,54 @@
 
 <!-- ENLARGED IMAGE -->
 <div id="enlarged-image-overlay" ng-click="closeEnlargedImage()">
-  <img class="enlarged-image-content" id="enlarged-image" src="">
+  <button class="eop-close-btn" ng-click="$event.stopPropagation();closeEnlargedImage()"><i class="fas fa-times"></i></button>
+  <div class="eop-swipe-hint">Swipe to change product</div>
+  <img class="enlarged-image-content" id="enlarged-image" src="" ng-click="$event.stopPropagation()">
+  <div id="enlarged-counter" style="display:none;"></div>
+  <!-- ORDER PANEL -->
+  <div id="enlarged-order-panel" ng-click="$event.stopPropagation()" style="display:none;">
+    <div class="eop-info">
+      <div class="eop-name" id="eop-name"></div>
+      <div class="eop-price" id="eop-price" style="display:none;"></div>
+    </div>
+    <div class="eop-qty-wrap">
+      <button class="eop-qty-btn" id="eop-minus" ng-click="eopDecrement()">−</button>
+      <span class="eop-qty-val" id="eop-qty-val">0</span>
+      <button class="eop-qty-btn" id="eop-plus" ng-click="eopIncrement()">+</button>
+    </div>
+    <span class="eop-saved-tick" id="eop-saved-tick">✓ Saved</span>
+  </div>
 </div>
 
 <!-- ORDER MODAL -->
 <div class="modal fade" id="myModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header"><h5 class="modal-title">{{dynamicField2Value}}'s Orders</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-header"><h5 class="modal-title">{{dynamicField2Value}}'s Orders <span ng-if="(allOrders|filter:isPendingOrder).length>0" style="background:var(--green-bright);color:white;border-radius:100px;padding:3px 8px;font-size:11px;margin-left:8px;font-weight:700;vertical-align:middle;">{{(allOrders|filter:isPendingOrder).length}}</span></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body">
-        <div class="order-tabs">
-          <button class="order-tab-btn" ng-class="{'active':orderTab==='pending'}" ng-click="orderTab='pending'"><i class="fas fa-clock me-1"></i>Pending <span ng-if="(allOrders|filter:isPendingOrder).length>0" style="background:var(--green-bright);color:white;border-radius:100px;padding:1px 6px;font-size:10px;margin-left:4px;">{{(allOrders|filter:isPendingOrder).length}}</span></button>
-          <button class="order-tab-btn" ng-class="{'active':orderTab==='history'}" ng-click="orderTab='history'"><i class="fas fa-history me-1"></i>History</button>
-        </div>
-        <div ng-if="orderTab==='pending'">
-          <ul class="order-list">
-            <li class="order-item" ng-repeat="item in allOrders|filter:isPendingOrder|orderBy:'-serverTimestamp'">
-              <img ng-src="{{item.field1}}" class="order-item-img" alt="">
-              <div class="order-item-info">
-                <div class="order-item-name">{{item.productName}}</div>
+        <ul class="order-list">
+          <li class="order-item" ng-repeat="item in allOrders|filter:isPendingOrder|orderBy:'-serverTimestamp'">
+            <div class="order-item-sl">{{$index + 1}}</div>
+            <img ng-src="{{item.field1}}" class="order-item-img" alt="">
+            <div class="order-item-info">
+              <div class="order-item-name">{{item.productName}}</div>
+              <div class="order-item-bottom-row">
                 <div class="order-item-price" ng-if="priceVisible">{{item.productPrice|currency:"₹":0}}</div>
-                <div style="font-family:'Geist Mono',monospace;font-size:9px;color:var(--ink-muted);margin-top:2px;">{{item.submitDate}} {{item.submitTime}}</div>
+                <div class="qty-ctrl">
+                  <button class="qty-btn" ng-click="decrementOrderItem(item)">−</button>
+                  <span class="qty-num">{{item.field3}}</span>
+                  <button class="qty-btn" ng-click="incrementOrderItem(item)">+</button>
+                </div>
               </div>
-              <div class="qty-ctrl">
-                <button class="qty-btn" ng-click="decrementOrderItem(item)">−</button>
-                <span class="qty-num">{{item.field3}}</span>
-                <button class="qty-btn" ng-click="incrementOrderItem(item)">+</button>
-              </div>
-              <button class="delete-btn" ng-click="deleteOrderItem(item)"><i class="fas fa-trash"></i></button>
-            </li>
-          </ul>
-          <div ng-if="(allOrders|filter:isPendingOrder).length===0" class="empty-state"><div class="empty-icon">🛒</div><div class="empty-text">No pending items.</div></div>
-        </div>
-        <div ng-if="orderTab==='history'">
-          <div ng-if="getOrderHistory().length===0" class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No order history yet.</div></div>
-          <div ng-repeat="group in getGroupedHistory()">
-            <div class="history-date-label">{{group.date}}</div>
-            <div class="history-item" ng-repeat="item in group.items">
-              <img ng-src="{{item.field1}}" class="history-img" alt="">
-              <div class="history-info"><div class="history-name">{{item.productName}}</div><div class="history-meta">{{item.submitTime}}<span ng-if="priceVisible"> · ₹{{item.productPrice|number:0}}</span></div></div>
-              <div class="history-qty">×{{item.field3}}</div>
-              <div class="completed-badge" ng-if="item.status==='completed'">DONE</div>
             </div>
-          </div>
-        </div>
+            <button class="delete-btn" ng-click="deleteOrderItem(item)"><i class="fas fa-trash"></i></button>
+          </li>
+        </ul>
+        <div ng-if="(allOrders|filter:isPendingOrder).length===0" class="empty-state"><div class="empty-icon">🛒</div><div class="empty-text">No pending items.</div></div>
       </div>
       <div class="modal-footer" style="display:flex;justify-content:space-between;align-items:center;">
-        <span class="order-total" ng-if="priceVisible&&orderTab==='pending'">Total: {{calculateOrderTotal()|currency:"₹":0}}</span>
-        <span class="order-total" ng-if="priceVisible&&orderTab==='history'" style="font-size:14px;color:var(--ink-muted);">{{getOrderHistory().length}} item<span ng-if="getOrderHistory().length!==1">s</span></span>
+        <span class="order-total" ng-if="priceVisible">Total: {{calculateOrderTotal()|currency:"₹":0}}</span>
+        <span ng-if="!priceVisible"></span>
         <button type="button" class="modal-close-btn" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
@@ -610,7 +628,7 @@ function($scope,$firebaseArray,$filter,$window,$timeout,$sce){
     $scope.isSearching=false; $scope.searchResults=[];
     $scope.isLoadingSearchResults=false;
     $scope.currentVideoUrl=''; $scope.videoError='';
-    $scope.priceSort=null; $scope.orderTab='pending';
+    $scope.priceSort=null;
     $scope.searchPriceFilter={min:null,max:null}; $scope.searchPriceSort=null;
     $scope.filteredSearchResults=[];
     $scope.selectedProducts=[]; $scope.multiSelectMode=false;
@@ -712,16 +730,190 @@ function($scope,$firebaseArray,$filter,$window,$timeout,$sce){
       ref.set({field1:img.url,field2:$scope.dynamicField2Value,field3:img.field3,productName:img.name,productPrice:img.price,serverTimestamp:firebase.database.ServerValue.TIMESTAMP,submitDate:now.toLocaleDateString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric'}),submitTime:now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}).toUpperCase()})
         .then(function(){img.justSaved=true;$timeout(function(){img.justSaved=false;},2000);}).catch(function(err){console.error(err);alert('Could not save: '+err.message);});
     };
-    $scope.showEnlargedImage=function(src){var o=document.getElementById('enlarged-image-overlay');if(o){o.style.display='flex';o.querySelector('img').src=src||'';isEnlargedImageOpen=true;$scope.isEnlargedImageOpen=true;$scope.$applyAsync();history.pushState({state:'enlargedImage'},null,location.href);}};
-    $scope.closeEnlargedImage=function(){var o=document.getElementById('enlarged-image-overlay');if(o){o.style.display='none';isEnlargedImageOpen=false;$scope.isEnlargedImageOpen=false;$scope.$applyAsync();history.pushState({state:'home'},null,location.href);}};
+    // ─── ENLARGED IMAGE w/ SWIPE NAVIGATION + ORDER PANEL ───
+    var _enlargedList = [], _enlargedIndex = 0, _enlargedBusy = false;
+
+    function _eopUpdate() {
+      var product = _enlargedList[_enlargedIndex];
+      var panel = document.getElementById('enlarged-order-panel');
+      if (!panel) return;
+      if (!product) { panel.style.display = 'none'; return; }
+      panel.style.display = 'flex';
+      var nameEl = document.getElementById('eop-name');
+      var priceEl = document.getElementById('eop-price');
+      var qtyEl = document.getElementById('eop-qty-val');
+      var saveBtn = document.getElementById('eop-save-btn');
+      if (nameEl) nameEl.textContent = product.name || '';
+      if (priceEl) {
+        if ($scope.priceVisible && product.price) {
+          priceEl.textContent = '₹' + Math.round(product.price);
+          priceEl.style.display = 'block';
+        } else { priceEl.style.display = 'none'; }
+      }
+      if (qtyEl) qtyEl.textContent = product.field3 || 0;
+      if (saveBtn) { saveBtn.classList.remove('saved'); saveBtn.innerHTML = '<i class="fas fa-check"></i> Save'; }
+    }
+
+    var _eopDebounce = null;
+    function _eopFlush() {
+      // If there's a pending debounced save, fire it immediately on the CURRENT product
+      if (_eopDebounce) {
+        $timeout.cancel(_eopDebounce);
+        _eopDebounce = null;
+        var p = _enlargedList[_enlargedIndex];
+        if (p) $scope.submitData(p);
+      }
+    }
+    function _eopAutoSave() {
+      if (_eopDebounce) $timeout.cancel(_eopDebounce);
+      _eopDebounce = $timeout(function() {
+        _eopDebounce = null;
+        var p = _enlargedList[_enlargedIndex]; if (!p) return;
+        $scope.submitData(p);
+        var tick = document.getElementById('eop-saved-tick');
+        if (tick) {
+          tick.classList.add('show');
+          $timeout(function() { tick.classList.remove('show'); }, 1200);
+        }
+      }, 800);
+    }
+    $scope.eopIncrement = function() {
+      var p = _enlargedList[_enlargedIndex]; if (!p) return;
+      p.field3 = (parseInt(p.field3) || 0) + 1;
+      var el = document.getElementById('eop-qty-val'); if (el) el.textContent = p.field3;
+      _eopAutoSave();
+    };
+    $scope.eopDecrement = function() {
+      var p = _enlargedList[_enlargedIndex]; if (!p) return;
+      p.field3 = Math.max(0, (parseInt(p.field3) || 0) - 1);
+      var el = document.getElementById('eop-qty-val'); if (el) el.textContent = p.field3;
+      _eopAutoSave();
+    };
+
+    function _setEnlargedImg(src, dir) {
+      // dir: 1 = going forward (next), -1 = going back (prev), 0/falsy = no anim
+      var img = document.getElementById('enlarged-image');
+      if (!img) return;
+
+      function updateUI() {
+        var total = _enlargedList.length;
+        var counter = document.getElementById('enlarged-counter');
+        if (counter) {
+          if (total > 1) { counter.style.display = 'block'; counter.textContent = (_enlargedIndex + 1) + ' / ' + total; }
+          else { counter.style.display = 'none'; }
+        }
+        _eopUpdate();
+      }
+
+      // Preload next/prev images to ensure instant loading
+      var preloadNext = new Image();
+      if (_enlargedIndex < _enlargedList.length - 1) preloadNext.src = (_enlargedList[_enlargedIndex + 1] || {}).url || '';
+      var preloadPrev = new Image();
+      if (_enlargedIndex > 0) preloadPrev.src = (_enlargedList[_enlargedIndex - 1] || {}).url || '';
+
+      if (!dir) {
+        img.style.transition = 'none';
+        img.style.transform = 'translateX(0)';
+        img.style.opacity = '1';
+        img.src = src || '';
+        updateUI();
+        return;
+      }
+
+      if (_enlargedBusy) {
+        img.style.transition = 'none';
+        img.style.opacity = '1';
+        img.style.transform = 'translateX(0)';
+        _enlargedBusy = false;
+      }
+
+      var exitX = dir === 1 ? '-50px' : '50px';
+      var enterX = dir === 1 ? '50px' : '-50px';
+      _enlargedBusy = true;
+
+      // Faster exit (100ms)
+      img.style.transition = 'transform 0.1s ease-in, opacity 0.08s ease-in';
+      img.style.transform = 'translateX(' + exitX + ')';
+      img.style.opacity = '0';
+
+      setTimeout(function() {
+        img.src = src || '';
+        img.style.transition = 'none';
+        img.style.transform = 'translateX(' + enterX + ')';
+        img.style.opacity = '0';
+
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            // Faster enter (150ms)
+            img.style.transition = 'transform 0.15s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.12s ease-out';
+            img.style.transform = 'translateX(0)';
+            img.style.opacity = '1';
+            setTimeout(function() { _enlargedBusy = false; }, 160);
+          });
+        });
+
+        updateUI();
+      }, 90);
+    }
+    $scope.showEnlargedImage = function(listOrSrc, idx) {
+      var o = document.getElementById('enlarged-image-overlay');
+      if (!o) return;
+      if (typeof listOrSrc === 'string') {
+        _enlargedList = [{url: listOrSrc}]; _enlargedIndex = 0;
+      } else {
+        _enlargedList = listOrSrc || []; _enlargedIndex = (idx == null ? 0 : idx);
+      }
+      o.style.display = 'flex';
+      _enlargedBusy = false;
+      _setEnlargedImg((_enlargedList[_enlargedIndex] || {}).url || '', 0);
+      isEnlargedImageOpen = true; $scope.isEnlargedImageOpen = true; $scope.$applyAsync();
+      history.pushState({state:'enlargedImage'}, null, location.href);
+    };
+    $scope.navigateEnlargedImage = function(dir) {
+      var newIdx = _enlargedIndex + dir;
+      if (newIdx < 0 || newIdx >= _enlargedList.length) return;
+      _eopFlush(); // save any pending qty change on CURRENT image before moving
+      _enlargedIndex = newIdx;
+      _setEnlargedImg((_enlargedList[_enlargedIndex] || {}).url || '', dir);
+    };
+    $scope.closeEnlargedImage = function() {
+      _eopFlush(); // save any pending qty change before closing
+      var o = document.getElementById('enlarged-image-overlay');
+      if (o) { o.style.display = 'none'; }
+      isEnlargedImageOpen = false; $scope.isEnlargedImageOpen = false; $scope.$applyAsync();
+      history.pushState({state:'home'}, null, location.href);
+    };
+    // Touch swipe handler
+    (function() {
+      var el = document.getElementById('enlarged-image-overlay');
+      if (!el) return;
+      var startX = 0, startY = 0, moved = false;
+      el.addEventListener('touchstart', function(e) {
+        startX = e.touches[0].clientX; startY = e.touches[0].clientY; moved = false;
+      }, {passive: true});
+      el.addEventListener('touchmove', function(e) { moved = true; }, {passive: true});
+      el.addEventListener('touchend', function(e) {
+        if (!moved) return;
+        var dx = e.changedTouches[0].clientX - startX;
+        var dy = e.changedTouches[0].clientY - startY;
+        if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+        var sc = angular.element(document.body).scope();
+        if (sc) sc.$applyAsync(function() { $scope.navigateEnlargedImage(dx < 0 ? 1 : -1); });
+      }, {passive: true});
+    })();
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+      if (!isEnlargedImageOpen) return;
+      if (e.key === 'ArrowRight') { var sc=angular.element(document.body).scope(); if(sc) sc.$applyAsync(function(){$scope.navigateEnlargedImage(1);}); }
+      else if (e.key === 'ArrowLeft') { var sc=angular.element(document.body).scope(); if(sc) sc.$applyAsync(function(){$scope.navigateEnlargedImage(-1);}); }
+      else if (e.key === 'Escape') { var sc=angular.element(document.body).scope(); if(sc) sc.$applyAsync(function(){$scope.closeEnlargedImage();}); }
+    });
     $scope.showVideoModal=function(event,url){if(event){event.preventDefault();event.stopPropagation();}$scope.videoError='';if(url){$scope.currentVideoUrl=$sce.trustAsResourceUrl(url);history.pushState({state:'videoModal'},null,location.href);if(videoModal)videoModal.show();$timeout(function(){var v=document.getElementById('videoPlayer');if(v){v.load();v.onerror=function(){$scope.$applyAsync(function(){$scope.videoError='Error loading video.';});};}},0);}else{$scope.videoError='No video URL.';}};
     $scope.closeVideoModal=function(){var v=document.getElementById('videoPlayer');if(v){v.pause();v.currentTime=0;}if(videoModal)videoModal.hide();$scope.currentVideoUrl='';$scope.videoError='';history.pushState({state:'home'},null,location.href);};
     $scope.setPriceSort=function(d){$scope.priceSort=($scope.priceSort===d)?null:d;$scope.updateDisplayedProducts();};
     $scope.setSearchPriceSort=function(d){$scope.searchPriceSort=($scope.searchPriceSort===d)?null:d;$scope.applySearchFilters();};
     $scope.clearSearchPriceFilter=function(){$scope.searchPriceFilter.min=null;$scope.searchPriceFilter.max=null;$scope.applySearchFilters();};
     $scope.applySearchFilters=function(){var r=$scope.searchResults.slice(),mn=$scope.searchPriceFilter.min,mx=$scope.searchPriceFilter.max;r=r.filter(function(i){return!(mn!==null&&mn!==''&&i.price<mn)&&!(mx!==null&&mx!==''&&i.price>mx);});if($scope.searchPriceSort==='asc')r=$filter('orderBy')(r,'price');else if($scope.searchPriceSort==='desc')r=$filter('orderBy')(r,'-price');$scope.filteredSearchResults=r;};
-    $scope.getOrderHistory=function(){if(!$scope.allOrders)return[];return $scope.allOrders.filter(function(i){return i.field2===$scope.dynamicField2Value;});};
-    $scope.getGroupedHistory=function(){var items=$scope.getOrderHistory().slice().sort(function(a,b){return(b.serverTimestamp||0)-(a.serverTimestamp||0);});var groups=[],dm={};items.forEach(function(i){var d=i.submitDate||'Unknown';if(!dm[d]){dm[d]=[];groups.push({date:d,items:dm[d]});}dm[d].push(i);});return groups;};
     $scope.updateDisplayedProducts=function(){
       if($scope.isLoading||!$scope.dynamicField2Value)return;
       var f=vm.images.slice();
