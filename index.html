@@ -555,6 +555,25 @@
 <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
 
 <script>
+
+// 1. ADD THE KILL-SWITCH RIGHT HERE AT THE TOP
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+    for (let registration of registrations) {
+      registration.unregister();
+    }
+    if(registrations.length > 0) {
+        console.log("OLD VERSION DETECTED - REFRESHING...");
+        window.location.reload(true);
+    }
+  });
+}
+
+// ═══════════════════════════════════════════
+// GLOBALS (YOUR EXISTING CODE CONTINUES BELOW)
+// ═══════════════════════════════════════════
+var isEnlargedImageOpen = false;
+  
 // ═══════════════════════════════════════════
 // GLOBALS
 // ═══════════════════════════════════════════
