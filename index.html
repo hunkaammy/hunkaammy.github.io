@@ -556,21 +556,26 @@
 
 <script>
 
-// 1. ADD THE KILL-SWITCH RIGHT HERE AT THE TOP
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then(function(registrations) {
-    for (let registration of registrations) {
-      registration.unregister();
-    }
-    if(registrations.length > 0) {
-        console.log("OLD VERSION DETECTED - REFRESHING...");
-        window.location.reload(true);
+    if (registrations.length > 0) {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+      if (window.caches) {
+        caches.keys().then(function(names) {
+          for (let name of names) caches.delete(name);
+        });
+      }
+      // THIS FORCES THE BROWSER TO FETCH THE FRESH HTML FROM GITHUB
+      setTimeout(() => { window.location.reload(true); }, 300);
     }
   });
 }
 
+// ——— YOUR EXISTING GLOBALS START HERE ———
 // ═══════════════════════════════════════════
-// GLOBALS (YOUR EXISTING CODE CONTINUES BELOW)
+// GLOBALS
 // ═══════════════════════════════════════════
 var isEnlargedImageOpen = false;
   
