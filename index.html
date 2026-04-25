@@ -3,9 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
   <title>Hindustan Toys - Order Portal</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1097,20 +1094,7 @@ function($scope,$firebaseArray,$filter,$window,$timeout,$sce){
       }
     },0);
 
-    }catch(e){console.error(e);alert('Initialization failed. Please refresh.');}
-    // ----- Force update for former PWA users -----
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(regs) {
-        regs.forEach(function(reg) { reg.unregister(); });
-      }).catch(function(err) { console.error('SW unregister error', err); });
-      // Clear any caches that might hold old assets
-      if (caches && caches.keys) {
-        caches.keys().then(function(keys) {
-          return Promise.all(keys.map(function(k) { return caches.delete(k); }));
-        }).catch(function(err) { console.error('Cache delete error', err); });
-      }
-    }
-  }];
+  }catch(e){console.error(e);alert('Initialization failed. Please refresh.');}
 }]);
 </script>
 </body>
