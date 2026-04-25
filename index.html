@@ -1097,7 +1097,20 @@ function($scope,$firebaseArray,$filter,$window,$timeout,$sce){
       }
     },0);
 
-  }catch(e){console.error(e);alert('Initialization failed. Please refresh.');}
+    }catch(e){console.error(e);alert('Initialization failed. Please refresh.');}
+    // ----- Force update for former PWA users -----
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(regs) {
+        regs.forEach(function(reg) { reg.unregister(); });
+      }).catch(function(err) { console.error('SW unregister error', err); });
+      // Clear any caches that might hold old assets
+      if (caches && caches.keys) {
+        caches.keys().then(function(keys) {
+          return Promise.all(keys.map(function(k) { return caches.delete(k); }));
+        }).catch(function(err) { console.error('Cache delete error', err); });
+      }
+    }
+  }];
 }]);
 </script>
 </body>
