@@ -1,5 +1,33 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="myApp" ng-cloak>
+<script>
+(function () {
+  const VERSION = "v3"; // change this every time you update UI
+
+  if (localStorage.getItem("app_version") !== VERSION) {
+    localStorage.setItem("app_version", VERSION);
+
+    // Clear all caches
+    if ('caches' in window) {
+      caches.keys().then(names => {
+        names.forEach(name => caches.delete(name));
+      });
+    }
+
+    // Remove service workers
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        regs.forEach(reg => reg.unregister());
+      });
+    }
+
+    // Force reload with version
+    const url = window.location.origin + window.location.pathname + "?v=" + Date.now();
+    window.location.replace(url);
+  }
+})();
+</script>
+  
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
