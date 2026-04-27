@@ -584,34 +584,6 @@
 
 <script>
 
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(function(registrations) {
-    if (registrations.length > 0) {
-      for (let registration of registrations) {
-        registration.unregister();
-      }
-      if (window.caches) {
-        caches.keys().then(function(names) {
-          for (let name of names) caches.delete(name);
-        });
-      }
-      // THIS FORCES THE BROWSER TO FETCH THE FRESH HTML FROM GITHUB
-      setTimeout(() => { window.location.reload(true); }, 300);
-    }
-  });
-}
-
-// ——— YOUR EXISTING GLOBALS START HERE ———
-// ═══════════════════════════════════════════
-// GLOBALS
-// ═══════════════════════════════════════════
-var isEnlargedImageOpen = false;
-  
-// ═══════════════════════════════════════════
-// GLOBALS
-// ═══════════════════════════════════════════
-var isEnlargedImageOpen = false;
-window.onerror = function(m,s,l,c,e){ console.error(m,s,l,c,e); return true; };
 
 history.pushState({state:'home'}, null, location.href);
 window.addEventListener('popstate', function() {
@@ -1152,5 +1124,12 @@ function($scope,$firebaseArray,$filter,$window,$timeout,$sce){
   }catch(e){console.error(e);alert('Initialization failed. Please refresh.');}
 }]);
 </script>
+
+  <script>
+if (!location.search.includes('v=')) {
+  location.href = location.href + '?v=3';
+}
+</script>
+  
 </body>
 </html>
