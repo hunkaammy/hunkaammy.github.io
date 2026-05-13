@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+/>
 
 <title>Neural WhatsApp AI</title>
 
@@ -39,15 +42,6 @@ html,body{
     color:white;
 }
 
-body{
-    display:flex;
-    flex-direction:column;
-}
-
-button{
-    cursor:pointer;
-}
-
 .app{
     width:100%;
     height:100%;
@@ -62,9 +56,12 @@ PAGES
 .page{
     position:absolute;
     inset:0;
+
     display:flex;
     flex-direction:column;
+
     background:#0b141a;
+
     transition:.25s;
 }
 
@@ -73,21 +70,20 @@ PAGES
 }
 
 /* =========================
-HEADER
+HEADERS
 ========================= */
 
 .home-header,
 .chat-header{
 
     height:74px;
+
     background:#202c33;
 
     display:flex;
     align-items:center;
 
     padding:0 16px;
-
-    flex-shrink:0;
 }
 
 .home-header{
@@ -109,163 +105,26 @@ h1{
 }
 
 /* =========================
-BUTTONS
+CHAT HEADER
 ========================= */
-
-.back-btn,
-.add-btn,
-.send-btn,
-.favorites-open-btn{
-
-    border:none;
-    color:white;
-}
 
 .back-btn{
 
     width:42px;
     height:42px;
 
+    border:none;
+
     border-radius:14px;
 
     background:transparent;
+
+    color:white;
 
     font-size:24px;
 
     z-index:2;
 }
-
-.add-btn,
-.send-btn{
-
-    width:50px;
-    height:50px;
-
-    border-radius:18px;
-
-    background:
-    linear-gradient(
-        135deg,
-        var(--accent),
-        var(--accent2)
-    );
-
-    font-size:22px;
-}
-
-.favorites-open-btn{
-
-    width:46px;
-    height:46px;
-
-    border-radius:16px;
-
-    background:
-    rgba(255,255,255,.06);
-
-    color:#ff5d88;
-
-    font-size:20px;
-
-    margin-right:10px;
-}
-
-/* =========================
-CHARACTERS
-========================= */
-
-.character-list{
-    flex:1;
-    overflow-y:auto;
-}
-
-.character-item{
-
-    width:100%;
-    border:none;
-
-    background:transparent;
-    color:white;
-
-    display:flex;
-    align-items:center;
-
-    gap:14px;
-
-    padding:14px 16px;
-
-    border-bottom:
-    1px solid rgba(255,255,255,.04);
-}
-
-.character-avatar{
-
-    width:58px;
-    height:58px;
-
-    border-radius:50%;
-
-    background:
-    linear-gradient(
-        135deg,
-        #00a884,
-        #00d4aa
-    );
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    font-size:26px;
-
-    flex-shrink:0;
-}
-
-.character-info{
-    flex:1;
-    overflow:hidden;
-}
-
-.character-top{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-}
-
-.character-name{
-    font-size:16px;
-    font-weight:600;
-}
-
-.character-last{
-
-    font-size:13px;
-
-    color:var(--sub);
-
-    overflow:hidden;
-    white-space:nowrap;
-    text-overflow:ellipsis;
-}
-
-.character-settings-btn{
-
-    width:34px;
-    height:34px;
-
-    border:none;
-
-    border-radius:12px;
-
-    background:
-    rgba(255,255,255,.05);
-
-    color:#9fe8d8;
-}
-
-/* =========================
-CHAT HEADER
-========================= */
 
 .chat-user{
 
@@ -279,6 +138,8 @@ CHAT HEADER
     align-items:center;
 
     gap:12px;
+
+    text-align:center;
 }
 
 .chat-user .character-avatar{
@@ -320,7 +181,171 @@ CHAT HEADER
 }
 
 /* =========================
-CHAT
+BUTTONS
+========================= */
+
+.add-btn,
+.send-btn{
+
+    width:50px;
+    height:50px;
+
+    border:none;
+
+    border-radius:18px;
+
+    background:
+    linear-gradient(
+        135deg,
+        var(--accent),
+        var(--accent2)
+    );
+
+    color:white;
+
+    font-size:22px;
+}
+
+.image-upload-btn{
+
+    width:52px;
+    height:52px;
+
+    border-radius:18px;
+
+    background:#2a3942;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:22px;
+
+    flex-shrink:0;
+}
+
+.favorites-open-btn{
+
+    width:46px;
+    height:46px;
+
+    border:none;
+
+    border-radius:16px;
+
+    background:
+    rgba(255,255,255,.06);
+
+    color:#ff5d88;
+
+    font-size:20px;
+
+    margin-right:10px;
+}
+
+/* =========================
+CHARACTERS
+========================= */
+
+.character-list{
+    flex:1;
+    overflow-y:auto;
+}
+
+.character-item{
+
+    width:100%;
+
+    border:none;
+
+    background:transparent;
+
+    color:white;
+
+    display:flex;
+    align-items:center;
+
+    gap:14px;
+
+    padding:14px 16px;
+
+    border-bottom:
+    1px solid rgba(255,255,255,.04);
+}
+
+.character-avatar{
+
+    width:58px;
+    height:58px;
+
+    border-radius:50%;
+
+    overflow:hidden;
+
+    flex-shrink:0;
+
+    background:
+    linear-gradient(
+        135deg,
+        #00a884,
+        #00d4aa
+    );
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:26px;
+}
+
+.character-info{
+    flex:1;
+    overflow:hidden;
+    text-align:left;
+}
+
+.character-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+}
+
+.character-name{
+    font-size:16px;
+    font-weight:600;
+}
+
+.character-last{
+
+    color:var(--sub);
+
+    font-size:13px;
+
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.character-settings-btn{
+
+    width:34px;
+    height:34px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:
+    rgba(255,255,255,.05);
+
+    color:#9fe8d8;
+
+    font-size:16px;
+}
+
+/* =========================
+CHAT BOX
 ========================= */
 
 .chat-box{
@@ -345,6 +370,10 @@ CHAT
     #0b141a;
 }
 
+/* =========================
+MESSAGES
+========================= */
+
 .message-row{
     display:flex;
 }
@@ -361,9 +390,9 @@ CHAT
 
     border-radius:22px;
 
-    font-size:14px;
-
     line-height:1.7;
+
+    font-size:14px;
 
     word-break:break-word;
 }
@@ -482,24 +511,6 @@ textarea{
     font-size:15px;
 }
 
-.image-upload-btn{
-
-    width:52px;
-    height:52px;
-
-    border-radius:18px;
-
-    background:#2a3942;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    font-size:22px;
-
-    flex-shrink:0;
-}
-
 /* =========================
 IMAGE
 ========================= */
@@ -571,9 +582,14 @@ FORMATTED
     line-height:1.7;
 }
 
+/* =========================
+POINTS
+========================= */
+
 .msg-point{
 
     display:flex;
+
     gap:12px;
 
     align-items:flex-start;
@@ -607,6 +623,10 @@ FORMATTED
     flex-shrink:0;
 }
 
+.point-content{
+    line-height:1.7;
+}
+
 /* =========================
 TABLE
 ========================= */
@@ -614,6 +634,7 @@ TABLE
 .ai-table-wrap{
 
     width:100%;
+
     overflow-x:auto;
 
     margin-top:12px;
@@ -630,6 +651,7 @@ TABLE
 .ai-table{
 
     width:100%;
+
     min-width:520px;
 
     border-collapse:collapse;
@@ -645,6 +667,8 @@ TABLE
     );
 
     color:#7dffcb;
+
+    font-weight:700;
 
     padding:16px 14px;
 
@@ -703,6 +727,11 @@ FAVORITES
     font-weight:700;
 }
 
+.favorite-text{
+    line-height:1.8;
+    font-size:14px;
+}
+
 .favorite-actions{
     margin-top:14px;
 }
@@ -721,6 +750,8 @@ FAVORITES
     rgba(255,0,80,.12);
 
     color:#ff6d94;
+
+    font-size:13px;
 
     font-weight:700;
 }
@@ -805,6 +836,10 @@ MODAL
 
     margin-bottom:14px;
 }
+
+/* =========================
+AVATARS
+========================= */
 
 .avatar-grid{
 
@@ -921,7 +956,9 @@ CHARACTER MENU
 
 <div class="home-header">
 
+<div class="home-left">
 <h1>Neural AI</h1>
+</div>
 
 <div>
 
@@ -1152,23 +1189,29 @@ class="character-menu"
 id="characterMenu"
 >
 
-<button onclick="editCharacter()">
+<button
+onclick="editCharacter()"
+>
 ✏ Edit Character
 </button>
 
-<button onclick="clearCharacterChat()">
+<button
+onclick="clearCharacterChat()"
+>
 🗑 Clear Chat
 </button>
 
-<button onclick="deleteCharacter()">
+<button
+onclick="deleteCharacter()"
+>
 ❌ Delete Character
 </button>
 
-<button onclick="closeCharacterMenu()">
+<button
+onclick="closeCharacterMenu()"
+>
 Cancel
 </button>
-
-</div>
 
 </div>
 
@@ -1193,98 +1236,36 @@ localStorage.getItem(
 ) || [];
 
 let activeCharacter = null;
-let selectedCharacterId = null;
+
 let selectedAvatar = "🤖";
+
 let uploadedChatImage = null;
+
+let selectedCharacterId = null;
 
 /* =========================
 ELEMENTS
 ========================= */
 
 const homePage =
-document.getElementById("homePage");
+document.getElementById(
+"homePage"
+);
 
 const chatPage =
-document.getElementById("chatPage");
+document.getElementById(
+"chatPage"
+);
 
 const chatBox =
-document.getElementById("chatBox");
+document.getElementById(
+"chatBox"
+);
 
 const characterList =
-document.getElementById("characterList");
-
-/* =========================
-FIX FAVORITES
-========================= */
-
-function normalizeFavorites(){
-
-    favoriteMessages =
-    favoriteMessages.map(item=>({
-
-        id:
-        item.id ||
-        (
-            "fav_" +
-            Date.now() +
-            "_" +
-            Math.random()
-            .toString(36)
-            .substring(2,9)
-        ),
-
-        text:item.text || "",
-
-        character:
-        item.character || "Unknown",
-
-        time:
-        item.time || Date.now()
-
-    }));
-
-    favoriteMessages =
-    favoriteMessages.filter(item=>
-
-        item.id &&
-        item.text
-
-    );
-
-    const seen = new Set();
-
-    favoriteMessages =
-    favoriteMessages.filter(item=>{
-
-        if(seen.has(item.id)){
-            return false;
-        }
-
-        seen.add(item.id);
-
-        return true;
-
-    });
-
-    saveFavorites();
-
-}
-
-normalizeFavorites();
-
-function saveFavorites(){
-
-    localStorage.setItem(
-
-        "wa_ai_favorites",
-
-        JSON.stringify(
-            favoriteMessages
-        )
-
-    );
-
-}
+document.getElementById(
+"characterList"
+);
 
 /* =========================
 FORMAT MESSAGE
@@ -1299,11 +1280,149 @@ function formatMessage(text){
         `<span class="msg-highlight">$1</span>`
     );
 
-    return `
-    <div class="msg-text">
-        ${text}
-    </div>
-    `;
+    const lines =
+    text.split("\n");
+
+    let html = "";
+
+    let tableMode = false;
+
+    let tableRows = [];
+
+    function renderTable(){
+
+        if(tableRows.length < 2)
+            return "";
+
+        let table = `
+        <div class="ai-table-wrap">
+        <table class="ai-table">
+        `;
+
+        tableRows.forEach((row,index)=>{
+
+            row = row.trim();
+
+            if(row.startsWith("|")){
+                row = row.slice(1);
+            }
+
+            if(row.endsWith("|")){
+                row = row.slice(0,-1);
+            }
+
+            const cols =
+            row.split("|");
+
+            table += "<tr>";
+
+            cols.forEach(col=>{
+
+                const clean =
+                col.trim();
+
+                if(index===0){
+
+                    table += `
+                    <th>${clean}</th>
+                    `;
+
+                }else{
+
+                    table += `
+                    <td>${clean}</td>
+                    `;
+
+                }
+
+            });
+
+            table += "</tr>";
+
+        });
+
+        table += `
+        </table>
+        </div>
+        `;
+
+        return table;
+
+    }
+
+    lines.forEach(line=>{
+
+        line = line.trim();
+
+        if(!line) return;
+
+        if(line.includes("|")){
+
+            if(
+                /^(\|\s*-+\s*)+\|?$/.test(line)
+            ){
+                return;
+            }
+
+            tableMode = true;
+
+            tableRows.push(line);
+
+            return;
+
+        }
+
+        if(tableMode){
+
+            html += renderTable();
+
+            tableRows = [];
+
+            tableMode = false;
+
+        }
+
+        if(
+            line.startsWith("- ") ||
+            line.startsWith("• ") ||
+            line.includes("🔥") ||
+            line.includes("✅") ||
+            /^\d+\./.test(line)
+        ){
+
+            html += `
+            <div class="msg-point">
+
+                <div class="point-dot">
+                    ✦
+                </div>
+
+                <div class="point-content">
+                    ${line}
+                </div>
+
+            </div>
+            `;
+
+            return;
+
+        }
+
+        html += `
+        <div class="msg-text">
+            ${line}
+        </div>
+        `;
+
+    });
+
+    if(tableMode){
+
+        html += renderTable();
+
+    }
+
+    return html;
 
 }
 
@@ -1314,7 +1433,9 @@ MODAL
 function openModal(){
 
     document
-    .getElementById("modal")
+    .getElementById(
+        "modal"
+    )
     .classList
     .add("active");
 
@@ -1323,7 +1444,9 @@ function openModal(){
 function closeModal(){
 
     document
-    .getElementById("modal")
+    .getElementById(
+        "modal"
+    )
     .classList
     .remove("active");
 
@@ -1334,7 +1457,9 @@ AVATAR PICK
 ========================= */
 
 document
-.querySelectorAll(".avatar-option")
+.querySelectorAll(
+".avatar-option"
+)
 .forEach(btn=>{
 
     btn.onclick = ()=>{
@@ -1351,7 +1476,9 @@ IMAGE PICK
 ========================= */
 
 document
-.getElementById("chatImageInput")
+.getElementById(
+"chatImageInput"
+)
 .addEventListener(
 "change",
 e=>{
@@ -1401,27 +1528,36 @@ function removeChatImage(){
 }
 
 /* =========================
-CHARACTERS
+CREATE CHARACTER
 ========================= */
 
 function createCharacter(){
 
     const name =
     document
-    .getElementById("nameInput")
+    .getElementById(
+        "nameInput"
+    )
     .value.trim();
 
     const personality =
     document
-    .getElementById("personalityInput")
+    .getElementById(
+        "personalityInput"
+    )
     .value.trim();
 
     if(!name || !personality){
-        alert("Fill all fields");
+
+        alert(
+            "Fill all fields"
+        );
+
         return;
+
     }
 
-    characters.push({
+    const character = {
 
         id:Date.now(),
 
@@ -1433,9 +1569,14 @@ function createCharacter(){
 
         history:[]
 
-    });
+    };
 
-    saveCharacters();
+    characters.push(character);
+
+    localStorage.setItem(
+        "wa_ai_characters",
+        JSON.stringify(characters)
+    );
 
     renderCharacters();
 
@@ -1443,14 +1584,133 @@ function createCharacter(){
 
 }
 
-function saveCharacters(){
+/* =========================
+CHARACTER MENU
+========================= */
+
+function openCharacterMenu(id){
+
+    selectedCharacterId = id;
+
+    document
+    .getElementById(
+        "characterMenu"
+    )
+    .classList
+    .add("active");
+
+}
+
+function closeCharacterMenu(){
+
+    document
+    .getElementById(
+        "characterMenu"
+    )
+    .classList
+    .remove("active");
+
+}
+
+/* =========================
+DELETE CHARACTER
+========================= */
+
+function deleteCharacter(){
+
+    characters =
+    characters.filter(
+        c=>c.id!==selectedCharacterId
+    );
 
     localStorage.setItem(
         "wa_ai_characters",
         JSON.stringify(characters)
     );
 
+    renderCharacters();
+
+    closeCharacterMenu();
+
 }
+
+/* =========================
+EDIT CHARACTER
+========================= */
+
+function editCharacter(){
+
+    const character =
+    characters.find(
+        c=>c.id===selectedCharacterId
+    );
+
+    if(!character) return;
+
+    document
+    .getElementById(
+        "nameInput"
+    )
+    .value =
+    character.name;
+
+    document
+    .getElementById(
+        "personalityInput"
+    )
+    .value =
+    character.personality;
+
+    selectedAvatar =
+    character.avatar;
+
+    characters =
+    characters.filter(
+        c=>c.id!==selectedCharacterId
+    );
+
+    localStorage.setItem(
+        "wa_ai_characters",
+        JSON.stringify(characters)
+    );
+
+    renderCharacters();
+
+    closeCharacterMenu();
+
+    openModal();
+
+}
+
+/* =========================
+CLEAR CHAT
+========================= */
+
+function clearCharacterChat(){
+
+    const character =
+    characters.find(
+        c=>c.id===selectedCharacterId
+    );
+
+    if(!character) return;
+
+    character.history = [];
+
+    localStorage.setItem(
+        "wa_ai_characters",
+        JSON.stringify(characters)
+    );
+
+    renderCharacters();
+
+    closeCharacterMenu();
+
+}
+
+/* =========================
+RENDER CHARACTERS
+========================= */
 
 function renderCharacters(){
 
@@ -1463,6 +1723,20 @@ function renderCharacters(){
 
         btn.className =
         "character-item";
+
+        const lastMessage =
+
+        character.history.length
+
+        ?
+
+        character.history[
+            character.history.length-1
+        ].content
+
+        :
+
+        character.personality;
 
         btn.innerHTML = `
 
@@ -1491,11 +1765,7 @@ function renderCharacters(){
             </div>
 
             <div class="character-last">
-                ${
-                    character.history.at(-1)
-                    ?.content ||
-                    character.personality
-                }
+                ${lastMessage}
             </div>
 
         </div>
@@ -1513,23 +1783,38 @@ function renderCharacters(){
 
 }
 
+/* =========================
+OPEN CHAT
+========================= */
+
 function openChat(id){
 
     activeCharacter =
-    characters.find(c=>c.id===id);
+    characters.find(
+        c=>c.id===id
+    );
 
     document
-    .getElementById("chatAvatar")
+    .getElementById(
+        "chatAvatar"
+    )
     .innerHTML =
     activeCharacter.avatar;
 
     document
-    .getElementById("chatName")
+    .getElementById(
+        "chatName"
+    )
     .innerText =
     activeCharacter.name;
 
-    homePage.classList.add("hidden");
-    chatPage.classList.remove("hidden");
+    homePage.classList.add(
+        "hidden"
+    );
+
+    chatPage.classList.remove(
+        "hidden"
+    );
 
     renderMessages();
 
@@ -1542,115 +1827,32 @@ function openChat(id){
 
 }
 
+/* =========================
+GO HOME
+========================= */
+
 function goHome(){
 
     renderCharacters();
 
-    homePage.classList.remove("hidden");
-    chatPage.classList.add("hidden");
+    homePage.classList.remove(
+        "hidden"
+    );
+
+    chatPage.classList.add(
+        "hidden"
+    );
 
 }
 
 /* =========================
-CHARACTER MENU
+CREATE MESSAGE
 ========================= */
 
-function openCharacterMenu(id){
-
-    selectedCharacterId = id;
-
-    document
-    .getElementById("characterMenu")
-    .classList
-    .add("active");
-
-}
-
-function closeCharacterMenu(){
-
-    document
-    .getElementById("characterMenu")
-    .classList
-    .remove("active");
-
-}
-
-function deleteCharacter(){
-
-    characters =
-    characters.filter(
-        c=>c.id!==selectedCharacterId
-    );
-
-    saveCharacters();
-
-    renderCharacters();
-
-    closeCharacterMenu();
-
-}
-
-function editCharacter(){
-
-    const character =
-    characters.find(
-        c=>c.id===selectedCharacterId
-    );
-
-    if(!character) return;
-
-    document
-    .getElementById("nameInput")
-    .value =
-    character.name;
-
-    document
-    .getElementById("personalityInput")
-    .value =
-    character.personality;
-
-    selectedAvatar =
-    character.avatar;
-
-    characters =
-    characters.filter(
-        c=>c.id!==selectedCharacterId
-    );
-
-    saveCharacters();
-
-    renderCharacters();
-
-    closeCharacterMenu();
-
-    openModal();
-
-}
-
-function clearCharacterChat(){
-
-    const character =
-    characters.find(
-        c=>c.id===selectedCharacterId
-    );
-
-    if(!character) return;
-
-    character.history = [];
-
-    saveCharacters();
-
-    renderCharacters();
-
-    closeCharacterMenu();
-
-}
-
-/* =========================
-MESSAGES
-========================= */
-
-function createMessage(text,type){
+function createMessage(
+text,
+type
+){
 
     const row =
     document.createElement("div");
@@ -1733,6 +1935,10 @@ function createMessage(text,type){
 
 }
 
+/* =========================
+COPY
+========================= */
+
 function copyMessage(btn){
 
     const text =
@@ -1741,7 +1947,9 @@ function copyMessage(btn){
     .querySelector(".formatted")
     .innerText;
 
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(
+        text
+    );
 
     btn.innerHTML = "✓";
 
@@ -1749,9 +1957,218 @@ function copyMessage(btn){
 
         btn.innerHTML = "⧉";
 
-    },1000);
+    },1200);
 
 }
+
+/* =========================
+FAVORITES
+========================= */
+
+function toggleFavorite(btn){
+
+    const text =
+    decodeURIComponent(
+        btn.dataset.text
+    );
+
+    const id =
+    btn.dataset.id;
+
+    const exists =
+    favoriteMessages.find(
+        m=>m.id===id
+    );
+
+    if(exists){
+
+        favoriteMessages =
+        favoriteMessages.filter(
+            m=>m.id!==id
+        );
+
+        btn.classList.remove(
+            "active"
+        );
+
+        btn.innerHTML = "♡";
+
+    }else{
+
+        favoriteMessages.push({
+
+            id,
+
+            text,
+
+            character:
+            activeCharacter.name,
+
+            time:
+            Date.now()
+
+        });
+
+        btn.classList.add(
+            "active"
+        );
+
+        btn.innerHTML = "♥";
+
+    }
+
+    localStorage.setItem(
+
+        "wa_ai_favorites",
+
+        JSON.stringify(
+            favoriteMessages
+        )
+
+    );
+
+}
+
+/* =========================
+OPEN FAVORITES
+========================= */
+
+function openFavorites(){
+
+    renderFavorites();
+
+    document
+    .getElementById(
+        "favoritesPage"
+    )
+    .classList
+    .remove("hidden");
+
+}
+
+/* =========================
+CLOSE FAVORITES
+========================= */
+
+function closeFavorites(){
+
+    document
+    .getElementById(
+        "favoritesPage"
+    )
+    .classList
+    .add("hidden");
+
+}
+
+/* =========================
+REMOVE FAVORITE
+========================= */
+
+function removeFavorite(id){
+
+    favoriteMessages =
+    favoriteMessages.filter(
+        m=>m.id!==id
+    );
+
+    localStorage.setItem(
+
+        "wa_ai_favorites",
+
+        JSON.stringify(
+            favoriteMessages
+        )
+
+    );
+
+    renderFavorites();
+
+}
+
+/* =========================
+RENDER FAVORITES
+========================= */
+
+function renderFavorites(){
+
+    const container =
+    document.getElementById(
+        "favoritesList"
+    );
+
+    container.innerHTML = "";
+
+    if(
+        favoriteMessages.length===0
+    ){
+
+        container.innerHTML = `
+        <div class="msg-point">
+
+            <div class="point-dot">
+                ♥
+            </div>
+
+            <div class="point-content">
+
+                No favorite messages yet
+
+            </div>
+
+        </div>
+        `;
+
+        return;
+
+    }
+
+    favoriteMessages
+    .slice()
+    .reverse()
+    .forEach(item=>{
+
+        const div =
+        document.createElement("div");
+
+        div.className =
+        "favorite-card";
+
+        div.innerHTML = `
+
+        <div class="favorite-character">
+
+            ${item.character}
+
+        </div>
+
+        <div class="favorite-text">
+
+            ${formatMessage(item.text)}
+
+        </div>
+
+        <div class="favorite-actions">
+
+            <button
+            class="unfavorite-btn"
+            onclick="removeFavorite('${item.id}')"
+            >
+                ♥ Remove Favorite
+            </button>
+
+        </div>
+        `;
+
+        container.appendChild(div);
+
+    });
+
+}
+
+/* =========================
+RENDER MESSAGES
+========================= */
 
 function renderMessages(){
 
@@ -1790,219 +2207,7 @@ function renderMessages(){
 }
 
 /* =========================
-FAVORITES
-========================= */
-
-function toggleFavorite(btn){
-
-    const text =
-    decodeURIComponent(
-        btn.dataset.text
-    );
-
-    const id =
-    btn.dataset.id;
-
-    const exists =
-    favoriteMessages.find(
-        item=>item.id===id
-    );
-
-    if(exists){
-
-        favoriteMessages =
-        favoriteMessages.filter(
-            item=>item.id!==id
-        );
-
-        btn.classList.remove("active");
-        btn.innerHTML = "♡";
-
-    }else{
-
-        favoriteMessages.push({
-
-            id,
-
-            text,
-
-            character:
-            activeCharacter?.name || "AI",
-
-            time:
-            Date.now()
-
-        });
-
-        btn.classList.add("active");
-        btn.innerHTML = "♥";
-
-    }
-
-    saveFavorites();
-
-}
-
-function removeFavorite(id){
-
-    favoriteMessages =
-    favoriteMessages.filter(
-        item=>item.id!==id
-    );
-
-    saveFavorites();
-
-    renderFavorites();
-
-}
-
-function clearAllFavorites(){
-
-    favoriteMessages = [];
-
-    saveFavorites();
-
-    renderFavorites();
-
-}
-
-function openFavorites(){
-
-    normalizeFavorites();
-
-    renderFavorites();
-
-    document
-    .getElementById("favoritesPage")
-    .classList
-    .remove("hidden");
-
-}
-
-function closeFavorites(){
-
-    document
-    .getElementById("favoritesPage")
-    .classList
-    .add("hidden");
-
-}
-
-function renderFavorites(){
-
-    normalizeFavorites();
-
-    const container =
-    document.getElementById(
-        "favoritesList"
-    );
-
-    container.innerHTML = "";
-
-    if(
-        favoriteMessages.length===0
-    ){
-
-        container.innerHTML = `
-        <div class="msg-point">
-
-            <div class="point-dot">
-                ♥
-            </div>
-
-            <div>
-
-                No favorite messages yet
-
-            </div>
-
-        </div>
-        `;
-
-        return;
-
-    }
-
-    const top =
-    document.createElement("div");
-
-    top.style.display = "flex";
-    top.style.justifyContent = "flex-end";
-
-    top.innerHTML = `
-
-    <button
-    onclick="clearAllFavorites()"
-
-    style="
-    height:42px;
-    border:none;
-    border-radius:14px;
-    padding:0 18px;
-    background:rgba(255,0,80,.12);
-    color:#ff6d94;
-    font-weight:700;
-    "
-    >
-
-        Clear All
-
-    </button>
-    `;
-
-    container.appendChild(top);
-
-    favoriteMessages
-    .slice()
-    .reverse()
-    .forEach(item=>{
-
-        const div =
-        document.createElement("div");
-
-        div.className =
-        "favorite-card";
-
-        div.innerHTML = `
-
-        <div class="favorite-character">
-
-            ${item.character}
-
-        </div>
-
-        <div class="favorite-text">
-
-            ${formatMessage(item.text)}
-
-        </div>
-
-        <div class="favorite-actions">
-
-            <button
-            class="unfavorite-btn"
-            onclick="
-            removeFavorite(
-            '${item.id}'
-            )
-            "
-            >
-
-                ♥ Remove Favorite
-
-            </button>
-
-        </div>
-        `;
-
-        container.appendChild(div);
-
-    });
-
-}
-
-/* =========================
-SAVE CHAT
+SAVE
 ========================= */
 
 function saveCharacter(){
@@ -2015,7 +2220,10 @@ function saveCharacter(){
     characters[index] =
     activeCharacter;
 
-    saveCharacters();
+    localStorage.setItem(
+        "wa_ai_characters",
+        JSON.stringify(characters)
+    );
 
 }
 
