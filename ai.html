@@ -2,10 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
-/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 <title>Neural WhatsApp AI</title>
 
@@ -73,7 +70,19 @@ PAGES
 HEADERS
 ========================= */
 
-.home-header,
+.home-header{
+
+    height:74px;
+
+    background:#202c33;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:0 16px;
+}
+
 .chat-header{
 
     height:74px;
@@ -84,13 +93,7 @@ HEADERS
     align-items:center;
 
     padding:0 16px;
-}
 
-.home-header{
-    justify-content:space-between;
-}
-
-.chat-header{
     position:relative;
 }
 
@@ -1268,7 +1271,7 @@ document.getElementById(
 );
 
 /* =========================
-FORMAT MESSAGE
+FORMAT
 ========================= */
 
 function formatMessage(text){
@@ -1585,34 +1588,6 @@ function createCharacter(){
 }
 
 /* =========================
-CHARACTER MENU
-========================= */
-
-function openCharacterMenu(id){
-
-    selectedCharacterId = id;
-
-    document
-    .getElementById(
-        "characterMenu"
-    )
-    .classList
-    .add("active");
-
-}
-
-function closeCharacterMenu(){
-
-    document
-    .getElementById(
-        "characterMenu"
-    )
-    .classList
-    .remove("active");
-
-}
-
-/* =========================
 DELETE CHARACTER
 ========================= */
 
@@ -1846,7 +1821,35 @@ function goHome(){
 }
 
 /* =========================
-CREATE MESSAGE
+CHARACTER MENU
+========================= */
+
+function openCharacterMenu(id){
+
+    selectedCharacterId = id;
+
+    document
+    .getElementById(
+        "characterMenu"
+    )
+    .classList
+    .add("active");
+
+}
+
+function closeCharacterMenu(){
+
+    document
+    .getElementById(
+        "characterMenu"
+    )
+    .classList
+    .remove("active");
+
+}
+
+/* =========================
+MESSAGE
 ========================= */
 
 function createMessage(
@@ -1865,14 +1868,6 @@ type
 
     msg.className =
     `message ${type}`;
-
-    const favoriteId =
-    "fav_" +
-    Date.now() +
-    "_" +
-    Math.random()
-    .toString(36)
-    .substring(2,9);
 
     msg.innerHTML = `
 
@@ -1894,11 +1889,7 @@ type
 
             <button
             class="favorite-btn"
-
-            data-id="${favoriteId}"
-
             data-text="${encodeURIComponent(text)}"
-
             onclick="toggleFavorite(this)"
             >
                 ♡
@@ -1972,19 +1963,16 @@ function toggleFavorite(btn){
         btn.dataset.text
     );
 
-    const id =
-    btn.dataset.id;
-
     const exists =
     favoriteMessages.find(
-        m=>m.id===id
+        m=>m.text===text
     );
 
     if(exists){
 
         favoriteMessages =
         favoriteMessages.filter(
-            m=>m.id!==id
+            m=>m.text!==text
         );
 
         btn.classList.remove(
@@ -1996,8 +1984,6 @@ function toggleFavorite(btn){
     }else{
 
         favoriteMessages.push({
-
-            id,
 
             text,
 
@@ -2029,9 +2015,7 @@ function toggleFavorite(btn){
 
 }
 
-/* =========================
-OPEN FAVORITES
-========================= */
+/* OPEN */
 
 function openFavorites(){
 
@@ -2046,9 +2030,7 @@ function openFavorites(){
 
 }
 
-/* =========================
-CLOSE FAVORITES
-========================= */
+/* CLOSE */
 
 function closeFavorites(){
 
@@ -2061,15 +2043,16 @@ function closeFavorites(){
 
 }
 
-/* =========================
-REMOVE FAVORITE
-========================= */
+/* REMOVE */
 
-function removeFavorite(id){
+function removeFavorite(encoded){
+
+    const text =
+    decodeURIComponent(encoded);
 
     favoriteMessages =
     favoriteMessages.filter(
-        m=>m.id!==id
+        m=>m.text!==text
     );
 
     localStorage.setItem(
@@ -2086,9 +2069,7 @@ function removeFavorite(id){
 
 }
 
-/* =========================
-RENDER FAVORITES
-========================= */
+/* RENDER */
 
 function renderFavorites(){
 
@@ -2152,7 +2133,7 @@ function renderFavorites(){
 
             <button
             class="unfavorite-btn"
-            onclick="removeFavorite('${item.id}')"
+            onclick="removeFavorite('${encodeURIComponent(item.text)}')"
             >
                 ♥ Remove Favorite
             </button>
@@ -2167,7 +2148,7 @@ function renderFavorites(){
 }
 
 /* =========================
-RENDER MESSAGES
+RENDER
 ========================= */
 
 function renderMessages(){
