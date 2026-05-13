@@ -1,0 +1,1804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+/>
+
+<title>Neural WhatsApp AI</title>
+
+<script src="https://js.puter.com/v2/"></script>
+
+<link
+href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+rel="stylesheet"
+/>
+
+<style>
+
+:root{
+    --bg:#0b141a;
+    --header:#202c33;
+    --accent:#00a884;
+    --accent2:#00d4aa;
+    --sub:#8696a0;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Inter,sans-serif;
+    -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#0b141a;
+    color:white;
+}
+
+.app{
+    width:100%;
+    height:100%;
+    position:relative;
+    overflow:hidden;
+}
+
+/* =========================
+PAGES
+========================= */
+
+.page{
+    position:absolute;
+    inset:0;
+
+    display:flex;
+    flex-direction:column;
+
+    background:#0b141a;
+
+    transition:.25s;
+}
+
+.hidden{
+    transform:translateX(100%);
+}
+
+/* =========================
+HEADER
+========================= */
+
+.home-header,
+.chat-header{
+
+    height:74px;
+
+    background:#202c33;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:0 16px;
+}
+
+.home-left{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+h1{
+    font-size:22px;
+}
+
+/* =========================
+BUTTONS
+========================= */
+
+.add-btn,
+.send-btn{
+
+    width:50px;
+    height:50px;
+
+    border:none;
+
+    border-radius:18px;
+
+    background:
+    linear-gradient(
+        135deg,
+        var(--accent),
+        var(--accent2)
+    );
+
+    color:white;
+
+    font-size:22px;
+}
+
+.back-btn{
+
+    width:42px;
+    height:42px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:transparent;
+
+    color:white;
+
+    font-size:24px;
+
+    margin-right:8px;
+}
+
+.favorites-btn{
+
+    width:38px;
+    height:38px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:
+    rgba(255,255,255,.08);
+
+    color:#ff7f9f;
+
+    font-size:18px;
+}
+
+/* =========================
+CHARACTERS
+========================= */
+
+.character-list{
+    flex:1;
+    overflow-y:auto;
+}
+
+.character-item{
+
+    width:100%;
+
+    border:none;
+
+    background:transparent;
+
+    color:white;
+
+    display:flex;
+    align-items:center;
+
+    gap:14px;
+
+    padding:14px 16px;
+
+    border-bottom:
+    1px solid rgba(255,255,255,.04);
+}
+
+.character-avatar{
+
+    width:58px;
+    height:58px;
+
+    border-radius:50%;
+
+    overflow:hidden;
+
+    flex-shrink:0;
+
+    background:
+    linear-gradient(
+        135deg,
+        #00a884,
+        #00d4aa
+    );
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:26px;
+}
+
+.character-avatar img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.character-info{
+    flex:1;
+    overflow:hidden;
+    text-align:left;
+}
+
+.character-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.character-name{
+    font-size:16px;
+    font-weight:600;
+}
+
+.character-last{
+
+    color:var(--sub);
+
+    font-size:13px;
+
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.character-settings-btn{
+
+    width:34px;
+    height:34px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:
+    rgba(255,255,255,.05);
+
+    color:#9fe8d8;
+
+    font-size:16px;
+}
+
+/* =========================
+CHAT
+========================= */
+
+.chat-user{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.chat-user .character-avatar{
+    width:46px;
+    height:46px;
+}
+
+.chat-meta{
+    display:flex;
+    flex-direction:column;
+}
+
+.chat-name{
+
+    font-size:17px;
+
+    font-weight:700;
+}
+
+.chat-status{
+
+    display:flex;
+    align-items:center;
+
+    gap:6px;
+
+    font-size:12px;
+
+    color:#8fffd7;
+}
+
+.online-dot{
+
+    width:8px;
+    height:8px;
+
+    border-radius:50%;
+
+    background:#00ff99;
+
+    box-shadow:
+    0 0 10px #00ff99;
+}
+
+/* =========================
+CHAT BOX
+========================= */
+
+.chat-box{
+
+    flex:1;
+
+    overflow-y:auto;
+
+    padding:18px 14px;
+
+    display:flex;
+    flex-direction:column;
+
+    gap:16px;
+
+    background:
+    radial-gradient(
+        circle at top right,
+        rgba(0,168,132,.08),
+        transparent 35%
+    ),
+    #0b141a;
+}
+
+/* =========================
+MESSAGES
+========================= */
+
+.message-row{
+    display:flex;
+}
+
+.message-row.user{
+    justify-content:flex-end;
+}
+
+.message{
+
+    max-width:86%;
+
+    padding:12px 14px;
+
+    border-radius:22px;
+
+    line-height:1.7;
+
+    font-size:14px;
+
+    word-break:break-word;
+}
+
+.message.ai{
+    background:#202c33;
+    border-top-left-radius:6px;
+}
+
+.message.user{
+    background:#005c4b;
+    border-top-right-radius:6px;
+}
+
+.time{
+    font-size:10px;
+    opacity:.6;
+    margin-top:6px;
+    text-align:right;
+}
+
+/* =========================
+MESSAGE ACTIONS
+========================= */
+
+.message-actions{
+    display:flex;
+    justify-content:flex-end;
+    margin-top:10px;
+}
+
+.copy-btn{
+
+    width:34px;
+    height:34px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:
+    rgba(255,255,255,.05);
+
+    color:#9fe8d8;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:16px;
+}
+
+/* =========================
+INPUT
+========================= */
+
+.input-area{
+    padding:10px;
+    background:#202c33;
+}
+
+.input-row{
+    display:flex;
+    align-items:flex-end;
+    gap:10px;
+}
+
+.input-box{
+
+    flex:1;
+
+    background:#2a3942;
+
+    border-radius:24px;
+
+    padding:10px 14px;
+}
+
+textarea{
+
+    width:100%;
+
+    border:none;
+    outline:none;
+    resize:none;
+
+    background:transparent;
+
+    color:white;
+
+    min-height:24px;
+    max-height:120px;
+
+    font-size:15px;
+}
+
+/* =========================
+FORMATTED
+========================= */
+
+.formatted{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.msg-highlight{
+    color:#7dffcb;
+    font-weight:700;
+}
+
+.msg-big-heading{
+    font-size:20px;
+    font-weight:800;
+    color:#7dffcb;
+}
+
+.msg-heading{
+    font-size:17px;
+    font-weight:700;
+    color:#7dffcb;
+}
+
+.msg-text{
+    line-height:1.7;
+}
+
+.msg-quote{
+
+    border-left:
+    3px solid #00d4aa;
+
+    padding-left:12px;
+
+    color:#c7fff0;
+}
+
+.msg-point{
+
+    display:flex;
+
+    gap:12px;
+
+    align-items:flex-start;
+
+    background:
+    rgba(255,255,255,.04);
+
+    padding:14px;
+
+    border-radius:18px;
+}
+
+.point-dot{
+
+    width:28px;
+    height:28px;
+
+    border-radius:12px;
+
+    background:
+    linear-gradient(
+        135deg,
+        #00a884,
+        #00d4aa
+    );
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    flex-shrink:0;
+}
+
+.point-content{
+    line-height:1.7;
+}
+
+/* =========================
+TABLE
+========================= */
+
+.ai-table-wrap{
+
+    width:100%;
+
+    overflow-x:auto;
+
+    margin-top:12px;
+
+    border-radius:18px;
+
+    border:
+    1px solid rgba(255,255,255,.06);
+
+    background:
+    rgba(255,255,255,.03);
+}
+
+.ai-table{
+
+    width:100%;
+
+    min-width:520px;
+
+    border-collapse:collapse;
+}
+
+.ai-table th{
+
+    background:
+    linear-gradient(
+        135deg,
+        rgba(0,168,132,.22),
+        rgba(0,212,170,.16)
+    );
+
+    color:#7dffcb;
+
+    font-weight:700;
+
+    padding:16px 14px;
+
+    text-align:left;
+
+    font-size:14px;
+}
+
+.ai-table td{
+
+    padding:15px 14px;
+
+    border-top:
+    1px solid rgba(255,255,255,.05);
+
+    font-size:14px;
+}
+
+/* =========================
+MODAL
+========================= */
+
+.modal{
+
+    position:fixed;
+    inset:0;
+
+    background:
+    rgba(0,0,0,.6);
+
+    display:none;
+
+    align-items:flex-end;
+
+    z-index:999;
+}
+
+.modal.active{
+    display:flex;
+}
+
+.modal-content{
+
+    width:100%;
+
+    background:#111b21;
+
+    border-radius:
+    28px 28px 0 0;
+
+    padding:24px;
+}
+
+.modal-top{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    margin-bottom:18px;
+}
+
+.close-modal-btn{
+
+    width:40px;
+    height:40px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:
+    rgba(255,255,255,.06);
+
+    color:white;
+
+    font-size:18px;
+}
+
+.modal-content input,
+.modal-content textarea{
+
+    width:100%;
+
+    border:none;
+    outline:none;
+
+    background:
+    rgba(255,255,255,.04);
+
+    color:white;
+
+    padding:16px;
+
+    border-radius:18px;
+
+    margin-bottom:14px;
+}
+
+/* =========================
+AVATAR GRID
+========================= */
+
+.avatar-grid{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(4,1fr);
+
+    gap:12px;
+
+    margin-bottom:20px;
+}
+
+.avatar-option{
+
+    height:70px;
+
+    border:none;
+
+    border-radius:20px;
+
+    background:
+    rgba(255,255,255,.04);
+
+    color:white;
+
+    font-size:30px;
+}
+
+.create-btn{
+
+    width:100%;
+    height:56px;
+
+    border:none;
+
+    border-radius:18px;
+
+    background:
+    linear-gradient(
+        135deg,
+        var(--accent),
+        var(--accent2)
+    );
+
+    color:white;
+
+    font-size:16px;
+    font-weight:700;
+}
+
+/* =========================
+MENU
+========================= */
+
+.character-menu{
+
+    position:fixed;
+
+    left:20px;
+    right:20px;
+    bottom:20px;
+
+    background:#1b2730;
+
+    border-radius:24px;
+
+    padding:14px;
+
+    display:none;
+
+    flex-direction:column;
+
+    gap:10px;
+
+    z-index:9999;
+}
+
+.character-menu.active{
+    display:flex;
+}
+
+.character-menu button{
+
+    height:54px;
+
+    border:none;
+
+    border-radius:16px;
+
+    background:
+    rgba(255,255,255,.04);
+
+    color:white;
+
+    font-size:15px;
+
+    text-align:left;
+
+    padding:0 18px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<!-- HOME -->
+
+<div class="page" id="homePage">
+
+<div class="home-header">
+
+<div class="home-left">
+
+<h1>Neural AI</h1>
+
+</div>
+
+<button
+class="add-btn"
+onclick="openModal()"
+>
++
+</button>
+
+</div>
+
+<div
+class="character-list"
+id="characterList"
+></div>
+
+</div>
+
+<!-- CHAT -->
+
+<div
+class="page hidden"
+id="chatPage"
+>
+
+<div class="chat-header">
+
+<button
+class="back-btn"
+onclick="goHome()"
+>
+←
+</button>
+
+<div class="chat-user">
+
+<div
+class="character-avatar"
+id="chatAvatar"
+>
+🤖
+</div>
+
+<div class="chat-meta">
+
+<div
+class="chat-name"
+id="chatName"
+>
+AI
+</div>
+
+<div class="chat-status">
+
+<span class="online-dot"></span>
+
+online now
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div
+class="chat-box"
+id="chatBox"
+></div>
+
+<div class="input-area">
+
+<div class="input-row">
+
+<div class="input-box">
+
+<textarea
+id="messageInput"
+placeholder="Message..."
+></textarea>
+
+</div>
+
+<button
+class="send-btn"
+onclick="sendMessage()"
+>
+➤
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- MODAL -->
+
+<div
+class="modal"
+id="modal"
+>
+
+<div class="modal-content">
+
+<div class="modal-top">
+
+<h2>Create Character</h2>
+
+<button
+class="close-modal-btn"
+onclick="closeModal()"
+>
+✕
+</button>
+
+</div>
+
+<input
+id="nameInput"
+placeholder="Character Name"
+/>
+
+<textarea
+id="personalityInput"
+placeholder="Describe personality..."
+></textarea>
+
+<div class="avatar-grid">
+
+<button class="avatar-option">🤖</button>
+<button class="avatar-option">👩</button>
+<button class="avatar-option">👨</button>
+<button class="avatar-option">🧠</button>
+<button class="avatar-option">👽</button>
+<button class="avatar-option">🐱</button>
+<button class="avatar-option">🔥</button>
+<button class="avatar-option">✨</button>
+
+</div>
+
+<button
+class="create-btn"
+onclick="createCharacter()"
+>
+Save Character
+</button>
+
+</div>
+
+</div>
+
+<!-- MENU -->
+
+<div
+class="character-menu"
+id="characterMenu"
+>
+
+<button
+onclick="editCharacter()"
+>
+✏ Edit Character
+</button>
+
+<button
+onclick="deleteCharacter()"
+>
+🗑 Delete Character
+</button>
+
+<button
+onclick="closeCharacterMenu()"
+>
+✕ Cancel
+</button>
+
+</div>
+
+<script>
+
+/* =========================
+DATA
+========================= */
+
+let characters =
+JSON.parse(
+localStorage.getItem(
+"wa_ai_characters"
+)
+) || [];
+
+let activeCharacter = null;
+
+let selectedAvatar = "🤖";
+
+let selectedCharacterId = null;
+
+/* =========================
+ELEMENTS
+========================= */
+
+const homePage =
+document.getElementById(
+"homePage"
+);
+
+const chatPage =
+document.getElementById(
+"chatPage"
+);
+
+const chatBox =
+document.getElementById(
+"chatBox"
+);
+
+const characterList =
+document.getElementById(
+"characterList"
+);
+
+/* =========================
+FORMAT
+========================= */
+
+function formatMessage(text){
+
+    if(!text) return "";
+
+    text = text.replace(
+        /\*\*(.*?)\*\*/g,
+        `<span class="msg-highlight">$1</span>`
+    );
+
+    const lines =
+    text.split("\n");
+
+    let html = "";
+
+    let tableMode = false;
+
+    let tableRows = [];
+
+    function renderTable(){
+
+        if(tableRows.length < 2)
+            return "";
+
+        let table = `
+        <div class="ai-table-wrap">
+        <table class="ai-table">
+        `;
+
+        tableRows.forEach((row,index)=>{
+
+            row = row.trim();
+
+            if(row.startsWith("|")){
+                row = row.slice(1);
+            }
+
+            if(row.endsWith("|")){
+                row = row.slice(0,-1);
+            }
+
+            const cols =
+            row.split("|");
+
+            table += "<tr>";
+
+            cols.forEach(col=>{
+
+                const clean =
+                col.trim();
+
+                if(index===0){
+
+                    table += `
+                    <th>${clean}</th>
+                    `;
+
+                }else{
+
+                    table += `
+                    <td>${clean}</td>
+                    `;
+
+                }
+
+            });
+
+            table += "</tr>";
+
+        });
+
+        table += `
+        </table>
+        </div>
+        `;
+
+        return table;
+
+    }
+
+    lines.forEach(line=>{
+
+        line = line.trim();
+
+        if(!line) return;
+
+        if(line.includes("|")){
+
+            if(
+                /^(\|\s*-+\s*)+\|?$/.test(line)
+            ){
+                return;
+            }
+
+            tableMode = true;
+
+            tableRows.push(line);
+
+            return;
+
+        }
+
+        if(tableMode){
+
+            html += renderTable();
+
+            tableRows = [];
+
+            tableMode = false;
+
+        }
+
+        if(
+            line.startsWith("- ") ||
+            line.startsWith("• ") ||
+            line.includes("🔥") ||
+            /^\d+\./.test(line)
+        ){
+
+            html += `
+            <div class="msg-point">
+
+                <div class="point-dot">
+                    ✦
+                </div>
+
+                <div class="point-content">
+                    ${line}
+                </div>
+
+            </div>
+            `;
+
+            return;
+
+        }
+
+        html += `
+        <div class="msg-text">
+            ${line}
+        </div>
+        `;
+
+    });
+
+    if(tableMode){
+
+        html += renderTable();
+
+    }
+
+    return html;
+
+}
+
+/* =========================
+MODAL
+========================= */
+
+function openModal(){
+
+    document
+    .getElementById(
+        "modal"
+    )
+    .classList
+    .add("active");
+
+}
+
+function closeModal(){
+
+    document
+    .getElementById(
+        "modal"
+    )
+    .classList
+    .remove("active");
+
+}
+
+/* =========================
+MENU
+========================= */
+
+function openCharacterMenu(id){
+
+    selectedCharacterId = id;
+
+    document
+    .getElementById(
+        "characterMenu"
+    )
+    .classList
+    .add("active");
+
+}
+
+function closeCharacterMenu(){
+
+    document
+    .getElementById(
+        "characterMenu"
+    )
+    .classList
+    .remove("active");
+
+}
+
+/* =========================
+AVATAR PICK
+========================= */
+
+document
+.querySelectorAll(
+".avatar-option"
+)
+.forEach(btn=>{
+
+    btn.onclick = ()=>{
+
+        selectedAvatar =
+        btn.innerText;
+
+    };
+
+});
+
+/* =========================
+CREATE CHARACTER
+========================= */
+
+function createCharacter(){
+
+    const name =
+    document
+    .getElementById(
+        "nameInput"
+    )
+    .value.trim();
+
+    const personality =
+    document
+    .getElementById(
+        "personalityInput"
+    )
+    .value.trim();
+
+    if(!name || !personality){
+
+        alert(
+            "Fill all fields"
+        );
+
+        return;
+
+    }
+
+    const character = {
+
+        id:Date.now(),
+
+        name,
+
+        personality,
+
+        avatar:selectedAvatar,
+
+        history:[]
+
+    };
+
+    characters.push(character);
+
+    localStorage.setItem(
+        "wa_ai_characters",
+        JSON.stringify(characters)
+    );
+
+    renderCharacters();
+
+    closeModal();
+
+}
+
+/* =========================
+DELETE
+========================= */
+
+function deleteCharacter(){
+
+    characters =
+    characters.filter(
+        c=>c.id!==selectedCharacterId
+    );
+
+    localStorage.setItem(
+        "wa_ai_characters",
+        JSON.stringify(characters)
+    );
+
+    renderCharacters();
+
+    closeCharacterMenu();
+
+}
+
+/* =========================
+EDIT
+========================= */
+
+function editCharacter(){
+
+    const character =
+    characters.find(
+        c=>c.id===selectedCharacterId
+    );
+
+    if(!character) return;
+
+    document
+    .getElementById(
+        "nameInput"
+    )
+    .value =
+    character.name;
+
+    document
+    .getElementById(
+        "personalityInput"
+    )
+    .value =
+    character.personality;
+
+    characters =
+    characters.filter(
+        c=>c.id!==selectedCharacterId
+    );
+
+    openModal();
+
+    closeCharacterMenu();
+
+}
+
+/* =========================
+RENDER CHARACTERS
+========================= */
+
+function renderCharacters(){
+
+    characterList.innerHTML = "";
+
+    characters.forEach(character=>{
+
+        const btn =
+        document.createElement("button");
+
+        btn.className =
+        "character-item";
+
+        const lastMessage =
+
+        character.history.length
+
+        ?
+
+        character.history[
+            character.history.length-1
+        ].content
+
+        :
+
+        character.personality;
+
+        btn.innerHTML = `
+
+        <div class="character-avatar">
+            ${character.avatar}
+        </div>
+
+        <div class="character-info">
+
+            <div class="character-top">
+
+                <div class="character-name">
+                    ${character.name}
+                </div>
+
+                <button
+                class="character-settings-btn"
+                onclick="event.stopPropagation(); openCharacterMenu(${character.id})"
+                >
+                    ⚙
+                </button>
+
+            </div>
+
+            <div class="character-last">
+                ${lastMessage}
+            </div>
+
+        </div>
+        `;
+
+        btn.onclick = ()=>{
+
+            openChat(character.id);
+
+        };
+
+        characterList.appendChild(btn);
+
+    });
+
+}
+
+/* =========================
+OPEN CHAT
+========================= */
+
+function openChat(id){
+
+    activeCharacter =
+    characters.find(
+        c=>c.id===id
+    );
+
+    document
+    .getElementById(
+        "chatAvatar"
+    )
+    .innerHTML =
+    activeCharacter.avatar;
+
+    document
+    .getElementById(
+        "chatName"
+    )
+    .innerText =
+    activeCharacter.name;
+
+    homePage.classList.add(
+        "hidden"
+    );
+
+    chatPage.classList.remove(
+        "hidden"
+    );
+
+    renderMessages();
+
+}
+
+/* =========================
+GO HOME
+========================= */
+
+function goHome(){
+
+    renderCharacters();
+
+    homePage.classList.remove(
+        "hidden"
+    );
+
+    chatPage.classList.add(
+        "hidden"
+    );
+
+}
+
+/* =========================
+MESSAGE
+========================= */
+
+function createMessage(
+text,
+type
+){
+
+    const row =
+    document.createElement("div");
+
+    row.className =
+    `message-row ${type}`;
+
+    const msg =
+    document.createElement("div");
+
+    msg.className =
+    `message ${type}`;
+
+    msg.innerHTML = `
+
+    <div class="formatted">
+
+        ${
+            type==="user"
+
+            ?
+
+            text
+
+            :
+
+            formatMessage(text)
+        }
+
+    </div>
+
+    ${
+        type==="ai"
+
+        ?
+
+        `
+        <div class="message-actions">
+
+            <button
+            class="copy-btn"
+            onclick="copyMessage(this)"
+            >
+                ⧉
+            </button>
+
+        </div>
+        `
+
+        :
+
+        ""
+    }
+
+    <div class="time">
+        ${
+            new Date()
+            .toLocaleTimeString([],{
+                hour:"2-digit",
+                minute:"2-digit"
+            })
+        }
+    </div>
+    `;
+
+    row.appendChild(msg);
+
+    chatBox.appendChild(row);
+
+    return msg;
+
+}
+
+/* =========================
+COPY
+========================= */
+
+function copyMessage(btn){
+
+    const text =
+
+    btn.closest(".message")
+    .querySelector(".formatted")
+    .innerText;
+
+    navigator.clipboard.writeText(
+        text
+    );
+
+    btn.innerHTML = "✓";
+
+    setTimeout(()=>{
+
+        btn.innerHTML = "⧉";
+
+    },1200);
+
+}
+
+/* =========================
+RENDER
+========================= */
+
+function renderMessages(){
+
+    chatBox.innerHTML = "";
+
+    activeCharacter.history
+    .forEach(m=>{
+
+        createMessage(
+
+            m.content,
+
+            m.role==="user"
+            ? "user"
+            : "ai"
+
+        );
+
+    });
+
+}
+
+/* =========================
+SAVE
+========================= */
+
+function saveCharacter(){
+
+    const index =
+    characters.findIndex(
+        c=>c.id===activeCharacter.id
+    );
+
+    characters[index] =
+    activeCharacter;
+
+    localStorage.setItem(
+        "wa_ai_characters",
+        JSON.stringify(characters)
+    );
+
+}
+
+/* =========================
+SEND
+========================= */
+
+async function sendMessage(){
+
+    const textarea =
+    document.getElementById(
+        "messageInput"
+    );
+
+    const text =
+    textarea.value.trim();
+
+    if(!text) return;
+
+    createMessage(
+        text,
+        "user"
+    );
+
+    activeCharacter.history.push({
+
+        role:"user",
+
+        content:text
+
+    });
+
+    saveCharacter();
+
+    textarea.value = "";
+
+    const aiMessage =
+    createMessage(
+        "▋",
+        "ai"
+    );
+
+    const formatted =
+    aiMessage.querySelector(
+        ".formatted"
+    );
+
+    let finalText = "";
+
+    try{
+
+        const response =
+        await puter.ai.chat(
+
+            [
+
+            {
+                role:"system",
+
+                content:
+`
+You are ${activeCharacter.name}
+
+Personality:
+${activeCharacter.personality}
+
+Stay fully in character.
+`
+            },
+
+            ...activeCharacter.history
+            .slice(-20),
+
+            {
+                role:"user",
+                content:text
+            }
+
+            ],
+
+            {
+                model:
+                "x-ai/grok-4-1-fast",
+
+                stream:true
+            }
+
+        );
+
+        for await (
+            const part of response
+        ){
+
+            const chunk =
+            part?.text || "";
+
+            finalText += chunk;
+
+            formatted.innerHTML =
+            formatMessage(
+                finalText + "▋"
+            );
+
+        }
+
+        formatted.innerHTML =
+        formatMessage(finalText);
+
+        activeCharacter.history.push({
+
+            role:"assistant",
+
+            content:finalText
+
+        });
+
+        saveCharacter();
+
+    }catch(err){
+
+        formatted.innerHTML = `
+        <div class="msg-point">
+
+            <div class="point-dot">
+                ⚠
+            </div>
+
+            <div>
+                AI Error
+            </div>
+
+        </div>
+        `;
+
+    }
+
+}
+
+/* =========================
+INIT
+========================= */
+
+renderCharacters();
+
+</script>
+
+</body>
+</html>
