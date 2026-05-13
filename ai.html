@@ -2,11 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
-/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 <title>Neural WhatsApp AI</title>
 
@@ -43,6 +39,15 @@ html,body{
     color:white;
 }
 
+body{
+    display:flex;
+    flex-direction:column;
+}
+
+button{
+    cursor:pointer;
+}
+
 .app{
     width:100%;
     height:100%;
@@ -57,12 +62,9 @@ PAGES
 .page{
     position:absolute;
     inset:0;
-
     display:flex;
     flex-direction:column;
-
     background:#0b141a;
-
     transition:.25s;
 }
 
@@ -78,14 +80,22 @@ HEADER
 .chat-header{
 
     height:74px;
-
     background:#202c33;
 
     display:flex;
     align-items:center;
-    justify-content:space-between;
 
     padding:0 16px;
+
+    flex-shrink:0;
+}
+
+.home-header{
+    justify-content:space-between;
+}
+
+.chat-header{
+    position:relative;
 }
 
 .home-left{
@@ -102,13 +112,34 @@ h1{
 BUTTONS
 ========================= */
 
+.back-btn,
+.add-btn,
+.send-btn,
+.favorites-open-btn{
+
+    border:none;
+    color:white;
+}
+
+.back-btn{
+
+    width:42px;
+    height:42px;
+
+    border-radius:14px;
+
+    background:transparent;
+
+    font-size:24px;
+
+    z-index:2;
+}
+
 .add-btn,
 .send-btn{
 
     width:50px;
     height:50px;
-
-    border:none;
 
     border-radius:18px;
 
@@ -119,44 +150,24 @@ BUTTONS
         var(--accent2)
     );
 
-    color:white;
-
     font-size:22px;
 }
 
-.back-btn{
+.favorites-open-btn{
 
-    width:42px;
-    height:42px;
+    width:46px;
+    height:46px;
 
-    border:none;
-
-    border-radius:14px;
-
-    background:transparent;
-
-    color:white;
-
-    font-size:24px;
-
-    margin-right:8px;
-}
-
-.favorites-btn{
-
-    width:38px;
-    height:38px;
-
-    border:none;
-
-    border-radius:14px;
+    border-radius:16px;
 
     background:
-    rgba(255,255,255,.08);
+    rgba(255,255,255,.06);
 
-    color:#ff7f9f;
+    color:#ff5d88;
 
-    font-size:18px;
+    font-size:20px;
+
+    margin-right:10px;
 }
 
 /* =========================
@@ -171,11 +182,9 @@ CHARACTERS
 .character-item{
 
     width:100%;
-
     border:none;
 
     background:transparent;
-
     color:white;
 
     display:flex;
@@ -196,10 +205,6 @@ CHARACTERS
 
     border-radius:50%;
 
-    overflow:hidden;
-
-    flex-shrink:0;
-
     background:
     linear-gradient(
         135deg,
@@ -212,24 +217,19 @@ CHARACTERS
     justify-content:center;
 
     font-size:26px;
-}
 
-.character-avatar img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
+    flex-shrink:0;
 }
 
 .character-info{
     flex:1;
     overflow:hidden;
-    text-align:left;
 }
 
 .character-top{
     display:flex;
-    justify-content:space-between;
     align-items:center;
+    justify-content:space-between;
 }
 
 .character-name{
@@ -239,13 +239,13 @@ CHARACTERS
 
 .character-last{
 
-    color:var(--sub);
-
     font-size:13px;
 
+    color:var(--sub);
+
     overflow:hidden;
-    text-overflow:ellipsis;
     white-space:nowrap;
+    text-overflow:ellipsis;
 }
 
 .character-settings-btn{
@@ -261,17 +261,23 @@ CHARACTERS
     rgba(255,255,255,.05);
 
     color:#9fe8d8;
-
-    font-size:16px;
 }
 
 /* =========================
-CHAT
+CHAT HEADER
 ========================= */
 
 .chat-user{
+
+    position:absolute;
+
+    left:50%;
+
+    transform:translateX(-50%);
+
     display:flex;
     align-items:center;
+
     gap:12px;
 }
 
@@ -283,12 +289,11 @@ CHAT
 .chat-meta{
     display:flex;
     flex-direction:column;
+    align-items:center;
 }
 
 .chat-name{
-
     font-size:17px;
-
     font-weight:700;
 }
 
@@ -312,13 +317,10 @@ CHAT
     border-radius:50%;
 
     background:#00ff99;
-
-    box-shadow:
-    0 0 10px #00ff99;
 }
 
 /* =========================
-CHAT BOX
+CHAT
 ========================= */
 
 .chat-box{
@@ -343,10 +345,6 @@ CHAT BOX
     #0b141a;
 }
 
-/* =========================
-MESSAGES
-========================= */
-
 .message-row{
     display:flex;
 }
@@ -363,9 +361,9 @@ MESSAGES
 
     border-radius:22px;
 
-    line-height:1.7;
-
     font-size:14px;
+
+    line-height:1.7;
 
     word-break:break-word;
 }
@@ -397,7 +395,8 @@ MESSAGE ACTIONS
     margin-top:10px;
 }
 
-.copy-btn{
+.copy-btn,
+.favorite-btn{
 
     width:34px;
     height:34px;
@@ -406,16 +405,37 @@ MESSAGE ACTIONS
 
     border-radius:12px;
 
-    background:
-    rgba(255,255,255,.05);
-
-    color:#9fe8d8;
-
     display:flex;
     align-items:center;
     justify-content:center;
 
     font-size:16px;
+}
+
+.copy-btn{
+
+    background:
+    rgba(255,255,255,.05);
+
+    color:#9fe8d8;
+}
+
+.favorite-btn{
+
+    background:
+    rgba(255,255,255,.05);
+
+    color:#ff7f9f;
+
+    margin-right:8px;
+}
+
+.favorite-btn.active{
+
+    background:
+    rgba(255,0,80,.15);
+
+    color:#ff4d7a;
 }
 
 /* =========================
@@ -462,6 +482,76 @@ textarea{
     font-size:15px;
 }
 
+.image-upload-btn{
+
+    width:52px;
+    height:52px;
+
+    border-radius:18px;
+
+    background:#2a3942;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:22px;
+
+    flex-shrink:0;
+}
+
+/* =========================
+IMAGE
+========================= */
+
+.chat-image-preview{
+
+    width:120px;
+    height:120px;
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+    margin-bottom:12px;
+
+    display:none;
+
+    position:relative;
+}
+
+.chat-image-preview img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.remove-image-btn{
+
+    position:absolute;
+
+    top:8px;
+    right:8px;
+
+    width:28px;
+    height:28px;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:
+    rgba(0,0,0,.6);
+
+    color:white;
+}
+
+.chat-uploaded-image{
+    width:220px;
+    border-radius:18px;
+    margin-bottom:8px;
+}
+
 /* =========================
 FORMATTED
 ========================= */
@@ -477,36 +567,13 @@ FORMATTED
     font-weight:700;
 }
 
-.msg-big-heading{
-    font-size:20px;
-    font-weight:800;
-    color:#7dffcb;
-}
-
-.msg-heading{
-    font-size:17px;
-    font-weight:700;
-    color:#7dffcb;
-}
-
 .msg-text{
     line-height:1.7;
-}
-
-.msg-quote{
-
-    border-left:
-    3px solid #00d4aa;
-
-    padding-left:12px;
-
-    color:#c7fff0;
 }
 
 .msg-point{
 
     display:flex;
-
     gap:12px;
 
     align-items:flex-start;
@@ -540,10 +607,6 @@ FORMATTED
     flex-shrink:0;
 }
 
-.point-content{
-    line-height:1.7;
-}
-
 /* =========================
 TABLE
 ========================= */
@@ -551,7 +614,6 @@ TABLE
 .ai-table-wrap{
 
     width:100%;
-
     overflow-x:auto;
 
     margin-top:12px;
@@ -568,7 +630,6 @@ TABLE
 .ai-table{
 
     width:100%;
-
     min-width:520px;
 
     border-collapse:collapse;
@@ -585,8 +646,6 @@ TABLE
 
     color:#7dffcb;
 
-    font-weight:700;
-
     padding:16px 14px;
 
     text-align:left;
@@ -602,6 +661,68 @@ TABLE
     1px solid rgba(255,255,255,.05);
 
     font-size:14px;
+
+    line-height:1.6;
+}
+
+/* =========================
+FAVORITES
+========================= */
+
+.favorites-list{
+
+    flex:1;
+
+    overflow-y:auto;
+
+    padding:16px;
+
+    display:flex;
+    flex-direction:column;
+
+    gap:16px;
+}
+
+.favorite-card{
+
+    background:#202c33;
+
+    border-radius:22px;
+
+    padding:18px;
+}
+
+.favorite-character{
+
+    font-size:13px;
+
+    color:#7dffcb;
+
+    margin-bottom:10px;
+
+    font-weight:700;
+}
+
+.favorite-actions{
+    margin-top:14px;
+}
+
+.unfavorite-btn{
+
+    height:42px;
+
+    border:none;
+
+    border-radius:14px;
+
+    padding:0 18px;
+
+    background:
+    rgba(255,0,80,.12);
+
+    color:#ff6d94;
+
+    font-weight:700;
 }
 
 /* =========================
@@ -685,10 +806,6 @@ MODAL
     margin-bottom:14px;
 }
 
-/* =========================
-AVATAR GRID
-========================= */
-
 .avatar-grid{
 
     display:grid;
@@ -740,16 +857,16 @@ AVATAR GRID
 }
 
 /* =========================
-MENU
+CHARACTER MENU
 ========================= */
 
 .character-menu{
 
     position:fixed;
 
-    left:20px;
-    right:20px;
-    bottom:20px;
+    left:18px;
+    right:18px;
+    bottom:18px;
 
     background:#1b2730;
 
@@ -772,22 +889,24 @@ MENU
 
 .character-menu button{
 
-    height:54px;
+    height:56px;
 
     border:none;
 
     border-radius:16px;
 
     background:
-    rgba(255,255,255,.04);
+    rgba(255,255,255,.05);
 
     color:white;
-
-    font-size:15px;
 
     text-align:left;
 
     padding:0 18px;
+
+    font-size:15px;
+
+    font-weight:600;
 }
 
 </style>
@@ -802,11 +921,16 @@ MENU
 
 <div class="home-header">
 
-<div class="home-left">
-
 <h1>Neural AI</h1>
 
-</div>
+<div>
+
+<button
+class="favorites-open-btn"
+onclick="openFavorites()"
+>
+♥
+</button>
 
 <button
 class="add-btn"
@@ -817,9 +941,42 @@ onclick="openModal()"
 
 </div>
 
+</div>
+
 <div
 class="character-list"
 id="characterList"
+></div>
+
+</div>
+
+<!-- FAVORITES -->
+
+<div
+class="page hidden"
+id="favoritesPage"
+>
+
+<div class="home-header">
+
+<div class="home-left">
+
+<button
+class="back-btn"
+onclick="closeFavorites()"
+>
+←
+</button>
+
+<h1>Favorites</h1>
+
+</div>
+
+</div>
+
+<div
+class="favorites-list"
+id="favoritesList"
 ></div>
 
 </div>
@@ -879,7 +1036,36 @@ id="chatBox"
 
 <div class="input-area">
 
+<div
+class="chat-image-preview"
+id="chatImagePreview"
+>
+
+<img id="previewImage">
+
+<button
+class="remove-image-btn"
+onclick="removeChatImage()"
+>
+✕
+</button>
+
+</div>
+
 <div class="input-row">
+
+<label class="image-upload-btn">
+
+📎
+
+<input
+hidden
+type="file"
+id="chatImageInput"
+accept="image/*"
+/>
+
+</label>
 
 <div class="input-box">
 
@@ -959,30 +1145,30 @@ Save Character
 
 </div>
 
-<!-- MENU -->
+<!-- CHARACTER MENU -->
 
 <div
 class="character-menu"
 id="characterMenu"
 >
 
-<button
-onclick="editCharacter()"
->
+<button onclick="editCharacter()">
 ✏ Edit Character
 </button>
 
-<button
-onclick="deleteCharacter()"
->
-🗑 Delete Character
+<button onclick="clearCharacterChat()">
+🗑 Clear Chat
 </button>
 
-<button
-onclick="closeCharacterMenu()"
->
-✕ Cancel
+<button onclick="deleteCharacter()">
+❌ Delete Character
 </button>
+
+<button onclick="closeCharacterMenu()">
+Cancel
+</button>
+
+</div>
 
 </div>
 
@@ -999,38 +1185,109 @@ localStorage.getItem(
 )
 ) || [];
 
+let favoriteMessages =
+JSON.parse(
+localStorage.getItem(
+"wa_ai_favorites"
+)
+) || [];
+
 let activeCharacter = null;
-
-let selectedAvatar = "🤖";
-
 let selectedCharacterId = null;
+let selectedAvatar = "🤖";
+let uploadedChatImage = null;
 
 /* =========================
 ELEMENTS
 ========================= */
 
 const homePage =
-document.getElementById(
-"homePage"
-);
+document.getElementById("homePage");
 
 const chatPage =
-document.getElementById(
-"chatPage"
-);
+document.getElementById("chatPage");
 
 const chatBox =
-document.getElementById(
-"chatBox"
-);
+document.getElementById("chatBox");
 
 const characterList =
-document.getElementById(
-"characterList"
-);
+document.getElementById("characterList");
 
 /* =========================
-FORMAT
+FIX FAVORITES
+========================= */
+
+function normalizeFavorites(){
+
+    favoriteMessages =
+    favoriteMessages.map(item=>({
+
+        id:
+        item.id ||
+        (
+            "fav_" +
+            Date.now() +
+            "_" +
+            Math.random()
+            .toString(36)
+            .substring(2,9)
+        ),
+
+        text:item.text || "",
+
+        character:
+        item.character || "Unknown",
+
+        time:
+        item.time || Date.now()
+
+    }));
+
+    favoriteMessages =
+    favoriteMessages.filter(item=>
+
+        item.id &&
+        item.text
+
+    );
+
+    const seen = new Set();
+
+    favoriteMessages =
+    favoriteMessages.filter(item=>{
+
+        if(seen.has(item.id)){
+            return false;
+        }
+
+        seen.add(item.id);
+
+        return true;
+
+    });
+
+    saveFavorites();
+
+}
+
+normalizeFavorites();
+
+function saveFavorites(){
+
+    localStorage.setItem(
+
+        "wa_ai_favorites",
+
+        JSON.stringify(
+            favoriteMessages
+        )
+
+    );
+
+}
+
+/* =========================
+FORMAT MESSAGE
 ========================= */
 
 function formatMessage(text){
@@ -1042,148 +1299,11 @@ function formatMessage(text){
         `<span class="msg-highlight">$1</span>`
     );
 
-    const lines =
-    text.split("\n");
-
-    let html = "";
-
-    let tableMode = false;
-
-    let tableRows = [];
-
-    function renderTable(){
-
-        if(tableRows.length < 2)
-            return "";
-
-        let table = `
-        <div class="ai-table-wrap">
-        <table class="ai-table">
-        `;
-
-        tableRows.forEach((row,index)=>{
-
-            row = row.trim();
-
-            if(row.startsWith("|")){
-                row = row.slice(1);
-            }
-
-            if(row.endsWith("|")){
-                row = row.slice(0,-1);
-            }
-
-            const cols =
-            row.split("|");
-
-            table += "<tr>";
-
-            cols.forEach(col=>{
-
-                const clean =
-                col.trim();
-
-                if(index===0){
-
-                    table += `
-                    <th>${clean}</th>
-                    `;
-
-                }else{
-
-                    table += `
-                    <td>${clean}</td>
-                    `;
-
-                }
-
-            });
-
-            table += "</tr>";
-
-        });
-
-        table += `
-        </table>
-        </div>
-        `;
-
-        return table;
-
-    }
-
-    lines.forEach(line=>{
-
-        line = line.trim();
-
-        if(!line) return;
-
-        if(line.includes("|")){
-
-            if(
-                /^(\|\s*-+\s*)+\|?$/.test(line)
-            ){
-                return;
-            }
-
-            tableMode = true;
-
-            tableRows.push(line);
-
-            return;
-
-        }
-
-        if(tableMode){
-
-            html += renderTable();
-
-            tableRows = [];
-
-            tableMode = false;
-
-        }
-
-        if(
-            line.startsWith("- ") ||
-            line.startsWith("• ") ||
-            line.includes("🔥") ||
-            /^\d+\./.test(line)
-        ){
-
-            html += `
-            <div class="msg-point">
-
-                <div class="point-dot">
-                    ✦
-                </div>
-
-                <div class="point-content">
-                    ${line}
-                </div>
-
-            </div>
-            `;
-
-            return;
-
-        }
-
-        html += `
-        <div class="msg-text">
-            ${line}
-        </div>
-        `;
-
-    });
-
-    if(tableMode){
-
-        html += renderTable();
-
-    }
-
-    return html;
+    return `
+    <div class="msg-text">
+        ${text}
+    </div>
+    `;
 
 }
 
@@ -1194,9 +1314,7 @@ MODAL
 function openModal(){
 
     document
-    .getElementById(
-        "modal"
-    )
+    .getElementById("modal")
     .classList
     .add("active");
 
@@ -1205,37 +1323,7 @@ function openModal(){
 function closeModal(){
 
     document
-    .getElementById(
-        "modal"
-    )
-    .classList
-    .remove("active");
-
-}
-
-/* =========================
-MENU
-========================= */
-
-function openCharacterMenu(id){
-
-    selectedCharacterId = id;
-
-    document
-    .getElementById(
-        "characterMenu"
-    )
-    .classList
-    .add("active");
-
-}
-
-function closeCharacterMenu(){
-
-    document
-    .getElementById(
-        "characterMenu"
-    )
+    .getElementById("modal")
     .classList
     .remove("active");
 
@@ -1246,9 +1334,7 @@ AVATAR PICK
 ========================= */
 
 document
-.querySelectorAll(
-".avatar-option"
-)
+.querySelectorAll(".avatar-option")
 .forEach(btn=>{
 
     btn.onclick = ()=>{
@@ -1261,36 +1347,81 @@ document
 });
 
 /* =========================
-CREATE CHARACTER
+IMAGE PICK
+========================= */
+
+document
+.getElementById("chatImageInput")
+.addEventListener(
+"change",
+e=>{
+
+    const file =
+    e.target.files[0];
+
+    if(!file) return;
+
+    const reader =
+    new FileReader();
+
+    reader.onload = ev=>{
+
+        uploadedChatImage =
+        ev.target.result;
+
+        document
+        .getElementById(
+            "chatImagePreview"
+        )
+        .style.display = "block";
+
+        document
+        .getElementById(
+            "previewImage"
+        )
+        .src =
+        uploadedChatImage;
+
+    };
+
+    reader.readAsDataURL(file);
+
+});
+
+function removeChatImage(){
+
+    uploadedChatImage = null;
+
+    document
+    .getElementById(
+        "chatImagePreview"
+    )
+    .style.display = "none";
+
+}
+
+/* =========================
+CHARACTERS
 ========================= */
 
 function createCharacter(){
 
     const name =
     document
-    .getElementById(
-        "nameInput"
-    )
+    .getElementById("nameInput")
     .value.trim();
 
     const personality =
     document
-    .getElementById(
-        "personalityInput"
-    )
+    .getElementById("personalityInput")
     .value.trim();
 
     if(!name || !personality){
-
-        alert(
-            "Fill all fields"
-        );
-
+        alert("Fill all fields");
         return;
-
     }
 
-    const character = {
+    characters.push({
 
         id:Date.now(),
 
@@ -1302,14 +1433,9 @@ function createCharacter(){
 
         history:[]
 
-    };
+    });
 
-    characters.push(character);
-
-    localStorage.setItem(
-        "wa_ai_characters",
-        JSON.stringify(characters)
-    );
+    saveCharacters();
 
     renderCharacters();
 
@@ -1317,69 +1443,14 @@ function createCharacter(){
 
 }
 
-/* =========================
-DELETE
-========================= */
-
-function deleteCharacter(){
-
-    characters =
-    characters.filter(
-        c=>c.id!==selectedCharacterId
-    );
+function saveCharacters(){
 
     localStorage.setItem(
         "wa_ai_characters",
         JSON.stringify(characters)
     );
 
-    renderCharacters();
-
-    closeCharacterMenu();
-
 }
-
-/* =========================
-EDIT
-========================= */
-
-function editCharacter(){
-
-    const character =
-    characters.find(
-        c=>c.id===selectedCharacterId
-    );
-
-    if(!character) return;
-
-    document
-    .getElementById(
-        "nameInput"
-    )
-    .value =
-    character.name;
-
-    document
-    .getElementById(
-        "personalityInput"
-    )
-    .value =
-    character.personality;
-
-    characters =
-    characters.filter(
-        c=>c.id!==selectedCharacterId
-    );
-
-    openModal();
-
-    closeCharacterMenu();
-
-}
-
-/* =========================
-RENDER CHARACTERS
-========================= */
 
 function renderCharacters(){
 
@@ -1392,20 +1463,6 @@ function renderCharacters(){
 
         btn.className =
         "character-item";
-
-        const lastMessage =
-
-        character.history.length
-
-        ?
-
-        character.history[
-            character.history.length-1
-        ].content
-
-        :
-
-        character.personality;
 
         btn.innerHTML = `
 
@@ -1423,7 +1480,10 @@ function renderCharacters(){
 
                 <button
                 class="character-settings-btn"
-                onclick="event.stopPropagation(); openCharacterMenu(${character.id})"
+                onclick="
+                event.stopPropagation();
+                openCharacterMenu(${character.id})
+                "
                 >
                     ⚙
                 </button>
@@ -1431,7 +1491,11 @@ function renderCharacters(){
             </div>
 
             <div class="character-last">
-                ${lastMessage}
+                ${
+                    character.history.at(-1)
+                    ?.content ||
+                    character.personality
+                }
             </div>
 
         </div>
@@ -1449,69 +1513,144 @@ function renderCharacters(){
 
 }
 
-/* =========================
-OPEN CHAT
-========================= */
-
 function openChat(id){
 
     activeCharacter =
-    characters.find(
-        c=>c.id===id
-    );
+    characters.find(c=>c.id===id);
 
     document
-    .getElementById(
-        "chatAvatar"
-    )
+    .getElementById("chatAvatar")
     .innerHTML =
     activeCharacter.avatar;
 
     document
-    .getElementById(
-        "chatName"
-    )
+    .getElementById("chatName")
     .innerText =
     activeCharacter.name;
 
-    homePage.classList.add(
-        "hidden"
-    );
-
-    chatPage.classList.remove(
-        "hidden"
-    );
+    homePage.classList.add("hidden");
+    chatPage.classList.remove("hidden");
 
     renderMessages();
 
-}
+    setTimeout(()=>{
 
-/* =========================
-GO HOME
-========================= */
+        chatBox.scrollTop =
+        chatBox.scrollHeight;
+
+    },50);
+
+}
 
 function goHome(){
 
     renderCharacters();
 
-    homePage.classList.remove(
-        "hidden"
-    );
-
-    chatPage.classList.add(
-        "hidden"
-    );
+    homePage.classList.remove("hidden");
+    chatPage.classList.add("hidden");
 
 }
 
 /* =========================
-MESSAGE
+CHARACTER MENU
 ========================= */
 
-function createMessage(
-text,
-type
-){
+function openCharacterMenu(id){
+
+    selectedCharacterId = id;
+
+    document
+    .getElementById("characterMenu")
+    .classList
+    .add("active");
+
+}
+
+function closeCharacterMenu(){
+
+    document
+    .getElementById("characterMenu")
+    .classList
+    .remove("active");
+
+}
+
+function deleteCharacter(){
+
+    characters =
+    characters.filter(
+        c=>c.id!==selectedCharacterId
+    );
+
+    saveCharacters();
+
+    renderCharacters();
+
+    closeCharacterMenu();
+
+}
+
+function editCharacter(){
+
+    const character =
+    characters.find(
+        c=>c.id===selectedCharacterId
+    );
+
+    if(!character) return;
+
+    document
+    .getElementById("nameInput")
+    .value =
+    character.name;
+
+    document
+    .getElementById("personalityInput")
+    .value =
+    character.personality;
+
+    selectedAvatar =
+    character.avatar;
+
+    characters =
+    characters.filter(
+        c=>c.id!==selectedCharacterId
+    );
+
+    saveCharacters();
+
+    renderCharacters();
+
+    closeCharacterMenu();
+
+    openModal();
+
+}
+
+function clearCharacterChat(){
+
+    const character =
+    characters.find(
+        c=>c.id===selectedCharacterId
+    );
+
+    if(!character) return;
+
+    character.history = [];
+
+    saveCharacters();
+
+    renderCharacters();
+
+    closeCharacterMenu();
+
+}
+
+/* =========================
+MESSAGES
+========================= */
+
+function createMessage(text,type){
 
     const row =
     document.createElement("div");
@@ -1525,31 +1664,43 @@ type
     msg.className =
     `message ${type}`;
 
+    const favoriteId =
+    "fav_" +
+    Date.now() +
+    "_" +
+    Math.random()
+    .toString(36)
+    .substring(2,9);
+
     msg.innerHTML = `
 
     <div class="formatted">
 
         ${
             type==="user"
-
-            ?
-
-            text
-
-            :
-
-            formatMessage(text)
+            ? text
+            : formatMessage(text)
         }
 
     </div>
 
     ${
         type==="ai"
-
         ?
-
         `
         <div class="message-actions">
+
+            <button
+            class="favorite-btn"
+
+            data-id="${favoriteId}"
+
+            data-text="${encodeURIComponent(text)}"
+
+            onclick="toggleFavorite(this)"
+            >
+                ♡
+            </button>
 
             <button
             class="copy-btn"
@@ -1560,10 +1711,7 @@ type
 
         </div>
         `
-
-        :
-
-        ""
+        : ""
     }
 
     <div class="time">
@@ -1585,10 +1733,6 @@ type
 
 }
 
-/* =========================
-COPY
-========================= */
-
 function copyMessage(btn){
 
     const text =
@@ -1597,9 +1741,7 @@ function copyMessage(btn){
     .querySelector(".formatted")
     .innerText;
 
-    navigator.clipboard.writeText(
-        text
-    );
+    navigator.clipboard.writeText(text);
 
     btn.innerHTML = "✓";
 
@@ -1607,13 +1749,9 @@ function copyMessage(btn){
 
         btn.innerHTML = "⧉";
 
-    },1200);
+    },1000);
 
 }
-
-/* =========================
-RENDER
-========================= */
 
 function renderMessages(){
 
@@ -1622,9 +1760,24 @@ function renderMessages(){
     activeCharacter.history
     .forEach(m=>{
 
+        let html = "";
+
+        if(m.image){
+
+            html += `
+            <img
+            src="${m.image}"
+            class="chat-uploaded-image"
+            >
+            `;
+
+        }
+
+        html += m.content;
+
         createMessage(
 
-            m.content,
+            html,
 
             m.role==="user"
             ? "user"
@@ -1637,7 +1790,219 @@ function renderMessages(){
 }
 
 /* =========================
-SAVE
+FAVORITES
+========================= */
+
+function toggleFavorite(btn){
+
+    const text =
+    decodeURIComponent(
+        btn.dataset.text
+    );
+
+    const id =
+    btn.dataset.id;
+
+    const exists =
+    favoriteMessages.find(
+        item=>item.id===id
+    );
+
+    if(exists){
+
+        favoriteMessages =
+        favoriteMessages.filter(
+            item=>item.id!==id
+        );
+
+        btn.classList.remove("active");
+        btn.innerHTML = "♡";
+
+    }else{
+
+        favoriteMessages.push({
+
+            id,
+
+            text,
+
+            character:
+            activeCharacter?.name || "AI",
+
+            time:
+            Date.now()
+
+        });
+
+        btn.classList.add("active");
+        btn.innerHTML = "♥";
+
+    }
+
+    saveFavorites();
+
+}
+
+function removeFavorite(id){
+
+    favoriteMessages =
+    favoriteMessages.filter(
+        item=>item.id!==id
+    );
+
+    saveFavorites();
+
+    renderFavorites();
+
+}
+
+function clearAllFavorites(){
+
+    favoriteMessages = [];
+
+    saveFavorites();
+
+    renderFavorites();
+
+}
+
+function openFavorites(){
+
+    normalizeFavorites();
+
+    renderFavorites();
+
+    document
+    .getElementById("favoritesPage")
+    .classList
+    .remove("hidden");
+
+}
+
+function closeFavorites(){
+
+    document
+    .getElementById("favoritesPage")
+    .classList
+    .add("hidden");
+
+}
+
+function renderFavorites(){
+
+    normalizeFavorites();
+
+    const container =
+    document.getElementById(
+        "favoritesList"
+    );
+
+    container.innerHTML = "";
+
+    if(
+        favoriteMessages.length===0
+    ){
+
+        container.innerHTML = `
+        <div class="msg-point">
+
+            <div class="point-dot">
+                ♥
+            </div>
+
+            <div>
+
+                No favorite messages yet
+
+            </div>
+
+        </div>
+        `;
+
+        return;
+
+    }
+
+    const top =
+    document.createElement("div");
+
+    top.style.display = "flex";
+    top.style.justifyContent = "flex-end";
+
+    top.innerHTML = `
+
+    <button
+    onclick="clearAllFavorites()"
+
+    style="
+    height:42px;
+    border:none;
+    border-radius:14px;
+    padding:0 18px;
+    background:rgba(255,0,80,.12);
+    color:#ff6d94;
+    font-weight:700;
+    "
+    >
+
+        Clear All
+
+    </button>
+    `;
+
+    container.appendChild(top);
+
+    favoriteMessages
+    .slice()
+    .reverse()
+    .forEach(item=>{
+
+        const div =
+        document.createElement("div");
+
+        div.className =
+        "favorite-card";
+
+        div.innerHTML = `
+
+        <div class="favorite-character">
+
+            ${item.character}
+
+        </div>
+
+        <div class="favorite-text">
+
+            ${formatMessage(item.text)}
+
+        </div>
+
+        <div class="favorite-actions">
+
+            <button
+            class="unfavorite-btn"
+            onclick="
+            removeFavorite(
+            '${item.id}'
+            )
+            "
+            >
+
+                ♥ Remove Favorite
+
+            </button>
+
+        </div>
+        `;
+
+        container.appendChild(div);
+
+    });
+
+}
+
+/* =========================
+SAVE CHAT
 ========================= */
 
 function saveCharacter(){
@@ -1650,10 +2015,7 @@ function saveCharacter(){
     characters[index] =
     activeCharacter;
 
-    localStorage.setItem(
-        "wa_ai_characters",
-        JSON.stringify(characters)
-    );
+    saveCharacters();
 
 }
 
@@ -1671,10 +2033,32 @@ async function sendMessage(){
     const text =
     textarea.value.trim();
 
-    if(!text) return;
+    if(
+        !text &&
+        !uploadedChatImage
+    ) return;
+
+    let userHTML = "";
+
+    if(uploadedChatImage){
+
+        userHTML += `
+        <img
+        src="${uploadedChatImage}"
+        class="chat-uploaded-image"
+        >
+        `;
+
+    }
+
+    if(text){
+
+        userHTML += text;
+
+    }
 
     createMessage(
-        text,
+        userHTML,
         "user"
     );
 
@@ -1682,7 +2066,12 @@ async function sendMessage(){
 
         role:"user",
 
-        content:text
+        content:
+        text ||
+        "Analyze this image",
+
+        image:
+        uploadedChatImage || null
 
     });
 
@@ -1705,15 +2094,38 @@ async function sendMessage(){
 
     try{
 
-        const response =
-        await puter.ai.chat(
+        let response;
 
-            [
+        if(uploadedChatImage){
 
-            {
-                role:"system",
+            response =
+            await puter.ai.chat(
 
-                content:
+                text ||
+                "Analyze this image",
+
+                uploadedChatImage,
+
+                {
+                    model:
+                    "x-ai/grok-4-1-fast",
+
+                    stream:true
+                }
+
+            );
+
+        }else{
+
+            response =
+            await puter.ai.chat(
+
+                [
+
+                {
+                    role:"system",
+
+                    content:
 `
 You are ${activeCharacter.name}
 
@@ -1722,26 +2134,28 @@ ${activeCharacter.personality}
 
 Stay fully in character.
 `
-            },
+                },
 
-            ...activeCharacter.history
-            .slice(-20),
+                ...activeCharacter.history
+                .slice(-20),
 
-            {
-                role:"user",
-                content:text
-            }
+                {
+                    role:"user",
+                    content:text
+                }
 
-            ],
+                ],
 
-            {
-                model:
-                "x-ai/grok-4-1-fast",
+                {
+                    model:
+                    "x-ai/grok-4-1-fast",
 
-                stream:true
-            }
+                    stream:true
+                }
 
-        );
+            );
+
+        }
 
         for await (
             const part of response
@@ -1772,6 +2186,13 @@ Stay fully in character.
 
         saveCharacter();
 
+        setTimeout(()=>{
+
+            chatBox.scrollTop =
+            chatBox.scrollHeight;
+
+        },50);
+
     }catch(err){
 
         formatted.innerHTML = `
@@ -1782,13 +2203,21 @@ Stay fully in character.
             </div>
 
             <div>
-                AI Error
+                Failed to analyze image
             </div>
 
         </div>
         `;
 
     }
+
+    removeChatImage();
+
+    document
+    .getElementById(
+        "chatImageInput"
+    )
+    .value = "";
 
 }
 
