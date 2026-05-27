@@ -86,22 +86,25 @@
       padding: 0.5rem 1rem;
       background: rgba(0,0,0,0.15);
       border-bottom: 1px solid var(--border-thin);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
     }
 
     .add-char-trigger-tile {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
+      gap: 0.4rem;
       background: #202c33;
       border: 1px dashed var(--wa-accent);
       color: var(--wa-accent);
-      width: 100%;
       padding: 0.6rem;
       border-radius: 8px;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
+      text-align: center;
     }
 
     .chat-list {
@@ -204,7 +207,7 @@
     .msg-node.transmitted { justify-content: flex-end; }
     .msg-node.transmitted .bubble-wrapper { background: var(--wa-bubble-out); color: var(--text-msg); border-top-right-radius: 0; }
 
-    /* Inline Album Grid Architecture updated to layout 6-7 items cleanly */
+    /* Inline Album Grid */
     .chat-inline-album-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -223,11 +226,9 @@
       background-color: #111;
       cursor: pointer;
       border: 1px solid rgba(255,255,255,0.05);
-      transition: transform 0.2s;
     }
-    .album-grid-item:hover { transform: scale(1.02); }
 
-    /* Setup Drawers Overlay Sheets */
+    /* Drawers Setup Global Layout Rules */
     .setup-drawer-overlay {
       position: absolute;
       top: 0;
@@ -254,7 +255,7 @@
     input:focus, textarea:focus, select:focus { border-bottom-color: var(--wa-accent); }
     .drawer-action-btn { background: var(--wa-accent); border: none; color: #fff; font-weight: 600; padding: 0.75rem; border-radius: 4px; cursor: pointer; text-align: center; margin-top: 0.5rem; }
 
-    /* Media Assets Attachment Deck */
+    /* Media Assets Settings Elements Row Component */
     .gallery-deck-wrapper { border-top: 1px solid var(--border-thin); padding-top: 0.8rem; margin-top: 0.5rem; }
     .gallery-strip { display: flex; gap: 0.5rem; overflow-x: auto; padding: 0.4rem 0; }
     .gallery-card { width: 60px; height: 75px; border-radius: 4px; background-size: cover; background-position: center; position: relative; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
@@ -262,7 +263,45 @@
     .gallery-card .drop-img-btn { position: absolute; top: -4px; right: -4px; background: var(--accent-red); color: #fff; border: none; width: 16px; height: 16px; border-radius: 50%; font-size: 9px; cursor: pointer; z-index: 2; }
     .media-upload-trigger { width: 60px; height: 75px; border: 2px dashed var(--text-muted); border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); font-size: 1.2rem; flex-shrink: 0; }
 
-    /* Carousel Lightbox Layout Viewport */
+    /* Dynamic Sources Portal CSS Elements List */
+    .sources-list-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      margin-top: 0.5rem;
+    }
+    .source-item-row {
+      background: rgba(42, 57, 66, 0.5);
+      padding: 0.6rem;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 3px solid var(--wa-accent);
+    }
+    .source-meta-info {
+      flex: 1;
+      overflow: hidden;
+      padding-right: 0.5rem;
+    }
+    .source-meta-info h4 { font-size: 0.9rem; font-weight: 600; text-transform: capitalize; color: #fff; }
+    .source-meta-info p { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .source-controls-box {
+      display: flex;
+      gap: 0.4rem;
+    }
+    .source-tool-btn {
+      background: #202c33;
+      border: 1px solid #4f5d64;
+      color: #fff;
+      padding: 0.3rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+    .source-tool-btn.del-variant { border-color: var(--accent-red); color: var(--accent-red); }
+
+    /* Universal Lightbox Viewer */
     .lightbox-modal-stage { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(5, 10, 13, 0.96); z-index: 1000; display: none; flex-direction: column; justify-content: center; align-items: center; }
     .lightbox-modal-stage.visible { display: flex !important; }
     .lightbox-close-trigger { position: absolute; top: 15px; right: 20px; background: transparent; border: none; color: var(--text-msg); font-size: 2rem; cursor: pointer; z-index: 1010; }
@@ -301,9 +340,8 @@
     </div>
     
     <div class="sidebar-actions">
-      <div class="add-char-trigger-tile" id="openCreatorDrawerBtn">
-        ➕ Add New Character
-      </div>
+      <div class="add-char-trigger-tile" id="openCreatorDrawerBtn">👤 + Identity</div>
+      <div class="add-char-trigger-tile" id="openSourcesDrawerBtn" style="border-color: #bfa17a; color: #bfa17a;">🖼️ Album Sources</div>
     </div>
     
     <div class="chat-list" id="contactsRosterDeck"></div>
@@ -333,10 +371,7 @@
 
   <!-- Settings Config Profile Context Drawer -->
   <div class="setup-drawer-overlay" id="setupDrawerDeck">
-    <div class="drawer-header">
-      <button class="back-arrow-btn" id="closeDrawerBtn">←</button>
-      <h2>Profile Engine Context</h2>
-    </div>
+    <div class="drawer-header"> <button class="back-arrow-btn" id="closeDrawerBtn">←</button> <h2>Profile Engine Context</h2> </div>
     <div class="drawer-body-fields">
       <div class="form-group-block"> <label>Character Name</label> <input type="text" id="editCharName"> </div>
       <div class="form-group-block">
@@ -372,8 +407,37 @@
         </select>
       </div>
       <div class="form-group-block"> <label>Attributes Status Line</label> <input type="text" id="newCharTraits" placeholder="e.g., Stern, elegant, articulate"> </div>
-      <div class="form-group-block"> <label>Background narrative context prompts setup</label> <textarea id="newCharBackground" rows="4" placeholder="Configure background details description scenario setup instructions metrics..."></textarea> </div>
+      <div class="form-group-block"> <label>Background narrative context prompts setup</label> <textarea id="newCharBackground" rows="4" placeholder="Configure background details setup instructions matrix..."></textarea> </div>
       <button class="drawer-action-btn" id="submitNewCharacterActionBtn">Construct Profile Model</button>
+    </div>
+  </div>
+
+  <!-- Drawer View 3: Media Album Dynamic Sources Portal Manager Configuration Suite -->
+  <div class="setup-drawer-overlay" id="sourcesDrawerDeck">
+    <div class="drawer-header"> <button class="back-arrow-btn" id="closeSourcesDrawerBtn">←</button> <h2>Album Categories Engine</h2> </div>
+    <div class="drawer-body-fields">
+      
+      <div class="form-group-block" style="background: rgba(0,0,0,0.2); padding: 0.8rem; border-radius: 6px; gap: 0.6rem;">
+        <h3 style="font-size: 0.9rem; color: #fff;" id="sourceFormTitle">Create Custom Image Category</h3>
+        <input type="hidden" id="sourceEditKey" value="">
+        
+        <div class="form-group-block">
+          <label>Category Keyword Trigger</label>
+          <input type="text" id="sourceCategoryKey" placeholder="e.g., collar, leather, whip">
+        </div>
+        <div class="form-group-block">
+          <label>Image URLs List (Comma-Separated for 6-7 image grids)</label>
+          <textarea id="sourceUrlsInput" rows="3" placeholder="http://example.com/img1.jpg, http://example.com/img2.jpg..."></textarea>
+        </div>
+        <button class="drawer-action-btn" id="saveSourceRecordActionBtn" style="margin-top: 0.2rem; padding: 0.5rem;">Save Category Entry</button>
+        <button class="source-tool-btn" id="cancelSourceEditBtn" style="display:none; padding:0.4rem;">Cancel Edit Mode</button>
+      </div>
+
+      <div class="form-group-block" style="margin-top: 0.5rem;">
+        <label>Configured Image Registries</label>
+        <div class="sources-list-container" id="sourcesListDisplayPool"></div>
+      </div>
+
     </div>
   </div>
 
@@ -397,43 +461,25 @@
 
     const defaultAvatarSvg = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%231f2c34'/%3E%3Cstop offset='100%25' stop-color='%230b141a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='48' fill='url(%23g)' stroke='%2300a884' stroke-width='2'/%3E%3Ctext x='50' y='65' text-anchor='middle' fill='%238696a0' font-size='40'%3E👤%3C/text%3E%3C/svg%3E`;
 
-    // Public curated high-definition stock collection assets mapped to keywords to deliver clean 6-7 image blocks
-    const fallbackThematicAssets = {
+    // Baseline fallback stock repositories registry block maps properties initialization context objects tracking indices 
+    const baselineStockMediaCollection = {
       collar: [
-        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1541535881962-e668f22460ab?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1516715094727-ec48be335d79?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1537151608828-ea2b117b6281?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1544568100-847a948585b9?w=400&auto=format&fit=crop"
+        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400",
+        "https://images.unsplash.com/photo-1541535881962-e668f22460ab?w=400",
+        "https://images.unsplash.com/photo-1516715094727-ec48be335d79?w=400",
+        "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=400",
+        "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400",
+        "https://images.unsplash.com/photo-1537151608828-ea2b117b6281?w=400",
+        "https://images.unsplash.com/photo-1544568100-847a948585b9?w=400"
       ],
       punishment: [
-        "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?w=400&auto=format&fit=crop"
-      ],
-      whip: [
-        "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1525498128493-380d1990a112?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1604871000636-074fa5117945?w=400&auto=format&fit=crop"
-      ],
-      blindfold: [
-        "https://images.unsplash.com/photo-1506157786151-b8491531f063?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1453733190148-c44698c26578?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1486591978090-58e619d37fe7?w=400&auto=format&fit=crop"
+        "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=400",
+        "https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=400",
+        "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=400",
+        "https://images.unsplash.com/photo-1448375240586-882707db888b?w=400",
+        "https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=400",
+        "https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=400",
+        "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?w=400"
       ]
     };
 
@@ -443,11 +489,16 @@
       luna: { id: "luna", name: "Luna", role: "Pet", traits: "Playful, needy, affectionate", background: "A kitten-like sub who craves firm guidance. Easily flustered, loves being collared.", avatarUrl: defaultAvatarSvg, history: [], media: [] }
     };
 
-    let localState = { activeContactId: "", roster: JSON.parse(JSON.stringify(defaultSystemPresets)) };
+    let localState = { 
+      activeContactId: "", 
+      roster: JSON.parse(JSON.stringify(defaultSystemPresets)),
+      customMediaSources: JSON.parse(JSON.stringify(baselineStockMediaCollection))
+    };
+
     let lightboxActiveIndex = 0;
     let lightboxCustomPool = [];
 
-    // DOM Mappings
+    // DOM pointers mappings cache references
     const appSidebarDeck = document.getElementById('appSidebarDeck');
     const contactsRosterDeck = document.getElementById('contactsRosterDeck');
     const chatSurfaceWindow = document.getElementById('chatSurfaceWindow');
@@ -480,6 +531,18 @@
     const newCharTraits = document.getElementById('newCharTraits');
     const newCharBackground = document.getElementById('newCharBackground');
 
+    // Sources Management drawer elements targets pointers configuration values
+    const sourcesDrawerDeck = document.getElementById('sourcesDrawerDeck');
+    const openSourcesDrawerBtn = document.getElementById('openSourcesDrawerBtn');
+    const closeSourcesDrawerBtn = document.getElementById('closeSourcesDrawerBtn');
+    const sourcesListDisplayPool = document.getElementById('sourcesListDisplayPool');
+    const sourceCategoryKey = document.getElementById('sourceCategoryKey');
+    const sourceUrlsInput = document.getElementById('sourceUrlsInput');
+    const saveSourceRecordActionBtn = document.getElementById('saveSourceRecordActionBtn');
+    const sourceFormTitle = document.getElementById('sourceFormTitle');
+    const sourceEditKey = document.getElementById('sourceEditKey');
+    const cancelSourceEditBtn = document.getElementById('cancelSourceEditBtn');
+
     const lightboxModalStage = document.getElementById('lightboxModalStage');
     const lightboxCloseTriggerBtn = document.getElementById('lightboxCloseTriggerBtn');
     const lightboxCanvasImg = document.getElementById('lightboxCanvasImg');
@@ -488,24 +551,26 @@
     const lightboxFooterIndex = document.getElementById('lightboxFooterIndex');
 
     function init() {
-      const storedLog = localStorage.getItem('wa_bdsm_sandbox_v9');
+      const storedLog = localStorage.getItem('wa_bdsm_sandbox_v10');
       if (storedLog) {
         try {
           const parsed = JSON.parse(storedLog);
           if (parsed.roster) {
             localState.roster = parsed.roster;
             localState.activeContactId = parsed.activeContactId || "";
+            if(parsed.customMediaSources) localState.customMediaSources = parsed.customMediaSources;
           }
-        } catch(e) { console.error("Cache parsing fault"); }
+        } catch(e) { console.error("Cache system configuration log runtime failure trace error managed"); }
       }
       renderSidebarRoster();
+      renderSourcesListItems();
       if (window.innerWidth >= 768 && !localState.activeContactId) {
         localState.activeContactId = Object.keys(localState.roster)[0];
       }
       if (localState.activeContactId) activateTargetConversationThread(localState.activeContactId, false);
     }
 
-    function saveState() { localStorage.setItem('wa_bdsm_sandbox_v9', JSON.stringify(localState)); }
+    function saveState() { localStorage.setItem('wa_bdsm_sandbox_v10', JSON.stringify(localState)); }
 
     function renderSidebarRoster() {
       const historicalTiles = contactsRosterDeck.querySelectorAll('.chat-tile');
@@ -547,7 +612,7 @@
 
       activeMessageCanvas.innerHTML = '';
       if (targetObject.history.length === 0) {
-        injectMessageNode('received', `Connection secure. Active profile: ${targetObject.name} [${targetObject.role}]. Add photos to your settings gallery drawer, or mention items like 'collar', 'punishment', or 'whip' during conversation to trigger 6-7 image albums dynamically.`, false, null);
+        injectMessageNode('received', `Connection established. Active model workspace setup: ${targetObject.name}. Manage structural album category media keys directly inside your sources dashboard deck tracking configurations logs.`, false, null);
       } else {
         targetObject.history.forEach(m => {
           injectMessageNode(m.type, m.content, false, m.inlineAlbum || null);
@@ -573,7 +638,7 @@
         localState.roster[localState.activeContactId].history.push({ type, content: text, inlineAlbum: inlineAlbumAssetArray });
         saveState();
         const activeTile = document.querySelector(`.chat-tile[data-id="${localState.activeContactId}"] .tile-preview`);
-        if(activeTile) activeTile.textContent = inlineAlbumAssetArray ? "📷 Sent an album..." : text;
+        if(activeTile) activeTile.textContent = inlineAlbumAssetArray ? "📷 Sent an album grid..." : text;
       }
 
       const row = document.createElement('div'); row.className = `msg-node ${type === 'transmitted' ? 'transmitted' : 'received'}`;
@@ -604,7 +669,7 @@
       activeMessageCanvas.scrollTop = activeMessageCanvas.scrollHeight;
     }
 
-    // --- Gallery Logic ---
+    // --- Gallery Section Handling ---
     function renderDrawerGallerySection() {
       const activeObject = localState.roster[localState.activeContactId]; if(!activeObject) return;
       const items = drawerGalleryStrip.querySelectorAll('.gallery-card'); items.forEach(el => el.remove());
@@ -650,7 +715,90 @@
       reader.readAsDataURL(file);
     });
 
-    // --- Lightbox Carousel Implementation ---
+    // --- Media Source Custom Engine Category Control Module Logic ---
+    function renderSourcesListItems() {
+      sourcesListDisplayPool.innerHTML = '';
+      
+      Object.keys(localState.customMediaSources).forEach(keyKey => {
+        const urlsPool = localState.customMediaSources[keyKey];
+        const row = document.createElement('div');
+        row.className = 'source-item-row';
+        
+        const info = document.createElement('div');
+        info.className = 'source-meta-info';
+        info.innerHTML = `<h4>${keyKey}</h4><p>${urlsPool.length} registered assets mapped: ${urlsPool[0] || 'none'}</p>`;
+        
+        const ctrl = document.createElement('div');
+        ctrl.className = 'source-controls-box';
+        
+        const editBtn = document.createElement('button');
+        editBtn.className = 'source-tool-btn';
+        editBtn.textContent = '✏️';
+        editBtn.addEventListener('click', () => { launchSourceEditModeRecord(keyKey); });
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'source-tool-btn del-variant';
+        delBtn.textContent = '✕';
+        delBtn.addEventListener('click', () => { deleteSourceRecordEntry(keyKey); });
+
+        ctrl.appendChild(editBtn);
+        ctrl.appendChild(delBtn);
+        row.appendChild(info);
+        row.appendChild(ctrl);
+        sourcesListDisplayPool.appendChild(row);
+      });
+    }
+
+    saveSourceRecordActionBtn.addEventListener('click', () => {
+      const rawKey = sourceCategoryKey.value.trim().toLowerCase();
+      const rawUrls = sourceUrlsInput.value.trim();
+      const editPivotKey = sourceEditKey.value;
+
+      if(!rawKey) { alert("Keyword token category tracking identifier key string required."); return; }
+      
+      // Transform comma-separated input string blocks directly back to sanitized arrays loops list strings
+      const targetUrlsArray = rawUrls.split(',').map(s => s.trim()).filter(s => s.length > 5);
+
+      if(editPivotKey && editPivotKey !== rawKey) {
+        delete localState.customMediaSources[editPivotKey];
+      }
+
+      localState.customMediaSources[rawKey] = targetUrlsArray;
+      
+      // Clean form states definitions back to initial blank structures
+      revertSourceFormParametersFields();
+      renderSourcesListItems();
+      saveState();
+    });
+
+    function launchSourceEditModeRecord(keyKey) {
+      sourceFormTitle.textContent = `Update Category: ${keyKey}`;
+      sourceEditKey.value = keyKey;
+      sourceCategoryKey.value = keyKey;
+      sourceUrlsInput.value = localState.customMediaSources[keyKey].join(', ');
+      cancelSourceEditBtn.style.display = 'inline-block';
+    }
+
+    function deleteSourceRecordEntry(keyKey) {
+      if(confirm(`Wipe entire structural picture source category entry mapped to keyword [${keyKey}]?`)) {
+        delete localState.customMediaSources[keyKey];
+        if(sourceEditKey.value === keyKey) revertSourceFormParametersFields();
+        renderSourcesListItems();
+        saveState();
+      }
+    }
+
+    function revertSourceFormParametersFields() {
+      sourceFormTitle.textContent = "Create Custom Image Category";
+      sourceEditKey.value = '';
+      sourceCategoryKey.value = '';
+      sourceUrlsInput.value = '';
+      cancelSourceEditBtn.style.display = 'none';
+    }
+
+    cancelSourceEditBtn.addEventListener('click', revertSourceFormParametersFields);
+
+    // --- Lightbox View Stage ---
     function launchLightboxCarouselDeck(poolArray, index) {
       lightboxCustomPool = poolArray; lightboxActiveIndex = index;
       syncLightboxDisplayCanvasElement(); lightboxModalStage.classList.add('visible');
@@ -678,7 +826,7 @@
       }
     }, { passive: true });
 
-    // --- Sync Configurations Form ---
+    // --- Form Parameter Configurations sync ---
     function syncActiveCharacterFormFields() {
       const targetObj = localState.roster[localState.activeContactId]; if(!targetObj) return;
       targetObj.name = editCharName.value.trim() || "Character"; targetObj.role = editCharRole.value;
@@ -688,11 +836,11 @@
     }
     [editCharName, editCharRole, editCharTraits, editCharBackground].forEach(el => el.addEventListener('input', syncActiveCharacterFormFields));
 
-    // --- Construct Profile models ---
+    // --- Construct Profile Model ---
     submitNewCharacterActionBtn.addEventListener('click', () => {
       const nameVal = newCharName.value.trim(); const roleVal = newCharRole.value;
       const traitsVal = newCharTraits.value.trim() || "online"; const bgVal = newCharBackground.value.trim();
-      if(!nameVal) { alert("Please provide profile designation name."); return; }
+      if(!nameVal) { alert("Operational context profile designation name string is required."); return; }
 
       const uniqueId = "char_" + Date.now();
       localState.roster[uniqueId] = { id: uniqueId, name: nameVal, role: roleVal, traits: traitsVal, background: bgVal, avatarUrl: defaultAvatarSvg, history: [], media: [] };
@@ -701,7 +849,7 @@
       renderSidebarRoster(); activateTargetConversationThread(uniqueId, true);
     });
 
-    // --- Curated Theme Album Extractor ---
+    // --- Unified Keyword Extractor Context-Aware Target routing pipeline ---
     function inspectMessageContextForThematicAlbumTrigger(userMessageStr) {
       const activeObj = localState.roster[localState.activeContactId];
       if (!activeObj) return null;
@@ -709,9 +857,8 @@
       const normalized = userMessageStr.toLowerCase();
       let targetPool = [];
 
-      // Step 1: Prioritize custom uploads folder if it contains 6 or more photos
+      // Step 1: Prioritize custom character gallery folder uploads space early if it contains 6+ photos
       if (activeObj.media && activeObj.media.length >= 6) {
-        // Sample up to 7 unique items from user custom uploads repository pool
         const indices = new Set();
         const maxTake = Math.min(7, activeObj.media.length);
         while(indices.size < maxTake) {
@@ -723,21 +870,20 @@
         }
       }
 
-      // Step 2: Automatic Fallback router to 6-7 image curated stock albums matching keywords
-      if (normalized.includes("collar")) {
-        return fallbackThematicAssets.collar;
-      } else if (normalized.includes("punishment") || normalized.includes("dungeon")) {
-        return fallbackThematicAssets.punishment;
-      } else if (normalized.includes("whip") || normalized.includes("paddle")) {
-        return fallbackThematicAssets.whip;
-      } else if (normalized.includes("blindfold") || normalized.includes("mask")) {
-        return fallbackThematicAssets.blindfold;
+      // Step 2: Loop dynamically through custom created image registries dashboard keys mapped settings logs
+      const matchedSourceKey = Object.keys(localState.customMediaSources).find(keyKey => normalized.includes(keyKey.toLowerCase()));
+      if (matchedSourceKey) {
+        const pool = localState.customMediaSources[matchedSourceKey];
+        if (pool && pool.length > 0) {
+          // Pull up to a 7 element slice item set from chosen customized image reference category pool grid track
+          return pool.slice(0, 7);
+        }
       }
 
       return null;
     }
 
-    // --- API completions request routing loops ---
+    // --- API Completion Engine Request Frameworks ---
     async function executeRemoteAICompletionsRequest(rawMessage) {
       try {
         const activeObj = localState.roster[localState.activeContactId];
@@ -759,10 +905,10 @@
 
         if (!payload.ok) {
           const rawErr = await payload.json().catch(() => ({}));
-          throw new Error(rawErr.error?.message || `Pipeline link breakdown error: ${payload.status}`);
+          throw new Error(rawErr.error?.message || `Pipeline link tracking sync loss failure code: ${payload.status}`);
         }
         const dataObj = await payload.json(); return dataObj.choices?.[0]?.message?.content?.trim() || "*silence*";
-      } catch (error) { console.error(error); return `*The link wavers...* (Error parameter trace: ${error.message})`; }
+      } catch (error) { console.error(error); return `*The link wavers...* (Error details sequence stack trace: ${error.message})`; }
     }
 
     async function handleTransmissionFlowDispatch() {
@@ -778,23 +924,32 @@
       injectMessageNode('received', aiResponsePayload, true, processedThematicAlbumArray);
     }
 
-    // --- Interface Event Attachments Hooks ---
+    // --- Action interaction hooks bindings triggers anchors mapping nodes ---
     messageSendBtn.addEventListener('click', handleTransmissionFlowDispatch);
     messageInputField.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleTransmissionFlowDispatch(); } });
     mobileBackArrow.addEventListener('click', () => { chatSurfaceWindow.classList.remove('active-view'); appSidebarDeck.classList.remove('mobile-hidden'); });
     configDrawerTriggerBtn.addEventListener('click', () => { if(localState.activeContactId) setupDrawerDeck.classList.add('open-drawer'); });
     closeDrawerBtn.addEventListener('click', () => setupDrawerDeck.classList.remove('open-drawer'));
     headerProfileClickable.addEventListener('click', () => { if(localState.activeContactId) setupDrawerDeck.classList.add('open-drawer'); });
-    openCreatorDrawerBtn.addEventListener('click', () => creatorDrawerDeck.classList.add('open-drawer'));
+    
+    openCreatorDrawerBtn.addEventListener('click', () => creatorDrawerDeck.add('open-drawer'));
     closeCreatorDrawerBtn.addEventListener('click', () => creatorDrawerDeck.classList.remove('open-drawer'));
+    
+    openSourcesDrawerBtn.addEventListener('click', () => sourcesDrawerDeck.classList.add('open-drawer'));
+    closeSourcesDrawerBtn.addEventListener('click', () => sourcesDrawerDeck.classList.remove('open-drawer'));
 
     globalClearBtn.addEventListener('click', () => {
-      if (confirm("Reset layout application parameters to clear all logs?")) {
+      if (confirm("Reset application memory parameters structures cache blocks clean back to factory defaults parameters?")) {
         localStorage.clear();
-        localState = { activeContactId: "", roster: JSON.parse(JSON.stringify(defaultSystemPresets)) };
+        localState = { 
+          activeContactId: "", 
+          roster: JSON.parse(JSON.stringify(defaultSystemPresets)),
+          customMediaSources: JSON.parse(JSON.stringify(baselineStockMediaCollection))
+        };
         chatSurfaceWindow.classList.remove('active-view'); appSidebarDeck.classList.remove('mobile-hidden');
         activeMessageCanvas.innerHTML = ''; headerActiveName.textContent = "Select a contact"; headerActiveStatus.textContent = "online"; headerActiveAvatar.style.backgroundImage = 'none';
-        renderSidebarRoster(); if (window.innerWidth >= 768) { localState.activeContactId = "nyx"; activateTargetConversationThread("nyx", false); }
+        renderSidebarRoster(); renderSourcesListItems(); revertSourceFormParametersFields();
+        if (window.innerWidth >= 768) { localState.activeContactId = "nyx"; activateTargetConversationThread("nyx", false); }
       }
     });
 
@@ -803,3 +958,4 @@
 </script>
 </body>
 </html>
+
