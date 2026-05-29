@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-  <title>Velvet Bound | Chat Dashboard</title>
+  <title>VELVET BOUND | CHAT DASHBOARD</title>
   <style>
     :root {
       --wa-bg: #0b141a;
@@ -17,6 +17,7 @@
       --text-muted: #8696a0;
       --border-thin: rgba(134, 150, 160, 0.15);
       --accent-red: #ea0038;
+      --accent-amber: #ff9f43;
     }
 
     * {
@@ -51,7 +52,7 @@
       overflow: hidden;
     }
 
-    /* Left Sidebar */
+    /* LEFT SIDEBAR */
     .sidebar {
       width: 100%;
       height: 100%;
@@ -82,7 +83,7 @@
       color: var(--text-msg);
     }
 
-    /* Search Feature Bar Container Styling */
+    /* SEARCH BAR CONTAINER */
     .search-filter-box-container {
       padding: 0.6rem 1rem;
       background: #111b21;
@@ -157,7 +158,7 @@
     .tile-role-tag { font-size: 0.7rem; background: rgba(0, 168, 132, 0.2); color: var(--wa-accent); padding: 1px 6px; border-radius: 4px; font-weight: 600; }
     .tile-preview { font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    /* Right Main Chat Window */
+    /* RIGHT MAIN CHAT WINDOW */
     .main-chat-window {
       display: none; 
       width: 100%;
@@ -194,7 +195,7 @@
     .action-header-deck { display: flex; gap: 0.8rem; }
     .action-icon-btn { background: transparent; border: none; color: var(--text-muted); font-size: 1.1rem; cursor: pointer; }
 
-    /* Messages Stream Viewport Canvas */
+    /* MESSAGES STREAM VIEWPORT CANVAS */
     .message-stream-canvas {
       flex: 1;
       overflow-y: auto;
@@ -222,31 +223,54 @@
     }
 
     .msg-node.received { justify-content: flex-start; }
-    .msg-node.received .bubble-wrapper { background: var(--wa-bubble-in); color: var(--text-msg); border-top-left-radius: 0; padding-bottom: 28px; }
+    .msg-node.received .bubble-wrapper { background: var(--wa-bubble-in); color: var(--text-msg); border-top-left-radius: 0; }
     .msg-node.transmitted { justify-content: flex-end; }
     .msg-node.transmitted .bubble-wrapper { background: var(--wa-bubble-out); color: var(--text-msg); border-top-right-radius: 0; }
 
-    /* Replay Audio Trigger Icon Control */
-    .audio-replay-trigger-action-node {
-      position: absolute;
-      bottom: 4px;
-      right: 8px;
-      background: transparent;
+    /* PARSED SENSORY MARKERS AND INLINE TOPIC HIGHLIGHTS CSS rules */
+    .behavioral-highlight {
+      color: var(--accent-amber);
+      font-weight: 700;
+      background: rgba(255, 159, 67, 0.12);
+      padding: 1px 4px;
+      border-radius: 4px;
+      border: 1px dashed rgba(255, 159, 67, 0.3);
+    }
+
+    /* INPUT ACTION BAR STYLING */
+    .input-action-bar {
+      background: #111b21;
+      padding: 0.6rem 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .chat-input-field {
+      flex: 1;
+      background: #2a3942;
       border: none;
-      color: var(--wa-accent);
+      padding: 0.65rem 0.8rem;
+      color: var(--text-msg);
+      border-radius: 8px;
       font-size: 0.95rem;
+      outline: none;
+    }
+    .send-msg-action-btn {
+      background: var(--wa-accent);
+      border: none;
+      color: #fff;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      opacity: 0.65;
-      padding: 4px;
-      transition: opacity 0.2s ease, transform 0.1s ease;
+      font-size: 1rem;
+      flex-shrink: 0;
     }
-    .audio-replay-trigger-action-node:hover { opacity: 1; transform: scale(1.1); }
-    .audio-replay-trigger-action-node:active { transform: scale(0.95); }
 
-    /* Typing Animation Core Structures CSS Classes Addition Injection */
+    /* TYPING INDICATOR CONFIG */
     .typing-indicator-dot-box {
       display: flex; gap: 4px; padding: 6px 4px; align-items: center;
     }
@@ -261,7 +285,7 @@
       40% { transform: scale(1.1); opacity: 1; }
     }
 
-    /* Inline Album Grid */
+    /* INLINE ALBUM GRID */
     .chat-inline-album-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -282,7 +306,7 @@
       border: 1px solid rgba(255,255,255,0.05);
     }
 
-    /* Drawers Setup Global Layout Rules */
+    /* DRAWERS LAYOUT */
     .setup-drawer-overlay {
       position: absolute;
       top: 0;
@@ -308,8 +332,40 @@
     }
     input:focus, textarea:focus, select:focus { border-bottom-color: var(--wa-accent); }
     .drawer-action-btn { background: var(--wa-accent); border: none; color: #fff; font-weight: 600; padding: 0.75rem; border-radius: 4px; cursor: pointer; text-align: center; margin-top: 0.5rem; }
+    .drawer-danger-btn { background: var(--accent-red); border: none; color: #fff; font-weight: 600; padding: 0.75rem; border-radius: 4px; cursor: pointer; text-align: center; margin-top: 0.25rem; }
 
-    /* Media Assets Settings Elements Row Component */
+    /* CORE METRICS SUMMARY MODULE STYLING */
+    .metrics-summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.25rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .metrics-summary-table th, .metrics-summary-table td {
+      padding: 0.6rem 0.8rem;
+      text-align: left;
+      font-size: 0.82rem;
+    }
+    .metrics-summary-table th {
+      background: #202c33;
+      color: var(--wa-accent);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .metrics-summary-table tr {
+      border-bottom: 1px solid var(--border-thin);
+    }
+    .metrics-summary-table tr:last-child {
+      border-bottom: none;
+    }
+    .metrics-summary-table td strong {
+      color: var(--accent-amber);
+    }
+
+    /* GALLERY STRIP ITEMS SETUP */
     .gallery-deck-wrapper { border-top: 1px solid var(--border-thin); padding-top: 0.8rem; margin-top: 0.5rem; }
     .gallery-strip { display: flex; gap: 0.5rem; overflow-x: auto; padding: 0.4rem 0; }
     .gallery-card { width: 60px; height: 75px; border-radius: 4px; background-size: cover; background-position: center; position: relative; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
@@ -317,7 +373,7 @@
     .gallery-card .drop-img-btn { position: absolute; top: -4px; right: -4px; background: var(--accent-red); color: #fff; border: none; width: 16px; height: 16px; border-radius: 50%; font-size: 9px; cursor: pointer; z-index: 2; }
     .media-upload-trigger { width: 60px; height: 75px; border: 2px dashed var(--text-muted); border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); font-size: 1.2rem; flex-shrink: 0; }
 
-    /* Dynamic Sources Portal CSS Elements List */
+    /* DYNAMIC RECORD ENTRIES PORTAL DISPLAY STYLING */
     .sources-list-container {
       display: flex;
       flex-direction: column;
@@ -355,7 +411,7 @@
     }
     .source-tool-btn.del-variant { border-color: var(--accent-red); color: var(--accent-red); }
 
-    /* Universal Lightbox Viewer */
+    /* UNIVERSAL LIGHTBOX SYSTEM OVERLAY VIEWPORT */
     .lightbox-modal-stage { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(5, 10, 13, 0.96); z-index: 1000; display: none; flex-direction: column; justify-content: center; align-items: center; }
     .lightbox-modal-stage.visible { display: flex !important; }
     .lightbox-close-trigger { position: absolute; top: 15px; right: 20px; background: transparent; border: none; color: var(--text-msg); font-size: 2rem; cursor: pointer; z-index: 1010; }
@@ -381,38 +437,37 @@
 
 <div class="app-container">
   
-  <!-- Sidebar Panel -->
+  <!-- SIDEBAR PANEL -->
   <div class="sidebar" id="appSidebarDeck">
     <div class="sidebar-header">
-      <h1>Velvet Bound</h1>
-      <button class="action-icon-btn" id="globalClearBtn" title="Reset Sandbox Parameters"><b>🧹</b></button>
+      <h1>VELVET BOUND</h1>
+      <button class="action-icon-btn" id="globalClearBtn" title="RESET SANDBOX PARAMETERS"><b>🧹</b></button>
     </div>
 
-    <!-- Search Field Addition Setup Area Layer -->
+    <!-- ROSTER SEARCH CONFIG COMPONENT -->
     <div class="search-filter-box-container">
       <input type="text" class="search-filter-input" id="rosterSearchFilterField" placeholder="Search contact names or roles..." autocomplete="off">
     </div>
     
     <div class="sidebar-actions">
-      <div class="add-char-trigger-tile" id="openCreatorDrawerBtn">👤 + Identity</div>
-      <div class="add-char-trigger-tile" id="openSourcesDrawerBtn" style="border-color: #bfa17a; color: #bfa17a;">🖼️ Album Sources</div>
+      <div class="add-char-trigger-tile" id="openCreatorDrawerBtn">👤 + IDENTITY</div>
+      <div class="add-char-trigger-tile" id="openSourcesDrawerBtn" style="border-color: #bfa17a; color: #bfa17a;">🖼️ ALBUM SOURCES</div>
     </div>
     
     <div class="chat-list" id="contactsRosterDeck"></div>
   </div>
 
-  <!-- Chat Space Console Frame -->
+  <!-- MAIN CHAT CONSOLE CANVAS PANEL WINDOW -->
   <div class="main-chat-window" id="chatSurfaceWindow">
     <div class="chat-window-header">
       <button class="back-arrow-btn" id="mobileBackArrow">←</button>
       <div class="avatar-frame" id="headerActiveAvatar"></div>
       <div class="header-meta" id="headerProfileClickable">
-        <h2 id="headerActiveName">Select a contact</h2>
+        <h2 id="headerActiveName">SELECT A CONTACT</h2>
         <p id="headerActiveStatus">online</p>
       </div>
       <div class="action-header-deck">
-        <button class="action-icon-btn" id="globalVoiceToggleBtn" title="Toggle Voice Output" style="font-size: 1.2rem;">🔊</button>
-        <button class="action-icon-btn" id="configDrawerTriggerBtn" title="Modify Configuration Settings Drawer">⚙️</button>
+        <button class="action-icon-btn" id="configDrawerTriggerBtn" title="MODIFY CONFIGURATION SETTINGS DRAWER">⚙️</button>
       </div>
     </div>
 
@@ -424,10 +479,38 @@
     </div>
   </div>
 
-  <!-- Settings Config Profile Context Drawer -->
+  <!-- PROFILE CONTEXT INTERFACE MODAL SETUP DRAWER -->
   <div class="setup-drawer-overlay" id="setupDrawerDeck">
-    <div class="drawer-header"> <button class="back-arrow-btn" id="closeDrawerBtn">←</button> <h2>Profile Engine Context</h2> </div>
+    <div class="drawer-header"> <button class="back-arrow-btn" id="closeDrawerBtn">←</button> <h2>PROFILE ENGINE CONTEXT</h2> </div>
     <div class="drawer-body-fields">
+      
+      <!-- CORE OVERVIEW HIGHLIGHT METRICS SUMMARY PANEL TABLE -->
+      <div class="form-group-block">
+        <label>IDENTITY CORE METRICS</label>
+        <table class="metrics-summary-table">
+          <thead>
+            <tr>
+              <th>PARAMETER</th>
+              <th>CONFIGURED VALUE</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>TARGET MODEL ID</td>
+              <td><span id="metricModelIdText">NONE</span></td>
+            </tr>
+            <tr>
+              <td>THREAD LENGTH</td>
+              <td><strong id="metricTotalMessagesText">0</strong> RESPONSES</td>
+            </tr>
+            <tr>
+              <td>GALLERY ASSETS</td>
+              <td><strong id="metricTotalMediaText">0</strong> REGISTERED</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
       <div class="form-group-block"> <label>Character Name</label> <input type="text" id="editCharName"> </div>
       <div class="form-group-block">
         <label>Dynamic Role</label>
@@ -439,7 +522,7 @@
       <div class="form-group-block"> <label>Behavioral Traits</label> <input type="text" id="editCharTraits"> </div>
       <div class="form-group-block"> <label>Background Instructions Prompt Matrix</label> <textarea id="editCharBackground" rows="4"></textarea> </div>
       
-      <!-- Custom Wallpaper Link Injector Form Layer Component -->
+      <!-- WALLPAPER ENGINE CUSTOM URL LINK COMPONENT -->
       <div class="form-group-block">
         <label>Chat Wallpaper Image URL Override</label>
         <input type="text" id="customChatWallpaperUrlField" placeholder="https://example.com/dark-background-art.jpg">
@@ -453,12 +536,19 @@
           </div>
         </div>
       </div>
+
+      <!-- DISPATCH WIPE CLEAR CHAT SYSTEM ROUTINE ACTION BUTTON LAYER -->
+      <div class="form-group-block" style="border-top: 1px solid var(--border-thin); padding-top: 1rem; margin-top: 0.5rem;">
+        <label>SANDBOX CONVERSATION CONTROL</label>
+        <button class="drawer-danger-btn" id="actionClearThreadHistoryBtn">CLEAR CONVERSATION HISTORY</button>
+      </div>
+
     </div>
   </div>
 
-  <!-- Custom profile identity builder suite unit -->
+  <!-- CUSTOM MODEL IDENTITY BUILDER CONFIG DRAWER COMPONENTS -->
   <div class="setup-drawer-overlay" id="creatorDrawerDeck">
-    <div class="drawer-header"> <button class="back-arrow-btn" id="closeCreatorDrawerBtn">←</button> <h2>Generate New Identity</h2> </div>
+    <div class="drawer-header"> <button class="back-arrow-btn" id="closeCreatorDrawerBtn">←</button> <h2>GENERATE NEW IDENTITY</h2> </div>
     <div class="drawer-body-fields">
       <div class="form-group-block"> <label>Name</label> <input type="text" id="newCharName" placeholder="e.g., Mistress Vesper"> </div>
       <div class="form-group-block">
@@ -470,17 +560,17 @@
       </div>
       <div class="form-group-block"> <label>Attributes Status Line</label> <input type="text" id="newCharTraits" placeholder="e.g., Stern, elegant, articulate"> </div>
       <div class="form-group-block"> <label>Background narrative context prompts setup</label> <textarea id="newCharBackground" rows="4" placeholder="Configure background details setup instructions matrix..."></textarea> </div>
-      <button class="drawer-action-btn" id="submitNewCharacterActionBtn">Construct Profile Model</button>
+      <button class="drawer-action-btn" id="submitNewCharacterActionBtn">CONSTRUCT PROFILE MODEL</button>
     </div>
   </div>
 
-  <!-- Drawer View 3: Media Album Dynamic Sources Portal Manager Configuration Suite -->
+  <!-- MULTIMEDIA SOURCES REGISTRY CONFIG DRAWER LAYER COMPONENTS -->
   <div class="setup-drawer-overlay" id="sourcesDrawerDeck">
-    <div class="drawer-header"> <button class="back-arrow-btn" id="closeSourcesDrawerBtn">←</button> <h2>Album Categories Engine</h2> </div>
+    <div class="drawer-header"> <button class="back-arrow-btn" id="closeSourcesDrawerBtn">←</button> <h2>ALBUM CATEGORIES ENGINE</h2> </div>
     <div class="drawer-body-fields">
       
       <div class="form-group-block" style="background: rgba(0,0,0,0.2); padding: 0.8rem; border-radius: 6px; gap: 0.6rem;">
-        <h3 style="font-size: 0.9rem; color: #fff;" id="sourceFormTitle">Create Custom Image Category</h3>
+        <h3 style="font-size: 0.9rem; color: #fff;" id="sourceFormTitle">CREATE CUSTOM IMAGE CATEGORY</h3>
         <input type="hidden" id="sourceEditKey" value="">
         
         <div class="form-group-block">
@@ -491,8 +581,8 @@
           <label>Image URLs List (Comma-Separated for 6-7 image grids)</label>
           <textarea id="sourceUrlsInput" rows="3" placeholder="http://example.com/img1.jpg, http://example.com/img2.jpg..."></textarea>
         </div>
-        <button class="drawer-action-btn" id="saveSourceRecordActionBtn" style="margin-top: 0.2rem; padding: 0.5rem;">Save Category Entry</button>
-        <button class="source-tool-btn" id="cancelSourceEditBtn" style="display:none; padding:0.4rem;">Cancel Edit Mode</button>
+        <button class="drawer-action-btn" id="saveSourceRecordActionBtn" style="margin-top: 0.2rem; padding: 0.5rem;">SAVE CATEGORY ENTRY</button>
+        <button class="source-tool-btn" id="cancelSourceEditBtn" style="display:none; padding:0.4rem;">CANCEL EDIT MODE</button>
       </div>
 
       <div class="form-group-block" style="margin-top: 0.5rem;">
@@ -503,7 +593,7 @@
     </div>
   </div>
 
-  <!-- Universal Lightbox Overlay Component Viewer -->
+  <!-- UNIVERSAL LIGHTBOX CAROUSEL OVERLAY UNIT VIEWPORTS -->
   <div class="lightbox-modal-stage" id="lightboxModalStage">
     <button class="lightbox-close-trigger" id="lightboxCloseTriggerBtn">✕</button>
     <div class="lightbox-viewport-wrapper">
@@ -547,8 +637,7 @@
     let localState = { 
       activeContactId: "", 
       roster: JSON.parse(JSON.stringify(defaultSystemPresets)),
-      customMediaSources: JSON.parse(JSON.stringify(baselineStockMediaCollection)),
-      voiceEnabled: true
+      customMediaSources: JSON.parse(JSON.stringify(baselineStockMediaCollection))
     };
 
     let lightboxActiveIndex = 0;
@@ -563,7 +652,6 @@
     const messageSendBtn = document.getElementById('messageSendBtn');
     const mobileBackArrow = document.getElementById('mobileBackArrow');
     const configDrawerTriggerBtn = document.getElementById('configDrawerTriggerBtn');
-    const globalVoiceToggleBtn = document.getElementById('globalVoiceToggleBtn');
     const setupDrawerDeck = document.getElementById('setupDrawerDeck');
     const closeDrawerBtn = document.getElementById('closeDrawerBtn');
     const globalClearBtn = document.getElementById('globalClearBtn');
@@ -573,6 +661,11 @@
     const headerProfileClickable = document.getElementById('headerProfileClickable');
     const rosterSearchFilterField = document.getElementById('rosterSearchFilterField');
     const customChatWallpaperUrlField = document.getElementById('customChatWallpaperUrlField');
+
+    const metricModelIdText = document.getElementById('metricModelIdText');
+    const metricTotalMessagesText = document.getElementById('metricTotalMessagesText');
+    const metricTotalMediaText = document.getElementById('metricTotalMediaText');
+    const actionClearThreadHistoryBtn = document.getElementById('actionClearThreadHistoryBtn');
 
     const editCharName = document.getElementById('editCharName');
     const editCharRole = document.getElementById('editCharRole');
@@ -617,11 +710,9 @@
             localState.roster = parsed.roster;
             localState.activeContactId = parsed.activeContactId || "";
             if(parsed.customMediaSources) localState.customMediaSources = parsed.customMediaSources;
-            if(parsed.voiceEnabled !== undefined) localState.voiceEnabled = parsed.voiceEnabled;
           }
-        } catch(e) { console.error("Cache system sync runtime log error bypassed."); }
+        } catch(e) { console.error("CACHE EXCEPTION ENGINE BYPASSED."); }
       }
-      updateVoiceButtonUI();
       renderSidebarRoster();
       renderSourcesListItems();
       if (window.innerWidth >= 768 && !localState.activeContactId) {
@@ -631,78 +722,6 @@
     }
 
     function saveState() { localStorage.setItem('wa_bdsm_sandbox_v12', JSON.stringify(localState)); }
-
-    function updateVoiceButtonUI() {
-      if(globalVoiceToggleBtn) {
-        globalVoiceToggleBtn.textContent = localState.voiceEnabled ? "🔊" : "🔇";
-      }
-    }
-
-    globalVoiceToggleBtn.addEventListener('click', () => {
-      localState.voiceEnabled = !localState.voiceEnabled;
-      if(!localState.voiceEnabled) window.speechSynthesis.cancel();
-      updateVoiceButtonUI();
-      saveState();
-    });
-
-    function executeTextToSpeechPipeline(rawText, characterRole, forcePlay = false) {
-      if (!localState.voiceEnabled && !forcePlay) return;
-      window.speechSynthesis.cancel(); 
-
-      let parsedText = rawText.replace(/\*.*?\*/g, '');
-      parsedText = parsedText.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1F1E6}-\u{1F1FF}]/gu, '');
-      parsedText = parsedText.trim();
-      if(!parsedText) return;
-
-      parsedText = parsedText
-        .replace(/\byaar\b/gi, 'yahr')
-        .replace(/\bkya\b/gi, 'kyah')
-        .replace(/\bna\b/gi, 'nah')
-        .replace(/\bmat\b/gi, 'mutt')
-        .replace(/\bmujhe\b/gi, 'muj-hay')
-        .replace(/\bchahiye\b/gi, 'chaa-hee-ay');
-
-      const utterance = new SpeechSynthesisUtterance(parsedText);
-      let nativeVoices = window.speechSynthesis.getVoices();
-      if (!nativeVoices || nativeVoices.length === 0) {
-        nativeVoices = speechSynthesis.getVoices();
-      }
-
-      let matchedVoice = null;
-      const lowerRole = characterRole.toLowerCase();
-      const indianVoicesPool = nativeVoices.filter(v => v.lang.includes('en-IN') || v.lang.includes('hi-IN'));
-
-      if (lowerRole === 'dominant' || lowerRole === 'master') {
-        matchedVoice = indianVoicesPool.find(v => v.name.toLowerCase().includes('google') && v.name.toLowerCase().includes('male')) ||
-                       indianVoicesPool.find(v => v.name.toLowerCase().includes('male')) ||
-                       indianVoicesPool.find(v => v.name.toLowerCase().includes('google')) ||
-                       indianVoicesPool[0] ||
-                       nativeVoices.find(v => v.lang.includes('en-GB')) ||
-                       nativeVoices[0];
-                       
-        utterance.pitch = lowerRole === 'master' ? 0.82 : 0.92;
-        utterance.rate = 0.85; 
-      } else {
-        matchedVoice = indianVoicesPool.find(v => v.name.toLowerCase().includes('heera')) ||
-                       indianVoicesPool.find(v => v.name.toLowerCase().includes('female')) ||
-                       indianVoicesPool.find(v => v.name.toLowerCase().includes('google')) ||
-                       indianVoicesPool[1] || 
-                       indianVoicesPool[0] ||
-                       nativeVoices.find(v => v.lang.includes('en-US')) ||
-                       nativeVoices[0];
-                       
-        utterance.pitch = 1.08;
-        utterance.rate = 0.90;
-      }
-
-      if (matchedVoice) utterance.voice = matchedVoice;
-      utterance.volume = 1.0;
-      window.speechSynthesis.speak(utterance);
-    }
-
-    if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
-      speechSynthesis.onvoiceschanged = () => {};
-    }
 
     function renderSidebarRoster(filterString = "") {
       const historicalTiles = contactsRosterDeck.querySelectorAll('.chat-tile');
@@ -726,7 +745,7 @@
         avatar.className = 'avatar-frame'; avatar.style.backgroundImage = `url('${item.avatarUrl || defaultAvatarSvg}')`;
 
         const info = document.createElement('div'); info.className = 'tile-info';
-        const lastMsg = item.history.length > 0 ? item.history[item.history.length - 1].content : "No recent messages";
+        const lastMsg = item.history && item.history.length > 0 ? item.history[item.history.length - 1].content : "No recent messages";
 
         info.innerHTML = `
           <div class="tile-row-one"> <span class="tile-name">${item.name}</span> <span class="tile-role-tag">${item.role}</span> </div>
@@ -753,9 +772,15 @@
       }
     }
 
+    function syncMetricsTableDisplay(targetObject) {
+      if (!targetObject) return;
+      metricModelIdText.textContent = targetObject.id.toUpperCase();
+      metricTotalMessagesText.textContent = targetObject.history ? targetObject.history.length : 0;
+      metricTotalMediaText.textContent = targetObject.media ? targetObject.media.length : 0;
+    }
+
     function activateTargetConversationThread(contactId, triggerMobileViewSync = true) {
       if(!localState.roster[contactId]) return;
-      window.speechSynthesis.cancel();
       localState.activeContactId = contactId;
       const targetObject = localState.roster[contactId];
       
@@ -767,11 +792,12 @@
       editCharTraits.value = targetObject.traits; editCharBackground.value = targetObject.background;
       customChatWallpaperUrlField.value = targetObject.chatWallpaper || "";
 
+      syncMetricsTableDisplay(targetObject);
       applyTargetWallpaperEngineOverrides(targetObject);
 
       activeMessageCanvas.innerHTML = '';
-      if (targetObject.history.length === 0) {
-        injectMessageNode('received', `Connection established. Active workspace setup: ${targetObject.name}. Send a message directly to initialize loop sequences.`, false, null);
+      if (!targetObject.history || targetObject.history.length === 0) {
+        injectMessageNode('received', `CONNECTION WORKSPACE SUCCESSFUL. ACTIVE TEMPLATE MODEL: ${targetObject.name.toUpperCase()}. DISPATCH INITIAL DATASTREAM STRINGS TO MOUNT SESSION EVENT LOOPS.`, false, null);
       } else {
         targetObject.history.forEach(m => {
           injectMessageNode(m.type, m.content, false, m.inlineAlbum || null);
@@ -792,10 +818,42 @@
       saveState();
     }
 
+    /* DYNAMIC TOKENIZER SYSTEM TO AUTOMATICALLY HIGHLIGHT SENSORY CORE ACTIONS */
+    function formatTextWithHighlights(rawString) {
+      if (!rawString) return "";
+      
+      let cleaned = rawString
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+      // HIGHLIGHT SENSORY ACTION WRAPPED IN ASTERISKS: *text*
+      cleaned = cleaned.replace(/\*(.*?)\*/g, function(match, innerGroup) {
+        return `<span class="behavioral-highlight"><b>*${innerGroup}*</b></span>`;
+      });
+
+      // HIGHLIGHT IMPORTANT SPECIFIC WORDS
+      const vocabularyTriggers = [
+        "respect dena hai", "discipline follow karo", "rule protocol", 
+        "obey", "order", "listen to me", "attention", "punishment"
+      ];
+
+      vocabularyTriggers.forEach(phrase => {
+        const regexPattern = new RegExp(`(${phrase})`, "gi");
+        cleaned = cleaned.replace(regexPattern, `<b style="color:var(--wa-accent);text-decoration:underline;">$1</b>`);
+      });
+
+      return cleaned;
+    }
+
     function injectMessageNode(type, text, appendToStateArray = true, inlineAlbumAssetArray = null) {
       if (appendToStateArray) {
+        if(!localState.roster[localState.activeContactId].history) {
+          localState.roster[localState.activeContactId].history = [];
+        }
         localState.roster[localState.activeContactId].history.push({ type, content: text, inlineAlbum: inlineAlbumAssetArray });
         saveState();
+        syncMetricsTableDisplay(localState.roster[localState.activeContactId]);
         const activeTile = document.querySelector(`.chat-tile[data-id="${localState.activeContactId}"] .tile-preview`);
         if(activeTile) activeTile.textContent = inlineAlbumAssetArray ? "📷 Sent an album grid..." : text;
       }
@@ -820,29 +878,27 @@
       }
 
       if(text) {
-        const txtSpan = document.createElement('span'); txtSpan.textContent = text;
+        const txtSpan = document.createElement('span');
+        txtSpan.innerHTML = formatTextWithHighlights(text);
         wrap.appendChild(txtSpan);
-
-        // Inject direct audio replay trigger button on inbound text nodes
-        if(type === 'received') {
-          const replayBtn = document.createElement('button');
-          replayBtn.className = 'audio-replay-trigger-action-node';
-          replayBtn.innerHTML = '▶ Audio';
-          replayBtn.title = 'Replay message voice output';
-          replayBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const currentActiveObject = localState.roster[localState.activeContactId];
-            if(currentActiveObject) {
-              executeTextToSpeechPipeline(text, currentActiveObject.role, true);
-            }
-          });
-          wrap.appendChild(replayBtn);
-        }
       }
 
       row.appendChild(wrap); activeMessageCanvas.appendChild(row);
       activeMessageCanvas.scrollTop = activeMessageCanvas.scrollHeight;
     }
+
+    actionClearThreadHistoryBtn.addEventListener('click', () => {
+      const activeObj = localState.roster[localState.activeContactId];
+      if(!activeObj) return;
+      if(confirm(`ARE YOU ABSOLUTELY SURE YOU WANT TO LOGICALLY WIPE THE CONVERSATION HISTORY WITH ${activeObj.name.toUpperCase()}?`)) {
+        activeObj.history = [];
+        activeMessageCanvas.innerHTML = '';
+        injectMessageNode('received', `CONNECTION RESET SUCCESSFUL. WORKSPACE FLUSHED. SEND A NEW PACKET DISPATCH METRIC TO RESUME CONVERSATIONS.`, false, null);
+        syncMetricsTableDisplay(activeObj);
+        renderSidebarRoster();
+        saveState();
+      }
+    });
 
     function setDynamicTypingIndicatorStateActive(isActive) {
       if (isActive) {
@@ -900,7 +956,7 @@
           ev.stopPropagation(); activeObject.media.splice(index, 1);
           if(activeObject.avatarUrl === b64Data) activeObject.avatarUrl = activeObject.media[0] || defaultAvatarSvg;
           headerActiveAvatar.style.backgroundImage = `url('${activeObject.avatarUrl}')`;
-          renderSidebarRoster(); renderDrawerGallerySection(); saveState();
+          renderSidebarRoster(); renderDrawerGallerySection(); syncMetricsTableDisplay(activeObject); saveState();
         });
         card.appendChild(dropBtn); drawerGalleryStrip.insertBefore(card, drawerGalleryStrip.firstChild);
       });
@@ -914,7 +970,7 @@
         if(!activeObject) return; if(!activeObject.media) activeObject.media = [];
         activeObject.media.push(b64Str); activeObject.avatarUrl = b64Str;
         headerActiveAvatar.style.backgroundImage = `url('${b64Str}')`;
-        renderSidebarRoster(); renderDrawerGallerySection(); saveState();
+        renderSidebarRoster(); renderDrawerGallerySection(); syncMetricsTableDisplay(activeObject); saveState();
       };
       reader.readAsDataURL(file);
     });
@@ -929,7 +985,7 @@
         
         const info = document.createElement('div');
         info.className = 'source-meta-info';
-        info.innerHTML = `<h4>${keyKey}</h4><p>${urlsPool.length} registered assets mapped: ${urlsPool[0] || 'none'}</p>`;
+        info.innerHTML = `<h4>${keyKey.toUpperCase()}</h4><p>${urlsPool.length} ASSETS MAPPED: ${urlsPool[0] || 'NONE'}</p>`;
         
         const ctrl = document.createElement('div');
         ctrl.className = 'source-controls-box';
@@ -957,7 +1013,7 @@
       const rawUrls = sourceUrlsInput.value.trim();
       const editPivotKey = sourceEditKey.value;
 
-      if(!rawKey) { alert("Keyword category identifier required."); return; }
+      if(!rawKey) { alert("KEYWORD CATEGORY IDENTIFIER REQUIRED."); return; }
       
       const targetUrlsArray = rawUrls.split(',').map(s => s.trim()).filter(s => s.length > 5);
 
@@ -973,7 +1029,7 @@
     });
 
     function launchSourceEditModeRecord(keyKey) {
-      sourceFormTitle.textContent = `Update Category: ${keyKey}`;
+      sourceFormTitle.textContent = `UPDATE CATEGORY: ${keyKey.toUpperCase()}`;
       sourceEditKey.value = keyKey;
       sourceCategoryKey.value = keyKey;
       sourceUrlsInput.value = localState.customMediaSources[keyKey].join(', ');
@@ -981,7 +1037,7 @@
     }
 
     function deleteSourceRecordEntry(keyKey) {
-      if(confirm(`Wipe image source category [${keyKey}]?`)) {
+      if(confirm(`WIPE IMAGE SOURCE CATEGORY [${keyKey.toUpperCase()}]?`)) {
         delete localState.customMediaSources[keyKey];
         if(sourceEditKey.value === keyKey) revertSourceFormParametersFields();
         renderSourcesListItems();
@@ -990,7 +1046,7 @@
     }
 
     function revertSourceFormParametersFields() {
-      sourceFormTitle.textContent = "Create Custom Image Category";
+      sourceFormTitle.textContent = "CREATE CUSTOM IMAGE CATEGORY";
       sourceEditKey.value = '';
       sourceCategoryKey.value = '';
       sourceUrlsInput.value = '';
@@ -1043,7 +1099,7 @@
     submitNewCharacterActionBtn.addEventListener('click', () => {
       const nameVal = newCharName.value.trim(); const roleVal = newCharRole.value;
       const traitsVal = newCharTraits.value.trim() || "online"; const bgVal = newCharBackground.value.trim();
-      if(!nameVal) { alert("Operational profile context name is required."); return; }
+      if(!nameVal) { alert("OPERATIONAL PROFILE CONTEXT NAME IS REQUIRED."); return; }
 
       const uniqueId = "char_" + Date.now();
       localState.roster[uniqueId] = { id: uniqueId, name: nameVal, role: roleVal, traits: traitsVal, background: bgVal, avatarUrl: defaultAvatarSvg, history: [], media: [], chatWallpaper: "" };
@@ -1096,9 +1152,9 @@ CRITICAL EXECUTION PROTOCOLS FOR LONG REPLIES:
 5. Absolute Length Constraint: Write between 100 to 200 words. Be expansive, descriptive, demanding, and thorough. Never write short answers.
 6. Absolutely no Devanagari or Hindi font outputs. Roman characters only.`;
 
-        const contextualThreadLogs = activeObj.history.slice(-14).map(m => ({
+        const contextualThreadLogs = activeObj.history ? activeObj.history.slice(-14).map(m => ({
           role: m.type === 'transmitted' ? 'user' : 'assistant', content: m.content
-        }));
+        })) : [];
 
         const payload = await fetch(API_URL, {
           method: 'POST',
@@ -1134,12 +1190,7 @@ CRITICAL EXECUTION PROTOCOLS FOR LONG REPLIES:
       setTimeout(() => {
         setDynamicTypingIndicatorStateActive(false);
         injectMessageNode('received', aiResponsePayload, true, processedThematicAlbumArray);
-        
-        const currentActiveObject = localState.roster[localState.activeContactId];
-        if(currentActiveObject) {
-          executeTextToSpeechPipeline(aiResponsePayload, currentActiveObject.role);
-        }
-      }, 1200);
+      }, 400);
     }
 
     messageSendBtn.addEventListener('click', handleTransmissionFlowDispatch);
@@ -1156,18 +1207,16 @@ CRITICAL EXECUTION PROTOCOLS FOR LONG REPLIES:
     closeSourcesDrawerBtn.addEventListener('click', () => sourcesDrawerDeck.classList.remove('open-drawer'));
 
     globalClearBtn.addEventListener('click', () => {
-      if (confirm("Reset application back to factory configurations defaults?")) {
-        window.speechSynthesis.cancel();
+      if (confirm("RESET APPLICATION BACK TO FACTORY CONFIGURATIONS DEFAULTS?")) {
         localStorage.clear();
         localState = { 
           activeContactId: "", 
           roster: JSON.parse(JSON.stringify(defaultSystemPresets)),
-          customMediaSources: JSON.parse(JSON.stringify(baselineStockMediaCollection)),
-          voiceEnabled: true
+          customMediaSources: JSON.parse(JSON.stringify(baselineStockMediaCollection))
         };
         chatSurfaceWindow.classList.remove('active-view'); appSidebarDeck.classList.remove('mobile-hidden');
-        activeMessageCanvas.innerHTML = ''; headerActiveName.textContent = "Select a contact"; headerActiveStatus.textContent = "online"; headerActiveAvatar.style.backgroundImage = 'none';
-        updateVoiceButtonUI(); renderSidebarRoster(); renderSourcesListItems(); revertSourceFormParametersFields();
+        activeMessageCanvas.innerHTML = ''; headerActiveName.textContent = "SELECT A CONTACT"; headerActiveStatus.textContent = "online"; headerActiveAvatar.style.backgroundImage = 'none';
+        renderSidebarRoster(); renderSourcesListItems(); revertSourceFormParametersFields();
         if (window.innerWidth >= 768) { localState.activeContactId = "nyx"; activateTargetConversationThread("nyx", false); }
       }
     });
