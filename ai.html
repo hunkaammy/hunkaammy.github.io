@@ -18,6 +18,7 @@
       --border-thin: rgba(134, 150, 160, 0.15);
       --accent-red: #ea0038;
       --accent-amber: #ff9f43;
+      --action-highlight: #8696a0;
     }
 
     * {
@@ -165,6 +166,7 @@
       height: 100%;
       background: var(--wa-chat-bg);
       flex-direction: column;
+      position: relative;
     }
 
     .main-chat-window.active-view { display: flex !important; }
@@ -176,6 +178,7 @@
       display: flex;
       align-items: center;
       gap: 0.6rem;
+      z-index: 2;
     }
 
     .back-arrow-btn {
@@ -191,7 +194,7 @@
 
     .header-meta { flex: 1; overflow: hidden; cursor: pointer; }
     .header-meta h2 { font-size: 1rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .header-meta p { font-size: 0.75rem; color: var(--wa-accent); }
+    .header-meta p { font-size: 0.75rem; color: var(--wa-accent); transition: color 0.2s ease; }
     .action-header-deck { display: flex; gap: 0.8rem; }
     .action-icon-btn { background: transparent; border: none; color: var(--text-muted); font-size: 1.1rem; cursor: pointer; }
 
@@ -227,14 +230,41 @@
     .msg-node.transmitted { justify-content: flex-end; }
     .msg-node.transmitted .bubble-wrapper { background: var(--wa-bubble-out); color: var(--text-msg); border-top-right-radius: 0; }
 
-    /* PARSED SENSORY MARKERS AND INLINE TOPIC HIGHLIGHTS CSS rules */
+    /* PARSED SENSORY TEXT LOGIC */
     .behavioral-highlight {
-      color: var(--accent-amber);
-      font-weight: 700;
-      background: rgba(255, 159, 67, 0.12);
-      padding: 1px 4px;
+      font-style: italic;
+      color: var(--action-highlight);
+      background: rgba(134, 150, 160, 0.08);
+      padding: 0px 4px;
       border-radius: 4px;
-      border: 1px dashed rgba(255, 159, 67, 0.3);
+    }
+
+    /* SMART AUTOSCROLL BYPASS PIN FLOATING ELEMENT */
+    .smart-scroller-bypass-pill {
+      position: absolute;
+      bottom: 75px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--wa-panel);
+      color: var(--wa-accent);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      gap: 0.4rem;
+      border: 1px solid var(--border-thin);
+      z-index: 10;
+      opacity: 0;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+    .smart-scroller-bypass-pill.visible-pill {
+      display: flex;
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
     }
 
     /* INPUT ACTION BAR STYLING */
@@ -244,6 +274,7 @@
       display: flex;
       align-items: center;
       gap: 0.6rem;
+      z-index: 2;
     }
     .chat-input-field {
       flex: 1;
@@ -437,14 +468,12 @@
 
 <div class="app-container">
   
-  <!-- SIDEBAR PANEL -->
   <div class="sidebar" id="appSidebarDeck">
     <div class="sidebar-header">
       <h1>VELVET BOUND</h1>
       <button class="action-icon-btn" id="globalClearBtn" title="RESET SANDBOX PARAMETERS"><b>🧹</b></button>
     </div>
 
-    <!-- ROSTER SEARCH CONFIG COMPONENT -->
     <div class="search-filter-box-container">
       <input type="text" class="search-filter-input" id="rosterSearchFilterField" placeholder="Search contact names or roles..." autocomplete="off">
     </div>
@@ -457,7 +486,6 @@
     <div class="chat-list" id="contactsRosterDeck"></div>
   </div>
 
-  <!-- MAIN CHAT CONSOLE CANVAS PANEL WINDOW -->
   <div class="main-chat-window" id="chatSurfaceWindow">
     <div class="chat-window-header">
       <button class="back-arrow-btn" id="mobileBackArrow">←</button>
@@ -473,18 +501,18 @@
 
     <div class="message-stream-canvas" id="activeMessageCanvas"></div>
 
+    <div class="smart-scroller-bypass-pill" id="smartScrollPillElement">👇 NEW DISPATCH READY</div>
+
     <div class="input-action-bar">
       <input type="text" class="chat-input-field" id="messageInputField" placeholder="Type a message..." autocomplete="off">
       <button class="send-msg-action-btn" id="messageSendBtn">➤</button>
     </div>
   </div>
 
-  <!-- PROFILE CONTEXT INTERFACE MODAL SETUP DRAWER -->
   <div class="setup-drawer-overlay" id="setupDrawerDeck">
     <div class="drawer-header"> <button class="back-arrow-btn" id="closeDrawerBtn">←</button> <h2>PROFILE ENGINE CONTEXT</h2> </div>
     <div class="drawer-body-fields">
       
-      <!-- CORE OVERVIEW HIGHLIGHT METRICS SUMMARY PANEL TABLE -->
       <div class="form-group-block">
         <label>IDENTITY CORE METRICS</label>
         <table class="metrics-summary-table">
@@ -522,7 +550,6 @@
       <div class="form-group-block"> <label>Behavioral Traits</label> <input type="text" id="editCharTraits"> </div>
       <div class="form-group-block"> <label>Background Instructions Prompt Matrix</label> <textarea id="editCharBackground" rows="4"></textarea> </div>
       
-      <!-- WALLPAPER ENGINE CUSTOM URL LINK COMPONENT -->
       <div class="form-group-block">
         <label>Chat Wallpaper Image URL Override</label>
         <input type="text" id="customChatWallpaperUrlField" placeholder="https://example.com/dark-background-art.jpg">
@@ -537,16 +564,15 @@
         </div>
       </div>
 
-      <!-- DISPATCH WIPE CLEAR CHAT SYSTEM ROUTINE ACTION BUTTON LAYER -->
-      <div class="form-group-block" style="border-top: 1px solid var(--border-thin); padding-top: 1rem; margin-top: 0.5rem;">
+      <div class="form-group-block" style="border-top: 1px solid var(--border-thin); padding-top: 1rem; margin-top: 0.5rem; gap: 0.5rem;">
         <label>SANDBOX CONVERSATION CONTROL</label>
+        <button class="drawer-action-btn" id="actionExportTimelineLogsBtn" style="margin-top:0; background:#bfa17a;">📥 EXPORT SESSION TIMELINE LOGS</button>
         <button class="drawer-danger-btn" id="actionClearThreadHistoryBtn">CLEAR CONVERSATION HISTORY</button>
       </div>
 
     </div>
   </div>
 
-  <!-- CUSTOM MODEL IDENTITY BUILDER CONFIG DRAWER COMPONENTS -->
   <div class="setup-drawer-overlay" id="creatorDrawerDeck">
     <div class="drawer-header"> <button class="back-arrow-btn" id="closeCreatorDrawerBtn">←</button> <h2>GENERATE NEW IDENTITY</h2> </div>
     <div class="drawer-body-fields">
@@ -564,7 +590,6 @@
     </div>
   </div>
 
-  <!-- MULTIMEDIA SOURCES REGISTRY CONFIG DRAWER LAYER COMPONENTS -->
   <div class="setup-drawer-overlay" id="sourcesDrawerDeck">
     <div class="drawer-header"> <button class="back-arrow-btn" id="closeSourcesDrawerBtn">←</button> <h2>ALBUM CATEGORIES ENGINE</h2> </div>
     <div class="drawer-body-fields">
@@ -593,7 +618,6 @@
     </div>
   </div>
 
-  <!-- UNIVERSAL LIGHTBOX CAROUSEL OVERLAY UNIT VIEWPORTS -->
   <div class="lightbox-modal-stage" id="lightboxModalStage">
     <button class="lightbox-close-trigger" id="lightboxCloseTriggerBtn">✕</button>
     <div class="lightbox-viewport-wrapper">
@@ -623,7 +647,7 @@
       ],
       punishment: [
         "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=400",
-        "https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=400",
+        "https://images.unsplash.com/photo-1518005020951-eccb494ad742 +?w=400",
         "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=400"
       ]
     };
@@ -643,6 +667,9 @@
     let lightboxActiveIndex = 0;
     let lightboxCustomPool = [];
     let activeTypingBubbleNode = null; 
+
+    // DYNAMIC TRAIT DRIFT TIMING METRIC STAMP HOLDERS
+    let lastUserMessageTimestamp = 0;
 
     const appSidebarDeck = document.getElementById('appSidebarDeck');
     const contactsRosterDeck = document.getElementById('contactsRosterDeck');
@@ -666,6 +693,8 @@
     const metricTotalMessagesText = document.getElementById('metricTotalMessagesText');
     const metricTotalMediaText = document.getElementById('metricTotalMediaText');
     const actionClearThreadHistoryBtn = document.getElementById('actionClearThreadHistoryBtn');
+    const actionExportTimelineLogsBtn = document.getElementById('actionExportTimelineLogsBtn');
+    const smartScrollPillElement = document.getElementById('smartScrollPillElement');
 
     const editCharName = document.getElementById('editCharName');
     const editCharRole = document.getElementById('editCharRole');
@@ -711,7 +740,7 @@
             localState.activeContactId = parsed.activeContactId || "";
             if(parsed.customMediaSources) localState.customMediaSources = parsed.customMediaSources;
           }
-        } catch(e) { console.error("CACHE EXCEPTION ENGINE BYPASSED."); }
+        } catch(e) { console.error("METRICS CLEARANCE CACHE SYSTEM RESET BYPASSED."); }
       }
       renderSidebarRoster();
       renderSourcesListItems();
@@ -818,7 +847,6 @@
       saveState();
     }
 
-    /* DYNAMIC TOKENIZER SYSTEM TO AUTOMATICALLY HIGHLIGHT SENSORY CORE ACTIONS */
     function formatTextWithHighlights(rawString) {
       if (!rawString) return "";
       
@@ -827,24 +855,55 @@
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
 
-      // HIGHLIGHT SENSORY ACTION WRAPPED IN ASTERISKS: *text*
       cleaned = cleaned.replace(/\*(.*?)\*/g, function(match, innerGroup) {
-        return `<span class="behavioral-highlight"><b>*${innerGroup}*</b></span>`;
-      });
-
-      // HIGHLIGHT IMPORTANT SPECIFIC WORDS
-      const vocabularyTriggers = [
-        "respect dena hai", "discipline follow karo", "rule protocol", 
-        "obey", "order", "listen to me", "attention", "punishment"
-      ];
-
-      vocabularyTriggers.forEach(phrase => {
-        const regexPattern = new RegExp(`(${phrase})`, "gi");
-        cleaned = cleaned.replace(regexPattern, `<b style="color:var(--wa-accent);text-decoration:underline;">$1</b>`);
+        return `<span class="behavioral-highlight">${innerGroup}</span>`;
       });
 
       return cleaned;
     }
+
+    /* FEATURE 3 IMPLEMENTATION: MONITOR VERTICAL HEIGHT FOR PIN OVERRIDE FLOATING HOOKS */
+    activeMessageCanvas.addEventListener('scroll', () => {
+      const scrollOffsetTolerance = 150;
+      const currentScrollPos = activeMessageCanvas.scrollTop + activeMessageCanvas.clientHeight;
+      const maximumScrollHeight = activeMessageCanvas.scrollHeight;
+
+      if (maximumScrollHeight - currentScrollPos > scrollOffsetTolerance) {
+        smartScrollPillElement.classList.add('visible-pill');
+      } else {
+        smartScrollPillElement.classList.remove('visible-pill');
+      }
+    });
+
+    smartScrollPillElement.addEventListener('click', () => {
+      activeMessageCanvas.scrollTop = activeMessageCanvas.scrollHeight;
+      smartScrollPillElement.classList.remove('visible-pill');
+    });
+
+    /* FEATURE 2 IMPLEMENTATION: SESSION LOG TIMELINE METRIC DOWNLOAD TRACER */
+    actionExportTimelineLogsBtn.addEventListener('click', () => {
+      const currentIdentity = localState.roster[localState.activeContactId];
+      if(!currentIdentity || !currentIdentity.history || currentIdentity.history.length === 0) {
+        alert("TIMELINE QUEUE EMPTY. DISPATCH SIGNALS BEFORE EXPORTING.");
+        return;
+      }
+
+      const backupPacketsPayload = {
+        identityModel: currentIdentity.id,
+        name: currentIdentity.name,
+        role: currentIdentity.role,
+        exportedTimestamp: new Date().toISOString(),
+        timelineLogs: currentIdentity.history
+      };
+
+      const dataBlobTracer = new Blob([JSON.stringify(backupPacketsPayload, null, 2)], { type: "application/json" });
+      const temporaryLinkAnchor = document.createElement('a');
+      temporaryLinkAnchor.href = URL.createObjectURL(dataBlobTracer);
+      temporaryLinkAnchor.download = `timeline_session_log_${currentIdentity.id}_${Date.now()}.json`;
+      document.body.appendChild(temporaryLinkAnchor);
+      temporaryLinkAnchor.click();
+      document.body.removeChild(temporaryLinkAnchor);
+    });
 
     function injectMessageNode(type, text, appendToStateArray = true, inlineAlbumAssetArray = null) {
       if (appendToStateArray) {
@@ -884,7 +943,11 @@
       }
 
       row.appendChild(wrap); activeMessageCanvas.appendChild(row);
-      activeMessageCanvas.scrollTop = activeMessageCanvas.scrollHeight;
+      
+      // HONOR SCROLLER ENGAGEMENT STATE DURING DISPATCH EVENTS
+      if(!smartScrollPillElement.classList.contains('visible-pill')) {
+        activeMessageCanvas.scrollTop = activeMessageCanvas.scrollHeight;
+      }
     }
 
     actionClearThreadHistoryBtn.addEventListener('click', () => {
@@ -1152,7 +1215,8 @@ CRITICAL EXECUTION PROTOCOLS FOR LONG REPLIES:
 5. Absolute Length Constraint: Write between 100 to 200 words. Be expansive, descriptive, demanding, and thorough. Never write short answers.
 6. Absolutely no Devanagari or Hindi font outputs. Roman characters only.`;
 
-        const contextualThreadLogs = activeObj.history ? activeObj.history.slice(-14).map(m => ({
+        /* FEATURE 4 IMPLEMENTATION: COMPRESSED CONTEXT MEMORY SLICE PASS LAYER */
+        const contextualThreadLogs = activeObj.history ? activeObj.history.slice(-12).map(m => ({
           role: m.type === 'transmitted' ? 'user' : 'assistant', content: m.content
         })) : [];
 
@@ -1177,6 +1241,21 @@ CRITICAL EXECUTION PROTOCOLS FOR LONG REPLIES:
     async function handleTransmissionFlowDispatch() {
       if(!localState.activeContactId) return;
       const inputStr = messageInputField.value.trim(); if (!inputStr) return;
+
+      /* FEATURE 1 IMPLEMENTATION: TRACK TIMESTAMPS DELTA FOR DYNAMIC TRAIT DRIFT HOOKS */
+      const currentTickTime = Date.now();
+      const activeObj = localState.roster[localState.activeContactId];
+      if (lastUserMessageTimestamp > 0 && activeObj) {
+        const speedDeltaSeconds = (currentTickTime - lastUserMessageTimestamp) / 1000;
+        if (speedDeltaSeconds < 12) {
+          headerActiveStatus.textContent = "analytical / attentive";
+          headerActiveStatus.style.color = "var(--accent-amber)";
+        } else {
+          headerActiveStatus.textContent = `${activeObj.traits.split(',')[0] || 'online'}`;
+          headerActiveStatus.style.color = "var(--wa-accent)";
+        }
+      }
+      lastUserMessageTimestamp = currentTickTime;
 
       messageInputField.value = '';
       injectMessageNode('transmitted', inputStr, true, null);
