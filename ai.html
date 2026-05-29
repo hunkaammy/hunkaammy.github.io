@@ -206,23 +206,45 @@
                         url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"%3E%3Cg fill="%23202c33" fill-opacity="0.15"%3E%3Cpath d="M50 50c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10-10-4.477-10-10zM10 10c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10-10-4.477-10-10z"/%3E%3C/g%3E%3C/svg%3E');
     }
 
-    .msg-node { display: flex; width: 100%; }
+    .msg-node { display: flex; width: 100%; position: relative; }
     .msg-node .bubble-wrapper {
-      padding: 6px 10px;
+      padding: 10px 14px;
       border-radius: 8px;
-      font-size: 0.92rem;
-      line-height: 1.4;
+      font-size: 0.95rem;
+      line-height: 1.5;
       max-width: 85%;
       word-break: break-word;
       display: flex;
       flex-direction: column;
       gap: 0.4rem;
+      white-space: pre-wrap;
+      position: relative;
     }
 
     .msg-node.received { justify-content: flex-start; }
-    .msg-node.received .bubble-wrapper { background: var(--wa-bubble-in); color: var(--text-msg); border-top-left-radius: 0; }
+    .msg-node.received .bubble-wrapper { background: var(--wa-bubble-in); color: var(--text-msg); border-top-left-radius: 0; padding-bottom: 28px; }
     .msg-node.transmitted { justify-content: flex-end; }
     .msg-node.transmitted .bubble-wrapper { background: var(--wa-bubble-out); color: var(--text-msg); border-top-right-radius: 0; }
+
+    /* Replay Audio Trigger Icon Control */
+    .audio-replay-trigger-action-node {
+      position: absolute;
+      bottom: 4px;
+      right: 8px;
+      background: transparent;
+      border: none;
+      color: var(--wa-accent);
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.65;
+      padding: 4px;
+      transition: opacity 0.2s ease, transform 0.1s ease;
+    }
+    .audio-replay-trigger-action-node:hover { opacity: 1; transform: scale(1.1); }
+    .audio-replay-trigger-action-node:active { transform: scale(0.95); }
 
     /* Typing Animation Core Structures CSS Classes Addition Injection */
     .typing-indicator-dot-box {
@@ -344,11 +366,6 @@
     .lightbox-nav-control.next-handle { right: 15px; }
     .lightbox-footer-index { margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted); }
 
-    /* Input Footer Console Strip */
-    .input-action-bar { height: 60px; background: var(--wa-panel); padding: 5px 0.8rem; display: flex; align-items: center; gap: 0.6rem; }
-    .chat-input-field { flex: 1; background: #2a3942; border: none; border-radius: 8px; padding: 0.6rem 1rem; color: var(--text-msg); outline: none; font-size: 0.95rem; }
-    .send-msg-action-btn { background: transparent; border: none; color: var(--wa-accent); font-size: 1.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0.4rem; }
-
     @media (min-width: 768px) {
       .app-container { width: 95vw; height: 90vh; border-radius: 4px; box-shadow: 0 6px 24px rgba(0,0,0,0.5); }
       .sidebar { width: 30% !important; max-width: 380px !important; display: flex !important; }
@@ -394,6 +411,7 @@
         <p id="headerActiveStatus">online</p>
       </div>
       <div class="action-header-deck">
+        <button class="action-icon-btn" id="globalVoiceToggleBtn" title="Toggle Voice Output" style="font-size: 1.2rem;">🔊</button>
         <button class="action-icon-btn" id="configDrawerTriggerBtn" title="Modify Configuration Settings Drawer">⚙️</button>
       </div>
     </div>
@@ -529,12 +547,13 @@
     let localState = { 
       activeContactId: "", 
       roster: JSON.parse(JSON.stringify(defaultSystemPresets)),
-      customMediaSources: JSON.parse(JSON.stringify(baselineStockMediaCollection))
+      customMediaSources: JSON.parse(JSON.stringify(baselineStockMediaCollection)),
+      voiceEnabled: true
     };
 
     let lightboxActiveIndex = 0;
     let lightboxCustomPool = [];
-    let activeTypingBubbleNode = null; // Active indicator memory pointer anchor
+    let activeTypingBubbleNode = null; 
 
     const appSidebarDeck = document.getElementById('appSidebarDeck');
     const contactsRosterDeck = document.getElementById('contactsRosterDeck');
@@ -544,6 +563,7 @@
     const messageSendBtn = document.getElementById('messageSendBtn');
     const mobileBackArrow = document.getElementById('mobileBackArrow');
     const configDrawerTriggerBtn = document.getElementById('configDrawerTriggerBtn');
+    const globalVoiceToggleBtn = document.getElementById('globalVoiceToggleBtn');
     const setupDrawerDeck = document.getElementById('setupDrawerDeck');
     const closeDrawerBtn = document.getElementById('closeDrawerBtn');
     const globalClearBtn = document.getElementById('globalClearBtn');
@@ -597,9 +617,11 @@
             localState.roster = parsed.roster;
             localState.activeContactId = parsed.activeContactId || "";
             if(parsed.customMediaSources) localState.customMediaSources = parsed.customMediaSources;
+            if(parsed.voiceEnabled !== undefined) localState.voiceEnabled = parsed.voiceEnabled;
           }
-        } catch(e) { console.error("Cache system synchronization log tracking data loss error managed."); }
+        } catch(e) { console.error("Cache system sync runtime log error bypassed."); }
       }
+      updateVoiceButtonUI();
       renderSidebarRoster();
       renderSourcesListItems();
       if (window.innerWidth >= 768 && !localState.activeContactId) {
@@ -609,6 +631,78 @@
     }
 
     function saveState() { localStorage.setItem('wa_bdsm_sandbox_v12', JSON.stringify(localState)); }
+
+    function updateVoiceButtonUI() {
+      if(globalVoiceToggleBtn) {
+        globalVoiceToggleBtn.textContent = localState.voiceEnabled ? "🔊" : "🔇";
+      }
+    }
+
+    globalVoiceToggleBtn.addEventListener('click', () => {
+      localState.voiceEnabled = !localState.voiceEnabled;
+      if(!localState.voiceEnabled) window.speechSynthesis.cancel();
+      updateVoiceButtonUI();
+      saveState();
+    });
+
+    function executeTextToSpeechPipeline(rawText, characterRole, forcePlay = false) {
+      if (!localState.voiceEnabled && !forcePlay) return;
+      window.speechSynthesis.cancel(); 
+
+      let parsedText = rawText.replace(/\*.*?\*/g, '');
+      parsedText = parsedText.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1F1E6}-\u{1F1FF}]/gu, '');
+      parsedText = parsedText.trim();
+      if(!parsedText) return;
+
+      parsedText = parsedText
+        .replace(/\byaar\b/gi, 'yahr')
+        .replace(/\bkya\b/gi, 'kyah')
+        .replace(/\bna\b/gi, 'nah')
+        .replace(/\bmat\b/gi, 'mutt')
+        .replace(/\bmujhe\b/gi, 'muj-hay')
+        .replace(/\bchahiye\b/gi, 'chaa-hee-ay');
+
+      const utterance = new SpeechSynthesisUtterance(parsedText);
+      let nativeVoices = window.speechSynthesis.getVoices();
+      if (!nativeVoices || nativeVoices.length === 0) {
+        nativeVoices = speechSynthesis.getVoices();
+      }
+
+      let matchedVoice = null;
+      const lowerRole = characterRole.toLowerCase();
+      const indianVoicesPool = nativeVoices.filter(v => v.lang.includes('en-IN') || v.lang.includes('hi-IN'));
+
+      if (lowerRole === 'dominant' || lowerRole === 'master') {
+        matchedVoice = indianVoicesPool.find(v => v.name.toLowerCase().includes('google') && v.name.toLowerCase().includes('male')) ||
+                       indianVoicesPool.find(v => v.name.toLowerCase().includes('male')) ||
+                       indianVoicesPool.find(v => v.name.toLowerCase().includes('google')) ||
+                       indianVoicesPool[0] ||
+                       nativeVoices.find(v => v.lang.includes('en-GB')) ||
+                       nativeVoices[0];
+                       
+        utterance.pitch = lowerRole === 'master' ? 0.82 : 0.92;
+        utterance.rate = 0.85; 
+      } else {
+        matchedVoice = indianVoicesPool.find(v => v.name.toLowerCase().includes('heera')) ||
+                       indianVoicesPool.find(v => v.name.toLowerCase().includes('female')) ||
+                       indianVoicesPool.find(v => v.name.toLowerCase().includes('google')) ||
+                       indianVoicesPool[1] || 
+                       indianVoicesPool[0] ||
+                       nativeVoices.find(v => v.lang.includes('en-US')) ||
+                       nativeVoices[0];
+                       
+        utterance.pitch = 1.08;
+        utterance.rate = 0.90;
+      }
+
+      if (matchedVoice) utterance.voice = matchedVoice;
+      utterance.volume = 1.0;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = () => {};
+    }
 
     function renderSidebarRoster(filterString = "") {
       const historicalTiles = contactsRosterDeck.querySelectorAll('.chat-tile');
@@ -644,7 +738,6 @@
       });
     }
 
-    // Input Search Layer Event Pipeline Hooks Attached
     rosterSearchFilterField.addEventListener('input', (e) => {
       renderSidebarRoster(e.target.value.trim());
     });
@@ -662,6 +755,7 @@
 
     function activateTargetConversationThread(contactId, triggerMobileViewSync = true) {
       if(!localState.roster[contactId]) return;
+      window.speechSynthesis.cancel();
       localState.activeContactId = contactId;
       const targetObject = localState.roster[contactId];
       
@@ -728,13 +822,28 @@
       if(text) {
         const txtSpan = document.createElement('span'); txtSpan.textContent = text;
         wrap.appendChild(txtSpan);
+
+        // Inject direct audio replay trigger button on inbound text nodes
+        if(type === 'received') {
+          const replayBtn = document.createElement('button');
+          replayBtn.className = 'audio-replay-trigger-action-node';
+          replayBtn.innerHTML = '▶ Audio';
+          replayBtn.title = 'Replay message voice output';
+          replayBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const currentActiveObject = localState.roster[localState.activeContactId];
+            if(currentActiveObject) {
+              executeTextToSpeechPipeline(text, currentActiveObject.role, true);
+            }
+          });
+          wrap.appendChild(replayBtn);
+        }
       }
 
       row.appendChild(wrap); activeMessageCanvas.appendChild(row);
       activeMessageCanvas.scrollTop = activeMessageCanvas.scrollHeight;
     }
 
-    // Dynamic Typing State UI Element Control Simulation Hooks Insertion Engine
     function setDynamicTypingIndicatorStateActive(isActive) {
       if (isActive) {
         if (activeTypingBubbleNode) return; 
@@ -976,14 +1085,16 @@
     async function executeRemoteAICompletionsRequest() {
       try {
         const activeObj = localState.roster[localState.activeContactId];
-        const sysPrompt = `You are roleplaying as ${activeObj.name} inside a private sandbox simulation. Role Dynamic: [${activeObj.role}]. Persona Traits: ${activeObj.traits}. Contextual Narrative Matrix: ${activeObj.background}.
+        
+        const sysPrompt = `You are roleplaying as ${activeObj.name} inside a private simulation workspace. Role Dynamic: [${activeObj.role}]. Persona Traits: ${activeObj.traits}. Context Narrative Matrix: ${activeObj.background}.
 
-CRITICAL EXECUTION RULE: Always reply in modern conversational Hinglish (fluid blend of regular Hindi syntax structure with a heavy mix of casual English vocabulary). Generate text exactly how young adults send text messages on WhatsApp or Instagram platforms.
-
-Style protocols:
-- Use Latin/Roman alphabet characters only ('Kya chal raha hai?', 'Listen, mujhe updates chahiye').
-- Never output Devanagari or Hindi fonts under any condition.
-- Keep response length under 75 words total size. Move fast and keep dialogue punchy.`;
+CRITICAL EXECUTION PROTOCOLS FOR LONG REPLIES:
+1. Speak exclusively in casual, fluid, modern urban Hinglish (Latin/Roman alphabet script only). Text exactly how someone writes when they are deeply invested in a conversation, sending long paragraphs, venting, commanding, or teasing on WhatsApp/Instagram.
+2. Provide heavy detail, rich emotional backstory, psychological depth, and room to breathe. Never give short one-liners. Break your thoughts down into structured line breaks if necessary to form realistic messaging walls.
+3. Drop all rigid formal grammar structures. Use modern internet slang, expressive text filler words, emotional breaks, and informal conversational short cuts ('matlab seriously yaarr...', 'tum samajh rahe ho na?', 'dekho, listen...').
+4. Incorporate vivid behavioral markers or sensory cues enclosed inside asterisks (*looks away deeply into your eyes*, *smiles slowly with absolute control*, *sighs heavily leaning back*) to add massive dramatic flair between your written paragraphs.
+5. Absolute Length Constraint: Write between 100 to 200 words. Be expansive, descriptive, demanding, and thorough. Never write short answers.
+6. Absolutely no Devanagari or Hindi font outputs. Roman characters only.`;
 
         const contextualThreadLogs = activeObj.history.slice(-14).map(m => ({
           role: m.type === 'transmitted' ? 'user' : 'assistant', content: m.content
@@ -995,13 +1106,13 @@ Style protocols:
           body: JSON.stringify({
             model: "llama-3.3-70b-versatile",
             messages: [ { role: "system", content: sysPrompt }, ...contextualThreadLogs ],
-            temperature: 0.92, max_tokens: 220, stream: false
+            temperature: 0.90, max_tokens: 500, stream: false
           })
         });
 
         if (!payload.ok) {
           const rawErr = await payload.json().catch(() => ({}));
-          throw new Error(rawErr.error?.message || `Pipeline loss code: ${payload.status}`);
+          throw new Error(rawErr.error?.message || `Pipeline link loss status: ${payload.status}`);
         }
         const dataObj = await payload.json(); return dataObj.choices?.[0]?.message?.content?.trim() || "*silence*";
       } catch (error) { console.error(error); return `*The link wavers...* (Error details: ${error.message})`; }
@@ -1023,6 +1134,11 @@ Style protocols:
       setTimeout(() => {
         setDynamicTypingIndicatorStateActive(false);
         injectMessageNode('received', aiResponsePayload, true, processedThematicAlbumArray);
+        
+        const currentActiveObject = localState.roster[localState.activeContactId];
+        if(currentActiveObject) {
+          executeTextToSpeechPipeline(aiResponsePayload, currentActiveObject.role);
+        }
       }, 1200);
     }
 
@@ -1041,15 +1157,17 @@ Style protocols:
 
     globalClearBtn.addEventListener('click', () => {
       if (confirm("Reset application back to factory configurations defaults?")) {
+        window.speechSynthesis.cancel();
         localStorage.clear();
         localState = { 
           activeContactId: "", 
           roster: JSON.parse(JSON.stringify(defaultSystemPresets)),
-          customMediaSources: JSON.parse(JSON.stringify(baselineStockMediaCollection))
+          customMediaSources: JSON.parse(JSON.stringify(baselineStockMediaCollection)),
+          voiceEnabled: true
         };
         chatSurfaceWindow.classList.remove('active-view'); appSidebarDeck.classList.remove('mobile-hidden');
         activeMessageCanvas.innerHTML = ''; headerActiveName.textContent = "Select a contact"; headerActiveStatus.textContent = "online"; headerActiveAvatar.style.backgroundImage = 'none';
-        renderSidebarRoster(); renderSourcesListItems(); revertSourceFormParametersFields();
+        updateVoiceButtonUI(); renderSidebarRoster(); renderSourcesListItems(); revertSourceFormParametersFields();
         if (window.innerWidth >= 768) { localState.activeContactId = "nyx"; activateTargetConversationThread("nyx", false); }
       }
     });
@@ -1059,4 +1177,3 @@ Style protocols:
 </script>
 </body>
 </html>
-
