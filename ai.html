@@ -198,7 +198,7 @@
     .action-header-deck { display: flex; gap: 0.8rem; }
     .action-icon-btn { background: transparent; border: none; color: var(--text-muted); font-size: 1.1rem; cursor: pointer; }
 
-    /* MESSAGES STREAM VIEWPORT CANVAS */
+    /* MESSAGES CANVAS */
     .message-stream-canvas {
       flex: 1;
       overflow-y: auto;
@@ -239,7 +239,7 @@
       border-radius: 4px;
     }
 
-    /* SMART AUTOSCROLL BYPASS PIN FLOATING ELEMENT */
+    /* SMART SCROLLER PIN ELEMENTS */
     .smart-scroller-bypass-pill {
       position: absolute;
       bottom: 75px;
@@ -357,14 +357,6 @@
     .form-group-block { display: flex; flex-direction: column; gap: 0.35rem; }
     .form-group-block label { font-size: 0.75rem; color: var(--wa-accent); text-transform: uppercase; font-weight: 600; }
 
-    input, textarea, select {
-      background: #2a3942; border: none; border-bottom: 2px solid transparent; padding: 0.6rem 0.8rem;
-      color: var(--text-msg); font-family: inherit; font-size: 0.95rem; border-radius: 4px; outline: none; width: 100%;
-    }
-    input:focus, textarea:focus, select:focus { border-bottom-color: var(--wa-accent); }
-    .drawer-action-btn { background: var(--wa-accent); border: none; color: #fff; font-weight: 600; padding: 0.75rem; border-radius: 4px; cursor: pointer; text-align: center; margin-top: 0.5rem; }
-    .drawer-danger-btn { background: var(--accent-red); border: none; color: #fff; font-weight: 600; padding: 0.75rem; border-radius: 4px; cursor: pointer; text-align: center; margin-top: 0.25rem; }
-
     /* CORE METRICS SUMMARY MODULE STYLING */
     .metrics-summary-table {
       width: 100%;
@@ -396,6 +388,31 @@
       color: var(--accent-amber);
     }
 
+    /* DYNAMIC SLIDER LAYOUT RULES */
+    .slider-engine-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: #2a3942;
+      padding: 0.6rem 0.8rem;
+      border-radius: 4px;
+    }
+    .slider-engine-container input[type="range"] {
+      flex: 1;
+      accent-color: var(--wa-accent);
+      cursor: pointer;
+    }
+    .slider-metric-badge {
+      font-size: 0.85rem;
+      background: var(--wa-panel);
+      color: var(--accent-amber);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      min-width: 35px;
+      text-align: center;
+    }
+
     /* GALLERY STRIP ITEMS SETUP */
     .gallery-deck-wrapper { border-top: 1px solid var(--border-thin); padding-top: 0.8rem; margin-top: 0.5rem; }
     .gallery-strip { display: flex; gap: 0.5rem; overflow-x: auto; padding: 0.4rem 0; }
@@ -404,7 +421,7 @@
     .gallery-card .drop-img-btn { position: absolute; top: -4px; right: -4px; background: var(--accent-red); color: #fff; border: none; width: 16px; height: 16px; border-radius: 50%; font-size: 9px; cursor: pointer; z-index: 2; }
     .media-upload-trigger { width: 60px; height: 75px; border: 2px dashed var(--text-muted); border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); font-size: 1.2rem; flex-shrink: 0; }
 
-    /* DYNAMIC RECORD ENTRIES PORTAL DISPLAY STYLING */
+    /* RECORD PORTAL DISPLAY STYLING */
     .sources-list-container {
       display: flex;
       flex-direction: column;
@@ -442,7 +459,7 @@
     }
     .source-tool-btn.del-variant { border-color: var(--accent-red); color: var(--accent-red); }
 
-    /* UNIVERSAL LIGHTBOX SYSTEM OVERLAY VIEWPORT */
+    /* LIGHTBOX VIEWPORT */
     .lightbox-modal-stage { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(5, 10, 13, 0.96); z-index: 1000; display: none; flex-direction: column; justify-content: center; align-items: center; }
     .lightbox-modal-stage.visible { display: flex !important; }
     .lightbox-close-trigger { position: absolute; top: 15px; right: 20px; background: transparent; border: none; color: var(--text-msg); font-size: 2rem; cursor: pointer; z-index: 1010; }
@@ -495,7 +512,7 @@
         <p id="headerActiveStatus">online</p>
       </div>
       <div class="action-header-deck">
-        <button class="action-icon-btn" id="configDrawerTriggerBtn" title="MODIFY CONFIGURATION SETTINGS DRAWER">⚙️</button>
+        <button class="action-icon-btn" id="configDrawerTriggerBtn" title="MODIFY CONFIGURATION DRAWER">⚙️</button>
       </div>
     </div>
 
@@ -537,6 +554,14 @@
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <div class="form-group-block">
+        <label>AI RESPONSIVENESS VARIABILITY (TEMPERATURE)</label>
+        <div class="slider-engine-container">
+          <input type="range" id="configApiTemperatureSlider" min="0.20" max="1.20" step="0.05" value="0.90">
+          <span class="slider-metric-badge" id="sliderMetricValueBadge">0.90</span>
+        </div>
       </div>
 
       <div class="form-group-block"> <label>Character Name</label> <input type="text" id="editCharName"> </div>
@@ -647,15 +672,15 @@
       ],
       punishment: [
         "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=400",
-        "https://images.unsplash.com/photo-1518005020951-eccb494ad742 +?w=400",
+        "https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=400",
         "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=400"
       ]
     };
 
     const defaultSystemPresets = {
-      nyx: { id: "nyx", name: "Mistress Nyx", role: "Dominant", traits: "Stern, possessive, commanding", background: "High protocol Domme who demands absolute obedience. She enjoys psychological control.", avatarUrl: defaultAvatarSvg, history: [], media: [], chatWallpaper: "" },
-      kieran: { id: "kieran", name: "Sir Kieran", role: "Master", traits: "Strict, protective, disciplined", background: "Veteran dominant with a leather aesthetic. He values loyalty and ritual.", avatarUrl: defaultAvatarSvg, history: [], media: [], chatWallpaper: "" },
-      luna: { id: "luna", name: "Luna", role: "Pet", traits: "Playful, needy, affectionate", background: "A kitten-like sub who craves firm guidance. Easily flustered, loves being collared.", avatarUrl: defaultAvatarSvg, history: [], media: [], chatWallpaper: "" }
+      nyx: { id: "nyx", name: "Mistress Nyx", role: "Dominant", traits: "Stern, possessive, commanding", background: "High protocol Domme who demands absolute obedience. She enjoys psychological control.", avatarUrl: defaultAvatarSvg, history: [], media: [], chatWallpaper: "", temperature: 0.90 },
+      kieran: { id: "kieran", name: "Sir Kieran", role: "Master", traits: "Strict, protective, disciplined", background: "Veteran dominant with a leather aesthetic. He values loyalty and ritual.", avatarUrl: defaultAvatarSvg, history: [], media: [], chatWallpaper: "", temperature: 0.85 },
+      luna: { id: "luna", name: "Luna", role: "Pet", traits: "Playful, needy, affectionate", background: "A kitten-like sub who craves firm guidance. Easily flustered, loves being collared.", avatarUrl: defaultAvatarSvg, history: [], media: [], chatWallpaper: "", temperature: 0.95 }
     };
 
     let localState = { 
@@ -667,8 +692,6 @@
     let lightboxActiveIndex = 0;
     let lightboxCustomPool = [];
     let activeTypingBubbleNode = null; 
-
-    // DYNAMIC TRAIT DRIFT TIMING METRIC STAMP HOLDERS
     let lastUserMessageTimestamp = 0;
 
     const appSidebarDeck = document.getElementById('appSidebarDeck');
@@ -695,6 +718,8 @@
     const actionClearThreadHistoryBtn = document.getElementById('actionClearThreadHistoryBtn');
     const actionExportTimelineLogsBtn = document.getElementById('actionExportTimelineLogsBtn');
     const smartScrollPillElement = document.getElementById('smartScrollPillElement');
+    const configApiTemperatureSlider = document.getElementById('configApiTemperatureSlider');
+    const sliderMetricValueBadge = document.getElementById('sliderMetricValueBadge');
 
     const editCharName = document.getElementById('editCharName');
     const editCharRole = document.getElementById('editCharRole');
@@ -740,7 +765,7 @@
             localState.activeContactId = parsed.activeContactId || "";
             if(parsed.customMediaSources) localState.customMediaSources = parsed.customMediaSources;
           }
-        } catch(e) { console.error("METRICS CLEARANCE CACHE SYSTEM RESET BYPASSED."); }
+        } catch(e) { console.error("METRIC BUFFER TRACE WARNING CLEANED."); }
       }
       renderSidebarRoster();
       renderSourcesListItems();
@@ -806,7 +831,66 @@
       metricModelIdText.textContent = targetObject.id.toUpperCase();
       metricTotalMessagesText.textContent = targetObject.history ? targetObject.history.length : 0;
       metricTotalMediaText.textContent = targetObject.media ? targetObject.media.length : 0;
+      
+      // SYNC DYNAMIC RUNTIME TEMPERATURE VALS SLIDERS
+      const tempPivotVal = targetObject.temperature !== undefined ? targetObject.temperature : 0.90;
+      configApiTemperatureSlider.value = tempPivotVal;
+      sliderMetricValueBadge.textContent = Number(tempPivotVal).toFixed(2);
     }
+
+    /* DYNAMIC INTERFACE EVENT LISTENER FOR LIVE TEMPERATURE DRIFT METRICS */
+    configApiTemperatureSlider.addEventListener('input', (e) => {
+      const activeObj = localState.roster[localState.activeContactId];
+      if (activeObj) {
+        const floatVal = parseFloat(e.target.value);
+        activeObj.temperature = floatVal;
+        sliderMetricValueBadge.textContent = floatVal.toFixed(2);
+        saveState();
+      }
+    });
+
+    activateTargetConversationThread(localState.activeContactId, false);
+
+    activeMessageCanvas.addEventListener('scroll', () => {
+      const scrollOffsetTolerance = 150;
+      const currentScrollPos = activeMessageCanvas.scrollTop + activeMessageCanvas.clientHeight;
+      const maximumScrollHeight = activeMessageCanvas.scrollHeight;
+
+      if (maximumScrollHeight - currentScrollPos > scrollOffsetTolerance) {
+        smartScrollPillElement.classList.add('visible-pill');
+      } else {
+        smartScrollPillElement.classList.remove('visible-pill');
+      }
+    });
+
+    smartScrollPillElement.addEventListener('click', () => {
+      activeMessageCanvas.scrollTop = activeMessageCanvas.scrollHeight;
+      smartScrollPillElement.classList.remove('visible-pill');
+    });
+
+    actionExportTimelineLogsBtn.addEventListener('click', () => {
+      const currentIdentity = localState.roster[localState.activeContactId];
+      if(!currentIdentity || !currentIdentity.history || currentIdentity.history.length === 0) {
+        alert("TIMELINE QUEUE EMPTY. DISPATCH SIGNALS BEFORE EXPORTING.");
+        return;
+      }
+
+      const backupPacketsPayload = {
+        identityModel: currentIdentity.id,
+        name: currentIdentity.name,
+        role: currentIdentity.role,
+        exportedTimestamp: new Date().toISOString(),
+        timelineLogs: currentIdentity.history
+      };
+
+      const dataBlobTracer = new Blob([JSON.stringify(backupPacketsPayload, null, 2)], { type: "application/json" });
+      const temporaryLinkAnchor = document.createElement('a');
+      temporaryLinkAnchor.href = URL.createObjectURL(dataBlobTracer);
+      temporaryLinkAnchor.download = `timeline_session_log_${currentIdentity.id}_${Date.now()}.json`;
+      document.body.appendChild(temporaryLinkAnchor);
+      temporaryLinkAnchor.click();
+      document.body.removeChild(temporaryLinkAnchor);
+    });
 
     function activateTargetConversationThread(contactId, triggerMobileViewSync = true) {
       if(!localState.roster[contactId]) return;
@@ -862,49 +946,6 @@
       return cleaned;
     }
 
-    /* FEATURE 3 IMPLEMENTATION: MONITOR VERTICAL HEIGHT FOR PIN OVERRIDE FLOATING HOOKS */
-    activeMessageCanvas.addEventListener('scroll', () => {
-      const scrollOffsetTolerance = 150;
-      const currentScrollPos = activeMessageCanvas.scrollTop + activeMessageCanvas.clientHeight;
-      const maximumScrollHeight = activeMessageCanvas.scrollHeight;
-
-      if (maximumScrollHeight - currentScrollPos > scrollOffsetTolerance) {
-        smartScrollPillElement.classList.add('visible-pill');
-      } else {
-        smartScrollPillElement.classList.remove('visible-pill');
-      }
-    });
-
-    smartScrollPillElement.addEventListener('click', () => {
-      activeMessageCanvas.scrollTop = activeMessageCanvas.scrollHeight;
-      smartScrollPillElement.classList.remove('visible-pill');
-    });
-
-    /* FEATURE 2 IMPLEMENTATION: SESSION LOG TIMELINE METRIC DOWNLOAD TRACER */
-    actionExportTimelineLogsBtn.addEventListener('click', () => {
-      const currentIdentity = localState.roster[localState.activeContactId];
-      if(!currentIdentity || !currentIdentity.history || currentIdentity.history.length === 0) {
-        alert("TIMELINE QUEUE EMPTY. DISPATCH SIGNALS BEFORE EXPORTING.");
-        return;
-      }
-
-      const backupPacketsPayload = {
-        identityModel: currentIdentity.id,
-        name: currentIdentity.name,
-        role: currentIdentity.role,
-        exportedTimestamp: new Date().toISOString(),
-        timelineLogs: currentIdentity.history
-      };
-
-      const dataBlobTracer = new Blob([JSON.stringify(backupPacketsPayload, null, 2)], { type: "application/json" });
-      const temporaryLinkAnchor = document.createElement('a');
-      temporaryLinkAnchor.href = URL.createObjectURL(dataBlobTracer);
-      temporaryLinkAnchor.download = `timeline_session_log_${currentIdentity.id}_${Date.now()}.json`;
-      document.body.appendChild(temporaryLinkAnchor);
-      temporaryLinkAnchor.click();
-      document.body.removeChild(temporaryLinkAnchor);
-    });
-
     function injectMessageNode(type, text, appendToStateArray = true, inlineAlbumAssetArray = null) {
       if (appendToStateArray) {
         if(!localState.roster[localState.activeContactId].history) {
@@ -944,7 +985,6 @@
 
       row.appendChild(wrap); activeMessageCanvas.appendChild(row);
       
-      // HONOR SCROLLER ENGAGEMENT STATE DURING DISPATCH EVENTS
       if(!smartScrollPillElement.classList.contains('visible-pill')) {
         activeMessageCanvas.scrollTop = activeMessageCanvas.scrollHeight;
       }
@@ -1133,6 +1173,12 @@
 
     lightboxPrevBtn.addEventListener('click', () => { lightboxActiveIndex--; syncLightboxDisplayCanvasElement(); });
     lightboxNextBtn.addEventListener('click', () => { lightboxActiveIndex++; syncLightboxDisplayCanvasElement(); });
+    lightboxModalStage.addEventListener('click', (e) => {
+      if (e.target === lightboxModalStage) {
+        lightboxModalStage.classList.remove('visible');
+        lightboxCanvasImg.src = '';
+      }
+    });
     lightboxCloseTriggerBtn.addEventListener('click', () => { lightboxModalStage.classList.remove('visible'); lightboxCanvasImg.src = ''; });
 
     let gestureStartX = 0;
@@ -1165,7 +1211,7 @@
       if(!nameVal) { alert("OPERATIONAL PROFILE CONTEXT NAME IS REQUIRED."); return; }
 
       const uniqueId = "char_" + Date.now();
-      localState.roster[uniqueId] = { id: uniqueId, name: nameVal, role: roleVal, traits: traitsVal, background: bgVal, avatarUrl: defaultAvatarSvg, history: [], media: [], chatWallpaper: "" };
+      localState.roster[uniqueId] = { id: uniqueId, name: nameVal, role: roleVal, traits: traitsVal, background: bgVal, avatarUrl: defaultAvatarSvg, history: [], media: [], chatWallpaper: "", temperature: 0.90 };
       newCharName.value = ''; newCharTraits.value = ''; newCharBackground.value = '';
       creatorDrawerDeck.classList.remove('open-drawer');
       renderSidebarRoster(); activateTargetConversationThread(uniqueId, true);
@@ -1204,6 +1250,7 @@
     async function executeRemoteAICompletionsRequest() {
       try {
         const activeObj = localState.roster[localState.activeContactId];
+        const calculatedTemperature = activeObj && activeObj.temperature !== undefined ? activeObj.temperature : 0.90;
         
         const sysPrompt = `You are roleplaying as ${activeObj.name} inside a private simulation workspace. Role Dynamic: [${activeObj.role}]. Persona Traits: ${activeObj.traits}. Context Narrative Matrix: ${activeObj.background}.
 
@@ -1215,7 +1262,6 @@ CRITICAL EXECUTION PROTOCOLS FOR LONG REPLIES:
 5. Absolute Length Constraint: Write between 100 to 200 words. Be expansive, descriptive, demanding, and thorough. Never write short answers.
 6. Absolutely no Devanagari or Hindi font outputs. Roman characters only.`;
 
-        /* FEATURE 4 IMPLEMENTATION: COMPRESSED CONTEXT MEMORY SLICE PASS LAYER */
         const contextualThreadLogs = activeObj.history ? activeObj.history.slice(-12).map(m => ({
           role: m.type === 'transmitted' ? 'user' : 'assistant', content: m.content
         })) : [];
@@ -1226,7 +1272,7 @@ CRITICAL EXECUTION PROTOCOLS FOR LONG REPLIES:
           body: JSON.stringify({
             model: "llama-3.3-70b-versatile",
             messages: [ { role: "system", content: sysPrompt }, ...contextualThreadLogs ],
-            temperature: 0.90, max_tokens: 500, stream: false
+            temperature: calculatedTemperature, max_tokens: 500, stream: false
           })
         });
 
@@ -1242,7 +1288,6 @@ CRITICAL EXECUTION PROTOCOLS FOR LONG REPLIES:
       if(!localState.activeContactId) return;
       const inputStr = messageInputField.value.trim(); if (!inputStr) return;
 
-      /* FEATURE 1 IMPLEMENTATION: TRACK TIMESTAMPS DELTA FOR DYNAMIC TRAIT DRIFT HOOKS */
       const currentTickTime = Date.now();
       const activeObj = localState.roster[localState.activeContactId];
       if (lastUserMessageTimestamp > 0 && activeObj) {
