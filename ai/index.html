@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Mobile Bulk Image Editor</title>
+    <link rel="stylesheet" href="mobile.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header>
+        <h1>📸 Bulk Image Editor</h1>
+        <p id="status">Connecting...</p>
+      </header>
+
+      <label class="field">
+        <span>Edit prompt</span>
+        <textarea id="prompt" rows="5" placeholder="Example: Replace white background with black."></textarea>
+      </label>
+
+      <div class="upload-row">
+        <input id="camera-input" type="file" accept="image/*" capture="environment" hidden>
+        <input id="gallery-input" type="file" accept="image/*" multiple hidden>
+        <button id="camera-btn" type="button" class="upload-btn">📷 Camera</button>
+        <button id="gallery-btn" type="button" class="upload-btn">🖼️ Gallery</button>
+      </div>
+
+      <section class="settings-row">
+        <label>
+          <span>Delay (sec)</span>
+          <input id="delay" type="number" min="3" max="600" value="10">
+        </label>
+        <label>
+          <span>Output wait (sec)</span>
+          <input id="output-timeout" type="number" min="30" max="600" value="240">
+        </label>
+      </section>
+
+      <div class="main-actions">
+        <button id="start" type="button" class="btn-start">▶ Start Editing</button>
+        <button id="pause" type="button" class="btn-pause">⏸ Pause</button>
+        <button id="clear" type="button" class="btn-danger">🗑 Clear All</button>
+      </div>
+
+      <section>
+        <div class="section-head">
+          <h2>Queue</h2>
+          <span id="queue-count">0 images</span>
+        </div>
+        <div id="queue" class="queue"></div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>Outputs</h2>
+          <span id="output-count">0 ready</span>
+        </div>
+        <div id="outputs" class="outputs"></div>
+        <p id="no-outputs" class="empty-msg">No output images yet</p>
+      </section>
+
+    <div id="image-modal" class="modal-overlay" style="display:none">
+      <div class="modal-content">
+        <button class="modal-close" id="modal-close" title="Close">✕</button>
+        <div class="modal-canvas-wrap">
+          <canvas id="modal-canvas"></canvas>
+        </div>
+        <div class="modal-controls">
+          <label class="modal-field">
+            <span>Add Text</span>
+            <input type="text" id="modal-text-input" placeholder="Type text to overlay…">
+          </label>
+          <div class="modal-controls-row">
+            <label class="modal-field">
+              <span>Size</span>
+              <input type="range" id="modal-font-size" min="12" max="120" value="32">
+              <small id="modal-size-label">32px</small>
+            </label>
+            <label class="modal-field">
+              <span>Color</span>
+              <input type="color" id="modal-text-color" value="#ffffff">
+            </label>
+            <label class="modal-field">
+              <span>Bold</span>
+              <input type="checkbox" id="modal-text-bold">
+            </label>
+          </div>
+
+          <div class="modal-actions">
+            <button id="modal-download" class="btn-modal-download">⬇ Download with Text</button>
+            <button id="modal-download-plain" class="btn-modal-plain">⬇ Download Original</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </main>
+
+    <script src="firebase-config.js"></script>
+    <script src="firebase-client.js"></script>
+    <script src="mobile.js"></script>
+  </body>
+</html>
