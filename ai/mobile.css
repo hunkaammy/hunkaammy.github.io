@@ -69,7 +69,7 @@ h2 { font-size: 15px; font-weight: 700; }
   font-weight: 700;
 }
 
-textarea, input[type="number"] {
+textarea, input[type="number"], select {
   width: 100%;
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -82,11 +82,21 @@ textarea, input[type="number"] {
   transition: border-color 0.2s;
 }
 
-textarea:focus, input[type="number"]:focus {
+textarea:focus, input[type="number"]:focus, select:focus {
   border-color: var(--accent);
 }
 
 textarea { resize: vertical; font-size: 14px; }
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%238b8fa3' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 20px;
+  padding-right: 32px;
+}
 
 /* ── Upload buttons ────────────────────── */
 
@@ -135,7 +145,7 @@ textarea { resize: vertical; font-size: 14px; }
   color: var(--text2);
 }
 
-.settings-row input {
+.settings-row input, .settings-row select {
   height: 38px;
   font-size: 14px;
 }

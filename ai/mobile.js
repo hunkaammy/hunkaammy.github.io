@@ -1,5 +1,6 @@
 /* ── DOM refs ─────────────────────────── */
 const $prompt      = document.querySelector("#prompt");
+const $modelSelect = document.querySelector("#model-select");
 const $cameraIn    = document.querySelector("#camera-input");
 const $galleryIn   = document.querySelector("#gallery-input");
 const $cameraBtn   = document.querySelector("#camera-btn");
@@ -18,6 +19,7 @@ const $noOutputs   = document.querySelector("#no-outputs");
 
 /* ── State ────────────────────────────── */
 let state = {
+  model: "gpt",
   prompt: "",
   delaySeconds: 10,
   outputTimeoutSeconds: 240,
@@ -52,6 +54,7 @@ function render() {
   if (document.activeElement !== $prompt) $prompt.value = state.prompt || "";
   if (document.activeElement !== $delay) $delay.value = state.delaySeconds || 10;
   if (document.activeElement !== $outTimeout) $outTimeout.value = state.outputTimeoutSeconds || 240;
+  if (document.activeElement !== $modelSelect && $modelSelect) $modelSelect.value = state.model || "gpt";
 
   const total = state.items.length;
   const completed = state.items.filter(i => i.status === "completed").length;
@@ -212,6 +215,7 @@ function render() {
 
 function normalizeState(s) {
   if (!s) return {
+    model: "gpt",
     prompt: "",
     delaySeconds: 10,
     outputTimeoutSeconds: 240,
@@ -220,6 +224,7 @@ function normalizeState(s) {
     items: []
   };
   return {
+    model: s.model || "gpt",
     prompt: s.prompt || "",
     delaySeconds: Number(s.delaySeconds) || 10,
     outputTimeoutSeconds: Number(s.outputTimeoutSeconds) || 240,
@@ -248,6 +253,7 @@ async function loadState() {
 async function pushState(nextStatus) {
   state = {
     ...state,
+    model: $modelSelect ? $modelSelect.value : (state.model || "gpt"),
     prompt: $prompt.value.trim(),
     delaySeconds: Number($delay.value) || 10,
     outputTimeoutSeconds: Number($outTimeout.value) || 240,
@@ -351,11 +357,17 @@ $galleryBtn.addEventListener("click", () => { $galleryIn.value = ""; $galleryIn.
 $cameraIn.addEventListener("change", () => { if ($cameraIn.files.length) handleFiles($cameraIn.files); });
 $galleryIn.addEventListener("change", () => { if ($galleryIn.files.length) handleFiles($galleryIn.files); });
 
+$prompt.addEventListener("change", () => pushState());
+$delay.addEventListener("change", () => pushState());
+$outTimeout.addEventListener("change", () => pushState());
+$modelSelect.addEventListener("change", () => pushState());
+
 $start.addEventListener("click", () => pushState("running"));
 $pause.addEventListener("click", () => pushState("paused"));
 $clear.addEventListener("click", async () => {
-  if (!state.items.length) return;
+  if (!state.items.length && !$prompt.value.trim()) return;
   state = {
+    model: $modelSelect ? $modelSelect.value : (state.model || "gpt"),
     prompt: $prompt.value.trim(),
     delaySeconds: Number($delay.value) || 10,
     outputTimeoutSeconds: Number($outTimeout.value) || 240,
