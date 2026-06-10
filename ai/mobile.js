@@ -95,36 +95,14 @@ function render() {
   });
 
   // ── Outputs ──
-  const outputItems = state.items.filter(i => i.output && (i.output.url || (i.output.urls && i.output.urls.length)));
-  const inProgressItems = state.items.filter(i => ["submitting", "waiting", "generating"].includes(i.status));
+  const outputItems = state.items.filter(i => i.output && (i.output.url || (i.output.urls && i.output.urls.length))).reverse();
+  const inProgressItems = state.items.filter(i => ["submitting", "waiting", "generating"].includes(i.status)).reverse();
   $noOutputs.style.display = (outputItems.length || inProgressItems.length) ? "none" : "block";
 
   $outputs.innerHTML = "";
 
-  // Show in-progress items with loading spinners first
+  // Show in-progress items with loading spinners first (newest first)
   inProgressItems.forEach(item => {
-    const card = document.createElement("div");
-    card.className = "output-card loading-card";
-
-    const head = document.createElement("div");
-    head.className = "output-card-head";
-    const title = document.createElement("span");
-    title.textContent = item.name;
-    const statusEl = document.createElement("small");
-    statusEl.className = "loading-status-badge";
-    if (item.status === "submitting") {
-      statusEl.textContent = "⏳ Sending…";
-    } else if (item.status === "generating") {
-      statusEl.textContent = "⏳ Generating…";
-    } else {
-      statusEl.textContent = "⏳ Waiting…";
-    }
-    head.append(title, statusEl);
-    card.append(head);
-
-    const grid = document.createElement("div");
-    grid.className = "output-images";
-
     const wrap = document.createElement("div");
     wrap.className = "output-img-wrap loading-placeholder";
 
@@ -148,66 +126,39 @@ function render() {
     }
 
     wrap.append(thumb, spinner, spinnerText);
-    grid.append(wrap);
-    card.append(grid);
-    $outputs.append(card);
+    $outputs.append(wrap);
   });
 
-  // Show completed output items
+  // Show completed output items (newest first, direct gallery style without name/header)
   outputItems.forEach(item => {
-    const card = document.createElement("div");
-    card.className = "output-card";
-
-    const head = document.createElement("div");
-    head.className = "output-card-head";
-    const title = document.createElement("span");
-    title.textContent = item.name;
-    const check = document.createElement("small");
-    check.textContent = "✓ done";
-    head.append(title, check);
-    card.append(head);
-
     const allUrls = (item.output.urls && item.output.urls.length)
       ? item.output.urls
       : [item.output.url];
+    
+    const latestUrl = allUrls[allUrls.length - 1];
 
-    const grid = document.createElement("div");
-    grid.className = "output-images";
+    const wrap = document.createElement("div");
+    wrap.className = "output-img-wrap";
 
-    allUrls.forEach((url, idx) => {
-      const wrap = document.createElement("div");
-      wrap.className = "output-img-wrap";
+    const img = document.createElement("img");
+    img.className = "loading";
+    img.alt = item.name;
+    img.loading = "lazy";
+    img.style.cursor = "pointer";
+    img.src = latestUrl;
 
-      const img = document.createElement("img");
-      img.className = "loading";
-      img.alt = `Output ${idx + 1}`;
-      img.loading = "lazy";
-      img.style.cursor = "pointer";
+    img.onload = function () { this.className = ""; };
+    img.addEventListener("click", () => openImageModal(latestUrl, item.name));
+    img.onerror = function () {
+      this.className = "error";
+      const lbl = document.createElement("div");
+      lbl.className = "img-error-label";
+      lbl.textContent = "Image expired";
+      wrap.append(lbl);
+    };
 
-      // Load output image directly
-      img.src = url;
-
-      img.onload = function () { this.className = ""; };
-      img.addEventListener("click", () => openImageModal(url, item.name));
-      img.onerror = function () {
-        this.className = "error";
-        const lbl = document.createElement("div");
-        lbl.className = "img-error-label";
-        lbl.textContent = "Image expired or unavailable";
-        wrap.append(lbl);
-      };
-
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `output-${idx + 1}-${item.name}`;
-      link.textContent = "⬇ Download";
-
-      wrap.append(img, link);
-      grid.append(wrap);
-    });
-
-    card.append(grid);
-    $outputs.append(card);
+    wrap.append(img);
+    $outputs.append(wrap);
   });
 }
 
