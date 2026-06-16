@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ULTRA-OPTIMIZED RESPONSIVE STREAM FEED</title>
+    <title>ULTRA-OPTIMIZED RESPONSIVE FEED</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -28,7 +28,7 @@
             will-change: transform;
         }
 
-        /* ANTI-CRIPPING APP CONTROL NAVIGATION BAR */
+        /* ANTI-CLIPPING CONTROL NAVIGATION BAR */
         header {
             position: fixed;
             top: 15px;
@@ -76,7 +76,44 @@
             color: #000000;
         }
 
-        /* PERSISTENT FLOATING VOLUME MANAGER CONTROL BUTTON */
+        /* PREMIUM DYNAMIC METRICS OVERLAY PANEL */
+        .analytics-panel {
+            max-width: 1400px;
+            margin: 0 auto 24px;
+            background: rgba(20, 20, 20, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .metric-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: #8a8a8a;
+            text-transform: uppercase;
+        }
+
+        .metric-pill span.dot { width: 6px; height: 6px; border-radius: 50%; }
+        .dot-video { background: #ff2d55; box-shadow: 0 0 8px #ff2d55; }
+        .dot-gif { background: #ffcc00; box-shadow: 0 0 8px #ffcc00; }
+        .dot-image { background: #007aff; box-shadow: 0 0 8px #007aff; }
+
+        .metric-pill strong {
+            color: #ffffff;
+            font-size: 1rem;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* FLOATING VOLUME BUTTON */
         .audio-manager {
             position: fixed;
             bottom: 25px;
@@ -97,35 +134,54 @@
         }
         .audio-manager svg { fill: #fff; width: 16px; height: 18px; }
 
-        /* NEUMORPHIC HEART BUTTONS CONFIG PROFILE */
+        /* HEART SYSTEM CONFIG */
         .fav-btn {
-            background: none;
-            border: none;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 100%; /* SPREADS ACROSS THE HORIZON FOR EASY INTERACTION AT BASE */
+            padding: 10px 0;
+            border-radius: 8px;
+            transition: all 0.2s ease;
         }
-        .fav-btn:active { transform: scale(1.3); }
+        .fav-btn:active { transform: scale(0.95); }
         .fav-btn svg {
-            width: 22px;
-            height: 22px;
+            width: 18px;
+            height: 18px;
             fill: none;
             stroke: #ffffff;
             stroke-width: 2;
             transition: fill 0.3s, stroke 0.3s;
+        }
+        .fav-btn.is-fav {
+            background: rgba(255, 45, 85, 0.1);
+            border-color: rgba(255, 45, 85, 0.2);
         }
         .fav-btn.is-fav svg {
             fill: #ff2d55;
             stroke: #ff2d55;
         }
 
-        /* VIEW DISPLAY STRUCTS SECTIONS */
+        /* SPECIAL LOGIC: FLOAT REEL LAYOUT FAV BUTTON TO STOP SIDE COMPRESSION */
+        .reel-actions-right .fav-btn {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            padding: 0;
+        }
+
+        /* VIEW PORT CONFIGS */
         .view-section { display: none; min-height: 100vh; width: 100%; }
         .view-section.active { display: block; }
 
-        /* REELS VIEWS DECK INTERFACES */
+        /* REELS SNAP VIEWPORT ENGINE */
         #video-view {
             height: 100vh;
             overflow-y: scroll;
@@ -156,7 +212,6 @@
             cursor: pointer;
         }
 
-        /* FIXED TRANSLATION DECK OVERLAY */
         .reel-meta-deck {
             position: absolute;
             bottom: 0;
@@ -172,38 +227,14 @@
             pointer-events: none;
         }
 
-        .reel-info-left {
-            display: flex;
-            flex-direction: column;
-            max-width: 78%;
-            pointer-events: none;
-        }
+        .reel-info-left { display: flex; flex-direction: column; max-width: 78%; pointer-events: none; }
+        .reel-title { font-size: 0.9rem; font-weight: 500; color: #ffffff; margin-bottom: 6px; line-height: 1.4; letter-spacing: -0.01em; word-wrap: break-word; }
+        .reel-origin { font-size: 0.7rem; color: rgba(255, 255, 255, 0.45); font-weight: 700; letter-spacing: 0.03em; }
+        .reel-actions-right { pointer-events: auto; padding-bottom: 2px; }
 
-        .reel-title {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: #ffffff;
-            margin-bottom: 6px;
-            line-height: 1.4;
-            letter-spacing: -0.01em;
-            word-wrap: break-word; /* PREVENTS MOBILE TEXT OVERFLOW */
-        }
-
-        .reel-origin {
-            font-size: 0.7rem;
-            color: rgba(255, 255, 255, 0.45);
-            font-weight: 700;
-            letter-spacing: 0.03em;
-        }
-
-        .reel-actions-right {
-            pointer-events: auto;
-            padding-bottom: 2px;
-        }
-
-        /* GALLERY COMPONENT DECK ROW LAYOUT (MOBILE RESPONSIVE GRID) */
+        /* GALLERY RESPONSIVE CONTAINER LAYOUT GRID */
         #image-view, #favorites-view {
-            padding: 90px 16px 40px;
+            padding: 90px 12px 40px;
             background-color: #050505;
         }
 
@@ -211,15 +242,20 @@
             max-width: 1400px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* SHIFTS TO TWO COLUMNS IN SMALL PHONE VIEWPORTS */
-            gap: 16px;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* OPTIMIZED CARD DENSITY FOR SMALL PHONES */
+            gap: 12px;
         }
 
         @media(min-width: 768px) {
             .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 24px; }
+            #image-view, #favorites-view { padding: 100px 24px 40px; }
             header { top: 20px; }
             .nav-btn { font-size: 0.8rem; padding: 10px 24px; }
             .reel-title { font-size: 0.95rem; }
+            
+            /* CHANGE DESKTOP DESCRIPTIONS TO FLEX ROW BEHAVIOR */
+            .gallery-desc { flex-direction: row !important; align-items: center !important; }
+            .fav-btn { width: auto !important; padding: 10px 12px !important; }
         }
 
         .gallery-card {
@@ -229,68 +265,45 @@
             border: 1px solid rgba(255,255,255,0.03);
             display: flex;
             flex-direction: column;
-            height: 100%; /* ASSURES UNIFORM BLOCK PROFILES */
+            height: auto; /* NO FIXED HEIGHT CONSTRAINT TO ELIMINATE SCROLL SLIPPAGE CLIPPING */
         }
 
-        .img-slot {
-            width: 100%;
-            padding-top: 125%;
-            position: relative;
-            background: #111;
-        }
-        .img-slot img {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover;
-            opacity: 0;
-            transition: opacity 0.4s ease;
-        }
+        .img-slot { width: 100%; padding-top: 125%; position: relative; background: #111; }
+        .img-slot img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.4s ease; }
         .img-slot img.loaded { opacity: 1; }
 
-        /* FLEX EMBEDDED TEXT FIELDS SAVING MOBILE SPACES FROM CRIPPING */
+        /* THE ANTI-CLIPPING RE-ARCHITECTURE ZONE */
         .gallery-desc { 
             padding: 12px; 
             background: #0c0d0d; 
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-            flex-grow: 1;
+            display: flex; 
+            flex-direction: column; /* FORCES BUTTON BELOW THE TEXT BLOCK ON MOBILES */
+            align-items: flex-start;
+            gap: 10px;
+            width: 100%;
         }
+        
         .gallery-text { 
             font-size: 0.75rem; 
             font-weight: 400; 
             color: #dcdcdc; 
-            line-height: 1.3; 
+            line-height: 1.4; 
             display: -webkit-box;
-            -webkit-line-clamp: 2; /* FORCES BALANCED TWO LINES MAXIMUM AND WRAPS WITHOUT CLIPPING BOXES */
+            -webkit-line-clamp: 3; /* EXPORTS UP TO 3 WRAPPED TEXT STRINGS */
             -webkit-box-orient: vertical;  
             overflow: hidden;
             text-overflow: ellipsis;
+            width: 100%;
+            word-wrap: break-word;
         }
 
-        /* FAVORITE INTERNAL AREA LAYOUT SPLITTERS */
         .fav-section-divider {
-            grid-column: 1 / -1;
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 0.12em;
-            color: rgba(255,255,255,0.3);
-            text-transform: uppercase;
-            padding: 15px 0 5px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            margin-bottom: 8px;
+            grid-column: 1 / -1; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; color: rgba(255,255,255,0.3); text-transform: uppercase; padding: 15px 0 5px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 8px;
         }
 
-        /* STATE PULSE ANIMATIONS LOADING CHASSIS */
-        .app-loader {
-            position: fixed;
-            top: 50%; left: 50%; transform: translate(-50%, -50%);
-            display: flex; flex-direction: column; align-items: center; z-index: 1000;
-        }
-        .bar-pulse {
-            display: flex; align-items: flex-end; gap: 4px; height: 24px; margin-bottom: 12px;
-        }
+        /* STATE PULSE ANIMATIONS LOADERS */
+        .app-loader { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; z-index: 1000; }
+        .bar-pulse { display: flex; align-items: flex-end; gap: 4px; height: 24px; margin-bottom: 12px; }
         .bar-pulse div { width: 3px; height: 100%; background: #fff; animation: pulse 0.6s infinite alternate; }
         .bar-pulse div:nth-child(2) { animation-delay: 0.2s; }
         .bar-pulse div:nth-child(3) { animation-delay: 0.4s; }
@@ -310,7 +323,7 @@
 
         <div id="loader" class="app-loader">
             <div class="bar-pulse"><div></div><div></div><div></div></div>
-            <p style="font-size: 0.65rem; letter-spacing: 0.15em; color: #555; font-weight:600;">OPTIMIZING STREAM CORE...</p>
+            <p style="font-size: 0.65rem; letter-spacing: 0.15em; color: #555; font-weight:600;">PROCESSING CHANNELS...</p>
         </div>
 
         <div class="audio-manager" onclick="toggleGlobalAudioVolume()" title="Toggle Sound">
@@ -321,10 +334,12 @@
         <main id="video-view" class="view-section active"></main>
 
         <main id="image-view" class="view-section">
+            <div class="analytics-panel" id="gallery-analytics"></div>
             <div class="gallery-grid" id="gallery-container"></div>
         </main>
 
         <main id="favorites-view" class="view-section">
+            <div class="analytics-panel" id="fav-analytics"></div>
             <div class="gallery-grid" id="fav-container"></div>
         </main>
     </div>
@@ -336,8 +351,25 @@
         let systemAudioMuted = true;
         let intersectionObserverInstance = null;
         
+        let counts = { video: 0, gif: 0, image: 0 };
+
         const STORAGE_KEY = "PREMIUM_FEED_FAVORITES_RECON";
         let favoriteRegistry = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+
+        function isThumbnailUrl(urlStr) {
+            if (!urlStr) return true;
+            const urlLower = urlStr.toLowerCase();
+            if (urlLower.includes(".thumbs.redditmedia.com")) return true;
+            if (urlLower.includes("/tb/") || urlLower.includes("/thumbs/") || urlLower.includes("/thumb/")) return true;
+            if (urlLower.includes("ytimg.com/vi") || urlLower.includes("img.youtube.com/vi")) return true;
+            try {
+                const parsedUrl = new URL(urlStr);
+                const widthParam = parsedUrl.searchParams.get("width") || parsedUrl.searchParams.get("w");
+                if (widthParam && parseInt(widthParam, 10) < 480) return true;
+            } catch(e) {}
+            if (urlLower.includes("sb-") || urlLower.includes("sb.preview.redd.it")) return true;
+            return false;
+        }
 
         function viewRoute(targetSection) {
             document.querySelectorAll('.view-section').forEach(section => section.classList.remove('active'));
@@ -373,7 +405,6 @@
             systemAudioMuted = !systemAudioMuted;
             document.getElementById('vol-muted').style.display = systemAudioMuted ? "block" : "none";
             document.getElementById('vol-active').style.display = systemAudioMuted ? "none" : "block";
-
             document.querySelectorAll('.reel-video').forEach(vid => { vid.muted = systemAudioMuted; });
         }
 
@@ -440,11 +471,9 @@
             localStorage.setItem(STORAGE_KEY, JSON.stringify(favoriteRegistry));
             
             document.querySelectorAll(`[data-fav-id="${uniqueKey}"]`).forEach(btn => {
-                if (favoriteRegistry[uniqueKey]) btn.classList.add('is-fav');
-                else btn.classList.remove('is-fav');
+                favoriteRegistry[uniqueKey] ? btn.classList.add('is-fav') : btn.classList.remove('is-fav');
             });
 
-            // LIVE RE-REFRESH INSTANCE WORK IF USER UNFAVORITES INSIDE THE FAVORITE VIEW PORTAL
             if (document.getElementById('favorites-view').classList.contains('active')) {
                 compileFavoritesTabGrid();
             }
@@ -463,6 +492,7 @@
 
                 compileReelsStructure();
                 compileGalleryStructure();
+                renderMetricsUI();
 
                 document.getElementById('loader').style.display = "none";
 
@@ -484,46 +514,62 @@
 
             items.forEach(node => {
                 const internalCategory = (node.category || "").toLowerCase();
+                let assetUrl = node.url;
+
+                if(internalCategory === "video" && (!assetUrl || !assetUrl.includes(".mp4"))) {
+                    if (node.directUrls && node.directUrls.length > 0) {
+                        assetUrl = node.directUrls[node.directUrls.length - 1].url;
+                    }
+                }
+
+                if (!assetUrl || isThumbnailUrl(assetUrl)) return;
+
+                const fileKey = extractCleanPathKey(assetUrl);
 
                 if(internalCategory === "video") {
-                    let extractedUrl = null;
-                    if(node.url && node.url.includes('.mp4')) extractedUrl = node.url;
-                    else if (node.directUrls && node.directUrls.length > 0) {
-                        extractedUrl = node.directUrls[node.directUrls.length - 1].url;
-                    }
-
-                    if(extractedUrl) {
-                        const fileKey = extractCleanPathKey(extractedUrl);
-                        if (!uniqueVideoRegistry.has(fileKey)) {
-                            uniqueVideoRegistry.add(fileKey);
-                            localVideoStack.push({
-                                hashId: btoa(fileKey).replace(/=/g, "").substring(0, 20),
-                                title: node.title || "SHORT REEL",
-                                subreddit: node.subreddit || "feed",
-                                url: extractedUrl
-                            });
-                        }
+                    if (!uniqueVideoRegistry.has(fileKey)) {
+                        uniqueVideoRegistry.add(fileKey);
+                        counts.video++;
+                        localVideoStack.push({
+                            hashId: btoa(fileKey).replace(/=/g, "").substring(0, 20),
+                            title: node.title || "SHORT REEL",
+                            subreddit: node.subreddit || "feed",
+                            url: assetUrl
+                        });
                     }
                 } else if (internalCategory === "image" || internalCategory === "gif") {
-                    if (node.url) {
-                        const fileKey = extractCleanPathKey(node.url);
-                        if (!uniqueImageRegistry.has(fileKey)) {
-                            uniqueImageRegistry.add(fileKey);
-                            localImageStack.push({
-                                hashId: btoa(fileKey).replace(/=/g, "").substring(0, 20),
-                                title: node.title || "GALLERY OBJECT",
-                                url: node.url
-                            });
-                        }
+                    if (!uniqueImageRegistry.has(fileKey)) {
+                        uniqueImageRegistry.add(fileKey);
+                        if (internalCategory === "gif") counts.gif++; else counts.image++;
+                        
+                        localImageStack.push({
+                            hashId: btoa(fileKey).replace(/=/g, "").substring(0, 20),
+                            title: node.title || "GALLERY OBJECT",
+                            url: assetUrl,
+                            isGif: internalCategory === "gif"
+                        });
                     }
                 }
             });
         }
 
+        function renderMetricsUI(targetId = 'gallery-analytics', customCounts = null) {
+            const outputId = document.getElementById(targetId);
+            const source = customCounts || counts;
+            const total = source.video + source.gif + source.image;
+
+            outputId.innerHTML = `
+                <div class="metric-pill"><span class="dot dot-video"></span>Videos: <strong>${source.video}</strong></div>
+                <div class="metric-pill"><span class="dot dot-gif"></span>Gifs: <strong>${source.gif}</strong></div>
+                <div class="metric-pill"><span class="dot dot-image"></span>Images: <strong>${source.image}</strong></div>
+                <div class="metric-pill" style="border-left: 1px solid rgba(255,255,255,0.1); padding-left:12px;">Total: <strong style="color:#fff;">${total}</strong></div>
+            `;
+        }
+
         function compileReelsStructure() {
             const videoViewport = document.getElementById('video-view');
             if(localVideoStack.length === 0) {
-                videoViewport.innerHTML = `<div class="reel-node" style="color:#555;">NO STREAMS DETECTED</div>`;
+                videoViewport.innerHTML = `<div class="reel-node" style="color:#555;">NO STREAMS INGESTED</div>`;
                 return;
             }
 
@@ -579,14 +625,17 @@
             bindIntersectionLazyLoaders();
         }
 
-        // GENERATES DYNAMIC EXTRACTED SPLIT MATRIX GRIDS EXCLUSIVELY FOR CHOSEN FAVORITES
         function compileFavoritesTabGrid() {
             const target = document.getElementById('fav-container');
             const savedVideos = localVideoStack.filter(v => favoriteRegistry[v.hashId]);
             const savedImages = localImageStack.filter(i => favoriteRegistry[i.hashId]);
 
+            let favCounts = { video: savedVideos.length, gif: 0, image: 0 };
+            savedImages.forEach(img => { img.isGif ? favCounts.gif++ : favCounts.image++; });
+            renderMetricsUI('fav-analytics', favCounts);
+
             if (savedVideos.length === 0 && savedImages.length === 0) {
-                target.innerHTML = `<div class="col-12" style="grid-column: 1/-1; text-align:center; padding: 60px 0; color:#444; font-size:0.8rem; letter-spacing:0.05em;">YOUR FAVORITES DIRECTORY IS EMPTY</div>`;
+                target.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:60px 0; color:#444; font-size:0.8rem; letter-spacing:0.05em;">YOUR FAVORITES DIRECTORY IS EMPTY</div>`;
                 return;
             }
 
@@ -598,7 +647,7 @@
                     htmlPayload += `
                         <div class="gallery-card">
                             <div class="img-slot" style="background:#000;">
-                                <video src="${v.url}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover;" controls muted></video>
+                                <video src="${v.url}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain;" controls muted></video>
                             </div>
                             <div class="gallery-desc">
                                 <h3 class="gallery-text">${v.title}</h3>
@@ -612,7 +661,7 @@
             }
 
             if (savedImages.length > 0) {
-                htmlPayload += `<div class="fav-section-divider">SAVED IMAGE ARCHIVES (${savedImages.length})</div>`;
+                htmlPayload += `<div class="fav-section-divider">SAVED IMAGE & GIF ARCHIVES (${savedImages.length})</div>`;
                 savedImages.forEach(i => {
                     htmlPayload += `
                         <div class="gallery-card">
