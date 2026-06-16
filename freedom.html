@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MINIMAL MEDIA FEED</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>ULTRA-OPTIMIZED PREMIUM STREAM FEED</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
@@ -15,75 +15,98 @@
         }
 
         body {
-            background-color: #0a0a0a;
-            color: #e5e5e5;
+            background-color: #050505;
+            color: #f5f5f5;
             overflow-x: hidden;
         }
 
-        /* PERSISTENT HEADER NAVIGATION */
+        #app-viewport {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            will-change: transform;
+        }
+
+        /* NAVIGATION CONTROL BAR */
         header {
             position: fixed;
-            top: 0;
+            top: 20px;
             left: 0;
             width: 100%;
-            height: 70px;
-            background: linear-gradient(to bottom, rgba(10,10,10,0.95), rgba(10,10,10,0));
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 100;
-            padding: 0 20px;
+            pointer-events: none;
         }
 
-        .nav-toggles {
+        .nav-pill {
             display: flex;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(18, 18, 18, 0.65);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
             padding: 4px;
-            border-radius: 30px;
+            border-radius: 40px;
             border: 1px solid rgba(255, 255, 255, 0.08);
+            pointer-events: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         .nav-btn {
             background: none;
             border: none;
-            color: #888;
-            padding: 8px 24px;
-            font-size: 0.85rem;
+            color: #8c8c8c;
+            padding: 10px 28px;
+            font-size: 0.8rem;
             font-weight: 600;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.08em;
             cursor: pointer;
-            border-radius: 20px;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border-radius: 30px;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .nav-btn.active {
             background: #ffffff;
             color: #000000;
-            box-shadow: 0 4px 12px rgba(255,255,255,0.1);
         }
 
-        /* CONTAINER VIEWS */
-        .view-section {
-            display: none;
-            padding-top: 70px;
-            min-height: 100vh;
+        /* FLOATING VOLUME ICON */
+        .audio-manager {
+            position: fixed;
+            bottom: 30px;
+            right: 25px;
+            width: 44px;
+            height: 44px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 50%;
+            z-index: 90;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.3s;
         }
+        .audio-manager:hover { background: rgba(255,255,255,0.2); }
+        .audio-manager svg { fill: #fff; width: 18px; height: 18px; }
 
-        .view-section.active {
-            display: block;
-        }
+        /* VIEWPORT CONFIGURATIONS */
+        .view-section { display: none; min-height: 100vh; }
+        .view-section.active { display: block; }
 
-        /* ====== REELS VERTICAL CONTAINER (TIKTOK/SHORTS VIEW) ====== */
+        /* REELS SNAP VIEWPORTS */
         #video-view {
-            padding-top: 0;
             height: 100vh;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
-            scrollbar-width: none; /* HIDE SCROLLBAR FOR SYSTEM */
+            scrollbar-width: none;
+            background: #000;
         }
         #video-view::-webkit-scrollbar { display: none; }
 
-        .reel-container {
+        .reel-node {
             width: 100%;
             height: 100vh;
             scroll-snap-align: start;
@@ -98,296 +121,366 @@
         .reel-video {
             width: 100%;
             height: 100%;
-            max-width: 500px; /* FIXED PHONE RATIO ASPECT FOR DESKTOP VIEWPORT */
+            max-width: 480px;
             object-fit: contain;
             background: #000;
+            cursor: pointer;
         }
 
-        .reel-overlay {
+        .reel-meta-deck {
             position: absolute;
             bottom: 0;
             left: 50%;
             transform: translateX(-50%);
             width: 100%;
-            max-width: 500px;
-            padding: 40px 20px;
-            background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%);
+            max-width: 480px;
+            padding: 60px 24px 40px;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0) 100%);
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
             pointer-events: none;
         }
 
         .reel-title {
             font-size: 0.95rem;
-            font-weight: 400;
-            color: #fff;
-            margin-bottom: 6px;
-            line-height: 1.4;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+            font-weight: 500;
+            color: #ffffff;
+            margin-bottom: 8px;
+            line-height: 1.5;
+            letter-spacing: -0.01em;
         }
 
-        .reel-sub {
+        .reel-origin {
             font-size: 0.75rem;
-            color: #aaa;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 700;
+            letter-spacing: 0.03em;
         }
 
-        /* ====== IMAGE GALLERY GRID VIEWS ====== */
+        /* IMAGE GALLERY MASONRY VIEWS */
+        #image-view {
+            padding: 100px 24px 40px;
+            background-color: #050505;
+        }
+
         .gallery-grid {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 11fr));
-            gap: 20px;
-            padding: 30px 20px;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 24px;
         }
 
         .gallery-card {
-            background: #121212;
-            border-radius: 8px;
+            background: #0d0d0d;
+            border-radius: 12px;
             overflow: hidden;
             border: 1px solid rgba(255,255,255,0.03);
-            transition: transform 0.4s ease;
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s;
         }
-
         .gallery-card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-6px);
+            border-color: rgba(255,255,255,0.1);
         }
 
-        .img-wrapper {
+        .img-slot {
             width: 100%;
-            padding-top: 120%; /* MASONRY CHIC ASPECT VERTICAL RATIO */
+            padding-top: 130%;
             position: relative;
-            background: #181818;
+            background: #111;
         }
-
-        .img-wrapper img {
+        .img-slot img {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             object-fit: cover;
-            transition: opacity 0.3s ease;
+            opacity: 0;
+            transition: opacity 0.5s ease;
         }
+        .img-slot img.loaded { opacity: 1; }
 
-        .gallery-info {
-            padding: 15px;
-        }
+        .gallery-desc { padding: 16px; background: #0c0d0d; }
+        .gallery-text { font-size: 0.8rem; font-weight: 400; color: #e0e0e0; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        .gallery-title {
-            font-size: 0.85rem;
-            font-weight: 400;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            color: #fff;
-        }
-
-        /* STATE COMPONENTS UI */
-        .status-layer {
+        /* LOADER LAYERS */
+        .app-loader {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            z-index: 10;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            display: flex; flex-direction: column; align-items: center; z-index: 1000;
         }
-
-        .spinner {
-            width: 30px;
-            height: 30px;
-            border: 2px solid rgba(255,255,255,0.1);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin 0.8s infinite linear;
-            margin: 0 auto 15px;
+        .bar-pulse {
+            display: flex; align-items: flex-end; gap: 4px; height: 24px; margin-bottom: 12px;
         }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .hidden { display: none !important; }
+        .bar-pulse div { width: 3px; height: 100%; background: #fff; animation: pulse 0.6s infinite alternate; }
+        .bar-pulse div:nth-child(2) { animation-delay: 0.2s; }
+        .bar-pulse div:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes pulse { 0% { height: 30%; } 100% { height: 100%; } }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="nav-toggles">
-            <button class="nav-btn active" onclick="switchView('video')">REELS FEED</button>
-            <button class="nav-btn" onclick="switchView('image')">GALLERY</button>
+    <div id="app-viewport">
+        <header>
+            <div class="nav-pill">
+                <button class="nav-btn active" id="btn-video" onclick="viewRoute('video')">REELS</button>
+                <button class="nav-btn" id="btn-image" onclick="viewRoute('image')">GALLERY</button>
+            </div>
+        </header>
+
+        <div id="loader" class="app-loader">
+            <div class="bar-pulse"><div></div><div></div><div></div></div>
+            <p style="font-size: 0.7rem; letter-spacing: 0.15em; color: #555; font-weight:600;">BUILDING UNIQUE STREAM CHANNELS...</p>
         </div>
-    </header>
 
-    <div id="loader" class="status-layer">
-        <div class="spinner"></div>
-        <p style="font-size: 0.8rem; letter-spacing: 0.1em; color: #666;">INITIALIZING FEED...</p>
+        <div class="audio-manager" onclick="toggleGlobalAudioVolume()" title="Toggle Sound">
+            <svg id="vol-muted" viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77zM4.34 2.93L2.93 4.34 7.29 8.75H3v6.5h4l5 5V8.46l4.74 4.74c-.38.28-.8.52-1.24.68v2.12c.98-.23 1.89-.73 2.64-1.39l2.51 2.51 1.41-1.41L4.34 2.93zM10 15.17l-2.41-2.42H5v-2.5h2.59L10 7.84v7.33z"/></svg>
+            <svg id="vol-active" style="display:none;" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+        </div>
+
+        <main id="video-view" class="view-section active"></main>
+
+        <main id="image-view" class="view-section">
+            <div class="gallery-grid" id="gallery-container"></div>
+        </main>
     </div>
-
-    <div id="error" class="status-layer hidden" style="color: #ff4444; font-size: 0.9rem;">
-        RESOURCE FETCH BLOCKED OR NOT FOUND.
-    </div>
-
-    <main id="video-view" class="view-section active" onscroll="handleReelAutoplay()"></main>
-
-    <main id="image-view" class="view-section">
-        <div class="gallery-grid" id="gallery-target"></div>
-    </main>
 
     <script>
-        const SOURCE_API = "https://www.hindustantoys.in/TEST//data.json";
-        let parsedVideos = [];
-        let parsedImages = [];
+        const RESOURCE_TARGET = "https://www.hindustantoys.in/TEST//data.json";
+        let localVideoStack = [];
+        let localImageStack = [];
+        let systemAudioMuted = true;
+        let intersectionObserverInstance = null;
 
-        // SWAP VIEW COMPONENT PIPELINE
-        function switchView(viewType) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+        function viewRoute(targetSection) {
+            document.querySelectorAll('.view-section').forEach(section => section.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
 
-            if (viewType === 'video') {
+            if(targetSection === 'video') {
                 document.getElementById('video-view').classList.add('active');
-                event.target.classList.add('active');
-                handleReelAutoplay(); // TRIGGER PLAY EVALUATION FOR NEW ACTIVE PORT
+                document.getElementById('btn-video').classList.add('active');
+                evaluateVideoPlayStates();
             } else {
                 document.getElementById('image-view').classList.add('active');
-                event.target.classList.add('active');
-                pauseAllVideos();
+                document.getElementById('btn-image').classList.add('active');
+                freezeVideoAssets();
             }
         }
 
-        // STOP VIDEO PLAYBACK ON INACTIVE PORTALS
-        function pauseAllVideos() {
-            document.querySelectorAll('.reel-video').forEach(v => v.pause());
+        function freezeVideoAssets() {
+            document.querySelectorAll('.reel-video').forEach(video => {
+                video.pause();
+                if(video.dataset.srcAttached === "true") {
+                    video.removeAttribute('src');
+                    video.load();
+                    video.dataset.srcAttached = "false";
+                }
+            });
         }
 
-        // AUTO-PLAY REEL SNAP INTERSECTION ENGINE
-        function handleReelAutoplay() {
-            const videoView = document.getElementById('video-view');
-            if (!videoView.classList.contains('active')) return;
+        function toggleGlobalAudioVolume() {
+            systemAudioMuted = !systemAudioMuted;
+            const muteIcon = document.getElementById('vol-muted');
+            const activeIcon = document.getElementById('vol-active');
 
-            const reels = document.querySelectorAll('.reel-container');
-            const viewHeight = window.innerHeight;
+            if(systemAudioMuted) {
+                muteIcon.style.display = "block";
+                activeIcon.style.display = "none";
+            } else {
+                muteIcon.style.display = "none";
+                activeIcon.style.display = "block";
+            }
+
+            document.querySelectorAll('.reel-video').forEach(vid => {
+                vid.muted = systemAudioMuted;
+            });
+        }
+
+        function evaluateVideoPlayStates() {
+            if (!document.getElementById('video-view').classList.contains('active')) return;
+            
+            const reels = document.querySelectorAll('.reel-node');
+            const innerHeight = window.innerHeight;
 
             reels.forEach(reel => {
-                const rect = reel.getBoundingClientRect();
+                const boundary = reel.getBoundingClientRect();
                 const video = reel.querySelector('.reel-video');
-                
-                // EVALUATE IF CONTAINER OCCUPIES MINIMUM 80% OF DEVICE WINDOW SIGHTLINE
-                if (rect.top >= -viewHeight/2 && rect.top <= viewHeight/2) {
-                    if (video && video.paused) {
-                        video.play().catch(() => {});
+                const absoluteTargetSrc = video.dataset.rawSrc;
+
+                if (boundary.top >= -innerHeight * 0.6 && boundary.top <= innerHeight * 0.6) {
+                    if (video.dataset.srcAttached !== "true") {
+                        video.setAttribute('src', absoluteTargetSrc);
+                        video.load();
+                        video.dataset.srcAttached = "true";
+                    }
+                    
+                    if (boundary.top >= -100 && boundary.top <= 100) {
+                        if (video.paused) {
+                            video.muted = systemAudioMuted;
+                            video.play().catch(() => {});
+                        }
+                    } else {
+                        if (!video.paused) video.pause();
                     }
                 } else {
-                    if (video && !video.paused) {
-                        video.pause();
+                    if (video.dataset.srcAttached === "true") {
+                        video.removeAttribute('src');
+                        video.load();
+                        video.dataset.srcAttached = "false";
                     }
                 }
             });
         }
 
-        // LOAD DATA PACK FROM DESTINATION
-        async function fetchSystemData() {
+        // DE-DUPLICATION HASH EXTRACTOR LOGIC
+        function extractCleanPathKey(urlPath) {
             try {
-                const response = await fetch(SOURCE_API);
-                if (!response.ok) throw new Error("NETWORK PACK INVALID");
-                const data = await response.json();
+                const urlObj = new URL(urlPath);
+                // EXTRACT THE PATH BASE DISCARDING ALL QUERY STAMP / SIZE ARGUMENTS
+                let cleanPath = urlObj.origin + urlObj.pathname;
                 
-                sortMediaContent(data);
-                renderVideoReels();
-                renderImageGallery();
-
-                document.getElementById('loader').classList.add('hidden');
-                // INSTANT TRIGGER FIRST VIDEO INSTANCE AT START
-                setTimeout(handleReelAutoplay, 200);
-
-            } catch (err) {
-                console.error(err);
-                document.getElementById('loader').classList.add('hidden');
-                document.getElementById('error').classList.remove('hidden');
+                // DE-DUPLICATE VARIANTS OF PACKAGED REDDIT RESOLUTIONS (E.G., 220p.mp4 VS 480p.mp4)
+                cleanPath = cleanPath.replace(/_(\d+p)\.mp4/g, '_base.mp4');
+                // CLEAN DIMENSION INLINE HEADERS IN SPREAD PREVIEWS
+                cleanPath = cleanPath.split('?')[0]; 
+                
+                return cleanPath;
+            } catch (e) {
+                // FALLBACK STRIP IF RAW STRING MATCH ENCOUNTERS UNPARSABLE DOMAINS
+                return urlPath.split('?')[0].replace(/_(\d+p)\.mp4/g, '_base.mp4');
             }
         }
 
-        // SEPARATE VIDEO OBJECTS FROM IMAGE OBJECTS
-        function sortMediaContent(items) {
-            items.forEach(item => {
-                const cat = (item.category || "").toLowerCase();
-                
-                if (cat === 'video') {
-                    // VERIFY IF INHERENT STRUCTURE CONTAINS STANDARD EXPORT DIRECT STREAM COMPATIBLE URLS
-                    let playableUrl = null;
-                    if (item.url && item.url.includes('.mp4')) playableUrl = item.url;
-                    else if (item.directUrls && item.directUrls.length > 0) {
-                        playableUrl = item.directUrls[item.directUrls.length - 1].url; 
+        async function initDataPipelineExecution() {
+            try {
+                const payload = await fetch(RESOURCE_TARGET);
+                if (!payload.ok) throw new Error("API STRUCT DATA RESPONSE ERROR");
+                const arrayPack = await payload.json();
+
+                processPayloadSorting(arrayPack);
+                compileReelsStructure();
+                compileGalleryStructure();
+
+                document.getElementById('loader').style.display = "none";
+
+                let scrollTimeout;
+                document.getElementById('video-view').addEventListener('scroll', () => {
+                    clearTimeout(scrollTimeout);
+                    scrollTimeout = setTimeout(evaluateVideoPlayStates, 40);
+                }, { passive: true });
+
+            } catch (err) {
+                console.error("CRITICAL PACK ERROR: ", err);
+                document.getElementById('loader').innerHTML = `<p style="color:#ff3b30; font-size:0.8rem;">ENGINE BOOT ERROR</p>`;
+            }
+        }
+
+        function processPayloadSorting(items) {
+            // UNIQUE ELEMENT REGISTRY TRACKERS
+            const uniqueVideoRegistry = new Set();
+            const uniqueImageRegistry = new Set();
+
+            items.forEach(node => {
+                const internalCategory = (node.category || "").toLowerCase();
+
+                if(internalCategory === "video") {
+                    let extractedUrl = null;
+                    if(node.url && node.url.includes('.mp4')) extractedUrl = node.url;
+                    else if (node.directUrls && node.directUrls.length > 0) {
+                        extractedUrl = node.directUrls[node.directUrls.length - 1].url;
                     }
-                    
-                    if (playableUrl) {
-                        parsedVideos.push({
-                            title: item.title,
-                            subreddit: item.subreddit || "reddit",
-                            url: playableUrl
-                        });
+
+                    if(extractedUrl) {
+                        const fileKey = extractCleanPathKey(extractedUrl);
+                        // APPEND LOGIC ONLY IF PATH HASH EXCLUDES REPETITIONS
+                        if (!uniqueVideoRegistry.has(fileKey)) {
+                            uniqueVideoRegistry.add(fileKey);
+                            localVideoStack.push({
+                                title: node.title || "SHORT REEL",
+                                subreddit: node.subreddit || "feed",
+                                url: extractedUrl
+                            });
+                        }
                     }
-                } else if (cat === 'image' || cat === 'gif') {
-                    if (item.url) {
-                        parsedImages.push({
-                            title: item.title,
-                            url: item.url
-                        });
+                } else if (internalCategory === "image" || internalCategory === "gif") {
+                    if (node.url) {
+                        const fileKey = extractCleanPathKey(node.url);
+                        // IGNORE LOW RES VERSIONS OF THE SAME IMAGE POSTED TWICE
+                        if (!uniqueImageRegistry.has(fileKey)) {
+                            uniqueImageRegistry.add(fileKey);
+                            localImageStack.push({
+                                title: node.title || "GALLERY OBJECT",
+                                url: node.url
+                            });
+                        }
                     }
                 }
             });
         }
 
-        // BIND CHANNELS TO VIDEO INTERFACE (REELS SNAPPING)
-        function renderVideoReels() {
-            const container = document.getElementById('video-view');
-            if(parsedVideos.length === 0) {
-                container.innerHTML = `<div class="reel-container" style="color:#444;">NO DISPLAYABLE VIDEO REELS FOUND</div>`;
+        function compileReelsStructure() {
+            const videoViewport = document.getElementById('video-view');
+            if(localVideoStack.length === 0) {
+                videoViewport.innerHTML = `<div class="reel-node" style="color:#555;">NO UNIQUE VIDEO LOGS DETECTED</div>`;
                 return;
             }
 
-            container.innerHTML = parsedVideos.map(video => `
-                <div class="reel-container">
-                    <video class="reel-video" src="${video.url}" loop playsinline webkit-playsinline></video>
-                    <div class="reel-overlay">
-                        <h2 class="reel-title">${video.title}</h2>
-                        <p class="reel-sub">r/${video.subreddit}</p>
+            videoViewport.innerHTML = localVideoStack.map(reel => `
+                <div class="reel-node">
+                    <video class="reel-video" data-raw-src="${reel.url}" data-src-attached="false" loop playsinline webkit-playsinline></video>
+                    <div class="reel-meta-deck">
+                        <h2 class="reel-title">${reel.title}</h2>
+                        <p class="reel-origin">r/${reel.subreddit}</p>
                     </div>
                 </div>
             `).join('');
-            
-            // MANAGE MUTED MUTED CLICKS SYSTEM CONTEXT
-            document.querySelectorAll('.reel-video').forEach(vid => {
-                vid.addEventListener('click', () => {
-                    if (vid.paused) vid.play();
-                    else vid.pause();
+
+            document.querySelectorAll('.reel-video').forEach(video => {
+                video.addEventListener('click', () => {
+                    if(video.paused) video.play();
+                    else video.pause();
                 });
             });
         }
 
-        // BIND IMAGE CHANNELS TO GRAPHICAL MASONRY GALLERY 
-        function renderImageGallery() {
-            const target = document.getElementById('gallery-target');
-            if(parsedImages.length === 0) {
-                target.innerHTML = `<p style="color:#444; text-align:center; width:100%;">GALLERY ARCHIVE EMPTY</p>`;
+        function compileGalleryStructure() {
+            const targetContainer = document.getElementById('gallery-container');
+            if(localImageStack.length === 0) {
+                targetContainer.innerHTML = `<p style="color:#444;">GALLERY CONTAINER EMPTY</p>`;
                 return;
             }
 
-            target.innerHTML = parsedImages.map(img => `
+            targetContainer.innerHTML = localImageStack.map(image => `
                 <div class="gallery-card">
-                    <div class="img-wrapper">
-                        <img src="${img.url}" alt="image" loading="lazy" onerror="this.src='https://placehold.co/400x500/181818/444444?text=IMAGE+MISSING'">
+                    <div class="img-slot">
+                        <img data-lazy-src="${image.url}" alt="Media Item">
                     </div>
-                    <div class="gallery-info">
-                        <h3 class="gallery-title">${img.title}</h3>
+                    <div class="gallery-desc">
+                        <h3 class="gallery-text">${image.title}</h3>
                     </div>
                 </div>
             `).join('');
+
+            if ('IntersectionObserver' in window) {
+                intersectionObserverInstance = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const lazyImage = entry.target;
+                            lazyImage.src = lazyImage.dataset.lazySrc;
+                            lazyImage.addEventListener('load', () => lazyImage.classList.add('loaded'));
+                            observer.unobserve(lazyImage);
+                        }
+                    });
+                }, { rootMargin: "0px 0px 300px 0px" });
+
+                document.querySelectorAll('.img-slot img').forEach(img => intersectionObserverInstance.observe(img));
+            } else {
+                document.querySelectorAll('.img-slot img').forEach(img => {
+                    img.src = img.dataset.lazySrc;
+                    img.classList.add('loaded');
+                });
+            }
         }
 
-        // INITIALIZE APP PIPELINE
-        document.addEventListener("DOMContentLoaded", fetchSystemData);
+        document.addEventListener("DOMContentLoaded", initDataPipelineExecution);
     </script>
 </body>
 </html>
