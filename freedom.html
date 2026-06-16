@@ -12,6 +12,7 @@
             padding: 0;
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent; /* SILENCES BLINKING BOXES ON MOBILE TOUCH */
         }
 
         body {
@@ -142,7 +143,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 100%; /* SPREADS ACROSS THE HORIZON FOR EASY INTERACTION AT BASE */
+            width: 100%;
             padding: 10px 0;
             border-radius: 8px;
             transition: all 0.2s ease;
@@ -165,7 +166,6 @@
             stroke: #ff2d55;
         }
 
-        /* SPECIAL LOGIC: FLOAT REEL LAYOUT FAV BUTTON TO STOP SIDE COMPRESSION */
         .reel-actions-right .fav-btn {
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -242,7 +242,7 @@
             max-width: 1400px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* OPTIMIZED CARD DENSITY FOR SMALL PHONES */
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 12px;
         }
 
@@ -253,7 +253,6 @@
             .nav-btn { font-size: 0.8rem; padding: 10px 24px; }
             .reel-title { font-size: 0.95rem; }
             
-            /* CHANGE DESKTOP DESCRIPTIONS TO FLEX ROW BEHAVIOR */
             .gallery-desc { flex-direction: row !important; align-items: center !important; }
             .fav-btn { width: auto !important; padding: 10px 12px !important; }
         }
@@ -265,19 +264,18 @@
             border: 1px solid rgba(255,255,255,0.03);
             display: flex;
             flex-direction: column;
-            height: auto; /* NO FIXED HEIGHT CONSTRAINT TO ELIMINATE SCROLL SLIPPAGE CLIPPING */
+            height: auto;
         }
 
-        .img-slot { width: 100%; padding-top: 125%; position: relative; background: #111; }
+        .img-slot { width: 100%; padding-top: 125%; position: relative; background: #111; cursor: zoom-in; }
         .img-slot img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.4s ease; }
         .img-slot img.loaded { opacity: 1; }
 
-        /* THE ANTI-CLIPPING RE-ARCHITECTURE ZONE */
         .gallery-desc { 
             padding: 12px; 
             background: #0c0d0d; 
             display: flex; 
-            flex-direction: column; /* FORCES BUTTON BELOW THE TEXT BLOCK ON MOBILES */
+            flex-direction: column;
             align-items: flex-start;
             gap: 10px;
             width: 100%;
@@ -289,7 +287,7 @@
             color: #dcdcdc; 
             line-height: 1.4; 
             display: -webkit-box;
-            -webkit-line-clamp: 3; /* EXPORTS UP TO 3 WRAPPED TEXT STRINGS */
+            -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;  
             overflow: hidden;
             text-overflow: ellipsis;
@@ -300,6 +298,56 @@
         .fav-section-divider {
             grid-column: 1 / -1; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; color: rgba(255,255,255,0.3); text-transform: uppercase; padding: 15px 0 5px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 8px;
         }
+
+        /* ====== DYNAMIC PREMIUM LIGHTBOX OVERLAY ====== */
+        .lightbox-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(3, 3, 3, 0.92);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .lightbox-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .lightbox-img {
+            max-width: 95%;
+            max-height: 85vh;
+            object-fit: contain;
+            border-radius: 8px;
+            transform: scale(0.95);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 30px 70px rgba(0,0,0,0.8);
+        }
+
+        .lightbox-modal.active .lightbox-img {
+            transform: scale(1);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 25px; right: 25px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .lightbox-close:hover { background: rgba(255,255,255,0.15); }
+        .lightbox-close svg { width: 14px; height: 14px; fill: #fff; }
 
         /* STATE PULSE ANIMATIONS LOADERS */
         .app-loader { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; z-index: 1000; }
@@ -342,6 +390,13 @@
             <div class="analytics-panel" id="fav-analytics"></div>
             <div class="gallery-grid" id="fav-container"></div>
         </main>
+
+        <div id="lightbox" class="lightbox-modal" onclick="closeImageLightbox()">
+            <button class="lightbox-close">
+                <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            </button>
+            <img id="lightbox-target-img" class="lightbox-img" src="" alt="Enlarged visualization">
+        </div>
     </div>
 
     <script>
@@ -355,6 +410,18 @@
 
         const STORAGE_KEY = "PREMIUM_FEED_FAVORITES_RECON";
         let favoriteRegistry = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+
+        // LIGHTBOX VIEW CONTROLLER TRIGGERS
+        function openImageLightbox(srcUrl) {
+            const lightbox = document.getElementById('lightbox');
+            const targetImg = document.getElementById('lightbox-target-img');
+            targetImg.src = srcUrl;
+            lightbox.classList.add('active');
+        }
+
+        function closeImageLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+        }
 
         function isThumbnailUrl(urlStr) {
             if (!urlStr) return true;
@@ -609,7 +676,7 @@
                 const isFavorited = favoriteRegistry[image.hashId] ? "is-fav" : "";
                 return `
                     <div class="gallery-card">
-                        <div class="img-slot">
+                        <div class="img-slot" onclick="openImageLightbox('${image.url}')">
                             <img data-lazy-src="${image.url}" alt="Media Item">
                         </div>
                         <div class="gallery-desc">
@@ -646,7 +713,7 @@
                 savedVideos.forEach(v => {
                     htmlPayload += `
                         <div class="gallery-card">
-                            <div class="img-slot" style="background:#000;">
+                            <div class="img-slot" style="background:#000; cursor:default;">
                                 <video src="${v.url}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain;" controls muted></video>
                             </div>
                             <div class="gallery-desc">
@@ -665,7 +732,7 @@
                 savedImages.forEach(i => {
                     htmlPayload += `
                         <div class="gallery-card">
-                            <div class="img-slot">
+                            <div class="img-slot" onclick="openImageLightbox('${i.url}')">
                                 <img src="${i.url}" class="loaded" alt="Saved Frame">
                             </div>
                             <div class="gallery-desc">
