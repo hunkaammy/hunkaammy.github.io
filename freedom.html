@@ -1,1 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MINIMAL MEDIA FEED</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
 
+        body {
+            background-color: #0a0a0a;
+            color: #e5e5e5;
+            overflow-x: hidden;
+        }
+
+        /* PERSISTENT HEADER NAVIGATION */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background: linear-gradient(to bottom, rgba(10,10,10,0.95), rgba(10,10,10,0));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 0 20px;
+        }
+
+        .nav-toggles {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #888;
+            padding: 8px 24px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            border-radius: 20px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .nav-btn.active {
+            background: #ffffff;
+            color: #000000;
+            box-shadow: 0 4px 12px rgba(255,255,255,0.1);
+        }
+
+        /* CONTAINER VIEWS */
+        .view-section {
+            display: none;
+            padding-top: 70px;
+            min-height: 100vh;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        /* ====== REELS VERTICAL CONTAINER (TIKTOK/SHORTS VIEW) ====== */
+        #video-view {
+            padding-top: 0;
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scrollbar-width: none; /* HIDE SCROLLBAR FOR SYSTEM */
+        }
+        #video-view::-webkit-scrollbar { display: none; }
+
+        .reel-container {
+            width: 100%;
+            height: 100vh;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+        }
+
+        .reel-video {
+            width: 100%;
+            height: 100%;
+            max-width: 500px; /* FIXED PHONE RATIO ASPECT FOR DESKTOP VIEWPORT */
+            object-fit: contain;
+            background: #000;
+        }
+
+        .reel-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px 20px;
+            background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            pointer-events: none;
+        }
+
+        .reel-title {
+            font-size: 0.95rem;
+            font-weight: 400;
+            color: #fff;
+            margin-bottom: 6px;
+            line-height: 1.4;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+        }
+
+        .reel-sub {
+            font-size: 0.75rem;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ====== IMAGE GALLERY GRID VIEWS ====== */
+        .gallery-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 11fr));
+            gap: 20px;
+            padding: 30px 20px;
+        }
+
+        .gallery-card {
+            background: #121212;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.03);
+            transition: transform 0.4s ease;
+        }
+
+        .gallery-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .img-wrapper {
+            width: 100%;
+            padding-top: 120%; /* MASONRY CHIC ASPECT VERTICAL RATIO */
+            position: relative;
+            background: #181818;
+        }
+
+        .img-wrapper img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.3s ease;
+        }
+
+        .gallery-info {
+            padding: 15px;
+        }
+
+        .gallery-title {
+            font-size: 0.85rem;
+            font-weight: 400;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #fff;
+        }
+
+        /* STATE COMPONENTS UI */
+        .status-layer {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s infinite linear;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="nav-toggles">
+            <button class="nav-btn active" onclick="switchView('video')">REELS FEED</button>
+            <button class="nav-btn" onclick="switchView('image')">GALLERY</button>
+        </div>
+    </header>
+
+    <div id="loader" class="status-layer">
+        <div class="spinner"></div>
+        <p style="font-size: 0.8rem; letter-spacing: 0.1em; color: #666;">INITIALIZING FEED...</p>
+    </div>
+
+    <div id="error" class="status-layer hidden" style="color: #ff4444; font-size: 0.9rem;">
+        RESOURCE FETCH BLOCKED OR NOT FOUND.
+    </div>
+
+    <main id="video-view" class="view-section active" onscroll="handleReelAutoplay()"></main>
+
+    <main id="image-view" class="view-section">
+        <div class="gallery-grid" id="gallery-target"></div>
+    </main>
+
+    <script>
+        const SOURCE_API = "https://www.hindustantoys.in/TEST//data.json";
+        let parsedVideos = [];
+        let parsedImages = [];
+
+        // SWAP VIEW COMPONENT PIPELINE
+        function switchView(viewType) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+
+            if (viewType === 'video') {
+                document.getElementById('video-view').classList.add('active');
+                event.target.classList.add('active');
+                handleReelAutoplay(); // TRIGGER PLAY EVALUATION FOR NEW ACTIVE PORT
+            } else {
+                document.getElementById('image-view').classList.add('active');
+                event.target.classList.add('active');
+                pauseAllVideos();
+            }
+        }
+
+        // STOP VIDEO PLAYBACK ON INACTIVE PORTALS
+        function pauseAllVideos() {
+            document.querySelectorAll('.reel-video').forEach(v => v.pause());
+        }
+
+        // AUTO-PLAY REEL SNAP INTERSECTION ENGINE
+        function handleReelAutoplay() {
+            const videoView = document.getElementById('video-view');
+            if (!videoView.classList.contains('active')) return;
+
+            const reels = document.querySelectorAll('.reel-container');
+            const viewHeight = window.innerHeight;
+
+            reels.forEach(reel => {
+                const rect = reel.getBoundingClientRect();
+                const video = reel.querySelector('.reel-video');
+                
+                // EVALUATE IF CONTAINER OCCUPIES MINIMUM 80% OF DEVICE WINDOW SIGHTLINE
+                if (rect.top >= -viewHeight/2 && rect.top <= viewHeight/2) {
+                    if (video && video.paused) {
+                        video.play().catch(() => {});
+                    }
+                } else {
+                    if (video && !video.paused) {
+                        video.pause();
+                    }
+                }
+            });
+        }
+
+        // LOAD DATA PACK FROM DESTINATION
+        async function fetchSystemData() {
+            try {
+                const response = await fetch(SOURCE_API);
+                if (!response.ok) throw new Error("NETWORK PACK INVALID");
+                const data = await response.json();
+                
+                sortMediaContent(data);
+                renderVideoReels();
+                renderImageGallery();
+
+                document.getElementById('loader').classList.add('hidden');
+                // INSTANT TRIGGER FIRST VIDEO INSTANCE AT START
+                setTimeout(handleReelAutoplay, 200);
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('error').classList.remove('hidden');
+            }
+        }
+
+        // SEPARATE VIDEO OBJECTS FROM IMAGE OBJECTS
+        function sortMediaContent(items) {
+            items.forEach(item => {
+                const cat = (item.category || "").toLowerCase();
+                
+                if (cat === 'video') {
+                    // VERIFY IF INHERENT STRUCTURE CONTAINS STANDARD EXPORT DIRECT STREAM COMPATIBLE URLS
+                    let playableUrl = null;
+                    if (item.url && item.url.includes('.mp4')) playableUrl = item.url;
+                    else if (item.directUrls && item.directUrls.length > 0) {
+                        playableUrl = item.directUrls[item.directUrls.length - 1].url; 
+                    }
+                    
+                    if (playableUrl) {
+                        parsedVideos.push({
+                            title: item.title,
+                            subreddit: item.subreddit || "reddit",
+                            url: playableUrl
+                        });
+                    }
+                } else if (cat === 'image' || cat === 'gif') {
+                    if (item.url) {
+                        parsedImages.push({
+                            title: item.title,
+                            url: item.url
+                        });
+                    }
+                }
+            });
+        }
+
+        // BIND CHANNELS TO VIDEO INTERFACE (REELS SNAPPING)
+        function renderVideoReels() {
+            const container = document.getElementById('video-view');
+            if(parsedVideos.length === 0) {
+                container.innerHTML = `<div class="reel-container" style="color:#444;">NO DISPLAYABLE VIDEO REELS FOUND</div>`;
+                return;
+            }
+
+            container.innerHTML = parsedVideos.map(video => `
+                <div class="reel-container">
+                    <video class="reel-video" src="${video.url}" loop playsinline webkit-playsinline></video>
+                    <div class="reel-overlay">
+                        <h2 class="reel-title">${video.title}</h2>
+                        <p class="reel-sub">r/${video.subreddit}</p>
+                    </div>
+                </div>
+            `).join('');
+            
+            // MANAGE MUTED MUTED CLICKS SYSTEM CONTEXT
+            document.querySelectorAll('.reel-video').forEach(vid => {
+                vid.addEventListener('click', () => {
+                    if (vid.paused) vid.play();
+                    else vid.pause();
+                });
+            });
+        }
+
+        // BIND IMAGE CHANNELS TO GRAPHICAL MASONRY GALLERY 
+        function renderImageGallery() {
+            const target = document.getElementById('gallery-target');
+            if(parsedImages.length === 0) {
+                target.innerHTML = `<p style="color:#444; text-align:center; width:100%;">GALLERY ARCHIVE EMPTY</p>`;
+                return;
+            }
+
+            target.innerHTML = parsedImages.map(img => `
+                <div class="gallery-card">
+                    <div class="img-wrapper">
+                        <img src="${img.url}" alt="image" loading="lazy" onerror="this.src='https://placehold.co/400x500/181818/444444?text=IMAGE+MISSING'">
+                    </div>
+                    <div class="gallery-info">
+                        <h3 class="gallery-title">${img.title}</h3>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // INITIALIZE APP PIPELINE
+        document.addEventListener("DOMContentLoaded", fetchSystemData);
+    </script>
+</body>
+</html>
