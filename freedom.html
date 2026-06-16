@@ -22,6 +22,22 @@
             width: 100%;
         }
 
+        /* PREMIUM SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050505;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #222;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #333;
+        }
+
         #app-viewport {
             position: relative;
             width: 100%;
@@ -132,6 +148,11 @@
             align-items: center;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            transition: all 0.2s ease;
+        }
+        .audio-manager:hover {
+            transform: scale(1.05);
+            background: rgba(25, 25, 25, 0.8);
         }
         .audio-manager svg { fill: #fff; width: 16px; height: 18px; }
 
@@ -265,6 +286,13 @@
             display: flex;
             flex-direction: column;
             height: auto;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .gallery-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
         }
 
         .img-slot { width: 100%; padding-top: 125%; position: relative; background: #111; cursor: zoom-in; }
@@ -304,7 +332,7 @@
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(3, 3, 3, 0.92);
+            background: rgba(3, 3, 3, 0.95);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
             z-index: 1000;
@@ -321,33 +349,193 @@
             pointer-events: auto;
         }
 
+        .lightbox-content-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            max-width: 90%;
+            max-height: 90vh;
+        }
+
         .lightbox-img {
-            max-width: 95%;
-            max-height: 85vh;
+            max-width: 100%;
+            max-height: 72vh;
             object-fit: contain;
-            border-radius: 8px;
+            border-radius: 12px;
             transform: scale(0.95);
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 30px 70px rgba(0,0,0,0.8);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.9);
+            cursor: zoom-in;
         }
 
         .lightbox-modal.active .lightbox-img {
             transform: scale(1);
         }
 
-        .lightbox-close {
-            position: absolute;
-            top: 25px; right: 25px;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.15);
-            width: 44px; height: 44px;
-            border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-            cursor: pointer;
-            transition: background 0.3s;
+        .lightbox-img.zoomed {
+            transform: scale(1.4) !important;
+            cursor: zoom-out;
         }
-        .lightbox-close:hover { background: rgba(255,255,255,0.15); }
-        .lightbox-close svg { width: 14px; height: 14px; fill: #fff; }
+
+        .lightbox-btn {
+            position: absolute;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 1010;
+        }
+
+        .lightbox-btn:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.25);
+            transform: scale(1.05);
+            color: #fff;
+        }
+
+        .lightbox-btn:active {
+            transform: scale(0.95);
+        }
+
+        .lightbox-close {
+            top: 25px;
+            right: 25px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+        }
+
+        .lightbox-close svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .nav-arrow {
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+
+        .prev-arrow {
+            left: 30px;
+        }
+
+        .next-arrow {
+            right: 30px;
+        }
+
+        .nav-arrow svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        /* Lightbox info deck at bottom */
+        .lightbox-info-panel {
+            margin-top: 16px;
+            width: 100%;
+            background: rgba(18, 18, 18, 0.7);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 12px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .lightbox-info-text {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .lightbox-title-text {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #ffffff;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            word-wrap: break-word;
+        }
+
+        .lightbox-actions-panel {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .lightbox-action-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .lightbox-action-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+
+        .lightbox-action-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            color: #fff;
+        }
+
+        .lightbox-action-btn:active {
+            transform: translateY(0) scale(0.95);
+        }
+
+        .lightbox-action-btn.is-fav svg {
+            fill: #ff2d55;
+            stroke: #ff2d55;
+        }
+
+        @media(max-width: 767px) {
+            .nav-arrow {
+                width: 38px;
+                height: 38px;
+                background: rgba(0,0,0,0.5);
+            }
+            .prev-arrow { left: 10px; }
+            .next-arrow { right: 10px; }
+            .lightbox-info-panel {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 10px 14px;
+            }
+            .lightbox-actions-panel {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
 
         /* STATE PULSE ANIMATIONS LOADERS */
         .app-loader { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; z-index: 1000; }
@@ -366,12 +554,14 @@
                 <button class="nav-btn active" id="btn-video" onclick="viewRoute('video')">REELS</button>
                 <button class="nav-btn" id="btn-image" onclick="viewRoute('image')">GALLERY</button>
                 <button class="nav-btn" id="btn-fav" onclick="viewRoute('fav')">FAVORITES</button>
+                <button class="nav-btn" id="btn-upload" onclick="triggerJsonUpload()" style="color: #ff2d55; font-weight: 700; border-left: 1px solid rgba(255,255,255,0.15); border-radius: 0 30px 30px 0; margin-left: 4px;">📂 IMPORT</button>
+                <input type="file" id="json-file-input" accept=".json" style="display:none;" onchange="handleJsonFileSelect(event)">
             </div>
         </header>
 
         <div id="loader" class="app-loader">
             <div class="bar-pulse"><div></div><div></div><div></div></div>
-            <p style="font-size: 0.65rem; letter-spacing: 0.15em; color: #555; font-weight:600;">PROCESSING CHANNELS...</p>
+            <p id="loader-text" style="font-size: 0.65rem; letter-spacing: 0.15em; color: #555; font-weight:600;">PROCESSING CHANNELS...</p>
         </div>
 
         <div class="audio-manager" onclick="toggleGlobalAudioVolume()" title="Toggle Sound">
@@ -391,11 +581,45 @@
             <div class="gallery-grid" id="fav-container"></div>
         </main>
 
+        <!-- DYNAMIC LIGHTBOX OVERLAY -->
         <div id="lightbox" class="lightbox-modal" onclick="closeImageLightbox()">
-            <button class="lightbox-close">
+            <!-- Close Button -->
+            <button class="lightbox-btn lightbox-close" onclick="closeImageLightbox()">
                 <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
             </button>
-            <img id="lightbox-target-img" class="lightbox-img" src="" alt="Enlarged visualization">
+            
+            <!-- Navigation Arrows -->
+            <button id="lightbox-prev-btn" class="lightbox-btn nav-arrow prev-arrow" onclick="event.stopPropagation(); navigateLightbox(-1)">
+                <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+            </button>
+            <button id="lightbox-next-btn" class="lightbox-btn nav-arrow next-arrow" onclick="event.stopPropagation(); navigateLightbox(1)">
+                <svg viewBox="0 0 24 24"><path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/></svg>
+            </button>
+            
+            <div class="lightbox-content-wrapper" onclick="event.stopPropagation()">
+                <img id="lightbox-target-img" class="lightbox-img" src="" alt="Enlarged visualization">
+                
+                <!-- Metadata Deck -->
+                <div class="lightbox-info-panel">
+                    <div class="lightbox-info-text">
+                        <span id="lightbox-title" class="lightbox-title-text">Loading Details...</span>
+                    </div>
+                    <div class="lightbox-actions-panel">
+                        <!-- Fav Button -->
+                        <button id="lightbox-fav-btn" class="lightbox-action-btn fav-btn" onclick="toggleLightboxFavorite()">
+                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        </button>
+                        <!-- Download Button -->
+                        <button class="lightbox-action-btn dl-btn" onclick="downloadLightboxImage()" title="Download original media">
+                            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        </button>
+                        <!-- Open in New Tab -->
+                        <button class="lightbox-action-btn open-btn" onclick="openLightboxImageOriginal()" title="Open original source">
+                            <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -411,17 +635,105 @@
         const STORAGE_KEY = "PREMIUM_FEED_FAVORITES_RECON";
         let favoriteRegistry = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
 
+        // LIGHTBOX NAVIGATION STATE
+        let lightboxActiveIndex = -1;
+        let lightboxImageSet = [];
+
         // LIGHTBOX VIEW CONTROLLER TRIGGERS
-        function openImageLightbox(srcUrl) {
+        function openImageLightbox(index, isFavSection = false) {
+            lightboxImageSet = isFavSection 
+                ? localImageStack.filter(i => favoriteRegistry[i.hashId]) 
+                : localImageStack;
+            lightboxActiveIndex = index;
+            updateLightboxContent();
+            
             const lightbox = document.getElementById('lightbox');
-            const targetImg = document.getElementById('lightbox-target-img');
-            targetImg.src = srcUrl;
             lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden'; // prevent scrolling underneath
         }
 
         function closeImageLightbox() {
-            document.getElementById('lightbox').classList.remove('active');
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.remove('active');
+            document.getElementById('lightbox-target-img').classList.remove('zoomed');
+            document.body.style.overflow = ''; // restore scrolling
         }
+
+        function updateLightboxContent() {
+            if (lightboxActiveIndex < 0 || lightboxActiveIndex >= lightboxImageSet.length) return;
+            const media = lightboxImageSet[lightboxActiveIndex];
+            const targetImg = document.getElementById('lightbox-target-img');
+            targetImg.classList.remove('zoomed');
+            targetImg.src = media.url;
+            
+            // Update details
+            document.getElementById('lightbox-title').innerText = media.title || 'Image Archive';
+            
+            // Update favorite button state
+            const favBtn = document.getElementById('lightbox-fav-btn');
+            if (favoriteRegistry[media.hashId]) {
+                favBtn.classList.add('is-fav');
+            } else {
+                favBtn.classList.remove('is-fav');
+            }
+            
+            // Show/hide navigation arrows based on bounds
+            document.getElementById('lightbox-prev-btn').style.visibility = lightboxActiveIndex > 0 ? 'visible' : 'hidden';
+            document.getElementById('lightbox-next-btn').style.visibility = lightboxActiveIndex < lightboxImageSet.length - 1 ? 'visible' : 'hidden';
+        }
+
+        function navigateLightbox(direction) {
+            const nextIndex = lightboxActiveIndex + direction;
+            if (nextIndex >= 0 && nextIndex < lightboxImageSet.length) {
+                lightboxActiveIndex = nextIndex;
+                updateLightboxContent();
+            }
+        }
+
+        function toggleLightboxFavorite() {
+            if (lightboxActiveIndex < 0 || lightboxActiveIndex >= lightboxImageSet.length) return;
+            const media = lightboxImageSet[lightboxActiveIndex];
+            toggleFavoriteStatus(media.hashId);
+            updateLightboxContent();
+        }
+
+        function downloadLightboxImage() {
+            if (lightboxActiveIndex < 0 || lightboxActiveIndex >= lightboxImageSet.length) return;
+            const media = lightboxImageSet[lightboxActiveIndex];
+            const a = document.createElement('a');
+            a.href = media.url;
+            a.download = media.title ? media.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'download';
+            a.target = '_blank';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function openLightboxImageOriginal() {
+            if (lightboxActiveIndex < 0 || lightboxActiveIndex >= lightboxImageSet.length) return;
+            const media = lightboxImageSet[lightboxActiveIndex];
+            window.open(media.url, '_blank');
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            const lightbox = document.getElementById('lightbox');
+            if (!lightbox.classList.contains('active')) return;
+            
+            if (e.key === 'Escape') {
+                closeImageLightbox();
+            } else if (e.key === 'ArrowLeft') {
+                navigateLightbox(-1);
+            } else if (e.key === 'ArrowRight') {
+                navigateLightbox(1);
+            }
+        });
+
+        // Click on image to zoom in/out
+        document.getElementById('lightbox-target-img').addEventListener('click', (e) => {
+            e.stopPropagation();
+            e.target.classList.toggle('zoomed');
+        });
 
         function isThumbnailUrl(urlStr) {
             if (!urlStr) return true;
@@ -440,7 +752,9 @@
 
         function viewRoute(targetSection) {
             document.querySelectorAll('.view-section').forEach(section => section.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.nav-pill .nav-btn').forEach(btn => {
+                if(btn.id !== 'btn-upload') btn.classList.remove('active');
+            });
             freezeVideoAssets();
 
             if(targetSection === 'video') {
@@ -546,6 +860,58 @@
             }
         }
 
+        // JSON UPLOADER SYSTEM
+        function triggerJsonUpload() {
+            document.getElementById('json-file-input').click();
+        }
+
+        function handleJsonFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            document.getElementById('loader-text').innerText = "IMPORTING LOCAL ARCHIVE...";
+            document.getElementById('loader').style.display = "flex";
+            
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (!Array.isArray(data)) {
+                        alert("Invalid file structure. Must be a JSON array containing media details.");
+                        document.getElementById('loader').style.display = "none";
+                        return;
+                    }
+                    
+                    freezeVideoAssets();
+                    processPayloadSorting(data);
+                    
+                    shuffleDataArray(localVideoStack);
+                    shuffleDataArray(localImageStack);
+
+                    compileReelsStructure();
+                    compileGalleryStructure();
+                    renderMetricsUI();
+                    
+                    // Reset to active view
+                    const currentActive = document.querySelector('.nav-pill button.active');
+                    if (currentActive) {
+                        const targetId = currentActive.id.replace('btn-', '');
+                        viewRoute(targetId);
+                    } else {
+                        viewRoute('video');
+                    }
+
+                    document.getElementById('loader').style.display = "none";
+                    document.getElementById('loader-text').innerText = "PROCESSING CHANNELS...";
+                    
+                } catch(err) {
+                    alert("Error parsing imported JSON: " + err.message);
+                    document.getElementById('loader').style.display = "none";
+                }
+            };
+            reader.readAsText(file);
+        }
+
         async function initDataPipelineExecution() {
             try {
                 const payload = await fetch(RESOURCE_TARGET);
@@ -570,14 +936,26 @@
                 }, { passive: true });
 
             } catch (err) {
-                console.error(err);
-                document.getElementById('loader').innerHTML = `<p style="color:#ff3b30; font-size:0.8rem;">BOOT CONNECTION FAULT</p>`;
+                console.warn("Could not fetch remote resource. Waiting for local JSON import.", err);
+                document.getElementById('loader').style.display = "none";
+                // Show empty states / waiting instruction
+                document.getElementById('video-view').innerHTML = `
+                    <div class="reel-node" style="flex-direction: column; gap: 15px; color:#aaa; font-size: 0.85rem; padding: 20px; text-align: center;">
+                        <svg viewBox="0 0 24 24" style="fill: #ff2d55; width: 48px; height: 48px; margin-bottom: 10px;"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+                        <span>READY TO SCAN CHANNELS</span>
+                        <button onclick="triggerJsonUpload()" style="background: #ff2d55; color: #fff; border: none; padding: 10px 20px; border-radius: 20px; font-weight: 700; cursor: pointer; transition: transform 0.2s;">📂 IMPORT EXPORTED JSON</button>
+                    </div>
+                `;
             }
         }
 
         function processPayloadSorting(items) {
             const uniqueVideoRegistry = new Set();
             const uniqueImageRegistry = new Set();
+            
+            localVideoStack = [];
+            localImageStack = [];
+            counts = { video: 0, gif: 0, image: 0 };
 
             items.forEach(node => {
                 const internalCategory = (node.category || "").toLowerCase();
@@ -622,6 +1000,7 @@
 
         function renderMetricsUI(targetId = 'gallery-analytics', customCounts = null) {
             const outputId = document.getElementById(targetId);
+            if (!outputId) return;
             const source = customCounts || counts;
             const total = source.video + source.gif + source.image;
 
@@ -636,7 +1015,11 @@
         function compileReelsStructure() {
             const videoViewport = document.getElementById('video-view');
             if(localVideoStack.length === 0) {
-                videoViewport.innerHTML = `<div class="reel-node" style="color:#555;">NO STREAMS INGESTED</div>`;
+                videoViewport.innerHTML = `
+                    <div class="reel-node" style="color:#555; flex-direction:column; gap: 15px;">
+                        <span>NO STREAMS INGESTED</span>
+                        <button onclick="triggerJsonUpload()" style="background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.12); padding: 8px 16px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; cursor: pointer;">IMPORT JSON</button>
+                    </div>`;
                 return;
             }
 
@@ -668,15 +1051,15 @@
         function compileGalleryStructure() {
             const targetContainer = document.getElementById('gallery-container');
             if(localImageStack.length === 0) {
-                targetContainer.innerHTML = `<p style="color:#444;">GALLERY CONTAINER EMPTY</p>`;
+                targetContainer.innerHTML = `<p style="color:#444; text-align:center; padding: 40px 0; grid-column: 1/-1;">GALLERY CONTAINER EMPTY</p>`;
                 return;
             }
 
-            targetContainer.innerHTML = localImageStack.map(image => {
+            targetContainer.innerHTML = localImageStack.map((image, index) => {
                 const isFavorited = favoriteRegistry[image.hashId] ? "is-fav" : "";
                 return `
                     <div class="gallery-card">
-                        <div class="img-slot" onclick="openImageLightbox('${image.url}')">
+                        <div class="img-slot" onclick="openImageLightbox(${index}, false)">
                             <img data-lazy-src="${image.url}" alt="Media Item">
                         </div>
                         <div class="gallery-desc">
@@ -729,10 +1112,10 @@
 
             if (savedImages.length > 0) {
                 htmlPayload += `<div class="fav-section-divider">SAVED IMAGE & GIF ARCHIVES (${savedImages.length})</div>`;
-                savedImages.forEach(i => {
+                savedImages.forEach((i, index) => {
                     htmlPayload += `
                         <div class="gallery-card">
-                            <div class="img-slot" onclick="openImageLightbox('${i.url}')">
+                            <div class="img-slot" onclick="openImageLightbox(${index}, true)">
                                 <img src="${i.url}" class="loaded" alt="Saved Frame">
                             </div>
                             <div class="gallery-desc">
