@@ -92,6 +92,30 @@
         .audio-manager:hover { background: rgba(255,255,255,0.2); }
         .audio-manager svg { fill: #fff; width: 18px; height: 18px; }
 
+        /* FAVORITE ACTION BUTTONS */
+        .fav-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .fav-btn:active { transform: scale(1.3); }
+        .fav-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: none;
+            stroke: #ffffff;
+            stroke-width: 2;
+            transition: fill 0.3s, stroke 0.3s;
+        }
+        .fav-btn.is-fav svg {
+            fill: #ff2d55;
+            stroke: #ff2d55;
+        }
+
         /* VIEWPORT CONFIGURATIONS */
         .view-section { display: none; min-height: 100vh; }
         .view-section.active { display: block; }
@@ -137,8 +161,15 @@
             padding: 60px 24px 40px;
             background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0) 100%);
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-end;
             pointer-events: none;
+        }
+
+        .reel-info-left {
+            display: flex;
+            flex-direction: column;
+            max-width: 80%;
         }
 
         .reel-title {
@@ -155,6 +186,11 @@
             color: rgba(255, 255, 255, 0.5);
             font-weight: 700;
             letter-spacing: 0.03em;
+        }
+
+        .reel-actions-right {
+            pointer-events: auto;
+            padding-bottom: 5px;
         }
 
         /* IMAGE GALLERY MASONRY VIEWS */
@@ -198,8 +234,24 @@
         }
         .img-slot img.loaded { opacity: 1; }
 
-        .gallery-desc { padding: 16px; background: #0c0d0d; }
-        .gallery-text { font-size: 0.8rem; font-weight: 400; color: #e0e0e0; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .gallery-desc { 
+            padding: 16px; 
+            background: #0c0d0d; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+        .gallery-text { 
+            font-size: 0.8rem; 
+            font-weight: 400; 
+            color: #e0e0e0; 
+            line-height: 1.4; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            flex-grow: 1;
+        }
 
         /* LOADER LAYERS */
         .app-loader {
@@ -228,7 +280,7 @@
 
         <div id="loader" class="app-loader">
             <div class="bar-pulse"><div></div><div></div><div></div></div>
-            <p style="font-size: 0.7rem; letter-spacing: 0.15em; color: #555; font-weight:600;">BUILDING UNIQUE STREAM CHANNELS...</p>
+            <p style="font-size: 0.7rem; letter-spacing: 0.15em; color: #555; font-weight:600;">SHUFFLING DATA PACKS...</p>
         </div>
 
         <div class="audio-manager" onclick="toggleGlobalAudioVolume()" title="Toggle Sound">
@@ -249,6 +301,10 @@
         let localImageStack = [];
         let systemAudioMuted = true;
         let intersectionObserverInstance = null;
+        
+        // STORAGE REFERENCE SYMBOLS
+        const STORAGE_KEY = "PREMIUM_FEED_FAVORITES";
+        let favoriteRegistry = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
 
         function viewRoute(targetSection) {
             document.querySelectorAll('.view-section').forEach(section => section.classList.remove('active'));
@@ -330,23 +386,41 @@
             });
         }
 
-        // DE-DUPLICATION HASH EXTRACTOR LOGIC
         function extractCleanPathKey(urlPath) {
             try {
                 const urlObj = new URL(urlPath);
-                // EXTRACT THE PATH BASE DISCARDING ALL QUERY STAMP / SIZE ARGUMENTS
                 let cleanPath = urlObj.origin + urlObj.pathname;
-                
-                // DE-DUPLICATE VARIANTS OF PACKAGED REDDIT RESOLUTIONS (E.G., 220p.mp4 VS 480p.mp4)
                 cleanPath = cleanPath.replace(/_(\d+p)\.mp4/g, '_base.mp4');
-                // CLEAN DIMENSION INLINE HEADERS IN SPREAD PREVIEWS
                 cleanPath = cleanPath.split('?')[0]; 
-                
                 return cleanPath;
             } catch (e) {
-                // FALLBACK STRIP IF RAW STRING MATCH ENCOUNTERS UNPARSABLE DOMAINS
                 return urlPath.split('?')[0].replace(/_(\d+p)\.mp4/g, '_base.mp4');
             }
+        }
+
+        // FISHER-YATES ALGORITHM SHUFFLE OPTIMIZER
+        function shuffleDataArray(targetArray) {
+            for (let i = targetArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [targetArray[i], targetArray[j]] = [targetArray[j], targetArray[i]];
+            }
+            return targetArray;
+        }
+
+        // LOCALSTORAGE INTERACTION HOOK FOR ASSETS
+        function toggleFavoriteStatus(uniqueKey) {
+            if (favoriteRegistry[uniqueKey]) {
+                delete favoriteRegistry[uniqueKey];
+            } else {
+                favoriteRegistry[uniqueKey] = true;
+            }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(favoriteRegistry));
+            
+            // DYNAMIC UPDATE SIBLING HOOK ELEMENTS
+            document.querySelectorAll(`[data-fav-id="${uniqueKey}"]`).forEach(btn => {
+                if (favoriteRegistry[uniqueKey]) btn.classList.add('is-fav');
+                else btn.classList.remove('is-fav');
+            });
         }
 
         async function initDataPipelineExecution() {
@@ -356,6 +430,11 @@
                 const arrayPack = await payload.json();
 
                 processPayloadSorting(arrayPack);
+                
+                // EXECUTE DYNAMIC PACK SHUFFLING PIPELINES BEFORE INJECTION
+                shuffleDataArray(localVideoStack);
+                shuffleDataArray(localImageStack);
+
                 compileReelsStructure();
                 compileGalleryStructure();
 
@@ -374,7 +453,6 @@
         }
 
         function processPayloadSorting(items) {
-            // UNIQUE ELEMENT REGISTRY TRACKERS
             const uniqueVideoRegistry = new Set();
             const uniqueImageRegistry = new Set();
 
@@ -390,10 +468,10 @@
 
                     if(extractedUrl) {
                         const fileKey = extractCleanPathKey(extractedUrl);
-                        // APPEND LOGIC ONLY IF PATH HASH EXCLUDES REPETITIONS
                         if (!uniqueVideoRegistry.has(fileKey)) {
                             uniqueVideoRegistry.add(fileKey);
                             localVideoStack.push({
+                                hashId: btoa(fileKey).replace(/=/g, ""), // GENERATE COMPACT ID
                                 title: node.title || "SHORT REEL",
                                 subreddit: node.subreddit || "feed",
                                 url: extractedUrl
@@ -403,10 +481,10 @@
                 } else if (internalCategory === "image" || internalCategory === "gif") {
                     if (node.url) {
                         const fileKey = extractCleanPathKey(node.url);
-                        // IGNORE LOW RES VERSIONS OF THE SAME IMAGE POSTED TWICE
                         if (!uniqueImageRegistry.has(fileKey)) {
                             uniqueImageRegistry.add(fileKey);
                             localImageStack.push({
+                                hashId: btoa(fileKey).replace(/=/g, ""),
                                 title: node.title || "GALLERY OBJECT",
                                 url: node.url
                             });
@@ -423,15 +501,25 @@
                 return;
             }
 
-            videoViewport.innerHTML = localVideoStack.map(reel => `
-                <div class="reel-node">
-                    <video class="reel-video" data-raw-src="${reel.url}" data-src-attached="false" loop playsinline webkit-playsinline></video>
-                    <div class="reel-meta-deck">
-                        <h2 class="reel-title">${reel.title}</h2>
-                        <p class="reel-origin">r/${reel.subreddit}</p>
+            videoViewport.innerHTML = localVideoStack.map(reel => {
+                const isFavorited = favoriteRegistry[reel.hashId] ? "is-fav" : "";
+                return `
+                    <div class="reel-node">
+                        <video class="reel-video" data-raw-src="${reel.url}" data-src-attached="false" loop playsinline webkit-playsinline></video>
+                        <div class="reel-meta-deck">
+                            <div class="reel-info-left">
+                                <h2 class="reel-title">${reel.title}</h2>
+                                <p class="reel-origin">r/${reel.subreddit}</p>
+                            </div>
+                            <div class="reel-actions-right">
+                                <button class="fav-btn ${isFavorited}" data-fav-id="${reel.hashId}" onclick="toggleFavoriteStatus('${reel.hashId}')">
+                                    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
 
             document.querySelectorAll('.reel-video').forEach(video => {
                 video.addEventListener('click', () => {
@@ -448,16 +536,22 @@
                 return;
             }
 
-            targetContainer.innerHTML = localImageStack.map(image => `
-                <div class="gallery-card">
-                    <div class="img-slot">
-                        <img data-lazy-src="${image.url}" alt="Media Item">
+            targetContainer.innerHTML = localImageStack.map(image => {
+                const isFavorited = favoriteRegistry[image.hashId] ? "is-fav" : "";
+                return `
+                    <div class="gallery-card">
+                        <div class="img-slot">
+                            <img data-lazy-src="${image.url}" alt="Media Item">
+                        </div>
+                        <div class="gallery-desc">
+                            <h3 class="gallery-text" title="${image.title}">${image.title}</h3>
+                            <button class="fav-btn ${isFavorited}" data-fav-id="${image.hashId}" onclick="toggleFavoriteStatus('${image.hashId}')">
+                                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                            </button>
+                        </div>
                     </div>
-                    <div class="gallery-desc">
-                        <h3 class="gallery-text">${image.title}</h3>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
 
             if ('IntersectionObserver' in window) {
                 intersectionObserverInstance = new IntersectionObserver((entries, observer) => {
