@@ -2,26 +2,86 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Product Gallery with Image + Video (Firebase)</title>
+  <title>Admin Dashboard Pro | Premium</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Outfit', 'Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+            }
+          },
+          animation: {
+            'blob': 'blob 7s infinite',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            blob: {
+              '0%': { transform: 'translate(0px, 0px) scale(1)' },
+              '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+              '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+              '100%': { transform: 'translate(0px, 0px) scale(1)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
   <style>
+    body {
+      background-color: #f8fafc;
+      color: #0f172a;
+      overflow-x: hidden;
+    }
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 1);
+      box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+    }
+    .input-premium {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
+      transition: all 0.3s ease;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+    .input-premium:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+    }
     .drop-zone {
-      border: 2px dashed #cbd5e1; /* slate-300 */
-      transition: background-color 0.2s ease, border-color 0.2s ease;
+      border: 2px dashed #cbd5e1;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: #f1f5f9;
     }
     .drop-zone:hover, .drop-zone.active {
-      background-color: #f8fafc; /* slate-50 */
-      border-color: #3b82f6; /* blue-500 */
+      background: #eef2ff;
+      border-color: #818cf8;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.15);
     }
     #globalDropOverlay {
       display: none;
+      backdrop-filter: blur(8px);
     }
     #globalDropOverlay.active {
       display: flex;
@@ -32,91 +92,250 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
-    img[data-src] {
-      opacity: 0;
+    
+    /* Light Background blobs */
+    .bg-blob {
+      position: fixed;
+      filter: blur(120px);
+      z-index: -1;
+      opacity: 0.5;
+      border-radius: 50%;
+    }
+    .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #c7d2fe; animation-delay: 0s; }
+    .blob-2 { bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: #fbcfe8; animation-delay: 2s; }
+    .blob-3 { top: 40%; left: 40%; width: 40vw; height: 40vw; background: #bfdbfe; animation-delay: 4s; }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* Range slider styling */
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      background: #6366f1;
+      cursor: pointer;
+      margin-top: -8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 6px;
+      cursor: pointer;
+      background: #e2e8f0;
+      border-radius: 4px;
+    }
+
+    #imageModal {
       transition: opacity 0.3s ease;
     }
-    img.loaded {
-      opacity: 1;
+
+    .product-card {
+      content-visibility: auto;
+      contain-intrinsic-size: 350px;
     }
   </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <div id="globalDropOverlay" class="fixed inset-0 bg-black/50 z-50 items-center justify-center text-white text-xl">
-    Drop files to upload
+<body class="min-h-screen font-sans selection:bg-brand-500 selection:text-white relative">
+
+  <!-- Animated Background Orbs -->
+  <div class="bg-blob blob-1 animate-blob"></div>
+  <div class="bg-blob blob-2 animate-blob"></div>
+  <div class="bg-blob blob-3 animate-blob"></div>
+
+  <!-- Global Drop Overlay -->
+  <div id="globalDropOverlay" class="fixed inset-0 bg-white/80 z-50 items-center justify-center text-brand-600 text-3xl font-bold tracking-wider uppercase">
+    <div class="flex flex-col items-center drop-shadow-md">
+      <svg class="w-24 h-24 mb-6 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+      Drop files here to upload
+    </div>
   </div>
 
-  <div class="max-w-6xl mx-auto px-4 py-6">
-    <h1 class="text-2xl font-bold mb-4">Product Manager</h1>
+  <!-- Lightbox Modal -->
+  <div id="imageModal" class="fixed inset-0 z-[100] bg-slate-900/95 backdrop-blur-sm hidden items-center justify-center p-4" onclick="closeModal()">
+    <button class="absolute top-6 right-6 text-white bg-slate-800/50 hover:bg-rose-500 p-2 rounded-full transition-colors z-10" onclick="closeModal()">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    </button>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-      <div class="lg:col-span-1 bg-white rounded-xl shadow p-4">
-        <h2 class="text-lg font-semibold mb-3">Add New Product</h2>
+    <button class="absolute left-2 sm:left-10 text-white bg-slate-800/50 hover:bg-brand-500 p-2 sm:p-4 rounded-full transition-colors z-10" onclick="prevModalImage(event)" id="modalPrevBtn">
+      <svg class="w-5 h-5 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+    </button>
+    
+    <img id="modalImage" src="" class="max-w-[85vw] max-h-[85vh] object-contain rounded-xl shadow-2xl z-0 transition-opacity duration-200" onclick="event.stopPropagation()">
 
-        <div class="space-y-3">
+    <button class="absolute right-2 sm:right-10 text-white bg-slate-800/50 hover:bg-brand-500 p-2 sm:p-4 rounded-full transition-colors z-10" onclick="nextModalImage(event)" id="modalNextBtn">
+      <svg class="w-5 h-5 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+    </button>
+
+    <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-white bg-slate-800/50 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest z-10" id="modalCounter"></div>
+  </div>
+
+  <div class="max-w-[1400px] mx-auto px-4 sm:px-6 py-6 sm:py-10 relative z-10">
+    
+    <!-- Header -->
+    <header class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+      <div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand-600 via-fuchsia-500 to-pink-500 drop-shadow-sm tracking-tight">
+          Admin Hub Pro
+        </h1>
+        <p class="text-slate-500 mt-1 font-semibold text-sm tracking-wide uppercase">Manage your premium inventory</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center text-brand-500 border border-slate-100">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+      </div>
+    </header>
+
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 sm:gap-8 items-start">
+      
+      <!-- Upload Panel -->
+      <div class="xl:col-span-4 glass-panel rounded-3xl p-5 sm:p-6 relative overflow-hidden group">
+        <h2 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2 relative z-10">
+          <svg class="w-6 h-6 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+          New Product
+        </h2>
+
+        <div class="space-y-4 relative z-10">
           <div>
-            <label for="nameInput" class="block text-sm font-medium text-gray-700">Name</label>
-            <input id="nameInput" type="text" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Product name" />
+            <label for="nameInput" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Name</label>
+            <input id="nameInput" type="text" class="input-premium w-full rounded-xl px-4 py-2.5 font-medium" placeholder="Ex: Premium Neon Jacket" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 sm:gap-4">
+            <div>
+              <label for="priceInput" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Price (₹)</label>
+              <input id="priceInput" type="number" step="0.01" class="input-premium w-full rounded-xl px-4 py-2.5 font-medium" placeholder="0.00" />
+            </div>
+            <div>
+              <label for="partyCodeInput" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Party Code</label>
+              <input id="partyCodeInput" type="text" class="input-premium w-full rounded-xl px-4 py-2.5 font-medium" placeholder="AX-900" />
+            </div>
           </div>
 
           <div>
-            <label for="priceInput" class="block text-sm font-medium text-gray-700">Price</label>
-            <input id="priceInput" type="number" step="0.01" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="0.00" />
-          </div>
-
-          <div>
-            <label for="partyCodeInput" class="block text-sm font-medium text-gray-700">Party Code</label>
-            <input id="partyCodeInput" type="text" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., ABC123" />
-          </div>
-
-          <div>
-            <label for="videourlInput" class="block text-sm font-medium text-gray-700">
-              Video URL (enter manually or upload below)
+            <label for="videourlInput" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">
+              Video URL (Optional)
             </label>
-            <input id="videourlInput" type="url" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="https://..." />
+            <input id="videourlInput" type="url" class="input-premium w-full rounded-xl px-4 py-2.5 font-medium" placeholder="https://..." />
           </div>
         </div>
 
-        <div class="drop-zone rounded-lg p-4 text-center cursor-pointer mt-4" id="imageDropZone">
-          <div class="text-gray-500">Click to upload or Drag & Drop multiple images</div>
-          <div class="preview mt-4 grid grid-cols-3 gap-2" id="preview"></div>
+        <div class="drop-zone rounded-2xl p-6 text-center cursor-pointer mt-6 relative z-10" id="imageDropZone">
+          <div class="flex flex-col items-center justify-center">
+            <div class="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-3">
+               <svg class="w-6 h-6 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            </div>
+            <div class="text-slate-700 font-bold">Drop images here</div>
+            <div class="text-slate-500 text-sm mt-1">or click to browse</div>
+          </div>
+          <div class="preview mt-5 grid grid-cols-2 gap-3" id="preview"></div>
           <input type="file" id="imageInput" class="hidden" accept="image/*" multiple />
         </div>
 
-        <div class="drop-zone rounded-lg p-4 text-center cursor-pointer mt-4" id="videoDropZone">
-          <div class="text-gray-500">Optional: Click to upload or Drag & Drop a video</div>
-          <div class="preview mt-4" id="videoPreview"></div>
+        <div class="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+           <label class="flex justify-between items-center text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-2">
+             Image Compression Quality
+             <span id="qualityDisplay" class="text-brand-600 font-bold bg-brand-50 border border-brand-100 px-2 py-0.5 rounded-full">70%</span>
+           </label>
+           <input type="range" id="compressionQuality" min="10" max="100" value="70" class="w-full">
+           <div class="text-[9px] sm:text-[10px] text-slate-400 mt-2 text-center leading-tight">Lower % reduces quality, saves massive storage space, and makes images load incredibly fast.</div>
+        </div>
+
+        <div class="drop-zone rounded-2xl p-5 text-center cursor-pointer mt-4 relative z-10" id="videoDropZone">
+           <div class="flex flex-col items-center justify-center">
+            <svg class="w-7 h-7 text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            <div class="text-slate-600 text-sm font-bold">Upload Video (Optional)</div>
+          </div>
+          <div class="preview mt-3" id="videoPreview"></div>
           <input type="file" id="videoInput" class="hidden" accept="video/*" />
         </div>
 
-        <button id="uploadBtn" class="w-full mt-5 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg">
-          Upload Product(s)
+        <button id="uploadBtn" class="w-full mt-6 bg-gradient-to-r from-brand-500 to-fuchsia-500 hover:from-brand-600 hover:to-fuchsia-600 text-white font-extrabold tracking-wide py-3.5 sm:py-4 px-6 rounded-xl shadow-lg shadow-brand-500/20 transform hover:-translate-y-0.5 transition-all duration-300 relative z-10 flex items-center justify-center gap-2 text-lg">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+          Publish Product
         </button>
       </div>
 
-      <div class="lg:col-span-2 bg-white rounded-xl shadow p-4">
-        <h2 class="text-lg font-semibold mb-3">Upload Queue & Progress</h2>
-        <div id="progressList" class="space-y-3"></div>
-      </div>
-    </div>
+      <!-- Main Content Area -->
+      <div class="xl:col-span-8 flex flex-col gap-6 sm:gap-8">
+        
+        <!-- Search, Sort & Queue Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+          
+          <!-- Filter Panel -->
+          <div class="glass-panel rounded-3xl p-5 sm:p-6">
+             <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2">
+              <div class="p-1.5 bg-brand-50 rounded-lg text-brand-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+              </div>
+              Filters & Sorting
+            </h2>
+            <div class="space-y-3">
+              <div class="relative">
+                <svg class="w-4 h-4 absolute left-4 top-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input id="nameSearchInput" type="text" class="input-premium w-full rounded-xl pl-10 pr-4 py-2.5 text-sm font-medium" placeholder="Search by name..." />
+              </div>
+              <div class="relative">
+                 <svg class="w-4 h-4 absolute left-4 top-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path></svg>
+                <input id="partyCodeSearchInput" type="text" class="input-premium w-full rounded-xl pl-10 pr-4 py-2.5 text-sm font-medium" placeholder="Search by party code..." />
+              </div>
+              <div class="relative">
+                 <svg class="w-4 h-4 absolute left-4 top-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path></svg>
+                 <select id="sortSelect" class="input-premium w-full rounded-xl pl-10 pr-4 py-2.5 text-sm font-medium cursor-pointer appearance-none">
+                    <option value="date-desc">Sort by: Newest First</option>
+                    <option value="size-desc">Sort by: Largest Size First</option>
+                 </select>
+              </div>
+            </div>
+          </div>
 
-    <div class="mt-8 bg-white rounded-xl shadow p-4">
-      <h2 class="text-lg font-semibold mb-3">Search Products</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label for="nameSearchInput" class="block text-sm font-medium text-gray-700">Search by Product Name</label>
-          <input id="nameSearchInput" type="text" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter product name..." />
-        </div>
-        <div>
-          <label for="partyCodeSearchInput" class="block text-sm font-medium text-gray-700">Search by Party Code</label>
-          <input id="partyCodeSearchInput" type="text" class="mt-1 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter party code..." />
-        </div>
-      </div>
-    </div>
+          <!-- Queue Panel -->
+          <div class="glass-panel rounded-3xl p-5 sm:p-6 flex flex-col h-full min-h-[200px]">
+            <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center justify-between">
+              <span class="flex items-center gap-2">
+                <div class="p-1.5 bg-brand-50 rounded-lg text-brand-600">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                </div>
+                Upload Queue
+              </span>
+            </h2>
+            <div id="progressList" class="space-y-3 flex-grow overflow-y-auto pr-2">
+               <div id="emptyQueueState" class="h-full flex flex-col items-center justify-center text-slate-400 opacity-80 py-4">
+                 <svg class="w-10 h-10 mb-2 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                 <span class="text-xs font-bold uppercase tracking-wider">Queue is empty</span>
+               </div>
+            </div>
+          </div>
 
-    <div class="mt-8">
-      <h2 class="text-lg font-semibold mb-3">Products</h2>
-      <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
+        </div>
+
+        <!-- Gallery -->
+        <div class="mt-2">
+           <div class="flex items-center justify-between mb-6">
+              <h2 class="text-2xl font-extrabold text-slate-800">Product Gallery</h2>
+           </div>
+          <!-- 2 Columns on Mobile, 3 on Desktop -->
+          <div id="galleryGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6">
+            <!-- Initial Loading State -->
+            <div class="col-span-2 md:col-span-3 flex flex-col items-center justify-center py-24 text-slate-400" id="galleryLoadingState">
+               <svg class="w-12 h-12 animate-spin text-brand-500 mb-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+               <div class="text-xs font-bold uppercase tracking-widest animate-pulse text-brand-600">Loading Inventory...</div>
+               <div class="text-[10px] mt-2 text-slate-400">Fetching from secure database</div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
     </div>
   </div>
 
@@ -152,16 +371,85 @@
     const videoPreview = document.getElementById('videoPreview');
     const uploadBtn = document.getElementById('uploadBtn');
     const progressList = document.getElementById('progressList');
+    const emptyQueueState = document.getElementById('emptyQueueState');
     const galleryGrid = document.getElementById('galleryGrid');
     const globalDropOverlay = document.getElementById('globalDropOverlay');
     const nameSearchInput = document.getElementById('nameSearchInput');
     const partyCodeSearchInput = document.getElementById('partyCodeSearchInput');
+    const sortSelect = document.getElementById('sortSelect');
+    const compressionQualitySlider = document.getElementById('compressionQuality');
+    const qualityDisplay = document.getElementById('qualityDisplay');
+    const imageModal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    const modalPrevBtn = document.getElementById('modalPrevBtn');
+    const modalNextBtn = document.getElementById('modalNextBtn');
+    const modalCounter = document.getElementById('modalCounter');
+
+    compressionQualitySlider.addEventListener('input', (e) => {
+      qualityDisplay.textContent = e.target.value + '%';
+    });
 
     // 3) State
     const uploadQueue = [];
     let isUploading = false;
     let products = [];
     let selectedImageFiles = []; // Accumulator for multiple selections
+    let currentFilteredProducts = []; // To keep track of the gallery for the lightbox
+
+    // Lightbox functions
+    let currentLightboxIndex = -1;
+
+    function updateModalImage() {
+      if(currentLightboxIndex < 0 || currentLightboxIndex >= currentFilteredProducts.length) return;
+      modalImage.style.opacity = 0;
+      setTimeout(() => {
+        modalImage.src = currentFilteredProducts[currentLightboxIndex].data.url;
+        modalImage.style.opacity = 1;
+        modalCounter.textContent = `${currentLightboxIndex + 1} / ${currentFilteredProducts.length}`;
+        modalPrevBtn.style.visibility = currentLightboxIndex === 0 ? 'hidden' : 'visible';
+        modalNextBtn.style.visibility = currentLightboxIndex === currentFilteredProducts.length - 1 ? 'hidden' : 'visible';
+      }, 150);
+    }
+
+    window.openModal = function(url) {
+      currentLightboxIndex = currentFilteredProducts.findIndex(p => p.data.url === url);
+      if (currentLightboxIndex === -1) return;
+      updateModalImage();
+      imageModal.classList.remove('hidden');
+      imageModal.classList.add('flex');
+    }
+
+    window.closeModal = function() {
+      imageModal.classList.add('hidden');
+      imageModal.classList.remove('flex');
+      setTimeout(() => { modalImage.src = ''; }, 300);
+    }
+
+    window.prevModalImage = function(e) {
+      if(e) e.stopPropagation();
+      if(currentLightboxIndex > 0) {
+        currentLightboxIndex--;
+        updateModalImage();
+      }
+    }
+
+    window.nextModalImage = function(e) {
+      if(e) e.stopPropagation();
+      if(currentLightboxIndex < currentFilteredProducts.length - 1) {
+        currentLightboxIndex++;
+        updateModalImage();
+      }
+    }
+
+    // Touch Swipe Logic for Modal
+    let touchStartX = 0;
+    let touchEndX = 0;
+    imageModal.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+    imageModal.addEventListener('touchend', e => { 
+      touchEndX = e.changedTouches[0].screenX; 
+      if (touchEndX < touchStartX - 50) nextModalImage(); // swipe left -> next
+      if (touchEndX > touchStartX + 50) prevModalImage(); // swipe right -> prev
+    }, {passive: true});
 
     // 4) Debounce utility
     function debounce(func, wait) {
@@ -172,7 +460,7 @@
       };
     }
 
-    // --- ADDED: Image Compression Helper ---
+    // --- Image Compression Helper ---
     async function compressImage(file, quality = 0.7) {
         if (!file.type.startsWith('image/')) return file;
         return new Promise((resolve) => {
@@ -206,19 +494,26 @@
             img.onerror = () => { URL.revokeObjectURL(src); resolve(file); };
         });
     }
-    // ----------------------------------------
 
-    // 5) UI helpers - FIXED TO APPEND RATHER THAN REPLACE
+    // 5) UI helpers
     function previewImages() {
       preview.innerHTML = '';
       selectedImageFiles.forEach((file, index) => {
         if (!file.type.startsWith('image/')) return;
+        const sizeKB = (file.size / 1024).toFixed(1);
         const url = URL.createObjectURL(file);
         const imgDiv = document.createElement('div');
-        imgDiv.className = "relative group";
+        imgDiv.className = "relative group rounded-xl overflow-hidden shadow-sm border border-slate-200 h-28 bg-white";
         imgDiv.innerHTML = `
-            <img src="${url}" class="w-full h-20 object-cover rounded-lg border" />
-            <button onclick="removeSelectedImage(${index})" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">×</button>
+            <img src="${url}" class="w-full h-full object-cover" />
+            <div class="absolute bottom-0 left-0 right-0 bg-slate-900/70 p-1 text-center">
+               <span class="text-[10px] text-white font-bold tracking-wider">${sizeKB} KB</span>
+            </div>
+            <div class="absolute inset-0 bg-white/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+              <button onclick="removeSelectedImage(${index})" class="bg-rose-500 hover:bg-rose-600 text-white rounded-full p-2 shadow-lg transform hover:scale-110 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+              </button>
+            </div>
         `;
         preview.appendChild(imgDiv);
       });
@@ -231,38 +526,25 @@
 
     function previewVideo(file) {
       if (!file || !file.type.startsWith('video/')) {
-        console.error('Invalid video file:', file);
         return;
       }
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
       const url = URL.createObjectURL(file);
       videoPreview.innerHTML = `
-        <video src="${url}" controls class="mx-auto w-full rounded-lg" style="max-height: 240px;"></video>
-        <div class="text-xs text-gray-500 mt-1 truncate">${file.name}</div>
+        <div class="relative rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-white p-2">
+          <video src="${url}" controls class="mx-auto w-full rounded-lg bg-slate-100" style="max-height: 160px;"></video>
+          <div class="flex justify-between items-center mt-2 px-1">
+            <span class="text-xs text-slate-500 truncate font-medium max-w-[70%]">${file.name}</span>
+            <span class="text-[10px] text-brand-600 font-bold bg-brand-50 px-2 py-0.5 rounded-full border border-brand-100">${sizeMB} MB</span>
+          </div>
+        </div>
       `;
-    }
-
-    // 6) Lazy load images
-    function setupLazyLoading() {
-      const observer = new IntersectionObserver((entries, obs) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const img = entry.target;
-            img.src = img.dataset.src;
-            img.classList.add('loaded');
-            img.removeAttribute('data-src');
-            obs.unobserve(img);
-          }
-        });
-      }, { rootMargin: '100px' });
-
-      const images = galleryGrid.querySelectorAll('img[data-src]');
-      images.forEach(img => observer.observe(img));
     }
 
     // 7) Drag & Drop and Click-to-Upload
     function setupDropZone(zone, input, isImage) {
-      zone.addEventListener('click', () => {
-        input.click();
+      zone.addEventListener('click', (e) => {
+        if(e.target.tagName !== 'BUTTON' && !e.target.closest('button')) input.click();
       });
 
       zone.addEventListener('dragenter', (e) => {
@@ -299,7 +581,6 @@
             videoInput.files = files;
             previewVideo(files[0]);
         }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     setupDropZone(imageDropZone, imageInput, true);
@@ -338,7 +619,7 @@
     imageInput.addEventListener('change', () => {
       if (imageInput.files.length) {
         handleFiles(imageInput.files, true);
-        imageInput.value = ''; // Reset so same file can be picked again
+        imageInput.value = '';
       }
     });
     videoInput.addEventListener('change', () => {
@@ -346,6 +627,14 @@
         previewVideo(videoInput.files[0]);
       }
     });
+
+    function toggleQueueState() {
+      if(progressList.children.length > 1 || uploadQueue.length > 0) {
+        emptyQueueState.style.display = 'none';
+      } else {
+        emptyQueueState.style.display = 'flex';
+      }
+    }
 
     // 8) Upload flow
     uploadBtn.addEventListener('click', () => {
@@ -358,6 +647,8 @@
         const priceInput = parseFloat(document.getElementById('priceInput').value.trim());
         const partyCode = document.getElementById('partyCodeInput').value.trim();
         const videourlInputEl = document.getElementById('videourlInput');
+        
+        const qualityValue = parseInt(compressionQualitySlider.value) / 100;
 
         if (!selectedImageFiles.length) return alert('Please select at least one image.');
         if (!baseName) return alert('Please enter a product name.');
@@ -367,50 +658,58 @@
         const price = priceInput / 2;
         let sharedVideoURL = (videourlInputEl.value || '').trim();
 
+        toggleQueueState();
+
         if (videoInput.files && videoInput.files[0]) {
           const videoFile = videoInput.files[0];
           const vRef = storage.ref(`videos/${new Date().getTime()}_${videoFile.name}`);
           
           const videoStatus = document.createElement('div');
-          videoStatus.className = 'p-2 mb-2 text-sm bg-blue-50 text-blue-700 rounded font-bold';
-          videoStatus.textContent = 'Uploading shared video...';
+          videoStatus.className = 'p-3 mb-3 text-sm bg-brand-50 text-brand-700 border border-brand-200 rounded-xl font-bold shadow-sm flex items-center gap-2';
+          videoStatus.innerHTML = `<svg class="w-5 h-5 animate-spin text-brand-500" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Uploading video...`;
           progressList.prepend(videoStatus);
 
           try {
             await vRef.put(videoFile);
             sharedVideoURL = await vRef.getDownloadURL();
-            videoStatus.textContent = 'Shared video uploaded.';
-            setTimeout(() => videoStatus.remove(), 2000);
+            videoStatus.innerHTML = `<svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Video uploaded.`;
+            videoStatus.classList.replace('bg-brand-50', 'bg-emerald-50');
+            videoStatus.classList.replace('text-brand-700', 'text-emerald-700');
+            videoStatus.classList.replace('border-brand-200', 'border-emerald-200');
+            setTimeout(() => { videoStatus.remove(); toggleQueueState(); }, 2500);
           } catch (err) {
-            console.error('Video upload failed:', err);
-            videoStatus.textContent = 'Video upload failed. Continuing with images only.';
+            videoStatus.innerHTML = `<svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> Video failed.`;
+            videoStatus.classList.replace('bg-brand-50', 'bg-rose-50');
+            videoStatus.classList.replace('text-brand-700', 'text-rose-700');
+            videoStatus.classList.replace('border-brand-200', 'border-rose-200');
+            setTimeout(() => { videoStatus.remove(); toggleQueueState(); }, 4000);
           }
         }
 
         for (let i = 0; i < selectedImageFiles.length; i++) {
-          let file = selectedImageFiles[i]; // Changed from const to let for compression
+          let file = selectedImageFiles[i]; 
           const productName = selectedImageFiles.length > 1 ? `${baseName} ${i + 1}` : baseName;
+          let compressedFile = file;
           
-          // --- ADDED: Compress ---
           try {
-             file = await compressImage(file); 
-             console.log("Compressed file size:", (file.size/1024).toFixed(2), "KB");
+             compressedFile = await compressImage(file, qualityValue); 
           } catch(e) { console.error("Compression failed", e); }
-          // -----------------------
+
+          const finalSizeKB = (compressedFile.size / 1024).toFixed(1);
 
           const thumbDataURL = await fileToDataURL(file);
           const progressContainer = document.createElement('div');
-          progressContainer.className = 'p-3 bg-gray-100 rounded border border-gray-200';
+          progressContainer.className = 'p-3 bg-white rounded-xl border border-slate-200 shadow-sm';
           progressContainer.innerHTML = `
             <div class="flex items-center">
-              <img src="${thumbDataURL}" class="w-12 h-12 object-cover rounded mr-4" />
+              <img src="${thumbDataURL}" class="w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-lg border border-slate-200 shadow-sm mr-3 sm:mr-4" />
               <div class="flex-grow">
-                <div class="flex justify-between items-center mb-1">
-                  <span class="text-sm font-medium text-gray-800 truncate w-48">${productName}</span>
-                  <span class="status text-xs text-blue-600 font-bold italic">Waiting...</span>
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-xs sm:text-sm font-bold text-slate-800 truncate w-32 sm:w-40">${productName}</span>
+                  <span class="status text-[9px] sm:text-[10px] text-brand-600 font-extrabold tracking-wider uppercase px-2 py-0.5 bg-brand-50 rounded-full border border-brand-100">Waiting</span>
                 </div>
-                <div class="bg-gray-300 rounded-full h-2">
-                  <div class="progress-bar bg-blue-600 h-2 rounded-full w-0 transition-all duration-300"></div>
+                <div class="bg-slate-100 rounded-full h-2.5 overflow-hidden shadow-inner border border-slate-200">
+                  <div class="progress-bar bg-brand-500 h-full rounded-full w-0 transition-all duration-300"></div>
                 </div>
               </div>
             </div>
@@ -418,7 +717,8 @@
           progressList.prepend(progressContainer);
 
           uploadQueue.push({
-            file,
+            file: compressedFile,
+            sizeKB: finalSizeKB,
             name: productName,
             price,
             partyCode,
@@ -461,7 +761,7 @@
       isUploading = true;
       const item = uploadQueue.shift();
 
-      const { file, name, price, partyCode, videourl, progressContainer } = item;
+      const { file, sizeKB, name, price, partyCode, videourl, progressContainer } = item;
       const progressBar = progressContainer.querySelector('.progress-bar');
       const statusEl = progressContainer.querySelector('.status');
 
@@ -470,12 +770,14 @@
 
       try {
         await new Promise((resolve, reject) => {
+          statusEl.textContent = 'Upload...';
+          
           const task = storageRef.put(file);
           task.on('state_changed',
             (snap) => {
               const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
               progressBar.style.width = pct + '%';
-              statusEl.textContent = `${pct}%`;
+              if(pct > 0) statusEl.textContent = `${pct}%`;
             },
             reject,
             async () => {
@@ -486,22 +788,26 @@
                   price,
                   partyCode,
                   url: imageURL,
+                  sizeKB: sizeKB,
                   videourl: videourl || '',
                   outOfStock: false,
                   date: new Date().toISOString()
                 };
                 await database.ref().push().set(data);
                 statusEl.textContent = 'DONE';
+                statusEl.className = 'status text-[9px] sm:text-[10px] text-emerald-600 font-extrabold tracking-wider uppercase px-2 py-0.5 bg-emerald-50 rounded-full border border-emerald-200';
                 progressBar.style.width = '100%';
-                setTimeout(() => progressContainer.remove(), 1000);
+                progressBar.className = 'progress-bar bg-emerald-500 h-full rounded-full w-full transition-all duration-300';
+                setTimeout(() => { progressContainer.remove(); toggleQueueState(); }, 1500);
                 resolve();
               } catch (e) { reject(e); }
             }
           );
         });
       } catch (err) {
-        statusEl.textContent = 'ERROR';
-        progressBar.classList.add('bg-red-500');
+        statusEl.textContent = 'ERR';
+        statusEl.className = 'status text-[9px] sm:text-[10px] text-rose-600 font-extrabold tracking-wider uppercase px-2 py-0.5 bg-rose-50 rounded-full border border-rose-200';
+        progressBar.className = 'progress-bar bg-rose-500 h-full rounded-full w-full';
       } finally {
         isUploading = false;
         processUploadQueue();
@@ -510,71 +816,87 @@
 
     // 9) Render cards
     function renderCard(key, data) {
+      
+      // Feature: Check if size exists, if not, fetch it asynchronously to enable sorting.
+      if (!data.sizeKB && isFirebaseStorageUrl(data.url)) {
+        storage.refFromURL(data.url).getMetadata().then(metadata => {
+          const sizeKB = (metadata.size / 1024).toFixed(1);
+          database.ref(key).update({ sizeKB: sizeKB });
+        }).catch(()=>{});
+      }
+
+      const displaySize = data.sizeKB ? `${data.sizeKB} KB` : '...';
+
       const container = document.createElement('div');
-      container.className = 'bg-white rounded-xl shadow overflow-hidden';
+      container.className = 'product-card bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col h-full relative overflow-hidden';
       container.dataset.key = key;
 
       container.innerHTML = `
-        <img data-src="${data.url}" alt="${escapeHtml(data.name)}"  style="height: 16rem;" class="w-full h-48 object-cover" loading="lazy">
-        <div class="p-4">
-          <h3 class="font-semibold text-lg mb-2 editable-field truncate-2" onclick="makeEditable(this, '${key}', 'name')" title="Click to edit name">
-            ${escapeHtml(data.name)}
-          </h3>
-
-          <p class="text-gray-600 mb-1 editable-field" onclick="makeEditable(this, '${key}', 'price')" title="Click to edit price">
-            Price: ${Number(data.price).toFixed(2)}
-          </p>
-          <p class="text-gray-600 mb-2 editable-field" onclick="makeEditable(this, '${key}', 'partyCode')" title="Click to edit party code">
-            Party Code: ${escapeHtml(data.partyCode || '')}
-          </p>
-
-          <div class="mt-2" id="videoRow-${key}">
-            <p class="text-gray-600 mb-2 editable-field" onclick="makeEditableVideo(this, '${key}', 'videourl')" title="Click to edit video URL">
-              Video URL: ${escapeHtml(data.videourl || 'No video')}
-            </p>
-            ${
-              data.videourl
-                ? `<a href="${data.videourl}" target="_blank" class="text-blue-600 hover:underline text-sm">Watch video</a>`
-                : ''
-            }
+        <div class="relative overflow-hidden cursor-pointer" onclick="openModal('${data.url}')">
+          <img src="${data.url}" alt="${escapeHtml(data.name)}" style="height: 12rem;" class="w-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out sm:h-64" decoding="async" loading="lazy">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/10 to-transparent opacity-90 transition-opacity"></div>
+          
+          <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white bg-black/40 rounded-full p-2 sm:p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-sm shadow-xl border border-white/20">
+             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path></svg>
           </div>
 
-          <div class="flex justify-between items-center mt-3">
-            <p class="text-gray-600 status-display-${key}">Status: ${data.outOfStock ? 'Out of Stock' : 'Available'}</p>
-            <button onclick="toggleStockStatus('${key}', ${!!data.outOfStock})"
-              class="text-white py-1 px-3 rounded-full text-sm font-semibold ${data.outOfStock ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}">
-              ${data.outOfStock ? 'Mark Available' : 'Mark Out of Stock'}
-            </button>
+          <div class="absolute top-3 left-3 bg-black/60 text-white text-[9px] sm:text-[10px] font-bold px-2 py-1 rounded backdrop-blur-md border border-white/10">
+             ${displaySize}
           </div>
 
-          <div class="flex justify-between items-center mt-2">
-            <p class="text-sm text-gray-500 uploaded-date-${key}">Uploaded: ${data.date || new Date().toISOString()}</p>
-            <button onclick="updateUploadDate('${key}')" class="text-white py-1 px-3 rounded-full text-xs font-semibold bg-blue-500 hover:bg-blue-600">
-              Update Date
-            </button>
+          <div class="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4" onclick="event.stopPropagation()">
+             <h3 class="font-extrabold text-lg sm:text-xl text-white editable-field truncate-2 drop-shadow-md cursor-text hover:text-brand-300 transition-colors leading-tight" onclick="makeEditable(this, '${key}', 'name')" title="Click to edit name">
+               ${escapeHtml(data.name)}
+             </h3>
           </div>
-
-          <div class="flex flex-wrap gap-2 items-center mt-4">
-            <button onclick="replaceImage('${key}', '${encodeURIComponent(data.url || '')}')"
-              class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-3 rounded text-sm">
-              Replace Image
-            </button>
-            <button onclick="replaceVideo('${key}', '${encodeURIComponent(data.videourl || '')}')"
-              class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-3 rounded text-sm">
-              Replace Video
-            </button>
-            ${
-              data.videourl
-                ? `<button onclick="removeVideo('${key}', '${encodeURIComponent(data.videourl || '')}')"
-                    class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-3 rounded text-sm">
-                    Remove Video
-                  </button>`
-                : ''
-            }
-            <button onclick="confirmDelete('${key}')"
-              class="ml-auto bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-              Delete
-            </button>
+          <div class="absolute top-3 right-3 sm:top-4 sm:right-4 flex gap-1 sm:gap-2">
+            <span class="px-2 py-0.5 sm:px-3 sm:py-1 text-[8px] sm:text-[10px] font-extrabold uppercase tracking-widest rounded-full shadow-md border ${data.outOfStock ? 'bg-rose-500 border-rose-600 text-white' : 'bg-emerald-500 border-emerald-600 text-white'}">
+              ${data.outOfStock ? 'Out' : 'Avail'}
+            </span>
+          </div>
+        </div>
+        <div class="p-3 sm:p-5 flex-grow flex flex-col justify-between relative z-10 bg-white">
+          <div class="space-y-2 sm:space-y-3 mb-4 sm:mb-5">
+            <div class="flex items-center justify-between p-1.5 sm:p-2 rounded-lg hover:bg-slate-50 transition-colors group/item">
+              <span class="text-slate-500 text-[10px] sm:text-xs font-bold uppercase tracking-wider">Price</span>
+              <span class="text-slate-800 font-extrabold text-sm sm:text-lg editable-field cursor-text group-hover/item:text-brand-600 transition-colors" onclick="makeEditable(this, '${key}', 'price')" title="Click to edit price">
+                ₹${Number(data.price).toFixed(2)}
+              </span>
+            </div>
+            <div class="flex items-center justify-between p-1.5 sm:p-2 rounded-lg hover:bg-slate-50 transition-colors group/item">
+              <span class="text-slate-500 text-[10px] sm:text-xs font-bold uppercase tracking-wider">Code</span>
+              <span class="text-slate-700 font-bold text-xs sm:text-sm editable-field cursor-text group-hover/item:text-brand-600 transition-colors bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200" onclick="makeEditable(this, '${key}', 'partyCode')" title="Click to edit party code">
+                ${escapeHtml(data.partyCode || 'N/A')}
+              </span>
+            </div>
+          </div>
+          
+          <div class="space-y-2 sm:space-y-3 pt-3 sm:pt-4 border-t border-slate-100">
+              <div class="flex justify-between gap-2">
+                  <button onclick="toggleStockStatus('${key}', ${!!data.outOfStock})" class="flex-1 py-2 px-2 sm:px-3 rounded-lg text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest transition-all duration-200 border ${data.outOfStock ? 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-500 hover:text-white shadow-sm' : 'bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-500 hover:text-white shadow-sm'}">
+                      ${data.outOfStock ? 'Avail' : 'Out of Stock'}
+                  </button>
+              </div>
+              <div class="flex flex-wrap gap-1.5 sm:gap-2 justify-between">
+                   <button onclick="replaceImage('${key}', '${encodeURIComponent(data.url || '')}')" class="flex-1 min-w-[30%] bg-white hover:bg-slate-50 text-slate-600 border border-slate-300 hover:border-slate-400 text-[9px] sm:text-[11px] font-bold py-1.5 sm:py-2 px-1 rounded-lg shadow-sm transition-all duration-200">
+                     Image
+                   </button>
+                   <button onclick="compressExistingImage('${key}', '${encodeURIComponent(data.url || '')}')" class="btn-compress flex-1 min-w-[30%] bg-brand-50 hover:bg-brand-500 text-brand-600 hover:text-white border border-brand-200 hover:border-brand-500 text-[9px] sm:text-[11px] font-bold py-1.5 sm:py-2 px-1 rounded-lg shadow-sm transition-all duration-200 truncate">
+                     Compress
+                   </button>
+                   <button onclick="replaceVideo('${key}', '${encodeURIComponent(data.videourl || '')}')" class="flex-1 min-w-[30%] bg-white hover:bg-slate-50 text-slate-600 border border-slate-300 hover:border-slate-400 text-[9px] sm:text-[11px] font-bold py-1.5 sm:py-2 px-1 rounded-lg shadow-sm transition-all duration-200">
+                     Video
+                   </button>
+              </div>
+              <div class="flex items-center justify-between pt-3 sm:pt-4 mt-1 sm:mt-2">
+                   <div class="flex items-center gap-1 sm:gap-1.5 group/date cursor-pointer bg-slate-50 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg border border-slate-200 hover:border-brand-300 transition-all" onclick="updateUploadDate('${key}')" title="Click to refresh date">
+                       <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400 group-hover/date:text-brand-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                       <span class="text-[8px] sm:text-[10px] text-slate-500 font-bold tracking-wide group-hover/date:text-brand-600 transition-colors uploaded-date-${key}">${new Date(data.date || Date.now()).toLocaleDateString(undefined, {month: 'short', day:'numeric', year:'2-digit'})}</span>
+                   </div>
+                   <button onclick="confirmDelete('${key}')" class="text-slate-400 hover:text-white p-1.5 sm:p-2 rounded-lg hover:bg-rose-500 hover:shadow-md transition-all duration-200 border border-transparent hover:border-rose-600" title="Delete Product">
+                     <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                   </button>
+              </div>
           </div>
         </div>
       `;
@@ -591,10 +913,24 @@
       }[s]));
     }
 
+    // Gallery state
+    let currentGalleryLimit = 12;
+    let prevNameQuery = '';
+    let prevCodeQuery = '';
+    let prevSortVal = '';
+
     function batchRenderGallery(nameQuery = '', partyCodeQuery = '') {
       const fragment = document.createDocumentFragment();
       const nameLower = nameQuery.toLowerCase().trim();
       const partyCodeLower = partyCodeQuery.toLowerCase().trim();
+      const sortVal = sortSelect.value;
+
+      if (nameLower !== prevNameQuery || partyCodeLower !== prevCodeQuery || sortVal !== prevSortVal) {
+        currentGalleryLimit = 12;
+        prevNameQuery = nameLower;
+        prevCodeQuery = partyCodeLower;
+        prevSortVal = sortVal;
+      }
 
       const filteredProducts = products.filter(({ data }) => {
         const nameMatch = !nameLower || (data.name && data.name.toLowerCase().includes(nameLower));
@@ -602,10 +938,37 @@
         return nameMatch && partyCodeMatch;
       });
 
-      filteredProducts.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+      if (sortVal === 'size-desc') {
+        filteredProducts.sort((a, b) => {
+           const sizeA = parseFloat(a.data.sizeKB) || 0;
+           const sizeB = parseFloat(b.data.sizeKB) || 0;
+           const diff = sizeB - sizeA;
+           if (diff === 0) return a.key.localeCompare(b.key);
+           return diff;
+        });
+      } else {
+        filteredProducts.sort((a, b) => {
+           const timeA = a.data.date ? new Date(a.data.date).getTime() : 0;
+           const timeB = b.data.date ? new Date(b.data.date).getTime() : 0;
+           const diff = timeB - timeA;
+           if (diff === 0) return a.key.localeCompare(b.key);
+           return diff;
+        });
+      }
 
-      const batchSize = 20;
-      const batch = filteredProducts.slice(0, batchSize);
+      currentFilteredProducts = filteredProducts;
+
+      if (filteredProducts.length === 0) {
+        galleryGrid.innerHTML = `
+          <div class="col-span-2 md:col-span-3 flex flex-col items-center justify-center py-24 text-slate-400 bg-white border border-slate-200 border-dashed rounded-3xl">
+             <svg class="w-16 h-16 mb-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+             <div class="text-sm font-bold uppercase tracking-widest text-slate-500">No products found</div>
+          </div>
+        `;
+        return;
+      }
+
+      const batch = filteredProducts.slice(0, currentGalleryLimit);
       batch.forEach(({ key, data }) => {
         const card = renderCard(key, data);
         fragment.appendChild(card);
@@ -613,24 +976,21 @@
 
       galleryGrid.innerHTML = '';
       galleryGrid.appendChild(fragment);
-      setupLazyLoading();
 
       let isLoadingMore = false;
-      let lastIndex = batchSize;
       window.removeEventListener('scroll', window.scrollHandler); 
       window.scrollHandler = () => {
-        if (isLoadingMore || lastIndex >= filteredProducts.length) return;
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+        if (isLoadingMore || currentGalleryLimit >= filteredProducts.length) return;
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 300) {
           isLoadingMore = true;
-          const nextBatch = filteredProducts.slice(lastIndex, lastIndex + batchSize);
+          const nextBatch = filteredProducts.slice(currentGalleryLimit, currentGalleryLimit + 12);
           const nextFragment = document.createDocumentFragment();
           nextBatch.forEach(({ key, data }) => {
             const card = renderCard(key, data);
             nextFragment.appendChild(card);
           });
           galleryGrid.appendChild(nextFragment);
-          lastIndex += batchSize;
-          setupLazyLoading();
+          currentGalleryLimit += 12;
           isLoadingMore = false;
         }
       };
@@ -645,7 +1005,7 @@
       batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
     });
 
-    // Event listeners for search
+    // Event listeners for search & sort
     nameSearchInput.addEventListener('input', debounce(() => {
         batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
     }, 300));
@@ -654,36 +1014,19 @@
         batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
     }, 300));
 
+    sortSelect.addEventListener('change', () => {
+        batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
+    });
+
     // Inline editing functions
     window.makeEditable = function(el, key, field) {
       const isPrice = field === 'price';
-      const prev = el.textContent.replace(/^Price:\s*/i, '').replace(/^Party Code:\s*/i, '').trim();
+      const prev = el.textContent.replace(/^₹\s*/i, '').trim();
       const input = document.createElement('input');
       input.type = isPrice ? 'number' : 'text';
       if (isPrice) input.step = '0.01';
       input.value = prev;
-      input.className = 'w-full border border-gray-300 rounded px-2 py-1';
-      el.replaceWith(input);
-      input.focus();
-      input.select();
-      function commit() {
-        let value = input.value.trim();
-        if (isPrice) value = (parseFloat(value || '0') || 0);
-        database.ref(key).update({[field]: value});
-      }
-      input.addEventListener('blur', commit);
-      input.addEventListener('keydown', (e) => { if (e.key === 'Enter') commit(); });
-    };
-
-   // Inline editing functions
-    window.makeEditable = function(el, key, field) {
-      const isPrice = field === 'price';
-      const prev = el.textContent.replace(/^Price:\s*/i, '').replace(/^Party Code:\s*/i, '').trim();
-      const input = document.createElement('input');
-      input.type = isPrice ? 'number' : 'text';
-      if (isPrice) input.step = '0.01';
-      input.value = prev;
-      input.className = 'w-full border border-gray-300 rounded px-2 py-1';
+      input.className = 'w-full bg-white border border-brand-400 rounded-md px-2 sm:px-3 py-1 sm:py-1.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500/30 font-sans shadow-inner text-xs sm:text-sm font-bold';
       el.replaceWith(input);
       input.focus();
       input.select();
@@ -691,9 +1034,9 @@
       function commit() {
         let value = input.value.trim();
         if (isPrice) {
-          // Parse the input and divide by 2
           let rawPrice = parseFloat(value || '0');
-          value = rawPrice / 2; 
+          value = rawPrice; 
+          value = rawPrice / 2;
         }
         database.ref(key).update({[field]: value});
       }
@@ -716,21 +1059,66 @@
       database.ref(key).remove();
     }
 
+    // New Compress Existing Image Feature
+    window.compressExistingImage = async function(key, currentUrlEncoded) {
+      const currentUrl = decodeURIComponent(currentUrlEncoded);
+      if (!isFirebaseStorageUrl(currentUrl)) {
+        alert("Image is not hosted on Firebase Storage. Cannot compress.");
+        return;
+      }
+      
+      const qualityValue = parseInt(compressionQualitySlider.value) / 100;
+      if (!confirm(`Compress this image using ${qualityValue * 100}% quality from the slider?`)) return;
+      
+      const card = document.querySelector(`div[data-key="${key}"]`);
+      if(!card) return;
+      const compressBtn = card.querySelector('.btn-compress');
+      const originalText = compressBtn.innerHTML;
+      compressBtn.innerHTML = '<span class="animate-pulse">Wait...</span>';
+      compressBtn.disabled = true;
+
+      try {
+        const response = await fetch(currentUrl, {mode: 'cors'}); 
+        if(!response.ok) throw new Error("Network response was not ok");
+        const blob = await response.blob();
+        const file = new File([blob], "existing_image.jpg", { type: blob.type });
+        
+        const compressedFile = await compressImage(file, qualityValue);
+        
+        const ref = storage.ref().child(`images/${new Date().toISOString()}_COMP_${compressedFile.name}`);
+        await ref.put(compressedFile);
+        const newUrl = await ref.getDownloadURL();
+        
+        try { await storage.refFromURL(currentUrl).delete(); } catch(e){}
+        
+        const newSizeKB = (compressedFile.size / 1024).toFixed(1);
+        await database.ref(key).update({ url: newUrl, sizeKB: newSizeKB });
+        
+      } catch (err) {
+        console.error("Compression failed:", err);
+        alert("Compression failed! To compress via browser, your Firebase Storage bucket must have CORS configured. If it's not, you must use the Replace Image button to re-upload manually.");
+      } finally {
+        if(document.body.contains(compressBtn)) {
+           compressBtn.innerHTML = originalText;
+           compressBtn.disabled = false;
+        }
+      }
+    };
+
     window.replaceImage = function(key, currentImageUrlEncoded) {
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'image/*';
       input.onchange = async () => {
-        let file = input.files[0]; // Changed const to let
-        
-        // --- ADDED: Compress ---
-        try { file = await compressImage(file); } catch(e) {}
-        // -----------------------
+        let file = input.files[0]; 
+        const qualityValue = parseInt(compressionQualitySlider.value) / 100;
+        try { file = await compressImage(file, qualityValue); } catch(e) {}
 
+        const finalSizeKB = (file.size / 1024).toFixed(1);
         const ref = storage.ref().child(`images/${new Date().toISOString()}_REPLACE_${file.name}`);
         await ref.put(file);
         const newUrl = await ref.getDownloadURL();
-        database.ref(key).update({ url: newUrl });
+        database.ref(key).update({ url: newUrl, sizeKB: finalSizeKB });
       };
       input.click();
     };
