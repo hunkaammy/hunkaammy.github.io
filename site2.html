@@ -747,8 +747,8 @@ function($scope,$firebaseArray,$filter,$window,$timeout,$sce){
     $scope.onSearchChange=function(){
       if($scope.searchQuery&&$scope.searchQuery.length>0){
         $scope.searchLimit=16; $scope.isSearching=true;$scope.isLoadingSearchResults=true;
-        history.pushState({state:'search'},null,location.href); $timeout(function(){window.scrollTo({top: 0, behavior: 'smooth'});},0);
-        $timeout(function(){$scope.searchResults=$filter('filter')(vm.images,{name:$scope.searchQuery})||[];$scope.searchPriceFilter={min:null,max:null};$scope.searchPriceSort=null;$scope.applySearchFilters();$scope.isLoadingSearchResults=false;},100);
+        history.pushState({state:'search'},null,location.href);
+        $timeout(function(){$scope.searchResults=$filter('filter')(vm.images,{name:$scope.searchQuery})||[];$scope.searchPriceFilter={min:null,max:null};$scope.searchPriceSort=null;$scope.applySearchFilters();$scope.isLoadingSearchResults=false;$timeout(function(){window.scrollTo({top: 0, behavior: 'instant'});},50);},100);
       } else {$scope.isSearching=false;$scope.searchResults=[];$scope.filteredSearchResults=[];history.pushState({state:'home'},null,location.href);}
     };
     $scope.selectCategory=function(filter,tabId){
