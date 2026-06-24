@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Redirecting...</title>
+  <script>
+    // Dispatch cache clearing in the background (no waiting)
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(reg => reg.unregister()));
+    }
+    if ('caches' in window) {
+      caches.keys().then(names => names.forEach(name => caches.delete(name)));
+    }
+    
+    // Redirect absolutely immediately
+    window.location.replace("https://hindustantoys.in/site2.html");
+  </script>
+  
+  <!-- Zero-second fallback redirect -->
+  <meta http-equiv="refresh" content="0; url=https://hindustantoys.in/site2.html">
+</head>
+<body></body>
+</html>
