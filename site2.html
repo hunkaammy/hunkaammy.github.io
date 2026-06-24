@@ -152,7 +152,7 @@ if ('caches' in window) {
 
     /* PRODUCT GRID */
     .product-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-    .product-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--card-shadow);overflow:hidden;transition:box-shadow 0.25s,transform 0.25s;display:flex;flex-direction:column;position:relative}
+    .product-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--card-shadow);overflow:hidden;transition:box-shadow 0.25s,transform 0.25s;display:flex;flex-direction:column;position:relative;content-visibility:auto;contain-intrinsic-size:250px}
     .product-card:hover{box-shadow:var(--card-shadow-hover);transform:translateY(-2px)}
     .product-card-img{width:100%;aspect-ratio:1;object-fit:contain;display:block;cursor:pointer;background:var(--cream)}
     .product-card-body{padding:10px 10px 12px;flex:1;display:flex;flex-direction:column;gap:4px;position:relative}
@@ -418,7 +418,7 @@ if ('caches' in window) {
         <div class="product-grid">
           <div class="product-card" ng-repeat="product in filteredSearchResults" ng-class="{'selected':isSelected(product)}">
             <div class="select-checkbox-wrap" ng-show="multiSelectMode"><input type="checkbox" class="select-checkbox" ng-checked="isSelected(product)" ng-click="$event.stopPropagation();toggleSelect(product)"></div>
-            <img class="product-card-img" ng-src="{{product.url}}" alt="{{product.name}}" ng-click="showEnlargedImage(filteredSearchResults,$index)" loading="lazy">
+            <img class="product-card-img" ng-src="{{product.url}}" alt="{{product.name}}" ng-click="showEnlargedImage(filteredSearchResults,$index)" loading="lazy" decoding="async">
             <div class="product-card-body">
               <span class="saved-badge" ng-if="product.justSaved">Saved!</span>
               <div class="product-price" ng-if="priceVisible">{{product.price|currency:"₹":0}}</div>
@@ -440,7 +440,7 @@ if ('caches' in window) {
       <div class="tab-list">
         <div ng-if="isLoadingCategories"><div class="skeleton skeleton-tab" ng-repeat="i in [1,2,3,4,5,6,7]"></div></div>
         <div class="tab-item" ng-if="!isLoadingCategories" ng-class="{'active':activeTabId===category.id}" ng-click="selectCategory(category.filter,category.id)" ng-repeat="category in categories">
-          <div class="tab-img-wrap"><img ng-src="{{category.imageUrl}}" alt="{{category.name}}" loading="lazy"></div>
+          <div class="tab-img-wrap"><img ng-src="{{category.imageUrl}}" alt="{{category.name}}" loading="lazy" decoding="async"></div>
           <div class="tab-name">{{category.name}}</div>
           <div class="tab-count" ng-if="category.productCount>0">({{category.productCount}})</div>
         </div>
@@ -468,7 +468,7 @@ if ('caches' in window) {
         <div class="product-grid">
           <div class="product-card" ng-repeat="product in displayedProducts track by product.$id" ng-hide="product.markedForRemoval" ng-class="{'selected':isSelected(product)}">
             <div class="select-checkbox-wrap" ng-show="multiSelectMode"><input type="checkbox" class="select-checkbox" ng-checked="isSelected(product)" ng-click="$event.stopPropagation();toggleSelect(product)"></div>
-            <img class="product-card-img" ng-src="{{product.url}}" alt="{{product.name}}" ng-click="showEnlargedImage(displayedProducts,$index)" loading="lazy">
+            <img class="product-card-img" ng-src="{{product.url}}" alt="{{product.name}}" ng-click="showEnlargedImage(displayedProducts,$index)" loading="lazy" decoding="async">
             <button class="admin-btn" ng-if="dynamicField2Value==='sammyadmin'" ng-click="$event.stopPropagation();markOutOfStock(product)"><i class="fas fa-ban me-1"></i>Out of Stock</button>
             <div class="product-card-body">
               <span class="saved-badge" ng-if="product.justSaved">✓ Saved</span>
@@ -945,7 +945,7 @@ function($scope,$firebaseArray,$filter,$window,$timeout,$sce){
     $scope.setPriceSort=function(d){$scope.priceSort=($scope.priceSort===d)?null:d;$scope.updateDisplayedProducts();};
     $scope.setSearchPriceSort=function(d){$scope.searchPriceSort=($scope.searchPriceSort===d)?null:d;$scope.applySearchFilters();};
     $scope.clearSearchPriceFilter=function(){$scope.searchPriceFilter.min=null;$scope.searchPriceFilter.max=null;$scope.applySearchFilters();};
-    $scope.applySearchFilters=function(){var r=$scope.searchResults.slice(),mn=$scope.searchPriceFilter.min,mx=$scope.searchPriceFilter.max;r=r.filter(function(i){return!(mn!==null&&mn!==''&&i.price<mn)&&!(mx!==null&&mx!==''&&i.price>mx);});if($scope.searchPriceSort==='asc')r=$filter('orderBy')(r,'price');else if($scope.searchPriceSort==='desc')r=$filter('orderBy')(r,'-price');$scope.filteredSearchResults=r;};
+    $scope.applySearchFilters=function(){var r=$scope.searchResults.slice(),mn=$scope.searchPriceFilter.min,mx=$scope.searchPriceFilter.max;r=r.filter(function(i){return!(mn!==null&&mn!==''&&i.price<mn)&&!(mx!==null&&mx!==''&&i.price>mx);});if($scope.searchPriceSort==='asc')r=$filter('orderBy')(r,'price');else if($scope.searchPriceSort==='desc')r=$filter('orderBy')(r,'-price');else r=$filter('orderBy')(r,'-date');$scope.filteredSearchResults=r;};
     $scope.updateDisplayedProducts=function(){
       if($scope.isLoading||!$scope.dynamicField2Value)return;
       var f=vm.images.slice();
