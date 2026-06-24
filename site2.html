@@ -416,7 +416,7 @@ if ('caches' in window) {
       </div>
       <div ng-if="!isLoadingSearchResults">
         <div class="product-grid">
-          <div class="product-card" ng-repeat="product in filteredSearchResults" ng-class="{'selected':isSelected(product)}">
+          <div class="product-card" ng-repeat="product in filteredSearchResults | limitTo: searchLimit track by product.$id" ng-class="{'selected':isSelected(product)}">
             <div class="select-checkbox-wrap" ng-show="multiSelectMode"><input type="checkbox" class="select-checkbox" ng-checked="isSelected(product)" ng-click="$event.stopPropagation();toggleSelect(product)"></div>
             <img class="product-card-img" ng-src="{{product.url}}" alt="{{product.name}}" ng-click="showEnlargedImage(filteredSearchResults,$index)" loading="lazy" decoding="async">
             <div class="product-card-body">
@@ -466,7 +466,7 @@ if ('caches' in window) {
       </div>
       <div ng-if="!isLoading">
         <div class="product-grid">
-          <div class="product-card" ng-repeat="product in displayedProducts track by product.$id" ng-hide="product.markedForRemoval" ng-class="{'selected':isSelected(product)}">
+          <div class="product-card" ng-repeat="product in displayedProducts | limitTo: displayLimit track by product.$id" ng-hide="product.markedForRemoval" ng-class="{'selected':isSelected(product)}">
             <div class="select-checkbox-wrap" ng-show="multiSelectMode"><input type="checkbox" class="select-checkbox" ng-checked="isSelected(product)" ng-click="$event.stopPropagation();toggleSelect(product)"></div>
             <img class="product-card-img" ng-src="{{product.url}}" alt="{{product.name}}" ng-click="showEnlargedImage(displayedProducts,$index)" loading="lazy" decoding="async">
             <button class="admin-btn" ng-if="dynamicField2Value==='sammyadmin'" ng-click="$event.stopPropagation();markOutOfStock(product)"><i class="fas fa-ban me-1"></i>Out of Stock</button>
@@ -588,7 +588,21 @@ window.addEventListener('popstate', function() {
       if(sc.isSearching||(sc.searchQuery&&sc.searchQuery.length>0)){sc.searchQuery='';sc.isSearching=false;sc.onSearchChange();history.pushState({state:'home'},null,location.href);return;}
       history.pushState({state:'home'},null,location.href);
     });
-  } catch(e){console.error(e);}
+  
+      // Infinite scroll logic
+      window.addEventListener('scroll', function() {
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 500) {
+          $scope.$apply(function() {
+            if ($scope.isSearching) {
+              $scope.searchLimit += 16;
+            } else {
+              $scope.displayLimit += 16;
+            }
+          });
+        }
+      });
+    } catch(e){console.error(e);}
+
 });
 
 // ═══════════════════════════════════════════
@@ -650,7 +664,7 @@ function($scope,$firebaseArray,$filter,$window,$timeout,$sce){
     $scope.priceSort=null;
     $scope.searchPriceFilter={min:null,max:null}; $scope.searchPriceSort=null;
     $scope.filteredSearchResults=[];
-    $scope.selectedProducts=[]; $scope.multiSelectMode=false;
+    $scope.displayLimit=16; $scope.searchLimit=16; $scope.selectedProducts=[]; $scope.multiSelectMode=false;
     $scope.shareInProgress=false;
 
     var fCfg={databaseURL:"https://htshop-e9c51-default-rtdb.firebaseio.com"};
@@ -726,7 +740,7 @@ function($scope,$firebaseArray,$filter,$window,$timeout,$sce){
     $scope.openOrderModal=function(){var el=document.getElementById('myModal');(bootstrap.Modal.getInstance(el)||new bootstrap.Modal(el)).show();};
     $scope.onSearchChange=function(){
       if($scope.searchQuery&&$scope.searchQuery.length>0){
-        $scope.isSearching=true;$scope.isLoadingSearchResults=true;
+        $scope.searchLimit=16; $scope.isSearching=true;$scope.isLoadingSearchResults=true;
         history.pushState({state:'search'},null,location.href);
         $timeout(function(){$scope.searchResults=$filter('filter')(vm.images,{name:$scope.searchQuery})||[];$scope.searchPriceFilter={min:null,max:null};$scope.searchPriceSort=null;$scope.applySearchFilters();$scope.isLoadingSearchResults=false;},100);
       } else {$scope.isSearching=false;$scope.searchResults=[];$scope.filteredSearchResults=[];history.pushState({state:'home'},null,location.href);}
@@ -735,7 +749,7 @@ function($scope,$firebaseArray,$filter,$window,$timeout,$sce){
       $scope.searchQuery='';$scope.isSearching=false;$scope.productNameFilter=filter;
       $scope.activeCategoryName=($scope.categories.find(c=>c.id===tabId)||{}).name||'Products';
       $scope.activeTabId=tabId;$scope.priceFilter.min=null;$scope.priceFilter.max=null;$scope.priceSort=null;
-      $scope.updateDisplayedProducts();$timeout(function(){window.scrollTo(0,0);},0);
+      $scope.displayLimit=16; $scope.updateDisplayedProducts();$timeout(function(){window.scrollTo(0,0);},0);
     };
     $scope.clearPriceFilter=function(){$scope.priceFilter.min=null;$scope.priceFilter.max=null;$scope.updateDisplayedProducts();};
     $scope.togglePriceVisibility=function(){localStorage.setItem('priceVisible',$scope.priceVisible);};
