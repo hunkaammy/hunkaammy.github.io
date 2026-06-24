@@ -41,7 +41,7 @@ if ('caches' in window) {
       --radius:16px;--radius-sm:10px;
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    html,body{overscroll-behavior:none;height:100%}
+    html,body{overscroll-behavior:none;min-height:100%}
     body{font-family:'Figtree',sans-serif;font-size:14px;color:var(--ink);background-color:var(--cream);-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
     [ng-cloak]{display:none!important}
     ::-webkit-scrollbar{width:4px;height:4px}
@@ -416,7 +416,7 @@ if ('caches' in window) {
       </div>
       <div ng-if="!isLoadingSearchResults">
         <div class="product-grid">
-          <div class="product-card" ng-repeat="product in filteredSearchResults | limitTo: searchLimit track by product.$id" ng-class="{'selected':isSelected(product)}">
+          <div class="product-card" ng-repeat="product in filteredSearchResults" ng-class="{'selected':isSelected(product)}">
             <div class="select-checkbox-wrap" ng-show="multiSelectMode"><input type="checkbox" class="select-checkbox" ng-checked="isSelected(product)" ng-click="$event.stopPropagation();toggleSelect(product)"></div>
             <img class="product-card-img" ng-src="{{product.url}}" alt="{{product.name}}" ng-click="showEnlargedImage(filteredSearchResults,$index)" loading="lazy" decoding="async">
             <div class="product-card-body">
@@ -466,7 +466,7 @@ if ('caches' in window) {
       </div>
       <div ng-if="!isLoading">
         <div class="product-grid">
-          <div class="product-card" ng-repeat="product in displayedProducts | limitTo: displayLimit track by product.$id" ng-hide="product.markedForRemoval" ng-class="{'selected':isSelected(product)}">
+          <div class="product-card" ng-repeat="product in displayedProducts track by product.$id" ng-hide="product.markedForRemoval" ng-class="{'selected':isSelected(product)}">
             <div class="select-checkbox-wrap" ng-show="multiSelectMode"><input type="checkbox" class="select-checkbox" ng-checked="isSelected(product)" ng-click="$event.stopPropagation();toggleSelect(product)"></div>
             <img class="product-card-img" ng-src="{{product.url}}" alt="{{product.name}}" ng-click="showEnlargedImage(displayedProducts,$index)" loading="lazy" decoding="async">
             <button class="admin-btn" ng-if="dynamicField2Value==='sammyadmin'" ng-click="$event.stopPropagation();markOutOfStock(product)"><i class="fas fa-ban me-1"></i>Out of Stock</button>
@@ -589,9 +589,14 @@ window.addEventListener('popstate', function() {
       history.pushState({state:'home'},null,location.href);
     });
   
-      // Infinite scroll logic
-      window.addEventListener('scroll', function() {
-        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 500) {
+      // Robust Infinite scroll logic using IntersectionObserver
+      const sentinel = document.createElement('div');
+      sentinel.style.height = '1px';
+      sentinel.style.width = '100%';
+      document.body.appendChild(sentinel);
+      
+      const observer = new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting) {
           $scope.$apply(function() {
             if ($scope.isSearching) {
               $scope.searchLimit += 16;
@@ -600,7 +605,8 @@ window.addEventListener('popstate', function() {
             }
           });
         }
-      });
+      }, { rootMargin: '2500px' });
+      observer.observe(sentinel);
     } catch(e){console.error(e);}
 
 });
@@ -741,7 +747,7 @@ function($scope,$firebaseArray,$filter,$window,$timeout,$sce){
     $scope.onSearchChange=function(){
       if($scope.searchQuery&&$scope.searchQuery.length>0){
         $scope.searchLimit=16; $scope.isSearching=true;$scope.isLoadingSearchResults=true;
-        history.pushState({state:'search'},null,location.href);
+        history.pushState({state:'search'},null,location.href); $timeout(function(){window.scrollTo({top: 0, behavior: 'smooth'});},0);
         $timeout(function(){$scope.searchResults=$filter('filter')(vm.images,{name:$scope.searchQuery})||[];$scope.searchPriceFilter={min:null,max:null};$scope.searchPriceSort=null;$scope.applySearchFilters();$scope.isLoadingSearchResults=false;},100);
       } else {$scope.isSearching=false;$scope.searchResults=[];$scope.filteredSearchResults=[];history.pushState({state:'home'},null,location.href);}
     };
