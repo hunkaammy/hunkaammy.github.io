@@ -243,6 +243,10 @@
           <input id="newStaffDailyRate" type="number" min="0" placeholder="e.g. 500" onkeydown="if(event.key==='Enter') confirmAddStaff();">
         </div>
       </div>
+      <div class="field">
+        <label>Auto-Bonus for Perfect Attendance (₹/month)</label>
+        <input id="newStaffAutoBonus" type="number" min="0" value="500" placeholder="e.g. 500 (0 for no bonus)" onkeydown="if(event.key==='Enter') confirmAddStaff();">
+      </div>
       <div class="row-btns">
         <button class="btn-green" onclick="confirmAddStaff()">Save Staff</button>
       </div>
@@ -318,6 +322,10 @@
             <label>Per-day salary (₹)</label>
             <input id="dailyRate" type="number" min="0" placeholder="auto">
           </div>
+        </div>
+        <div class="field" style="margin-top:10px;">
+          <label>Auto-Bonus for Perfect Attendance (₹/month)</label>
+          <input id="editAutoBonus" type="number" min="0" placeholder="e.g. 500 (leave blank for no bonus)">
         </div>
         <div class="row-btns">
           <button class="btn-green" onclick="saveSalaryChange()">Save</button>
@@ -395,6 +403,30 @@
   </div>
 </details>
 
+<!-- BONUS -->
+<details>
+  <summary>🎁 Give Bonus (Separate from Salary)</summary>
+  <div class="details-body">
+    <div class="grid">
+      <div class="field">
+        <label>Date</label>
+        <input id="bonusDate" type="date">
+      </div>
+      <div class="field">
+        <label>Bonus Amount (₹)</label>
+        <input id="bonusAmount" type="number" min="0" placeholder="e.g. 500">
+      </div>
+    </div>
+    <div class="field">
+      <label>Reason / Note</label>
+      <input id="bonusNote" type="text" placeholder="e.g. Diwali Bonus or Great Performance">
+    </div>
+    <div class="row-btns">
+      <button class="btn-primary" style="background:var(--accent); color:white;" onclick="giveBonus()">Give Bonus</button>
+    </div>
+  </div>
+</details>
+
 <!-- SUMMARY -->
 <div class="card">
   <h2>Summary</h2>
@@ -437,6 +469,26 @@
   <div class="row-btns">
     <button class="btn-green" onclick="shareWhatsApp()">Share on WhatsApp</button>
     <button class="btn-ghost" onclick="exportCSV()">Export CSV</button>
+  </div>
+</div>
+
+</div>
+
+<!-- BONUS HISTORY -->
+<div class="card" id="bonusCard" style="display:none; margin-top:16px;">
+  <h2 style="margin-top:0; margin-bottom:10px;">Bonus History</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Reason</th>
+          <th>Amount</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="bonusBody"></tbody>
+    </table>
   </div>
 </div>
 
@@ -621,10 +673,13 @@ async function confirmAddStaff(){
   if(!name){ toast('Enter a name first'); input.focus(); return; }
   const startDate = document.getElementById('newStaffStartDate').value || todayStr();
   const dailyRate = parseFloat(document.getElementById('newStaffDailyRate').value) || 0;
+  let autoBonusStr = document.getElementById('newStaffAutoBonus').value;
+  const autoBonus = autoBonusStr === '' ? 500 : parseFloat(autoBonusStr);
   const staff = { 
     id: genId(), 
     name: name, 
     mobile: mobile,
+    autoBonus: autoBonus,
     salaryHistory: [{
       id: genId(), 
       effectiveFrom: startDate, 
@@ -637,6 +692,7 @@ async function confirmAddStaff(){
   currentStaffId = staff.id;
   document.getElementById('settingsModal').style.display = 'none';
   await refreshStaffList();
+  await autoMarkPresentForToday();
   await loadStaffIntoForm();
   await refreshEntries();
   toast('Added ' + name);
@@ -816,6 +872,7 @@ function toggleSalaryBox(){
     document.getElementById('monthlySalary').value = cur.monthlySalary || '';
     document.getElementById('daysPerMonth').value = cur.daysPerMonth || 30;
     document.getElementById('dailyRate').value = '';
+    document.getElementById('editAutoBonus').value = staff.autoBonus !== undefined ? staff.autoBonus : 500;
     updateRateInfo();
   }
 }
@@ -835,6 +892,8 @@ async function saveSalaryChange(){
   }
   const staff = currentStaff();
   const hist = ensureSalaryHistory(staff);
+  const autoBonus = parseFloat(document.getElementById('editAutoBonus').value) || 0;
+  staff.autoBonus = autoBonus;
   // replace an existing entry with the same effective date, otherwise add new
   const existingIdx = hist.findIndex(h => h.effectiveFrom === effectiveFrom);
   const entry = { id: existingIdx >= 0 ? hist[existingIdx].id : genId(), effectiveFrom, monthlySalary, daysPerMonth, dailyRate };
@@ -988,7 +1047,9 @@ function fmt(n){
 }
 
 function renderLedger(){
-  const sorted = [...entriesCache].sort((a,b) => a.date < b.date ? -1 : (a.date > b.date ? 1 : 0));
+  const allSorted = [...entriesCache].sort((a,b) => a.date < b.date ? -1 : (a.date > b.date ? 1 : 0));
+  const sorted = allSorted.filter(e => e.type !== 'bonus');
+  const bonusEntries = allSorted.filter(e => e.type === 'bonus');
   const fromDate = document.getElementById('ledgerFrom').value;
   const toDate = document.getElementById('ledgerTo').value;
   let openingBalance = 0;
@@ -1060,6 +1121,44 @@ function renderLedger(){
   const balEl = document.getElementById('sumBalance');
   balEl.textContent = fmt(balance);
   balEl.className = 'val ' + (balance >= 0 ? 'pos' : 'neg');
+
+  // Render Bonus History
+  const bonusCard = document.getElementById('bonusCard');
+  const bonusBody = document.getElementById('bonusBody');
+  if(bonusEntries.length > 0) {
+    bonusCard.style.display = 'block';
+    bonusBody.innerHTML = '';
+    bonusEntries.forEach(e => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${e.date}</td>
+        <td>${e.label}</td>
+        <td class="amt-pos">+${fmt(e.amount)}</td>
+        <td><button class="del-btn" onclick="deleteEntryClick(this,'${e.id}')">✕</button></td>
+      `;
+      bonusBody.appendChild(tr);
+    });
+  } else {
+    bonusCard.style.display = 'none';
+  }
+}
+
+async function giveBonus(){
+  if(!currentStaffId){ toast('Add a staff member first.'); return; }
+  const date = document.getElementById('bonusDate').value || todayStr();
+  const amount = parseFloat(document.getElementById('bonusAmount').value);
+  const note = document.getElementById('bonusNote').value.trim();
+  
+  if(!amount || amount <= 0){ toast('Enter a valid amount'); return; }
+  const label = note || 'Bonus';
+  
+  await dbPut('entries', { id: genId(), staffId: currentStaffId, date, type: 'bonus', label, amount });
+  
+  document.getElementById('bonusAmount').value=''; 
+  document.getElementById('bonusNote').value='';
+  
+  await refreshEntries();
+  toast('Bonus added successfully');
 }
 
 async function saveMobile() {
@@ -1086,7 +1185,7 @@ function shareWhatsApp() {
   else if(fromDate) period = `From ${fromDate}`;
   else if(toDate) period = `Up to ${toDate}`;
   
-  const sorted = [...entriesCache].sort((a,b) => a.date < b.date ? -1 : (a.date > b.date ? 1 : 0));
+  const sorted = [...entriesCache].filter(e => e.type !== 'bonus').sort((a,b) => a.date < b.date ? -1 : (a.date > b.date ? 1 : 0));
   let pastEntries = [];
   let periodEntries = sorted;
   if (fromDate || toDate) {
@@ -1115,10 +1214,8 @@ function shareWhatsApp() {
   const text = `Salary Ledger: ${staff.name}\nPeriod: ${period}\n\nTotal Earned: ${earned}\nCash Taken: ${cash}\nGoods Taken: ${goods}\n------------------\nBalance Payable: ${balance}${tableText}\nGenerated via Attendance & Salary Tracker`;
   
   const encodedText = encodeURIComponent(text);
-  let url = `whatsapp://send?text=${encodedText}`;
-  if(staff.mobile) {
-    url = `https://wa.me/${staff.mobile}?text=${encodedText}`;
-  }
+  // Always open the generic share dialog so you can pick the contact
+  const url = `https://wa.me/?text=${encodedText}`;
   window.open(url, '_blank');
 }
 
@@ -1178,13 +1275,69 @@ async function autoMarkPresentForToday() {
   return added;
 }
 
+async function autoAwardBonuses() {
+  const allEntries = await dbGetAll('entries');
+  const today = new Date(todayStr());
+  let added = false;
+  for (const staff of staffCache) {
+    let bonusAmt = staff.autoBonus !== undefined ? staff.autoBonus : 500;
+    if (bonusAmt <= 0) continue;
+    
+    const hist = ensureSalaryHistory(staff);
+    const joinDateStr = hist[0].effectiveFrom;
+    let cycleStart = new Date(joinDateStr);
+    
+    while (true) {
+      let cycleEnd = new Date(cycleStart);
+      cycleEnd.setMonth(cycleEnd.getMonth() + 1);
+      
+      if (cycleEnd > today) break;
+      
+      const startStr = cycleStart.toISOString().slice(0,10);
+      const endStr = cycleEnd.toISOString().slice(0,10);
+      
+      const cycleLabel = `Auto-Bonus (${startStr} to ${endStr})`;
+      const hasBonus = allEntries.find(e => e.staffId === staff.id && e.type === 'bonus' && e.label === cycleLabel);
+      
+      if (!hasBonus) {
+        const cycleEarns = allEntries.filter(e => e.staffId === staff.id && e.type === 'earn' && e.date >= startStr && e.date < endStr);
+        let perfect = true;
+        for (const earn of cycleEarns) {
+          const rateInfo = getRateForDate(staff, earn.date);
+          const rate = rateInfo ? rateInfo.dailyRate : 0;
+          if (earn.amount < rate) {
+            perfect = false;
+            break;
+          }
+        }
+        
+        if (perfect && cycleEarns.length > 0) {
+          await dbPut('entries', {
+            id: genId(),
+            staffId: staff.id,
+            date: endStr,
+            type: 'bonus',
+            label: cycleLabel,
+            amount: bonusAmt
+          });
+          added = true;
+          allEntries.push({staffId: staff.id, type: 'bonus', label: cycleLabel, amount: bonusAmt});
+        }
+      }
+      cycleStart = cycleEnd;
+    }
+  }
+  return added;
+}
+
 async function init(){
   db = await openDB();
   await refreshStaffList();
   const autoAdded = await autoMarkPresentForToday();
+  const bonusAdded = await autoAwardBonuses();
   if(currentStaffId && currentStaffId !== 'all'){ await loadStaffIntoForm(); }
   await refreshEntries();
-  if(autoAdded && typeof renderAllStaffAttendance === 'function') renderAllStaffAttendance();
+  if((autoAdded || bonusAdded) && typeof renderAllStaffAttendance === 'function') renderAllStaffAttendance();
 }
 init();
 </script>
