@@ -9,16 +9,16 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <style>
   :root{
-    --bg:#0f1115;
-    --panel:#171a21;
-    --panel-2:#1e222b;
-    --border:#2a2f3a;
-    --text:#e6e8ec;
-    --muted:#8b93a3;
-    --green:#3ddc97;
-    --red:#ff6b6b;
-    --amber:#ffb84d;
-    --accent:#4f8cff;
+    --bg:#f0f2f5;
+    --panel:#ffffff;
+    --panel-2:#f8f9fa;
+    --border:#e2e8f0;
+    --text:#1a202c;
+    --muted:#718096;
+    --green:#0b8a54;
+    --red:#e53e3e;
+    --amber:#dd6b20;
+    --accent:#3182ce;
     --radius:10px;
   }
   *{box-sizing:border-box;}
@@ -908,10 +908,10 @@ async function renderAllStaffAttendance(){
       actionsHtml = `<span style="color:var(--amber); font-size:0.8rem;">Discontinued</span>`;
     } else {
       actionsHtml = `
-        <div style="display:flex; gap:4px;">
-          <button class="btn-ghost" style="padding:4px 6px; font-size:1rem;" onclick="quickMarkStaff('${staff.id}', 'full')" title="Present">✅</button>
-          <button class="btn-ghost" style="padding:4px 6px; font-size:1rem;" onclick="quickMarkStaff('${staff.id}', 'half')" title="Half Day">🌗</button>
-          <button class="btn-ghost" style="padding:4px 6px; font-size:1rem;" onclick="quickMarkStaff('${staff.id}', 'absent')" title="Absent">❌</button>
+        <div style="display:flex; gap:6px;">
+          <button style="padding:4px 8px; font-size:0.75rem; font-weight:700; border-radius:6px; border:none; background:rgba(11, 138, 84, 0.15); color:var(--green); cursor:pointer;" onclick="quickMarkStaff('${staff.id}', 'full')">Present</button>
+          <button style="padding:4px 8px; font-size:0.75rem; font-weight:700; border-radius:6px; border:none; background:rgba(221, 107, 32, 0.15); color:var(--amber); cursor:pointer;" onclick="quickMarkStaff('${staff.id}', 'half')">Half</button>
+          <button style="padding:4px 8px; font-size:0.75rem; font-weight:700; border-radius:6px; border:none; background:rgba(229, 62, 62, 0.15); color:var(--red); cursor:pointer;" onclick="quickMarkStaff('${staff.id}', 'absent')">Absent</button>
         </div>
       `;
     }
@@ -1086,7 +1086,33 @@ function shareWhatsApp() {
   else if(fromDate) period = `From ${fromDate}`;
   else if(toDate) period = `Up to ${toDate}`;
   
-  const text = `Salary Ledger: ${staff.name}\nPeriod: ${period}\n\nTotal Earned: ${earned}\nCash Taken: ${cash}\nGoods Taken: ${goods}\n------------------\nBalance Payable: ${balance}\n\nGenerated via Attendance & Salary Tracker`;
+  const sorted = [...entriesCache].sort((a,b) => a.date < b.date ? -1 : (a.date > b.date ? 1 : 0));
+  let pastEntries = [];
+  let periodEntries = sorted;
+  if (fromDate || toDate) {
+    if(fromDate) {
+      pastEntries = sorted.filter(e => e.date < fromDate);
+      periodEntries = periodEntries.filter(e => e.date >= fromDate);
+    }
+    if(toDate) periodEntries = periodEntries.filter(e => e.date <= toDate);
+  }
+
+  let running = 0;
+  pastEntries.forEach(e => {
+    running += (e.type === 'earn' ? e.amount : -e.amount);
+  });
+
+  let tableText = "\n\n*Running Salary Trail*\n";
+  if (running !== 0) tableText += `[Opening Balance] ${fmt(running)}\n`;
+  periodEntries.forEach(e => {
+    let amt = e.type === 'earn' ? e.amount : -e.amount;
+    running += amt;
+    let tag = e.type === 'earn' ? 'EARNED' : (e.type === 'cash' ? 'CASH' : 'GOODS');
+    tableText += `${e.date} | ${tag} | ${fmt(amt)} | Bal: ${fmt(running)}\n`;
+  });
+  if (periodEntries.length === 0) tableText += "No entries.\n";
+
+  const text = `Salary Ledger: ${staff.name}\nPeriod: ${period}\n\nTotal Earned: ${earned}\nCash Taken: ${cash}\nGoods Taken: ${goods}\n------------------\nBalance Payable: ${balance}${tableText}\nGenerated via Attendance & Salary Tracker`;
   
   const encodedText = encodeURIComponent(text);
   let url = `whatsapp://send?text=${encodedText}`;
