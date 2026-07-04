@@ -367,7 +367,7 @@
   </div>
   <div class="table-wrap" style="max-height: 250px; overflow-y: auto;">
     <table>
-      <thead><tr><th>Staff</th><th>Rate</th><th>Mark</th></tr></thead>
+      <thead><tr><th>Staff</th><th>Start Date</th><th>Total Due</th><th>Rate</th><th>Mark</th></tr></thead>
       <tbody id="allStaffAttBody"></tbody>
     </table>
   </div>
@@ -990,9 +990,22 @@ async function renderAllStaffAttendance(){
       `;
     }
     
+    const hist = ensureSalaryHistory(staff);
+    const startDate = hist.length ? hist[0].effectiveFrom : 'N/A';
+    
+    let grandTotal = 0;
+    allEntries.filter(e => e.staffId === staff.id).forEach(e => {
+      if(e.type === 'earn') grandTotal += e.amount;
+      else if(e.type === 'cash') grandTotal -= e.amount;
+      else if(e.type === 'goods') grandTotal -= e.amount;
+      else if(e.type === 'bonus') grandTotal += e.amount;
+    });
+
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td><strong>${staff.name}</strong><br><span style="font-size:0.7rem;color:${statusColor}">${statusText}</span></td>
+      <td style="font-size:0.85rem; color:var(--muted);">${startDate}</td>
+      <td style="font-size:0.85rem; color:${grandTotal >= 0 ? 'var(--green)' : 'var(--red)'}; font-weight:bold;">₹${grandTotal.toFixed(2)}</td>
       <td>₹${rate.toFixed(2)}</td>
       <td>${actionsHtml}</td>
     `;
@@ -1380,4 +1393,3 @@ init();
 </script>
 </body>
 </html>
-
