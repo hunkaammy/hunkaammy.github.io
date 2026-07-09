@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>RailForge — AI-Powered Smart Train Search</title>
+  <meta name="description" content="Intelligent train search with per-train schedule scraping and Groq AI booking hacks.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <style>
+    :root{--bg:#080611;--bg-g:linear-gradient(180deg,#100c24,#080611);--sf:rgba(24,18,48,.5);--sf2:rgba(30,24,58,.65);--bd:rgba(255,255,255,.06);--bd-f:rgba(139,92,246,.45);--tx:#f0eef8;--tx2:#a8a3c2;--tx3:#6b6589;--ac:#8b5cf6;--ac-g:linear-gradient(135deg,#a78bfa,#7c3aed);--ac-gl:rgba(139,92,246,.25);--gn:#34d399;--gn-bg:rgba(52,211,153,.1);--am:#fbbf24;--am-bg:rgba(251,191,36,.1);--rd:#f87171;--rd-bg:rgba(248,113,113,.1);--bl:#60a5fa;--bl-bg:rgba(96,165,250,.1);--cy:#22d3ee;--cy-bg:rgba(34,211,238,.1);--ai-g:linear-gradient(135deg,#ec4899,#8b5cf6);--sh:0 8px 32px rgba(0,0,0,.25);--r:16px;--rs:10px;--fd:'Outfit',sans-serif;--fb:'Plus Jakarta Sans',sans-serif;--nav:56px;--bot:64px}
+    [data-theme="light"]{--bg:#f5f3ff;--bg-g:linear-gradient(180deg,#eeecff,#f5f3ff);--sf:rgba(255,255,255,.75);--sf2:rgba(255,255,255,.9);--bd:rgba(109,40,217,.08);--bd-f:rgba(109,40,217,.35);--tx:#1a1440;--tx2:#5a5478;--tx3:#908aaa;--ac:#7c3aed;--ac-g:linear-gradient(135deg,#7c3aed,#6d28d9);--ac-gl:rgba(124,58,237,.12);--sh:0 8px 32px rgba(109,40,217,.06)}
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--ac);border-radius:10px}::-webkit-scrollbar-track{background:transparent}
+    html{scroll-behavior:smooth}
+    body{font-family:var(--fb);background:var(--bg-g);background-attachment:fixed;color:var(--tx);min-height:100dvh;overflow-x:hidden;transition:background .4s,color .4s;padding-bottom:var(--bot)}
+    .orb{position:fixed;border-radius:50%;filter:blur(100px);opacity:.1;pointer-events:none;z-index:-1;animation:od 18s infinite alternate ease-in-out}
+    .o1{width:280px;height:280px;top:-40px;left:-40px;background:#a78bfa}.o2{width:220px;height:220px;bottom:10%;right:-30px;background:#ec4899;animation-delay:-6s}
+    @keyframes od{to{transform:translate(40px,30px) scale(1.1)}}
+
+    .topbar{height:var(--nav);position:sticky;top:0;z-index:200;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:rgba(16,12,36,.2);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+    .brand{display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit}
+    .brand i{font-size:24px;background:var(--ac-g);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .brand span{font-family:var(--fd);font-weight:800;font-size:19px}
+    .brand b{background:var(--ac-g);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .topbar-actions{display:flex;gap:8px}
+    .ib{width:36px;height:36px;border-radius:50%;border:1px solid var(--bd);background:0;color:var(--tx);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s}
+    .ib:hover{background:var(--ac-g);color:#fff;border-color:transparent}
+    .ib.ai-btn{border-color:rgba(236,72,153,0.3);color:#f472b6}
+    .ib.ai-btn:hover{background:var(--ai-g);color:#fff}
+
+    .bnav{position:fixed;bottom:0;left:0;right:0;height:var(--bot);background:rgba(16,12,36,.7);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--bd);display:flex;z-index:200}
+    .btab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--tx3);font-size:10px;font-weight:600;cursor:pointer;border:0;background:0;transition:color .2s}
+    .btab.on{color:var(--ac)}.btab i{font-size:22px}
+
+    .pg{display:none;padding:16px;max-width:580px;margin:0 auto}
+    .pg.on{display:block;animation:fu .25s ease}
+    @keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+    .cd{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:16px;box-shadow:var(--sh);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);margin-bottom:14px}
+    .cd-t{font-family:var(--fd);font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:14px}
+    .cd-t i{color:var(--ac);font-size:18px}
+
+    .fg{margin-bottom:14px;position:relative}
+    .fg label{display:block;font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+    .iw{position:relative}.iw i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--tx3);font-size:18px;pointer-events:none}
+    .fc{width:100%;background:rgba(0,0,0,.12);border:1px solid var(--bd);border-radius:var(--rs);padding:11px 12px 11px 38px;color:var(--tx);font-family:var(--fb);font-size:14px;font-weight:500;outline:0;transition:border-color .2s}
+    .fc:focus{border-color:var(--bd-f)}
+    select.fc{appearance:none;background-image:url('data:image/svg+xml;utf8,<svg fill="%236b6589" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+    .sugg{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--sf2);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--bd);border-radius:var(--rs);max-height:180px;overflow-y:auto;z-index:90;display:none;box-shadow:var(--sh)}
+    .si{padding:10px 12px;cursor:pointer;display:flex;justify-content:space-between;font-size:13px;transition:background .15s}
+    .si:hover{background:rgba(139,92,246,.1)}.si .c{color:var(--ac);font-weight:700;font-size:11px}
+    .sw-r{display:flex;justify-content:center;margin:-6px 0 6px}
+    .sw-b{width:30px;height:30px;border-radius:50%;border:1px solid var(--bd);background:rgba(139,92,246,.08);color:var(--ac);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s;z-index:2}
+    .sw-b:active{background:var(--ac-g);color:#fff}
+    .chips{display:flex;gap:6px;margin-top:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}.chips::-webkit-scrollbar{display:none}
+    .chip{flex-shrink:0;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid var(--bd);color:var(--tx2);background:rgba(255,255,255,.03);cursor:pointer;transition:.2s;white-space:nowrap}
+    .chip.on{background:var(--ac-g);color:#fff;border-color:transparent}
+    .btn{width:100%;padding:13px;border:0;border-radius:var(--rs);background:var(--ac-g);color:#fff;font-family:var(--fd);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 12px var(--ac-gl);transition:transform .15s}
+    .btn:active{transform:scale(.98)}
+
+    .rstrip{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:var(--rs);background:var(--sf);border:1px solid var(--bd);margin-bottom:12px;cursor:pointer}
+    .rs-l{display:flex;flex-direction:column;gap:2px}
+    .rs-r{font-family:var(--fd);font-weight:700;font-size:15px}
+    .rs-m{font-size:11px;color:var(--tx2);display:flex;align-items:center;gap:6px}
+    .qb{background:rgba(139,92,246,.12);color:var(--ac);padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700}
+    .sort-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .sort-bar .cnt{font-size:13px;font-weight:600;color:var(--tx2)}
+    .ss{background:rgba(0,0,0,.1);border:1px solid var(--bd);border-radius:8px;padding:6px 10px;color:var(--tx);font-family:var(--fb);font-size:12px;outline:0;cursor:pointer}
+
+    .tc{transition:transform .15s}.tc:active{transform:scale(.995)}
+    .th{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+    .ti{display:flex;flex-direction:column;gap:3px}
+    .tnn{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .tn{font-weight:800;font-size:11px;color:var(--ac);background:rgba(139,92,246,.1);padding:1px 6px;border-radius:4px}
+    .tname{font-family:var(--fd);font-size:16px;font-weight:700}
+    .tmeta{display:flex;align-items:center;gap:6px}
+    .ttype{font-size:9px;font-weight:700;text-transform:uppercase;color:var(--tx2);padding:2px 6px;border-radius:12px;border:1px solid var(--bd)}
+    .trat{font-size:10px;font-weight:700;color:var(--am);display:flex;align-items:center;gap:2px}
+    .tfav{background:0;border:0;color:var(--tx3);cursor:pointer;font-size:20px;padding:2px}.tfav.on{color:#ec4899}
+    .tl{display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,.1);padding:10px 14px;border-radius:var(--rs);margin-bottom:12px}
+    .tls{display:flex;flex-direction:column}.tlt{font-size:16px;font-weight:800}.tlst{font-size:10px;color:var(--tx2);font-weight:600}
+    .tlm{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;margin:0 10px}
+    .tld{font-size:10px;font-weight:700;color:var(--tx3);background:var(--sf);padding:1px 8px;border-radius:10px;z-index:2}
+    .tll{position:absolute;top:50%;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--tx3),transparent)}
+    .days{display:flex;gap:3px}
+    .dy{width:15px;height:15px;border-radius:50%;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.03);color:var(--tx3)}
+    .dy.a{background:var(--ac-g);color:#fff}
+    .cls-s{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;scroll-snap-type:x mandatory}.cls-s::-webkit-scrollbar{display:none}
+    .cls-c{flex:0 0 120px;scroll-snap-align:start;background:rgba(255,255,255,.02);border:1px solid var(--bd);border-radius:var(--rs);padding:10px;display:flex;flex-direction:column;gap:3px;cursor:pointer;transition:.15s}
+    .cls-c:active{border-color:var(--ac);background:rgba(139,92,246,.05)}
+    .cls-h{display:flex;justify-content:space-between;align-items:center}
+    .cls-n{font-family:var(--fd);font-weight:800;font-size:13px}
+    .cls-f{font-weight:700;font-size:12px}
+    .cls-st{font-size:10px;font-weight:700}
+    .sg{color:var(--gn)}.sa{color:var(--am)}.sr{color:var(--rd)}
+    .pb{width:100%;height:3px;background:rgba(255,255,255,.06);border-radius:4px;margin-top:2px}
+    .pf{height:100%;border-radius:4px}
+    .pl{font-size:8px;font-weight:700;color:var(--tx3);display:flex;justify-content:space-between}
+
+    /* ALTERNATIVES ZONE */
+    .alt-zone{margin-top:12px;border-top:1px solid var(--bd);padding-top:10px}
+    .alt-hdr{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--bl);margin-bottom:8px}
+    .alt-hdr i{font-size:16px}
+    .alt-loading{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx3);padding:4px 0}
+    .alt-loading i{font-size:14px;animation:spin 1s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .alt-scroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}.alt-scroll::-webkit-scrollbar{display:none}
+    .alt-tip{flex:0 0 auto;min-width:210px;max-width:270px;background:rgba(255,255,255,.02);border:1px solid var(--bd);border-radius:var(--rs);padding:10px 12px;cursor:pointer;transition:all .2s}
+    .alt-tip:hover{border-color:var(--ac);background:rgba(139,92,246,.04)}
+    .alt-tag{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:5px;font-size:9px;font-weight:700;margin-bottom:6px}
+    .at-s{background:var(--cy-bg);color:var(--cy)}.at-d{background:var(--gn-bg);color:var(--gn)}
+    .at-f{background:var(--bl-bg);color:var(--bl)}
+    .alt-good{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--gn);padding:4px 0}
+    .alt-none{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx3);padding:4px 0}
+    .at-f{background:var(--bl-bg);color:var(--bl)}
+    .alt-title{font-size:12px;font-weight:700;margin-bottom:2px}
+    .alt-sub{font-size:10px;color:var(--tx3);margin-bottom:6px}
+    .alt-chips{display:flex;flex-wrap:wrap;gap:4px}
+    .ac{padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700}
+    .ac-g{background:var(--gn-bg);color:var(--gn)}.ac-a{background:var(--am-bg);color:var(--am)}.ac-r{background:var(--rd-bg);color:var(--rd)}
+    .better{font-size:8px;font-weight:800;color:var(--gn);margin-left:2px}
+
+    /* GROQ AI COPILOT */
+    .ai-card{background:linear-gradient(135deg,rgba(236,72,153,0.07) 0%,rgba(139,92,246,0.07) 100%);border:1px solid rgba(139,92,246,0.18);border-radius:var(--r);padding:16px;box-shadow:var(--sh);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);margin-bottom:16px;position:relative;overflow:hidden}
+    .ai-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:2px;background:var(--ai-g)}
+    .ai-hdr{display:flex;align-items:center;justify-content:between;margin-bottom:12px}
+    .ai-hdr-left{display:flex;align-items:center;gap:8px}
+    .ai-hdr-left i{font-size:20px;background:var(--ai-g);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:pulse 2s infinite alternate}
+    @keyframes pulse{to{transform:scale(1.15)}}
+    .ai-title{font-family:var(--fd);font-weight:800;font-size:15px;letter-spacing:0.3px}
+    .ai-badge{background:var(--ai-g);color:#fff;padding:2px 6px;border-radius:4px;font-size:8px;font-weight:800}
+    .ai-actions{display:flex;gap:6px}
+    .ai-btn-sm{border:none;background:rgba(255,255,255,0.04);color:var(--tx);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;transition:0.2s}
+    .ai-btn-sm:hover{background:rgba(255,255,255,0.1)}
+    
+    .ai-body{font-size:13px;line-height:1.5;color:var(--tx2)}
+    .ai-body p{margin-bottom:8px}
+    .ai-body ul{margin-left:16px;margin-bottom:8px}
+    .ai-body li{margin-bottom:4px}
+    .ai-body strong{color:var(--tx);font-weight:600}
+    .ai-body code{background:rgba(0,0,0,0.2);padding:2px 4px;border-radius:4px;font-family:monospace;font-size:11px;color:var(--cy)}
+
+    .ai-prompt-btn{background:var(--ai-g);border:none;color:#fff;font-family:var(--fd);font-weight:700;font-size:13px;padding:8px 16px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(139,92,246,0.3);margin-top:6px}
+    .ai-prompt-btn:active{transform:scale(0.97)}
+
+    /* AI settings modal */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);z-index:2000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s}
+    .modal-overlay.show{opacity:1;pointer-events:auto}
+    .modal-content{max-width:380px;width:92%;background:var(--sf2);border:1px solid rgba(255,255,255,0.1);border-radius:var(--r);padding:20px;box-shadow:var(--sh);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);transform:translateY(20px);transition:transform 0.25s}
+    .modal-overlay.show .modal-content{transform:translateY(0)}
+    .modal-title{font-family:var(--fd);font-size:18px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+    .modal-title i{background:var(--ai-g);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+    /* Deep Per-train AI insight box */
+    .ai-deep-box{
+      background:linear-gradient(135deg,rgba(236,72,153,0.06) 0%,rgba(139,92,246,0.06) 100%);
+      border:1px solid rgba(236,72,153,0.25);
+      border-radius:var(--rs);padding:12px;margin-top:12px;
+      font-size:12px;line-height:1.5;color:var(--tx);animation:fu 0.3s ease;
+    }
+    .aid-hdr{display:flex;align-items:center;gap:6px;font-weight:800;color:#f472b6;margin-bottom:8px;font-family:var(--fd)}
+    .aid-hdr i{font-size:18px;animation:pulse 1s infinite alternate}
+    .aid-step{background:rgba(236,72,153,0.1);border-left:2px solid #ec4899;padding:6px 10px;border-radius:0 6px 6px 0;margin-bottom:8px;font-size:11.5px}
+    
+    /* AI Hack Card Design */
+    .ai-hack-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 14px; margin-bottom: 12px; border-left: 4px solid var(--ac-g); display: flex; flex-direction: column; gap: 12px; }
+    .ai-hc-hdr { display: flex; align-items: center; gap: 8px; }
+    .ai-hc-badge { background: var(--ac-g); color: #fff; font-size: 10px; font-weight: 800; padding: 3px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .ai-hc-title { font-size: 13px; font-weight: 700; color: var(--tx); }
+    .ai-hc-compare { display: flex; align-items: center; justify-content: space-between; background: rgba(0, 0, 0, 0.2); border-radius: 8px; padding: 10px 12px; }
+    .ai-hc-col { display: flex; flex-direction: column; gap: 4px; }
+    .ai-hc-lbl { font-size: 10px; color: var(--tx3); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
+    .ai-hc-val { font-size: 13px; font-weight: 700; }
+    .ai-hc-vs { color: var(--tx3); display:flex; align-items:center; }
+    .ai-hc-vs i { font-size: 16px; }
+    .ai-hc-desc { font-size: 12px; color: var(--tx2); line-height: 1.5; }
+    
+    .ai-hc-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; text-align: left; background: rgba(0,0,0,0.15); border-radius: 6px; overflow: hidden; }
+    .ai-hc-table th { color: var(--tx3); text-transform: uppercase; font-weight: 600; padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .ai-hc-table td { padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.02); color: var(--tx); }
+    .ai-hc-table tr:last-child td { border-bottom: none; }
+
+    /* Step loading inside card */
+    .ai-steps-loading{display:flex;flex-direction:column;gap:6px;padding:8px 0;font-size:11px;color:var(--tx2)}
+    .ais-step{display:flex;align-items:center;gap:8px}
+    .ais-step i.spin{animation:spin 1s linear infinite}
+    .ais-step i.done{color:var(--gn)}
+    .ais-step i.wait{color:var(--tx3)}
+
+    .sk{position:relative;overflow:hidden}
+    .sk-sh{position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.03),transparent);animation:shm 1.5s infinite}
+    @keyframes shm{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+    .sk-l{height:12px;background:rgba(255,255,255,.04);border-radius:6px;margin-bottom:10px}
+    .emp{text-align:center;padding:40px 20px;display:flex;flex-direction:column;align-items:center;gap:10px}
+    .emp i{font-size:40px;color:var(--tx3)}.emp h3{font-family:var(--fd);font-size:16px;font-weight:700}.emp p{font-size:13px;color:var(--tx2);max-width:280px}
+    .tw{position:fixed;bottom:calc(var(--bot) + 10px);left:12px;right:12px;z-index:2000;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+    .to{background:var(--sf2);border:1px solid var(--bd);color:var(--tx);padding:10px 14px;border-radius:var(--rs);display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);opacity:0;transform:translateY(10px);transition:.3s;pointer-events:auto}
+    .to.show{opacity:1;transform:translateY(0)}
+    .li{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.02);border:1px solid var(--bd);margin-bottom:6px;cursor:pointer;transition:.15s}
+    .li:active{background:rgba(255,255,255,.05)}
+
+    @media(min-width:768px){
+      body{padding-bottom:0}.bnav{display:none}.pg.on{display:block!important}
+      #spg{display:none!important}#hpg{display:none!important}#rpg{display:block!important}
+      .dl{display:grid;grid-template-columns:310px 1fr;gap:24px;align-items:start;max-width:1100px;margin:0 auto}
+      .dsb{position:sticky;top:calc(var(--nav) + 16px);display:flex!important;flex-direction:column;gap:16px}
+      .dmn{display:flex;flex-direction:column}.rstrip{display:none}
+      .tw{bottom:16px;left:auto;right:16px;width:340px}.pg{max-width:1100px}
+    }
+    @media(max-width:767px){.dsb{display:none!important}.dl{display:block}}
+  </style>
+</head>
+<body>
+<div class="orb o1"></div><div class="orb o2"></div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a href="#" class="brand"><i class="material-icons-round">train</i><span>Rail<b>Forge</b></span></a>
+  <div class="topbar-actions">
+    <button class="ib ai-btn" id="aiConfigBtn" onclick="openAIConfig()"><i class="material-icons-round">psychology</i></button>
+    <button class="ib" id="thBtn"><i class="material-icons-round">light_mode</i></button>
+  </div>
+</div>
+
+<!-- SEARCH PAGE -->
+<div class="pg on" id="spg">
+  <div class="cd">
+    <div class="cd-t"><i class="material-icons-round">search</i>Find Trains</div>
+    <form onsubmit="event.preventDefault();go()">
+      <div class="fg"><label>From</label><div class="iw"><i class="material-icons-round">my_location</i><input type="text" id="fi" class="fc" autocomplete="off" value="New Delhi (NDLS)"></div><div class="sugg" id="fs"></div></div>
+      <div class="sw-r"><button type="button" class="sw-b" onclick="sw('fi','ti')"><i class="material-icons-round" style="font-size:18px">swap_vert</i></button></div>
+      <div class="fg"><label>To</label><div class="iw"><i class="material-icons-round">place</i><input type="text" id="ti" class="fc" autocomplete="off" value="Bilaspur Jn (BSP)"></div><div class="sugg" id="ts"></div></div>
+      <div class="fg"><label>Date</label><div class="iw"><i class="material-icons-round">calendar_today</i><input type="date" id="di" class="fc"></div><div class="chips" id="dc"></div></div>
+      <div class="fg"><label>Quota</label><div class="iw"><i class="material-icons-round">person</i><select id="qi" class="fc"><option value="GN">General (GN)</option><option value="TQ">Tatkal (TQ)</option><option value="LD">Ladies (LD)</option></select></div></div>
+      <button type="submit" class="btn"><i class="material-icons-round">search</i>Search Trains</button>
+    </form>
+  </div>
+</div>
+
+<!-- RESULTS PAGE -->
+<div class="pg" id="rpg">
+  <div class="dl">
+    <div class="dsb" id="dsb">
+      <div class="cd">
+        <div class="cd-t"><i class="material-icons-round">search</i>Modify</div>
+        <form onsubmit="event.preventDefault();go()">
+          <div class="fg"><label>From</label><div class="iw"><i class="material-icons-round">my_location</i><input type="text" id="df" class="fc" autocomplete="off" value="New Delhi (NDLS)"></div><div class="sugg" id="dfs"></div></div>
+          <div class="sw-r"><button type="button" class="sw-b" onclick="sw('df','dt')"><i class="material-icons-round" style="font-size:18px">swap_vert</i></button></div>
+          <div class="fg"><label>To</label><div class="iw"><i class="material-icons-round">place</i><input type="text" id="dt" class="fc" autocomplete="off" value="Bilaspur Jn (BSP)"></div><div class="sugg" id="dts"></div></div>
+          <div class="fg"><label>Date</label><div class="iw"><i class="material-icons-round">calendar_today</i><input type="date" id="dd" class="fc"></div><div class="chips" id="ddc"></div></div>
+          <div class="fg"><label>Quota</label><div class="iw"><i class="material-icons-round">person</i><select id="dq" class="fc"><option value="GN">General (GN)</option><option value="TQ">Tatkal (TQ)</option><option value="LD">Ladies (LD)</option></select></div></div>
+          <button type="submit" class="btn"><i class="material-icons-round">search</i>Update</button>
+        </form>
+      </div>
+      <div class="cd"><div class="cd-t"><i class="material-icons-round">star_border</i>Starred</div><div id="dfl"></div></div>
+      <div class="cd"><div class="cd-t"><i class="material-icons-round">history</i>Recent</div><div id="dhl"></div></div>
+    </div>
+    <div class="dmn">
+      <!-- Route strip (mobile) -->
+      <div class="rstrip" onclick="tab('search')">
+        <div class="rs-l"><div class="rs-r" id="sr">NDLS ➔ BSP</div><div class="rs-m"><span id="sd">Loading...</span><span class="qb" id="sq">GN</span></div></div>
+        <i class="material-icons-round" style="color:var(--tx3);font-size:20px">edit</i>
+      </div>
+
+      <!-- GROQ AI COPILOT RECOMMENDATION CARD -->
+      <div class="ai-card" id="aiCopilotCard">
+        <div class="ai-hdr">
+          <div class="ai-hdr-left">
+            <i class="material-icons-round">psychology</i>
+            <span class="ai-title">Groq AI Copilot</span>
+            <span class="ai-badge">LPU Fast</span>
+          </div>
+          <div class="ai-actions" id="aiActions">
+             <button class="ai-btn-sm" onclick="openAIConfig()"><i class="material-icons-round" style="font-size:12px">settings</i>Setup</button>
+          </div>
+        </div>
+        <div class="ai-body" id="aiBody">
+          <p>Get instant smart route advice, preceding boarding tips, and date recommendations powered by Groq AI.</p>
+          <button class="ai-prompt-btn" onclick="askGroqCopilot()"><i class="material-icons-round" style="font-size:16px">bolt</i>Run AI Strategy Check</button>
+        </div>
+      </div>
+
+      <!-- Sort bar -->
+      <div class="sort-bar"><div class="cnt" id="rc">0 trains</div><select class="ss" id="sortSel" onchange="renderCards(sortTrains())"><option value="">Sort: Default</option><option value="dep">Departure</option><option value="arr">Arrival</option><option value="dur">Duration</option><option value="fare">Fare ↑</option></select></div>
+      
+      <!-- Train List -->
+      <div id="tl"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SAVED PAGE -->
+<div class="pg" id="hpg">
+  <div class="cd"><div class="cd-t"><i class="material-icons-round">star_border</i>Starred Trains</div><div id="mfl"></div></div>
+  <div class="cd"><div class="cd-t"><i class="material-icons-round">history</i>Recent Searches</div><div id="mhl"></div></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bnav">
+  <button class="btab on" data-t="search" onclick="tab('search')"><i class="material-icons-round">search</i><span>Search</span></button>
+  <button class="btab" data-t="results" onclick="tab('results')"><i class="material-icons-round">list_alt</i><span>Trains</span></button>
+  <button class="btab" data-t="history" onclick="tab('history')"><i class="material-icons-round">bookmark_border</i><span>Saved</span></button>
+</div>
+
+<!-- GROQ CONFIG MODAL -->
+<div class="modal-overlay" id="aiModal">
+  <div class="modal-content">
+    <div class="modal-title"><i class="material-icons-round">psychology</i>Configure Groq AI</div>
+    <p style="font-size:12px;color:var(--tx2);margin-bottom:14px">Get incredibly fast AI recommendations using your free Groq API key.</p>
+    <div class="fg">
+      <label>Groq API Key</label>
+      <input type="password" id="groqKey" class="fc" style="padding-left:12px" placeholder="gsk_...">
+      <a href="https://console.groq.com/keys" target="_blank" style="font-size:11px;color:var(--ac);text-decoration:none;display:block;margin-top:4px">Get a free key at console.groq.com ↗</a>
+    </div>
+    <div class="fg">
+      <label>Model</label>
+      <select id="groqModel" class="fc" style="padding-left:12px">
+        <option value="llama-3.3-70b-versatile">Llama 3.3 70B (Recommended)</option>
+        <option value="llama-3.1-8b-instant">Llama 3.1 8B (Super Fast)</option>
+        <option value="mixtral-8x7b-32768">Mixtral 8x7b</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+      <button class="fc" style="width:auto;padding:8px 16px;cursor:pointer" onclick="closeAIConfig()">Cancel</button>
+      <button class="btn" style="width:auto;padding:8px 16px" onclick="saveAIConfig()">Save Config</button>
+    </div>
+  </div>
+</div>
+
+<!-- DEEP AI HACKS MODAL -->
+<div class="modal-overlay" id="aiDeepModal">
+  <div class="modal-content" id="aiDeepContent" style="max-width:480px;width:94%;max-height:85vh;overflow-y:auto">
+    <!-- Injected dynamically -->
+  </div>
+</div>
+
+<div class="tw" id="tw"></div>
+
+<script>
+/* ═══ STATE ═══ */
+let data=[], ls={f:'',t:'',d:'',q:''};
+let trainAlts={};
+let stars=JSON.parse(localStorage.getItem('rf_s')||'[]');
+let hist=JSON.parse(localStorage.getItem('rf_h')||'[]');
+let scheduleCache={};
+let searchCache={};
+
+/* ═══ AI STATE ═══ */
+let groqKey=localStorage.getItem('rf_groq_key')||'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';
+let groqModel=localStorage.getItem('rf_groq_model')||'llama-3.3-70b-versatile';
+let aiReportCache={};
+
+/* ═══ INIT ═══ */
+document.addEventListener('DOMContentLoaded',()=>{
+  setTh(localStorage.getItem('rf_th')||'dark');
+  const t=new Date();t.setDate(t.getDate()+1);
+  E('di').value=ymd(t);E('dd').value=ymd(t);
+  ac('fi','fs');ac('ti','ts');ac('df','dfs');ac('dt','dts');
+  bdc('dc','di');bdc('ddc','dd');
+  rSt();rHi();updateAIVisibility();go();
+});
+
+/* ═══ THEME ═══ */
+E('thBtn').addEventListener('click',()=>{setTh(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark')});
+function setTh(t){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('rf_th',t);E('thBtn').querySelector('i').textContent=t==='dark'?'light_mode':'dark_mode'}
+
+/* ═══ TABS ═══ */
+function tab(n){document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.btab').forEach(b=>b.classList.remove('on'));E({search:'spg',results:'rpg',history:'hpg'}[n]).classList.add('on');document.querySelector(`.btab[data-t="${n}"]`).classList.add('on')}
+
+/* ═══ AUTOCOMPLETE ═══ */
+function ac(iid,sid){const i=E(iid),s=E(sid);i.addEventListener('focus',()=>shs(i,s));i.addEventListener('input',()=>shs(i,s));document.addEventListener('click',e=>{if(!i.contains(e.target)&&!s.contains(e.target))s.style.display='none'})}
+function shs(i,s){const q=i.value.toLowerCase().replace(/.*\((.*)\)/,'$1').trim();const f=ST.filter(x=>x.c.toLowerCase().includes(q)||x.n.toLowerCase().includes(q));if(!f.length){s.style.display='none';return}s.innerHTML=f.map(x=>`<div class="si" onclick="pk('${i.id}','${s.id}','${x.n}','${x.c}')">${x.n}<span class="c">${x.c}</span></div>`).join('');s.style.display='block'}
+function pk(i,s,n,c){E(i).value=`${n} (${c})`;E(s).style.display='none'}
+function sw(a,b){const x=E(a),y=E(b);[x.value,y.value]=[y.value,x.value]}
+
+/* ═══ DATE CHIPS ═══ */
+function bdc(cid,iid){const c=E(cid),dn=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];c.innerHTML='';for(let i=0;i<5;i++){const d=new Date();d.setDate(d.getDate()+i);const l=i===0?'Today':i===1?'Tomorrow':`${dn[d.getDay()]} ${d.getDate()}`;const v=ymd(d);const ch=document.createElement('button');ch.type='button';ch.className=`chip${i===1?' on':''}`;ch.textContent=l;ch.onclick=()=>{c.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));ch.classList.add('on');E(iid).value=v};c.appendChild(ch)}}
+
+/* ═══════════════════════════════════════════
+   MAIN SEARCH + PROGRESSIVE ALTERNATIVES
+   ═══════════════════════════════════════════ */
+async function go(){
+  const mob=innerWidth<768;
+  const fv=E(mob?'fi':'df').value,tv=E(mob?'ti':'dt').value,dv=E(mob?'di':'dd').value,qv=E(mob?'qi':'dq').value;
+  const fc=xc(fv),tc=xc(tv);
+  if(!fc||!tc||!dv){toast('Fill all fields','warn');return}
+  sync(fv,tv,dv,qv);ls={f:fc,t:tc,d:dv,q:qv};
+  E('sr').textContent=`${fc} ➔ ${tc}`;
+  const dObj=new Date(dv);E('sd').textContent=dObj.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+  E('sq').textContent=qv;
+  addHi(fc,tc,dv);tab('results');skel();
+  trainAlts={};
+
+  resetAICopilotUI();
+
+  try{
+    const primary=await fetchSearch(fc,tc,dv);
+    data=primary;
+    E('rc').textContent=`${data.length} train${data.length!==1?'s':''}`;
+    renderCards(sortTrains());
+    toast(`Found ${data.length} trains`,'suc');
+
+    // Load schedule & date alternatives in background (limit to top 2 boardings to avoid heavy query onload)
+    await loadAlternatives(fc,tc,dv,qv,2);
+
+    if (groqKey) {
+      askGroqCopilot();
+    }
+  }catch(e){
+    console.error(e);
+    E('tl').innerHTML=`<div class="cd emp"><i class="material-icons-round">error_outline</i><h3>Error</h3><p>${e.message}</p><button class="btn" style="width:auto;padding:10px 20px;margin-top:8px" onclick="go()">Retry</button></div>`;
+    toast('Search failed','err');
+  }
+}
+
+/* ═══════════════════════════════════════════
+   REAL-SCHEDULE PROGRESSIVE ALTERNATIVES
+   ═══════════════════════════════════════════ */
+async function loadAlternatives(fromCode,toCode,dateVal,quota,limitStations=2){
+  const apiDate=fmtAD(dateVal);
+
+  // Trains that already have a confirmed seat don't need any scraping —
+  // mark them "good" immediately so the card just shows a confirmed badge.
+  const needsAlt=[];
+  data.forEach(t=>{
+    const cache=quota==='TQ'?(t.availabilityCacheTatkal||{}):(t.availabilityCache||{});
+    if(isGoodAvailability(cache)){
+      trainAlts[t.trainNumber]={skippedGood:true};
+    }else{
+      needsAlt.push(t);
+    }
+  });
+
+  renderCards(sortTrains()); // reflect "confirmed, no scraping needed" immediately
+
+  if(!needsAlt.length)return; // everything already has a seat — nothing to scrape
+
+  // Schedule fetch gives us both preceding ("back") AND following ("front") stations in one call
+  const schedPromises=needsAlt.map(t=>
+    fetchSchedule(t.trainNumber,apiDate).then(sch=>({no:t.trainNumber,sch})).catch(()=>({no:t.trainNumber,sch:null}))
+  );
+
+  const dateObj=new Date(dateVal);
+  const today=new Date();today.setHours(0,0,0,0);
+  const altDates=[];
+  [-1,1,2].forEach(o=>{const d2=new Date(dateObj);d2.setDate(d2.getDate()+o);if(d2>=today)altDates.push({y:ymd(d2),label:d2.toLocaleDateString('en-IN',{day:'numeric',month:'short',weekday:'short'}),o})});
+
+  const datePromises=altDates.map(ad=>
+    fetchSearch(fromCode,toCode,ad.y).then(trains=>({...ad,trains})).catch(()=>null)
+  );
+
+  const [schedResults,...dateResults]=await Promise.all([
+    Promise.all(schedPromises),
+    ...datePromises
+  ]);
+
+  const beforeStations={},afterStations={};
+  schedResults.forEach(({no,sch})=>{
+    if(!sch||!sch.length)return;
+    
+    const tData = data.find(tx => tx.trainNumber === no);
+    const actualSrc = tData ? (tData.source || fromCode) : fromCode;
+    const actualDst = tData ? (tData.destination || toCode) : toCode;
+    
+    const srcIdx=sch.findIndex(s=>s.StationCode===actualSrc);
+    const dstIdx=sch.findIndex(s=>s.StationCode===actualDst);
+
+    if(srcIdx>0){
+      const befores=[];
+      for(let i=Math.max(0,srcIdx-limitStations);i<srcIdx;i++){
+        befores.push({code:sch[i].StationCode,name:sch[i].StationName,dep:sch[i].DepartureTime,dist:sch[i].Distance});
+      }
+      if(befores.length)beforeStations[no]=befores;
+    }
+
+    if(dstIdx>=0&&dstIdx<sch.length-1){
+      const afters=[];
+      const endIdx=Math.min(sch.length-1,dstIdx+limitStations);
+      for(let i=dstIdx+1;i<=endIdx;i++){
+        afters.push({code:sch[i].StationCode,name:sch[i].StationName,arr:sch[i].ArrivalTime,dist:sch[i].Distance});
+      }
+      if(afters.length)afterStations[no]=afters;
+    }
+  });
+
+  const uniqueBeforeCodes=new Set();
+  Object.values(beforeStations).forEach(arr=>arr.forEach(s=>uniqueBeforeCodes.add(s.code)));
+  const uniqueAfterCodes=new Set();
+  Object.values(afterStations).forEach(arr=>arr.forEach(s=>uniqueAfterCodes.add(s.code)));
+
+  const stnSearchPromises=[...uniqueBeforeCodes].map(code=>
+    fetchSearch(code,toCode,dateVal).then(trains=>({code,trains})).catch(()=>null)
+  );
+  const dstSearchPromises=[...uniqueAfterCodes].map(code=>
+    fetchSearch(fromCode,code,dateVal).then(trains=>({code,trains})).catch(()=>null)
+  );
+
+  const [stnResults,dstResults]=await Promise.all([
+    Promise.all(stnSearchPromises),
+    Promise.all(dstSearchPromises)
+  ]);
+
+  const stnTrainMap={};
+  stnResults.forEach(r=>{
+    if(!r||!r.trains)return;
+    stnTrainMap[r.code]={};
+    r.trains.forEach(t=>{stnTrainMap[r.code][t.trainNumber]=t});
+  });
+
+  const dstTrainMap={};
+  dstResults.forEach(r=>{
+    if(!r||!r.trains)return;
+    dstTrainMap[r.code]={};
+    r.trains.forEach(t=>{dstTrainMap[r.code][t.trainNumber]=t});
+  });
+
+  const dtTrainMap={};
+  dateResults.forEach(r=>{
+    if(!r||!r.trains)return;
+    dtTrainMap[r.y]={byNo:{},label:r.label,offset:r.o};
+    r.trains.forEach(t=>{dtTrainMap[r.y].byNo[t.trainNumber]=t});
+  });
+
+  needsAlt.forEach(t=>{
+    const no=t.trainNumber;
+    const alts={stations:[],destinations:[],dates:[],checked:true};
+
+    if(beforeStations[no]){
+      beforeStations[no].forEach(bs=>{
+        if(stnTrainMap[bs.code]&&stnTrainMap[bs.code][no]){
+          const altTrain=stnTrainMap[bs.code][no];
+          const altCache=quota==='TQ'?(altTrain.availabilityCacheTatkal||{}):(altTrain.availabilityCache||{});
+          alts.stations.push({code:bs.code,name:bs.name,dep:bs.dep,dist:bs.dist,cache:altCache});
+        }
+      });
+    }
+
+    if(afterStations[no]){
+      afterStations[no].forEach(as=>{
+        if(dstTrainMap[as.code]&&dstTrainMap[as.code][no]){
+          const altTrain=dstTrainMap[as.code][no];
+          const altCache=quota==='TQ'?(altTrain.availabilityCacheTatkal||{}):(altTrain.availabilityCache||{});
+          alts.destinations.push({code:as.code,name:as.name,arr:as.arr,dist:as.dist,cache:altCache});
+        }
+      });
+    }
+
+    Object.entries(dtTrainMap).forEach(([y,info])=>{
+      if(info.byNo[no]){
+        const altTrain=info.byNo[no];
+        const altCache=quota==='TQ'?(altTrain.availabilityCacheTatkal||{}):(altTrain.availabilityCache||{});
+        alts.dates.push({ymd:y,label:info.label,offset:info.offset,cache:altCache});
+      }
+    });
+
+    trainAlts[no]=alts;
+  });
+
+  renderCards(sortTrains());
+}
+
+/* ═══════════════════════════════════════════
+   GROQ AI API CONFIG & UI
+   ═══════════════════════════════════════════ */
+function updateAIVisibility() {
+  if (groqKey) {
+    E('aiConfigBtn').classList.add('ai-btn');
+  } else {
+    E('aiConfigBtn').classList.remove('ai-btn');
+  }
+}
+
+function openAIConfig(){
+  E('groqKey').value=groqKey;
+  E('groqModel').value=groqModel;
+  E('aiModal').classList.add('show');
+}
+function closeAIConfig(){E('aiModal').classList.remove('show')}
+function saveAIConfig(){
+  groqKey=E('groqKey').value.trim();
+  groqModel=E('groqModel').value;
+  localStorage.setItem('rf_groq_key',groqKey);
+  localStorage.setItem('rf_groq_model',groqModel);
+  closeAIConfig();
+  updateAIVisibility();
+  toast('Groq AI config saved!','suc');
+  resetAICopilotUI();
+}
+
+function resetAICopilotUI() {
+  const body=E('aiBody');
+  const actions=E('aiActions');
+  if (!groqKey) {
+    body.innerHTML=`
+      <p style="font-size:12px;color:var(--tx3);margin-bottom:10px">Unlock ultra-fast Groq LLM route recommendations and smart preceding boarding checks.</p>
+      <button class="ai-prompt-btn" style="background:var(--ac-g)" onclick="openAIConfig()"><i class="material-icons-round">key</i>Configure Groq Key</button>
+    `;
+    actions.innerHTML='';
+  } else {
+    body.innerHTML=`
+      <p>Analyze fares, date adjustments, and preceding boarding tricks with Groq AI.</p>
+      <button class="ai-prompt-btn" onclick="askGroqCopilot()"><i class="material-icons-round">bolt</i>Run AI Strategy Check</button>
+    `;
+    actions.innerHTML=`<button class="ai-btn-sm" onclick="openAIConfig()"><i class="material-icons-round" style="font-size:12px">settings</i>Setup</button>`;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   DEEP PER-TRAIN AI SCRAPER & REASONER
+   ═══════════════════════════════════════════ */
+function closeDeepAI() {
+  E('aiDeepModal').classList.remove('show');
+}
+
+async function runDeepTrainAI(trainNo) {
+  if (!groqKey) { openAIConfig(); return; }
+
+  // 1) Open modal and show initial progress steps
+  E('aiDeepModal').classList.add('show');
+  
+  E('aiDeepContent').innerHTML = `
+    <div class="modal-title" style="margin-bottom:8px"><i class="material-icons-round">psychology</i>Deep AI Booking Hack</div>
+    <div style="font-size:11.5px;color:var(--tx2);margin-bottom:16px">Running route schedule checks and date analyses for Train <b>${trainNo}</b></div>
+    <div class="ai-steps-loading">
+      <div class="ais-step" id="step-sch-${trainNo}"><i class="material-icons-round spin">sync</i>Scraping train route schedule...</div>
+      <div class="ais-step" id="step-stn-${trainNo}"><i class="material-icons-round wait">pending</i>Querying preceding boarding stations...</div>
+      <div class="ais-step" id="step-dst-${trainNo}"><i class="material-icons-round wait">pending</i>Querying stations beyond your destination...</div>
+      <div class="ais-step" id="step-dates-${trainNo}"><i class="material-icons-round wait">pending</i>Querying 5 alternative dates...</div>
+      <div class="ais-step" id="step-groq-${trainNo}"><i class="material-icons-round wait">pending</i>Compiling data & reasoning with Groq...</div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px">
+      <button class="fc" style="width:auto;padding:8px 16px;cursor:pointer" onclick="closeDeepAI()">Cancel</button>
+    </div>
+  `;
+
+  try {
+    const apiDate = fmtAD(ls.d);
+    
+    // Step 1: Get train schedule
+    const schedule = await fetchSchedule(trainNo, apiDate);
+    E(`step-sch-${trainNo}`).innerHTML = `<i class="material-icons-round done">check_circle</i>Scraped train route schedule (${schedule ? schedule.length : 0} stops)`;
+    
+    if (!schedule || !schedule.length) throw new Error('Could not retrieve schedule');
+    const primaryTrain = data.find(tx => tx.trainNumber === trainNo);
+    const actualSrc = primaryTrain ? (primaryTrain.source || ls.f) : ls.f;
+    
+    // Find user origin index
+    const originIdx = schedule.findIndex(s => s.StationCode === actualSrc);
+    if (originIdx < 0) throw new Error(`Origin station ${actualSrc} not found in train schedule`);
+
+    // Step 2: Extract all preceding stations
+    E(`step-stn-${trainNo}`).innerHTML = `<i class="material-icons-round spin">sync</i>Querying all preceding boarding stations...`;
+    
+    const precedingStns = [];
+    for (let i = 0; i < originIdx; i++) {
+      precedingStns.push({
+        code: schedule[i].StationCode,
+        name: schedule[i].StationName,
+        distance: schedule[i].Distance,
+        depTime: schedule[i].DepartureTime
+      });
+    }
+
+    // Query boarding stations in parallel
+    const boardingResults = await Promise.all(precedingStns.map(async (stn) => {
+      try {
+        const trains = await fetchSearch(stn.code, ls.t, ls.d);
+        const match = trains.find(tx => tx.trainNumber === trainNo);
+        if (match) {
+          const cache = ls.q === 'TQ' ? (match.availabilityCacheTatkal || {}) : (match.availabilityCache || {});
+          return { code: stn.code, name: stn.name, dist: stn.distance, dep: stn.depTime, cache };
+        }
+      } catch (err) { }
+      return null;
+    }));
+    const validBoardings = boardingResults.filter(b => b !== null);
+    E(`step-stn-${trainNo}`).innerHTML = `<i class="material-icons-round done">check_circle</i>Scraped ${validBoardings.length} preceding station availabilities`;
+
+    // Step 2b: Extract all stations beyond the destination (the "book further, deboard early" trick)
+    E(`step-dst-${trainNo}`).innerHTML = `<i class="material-icons-round spin">sync</i>Querying stations beyond your destination...`;
+
+    const actualDst = primaryTrain ? (primaryTrain.destination || ls.t) : ls.t;
+    const destIdx = schedule.findIndex(s => s.StationCode === actualDst);
+    const followingStns = [];
+    if (destIdx >= 0) {
+      for (let i = destIdx + 1; i < schedule.length; i++) {
+        followingStns.push({
+          code: schedule[i].StationCode,
+          name: schedule[i].StationName,
+          distance: schedule[i].Distance,
+          arrTime: schedule[i].ArrivalTime
+        });
+      }
+    }
+
+    const destResults = await Promise.all(followingStns.map(async (stn) => {
+      try {
+        const trains = await fetchSearch(ls.f, stn.code, ls.d);
+        const match = trains.find(tx => tx.trainNumber === trainNo);
+        if (match) {
+          const cache = ls.q === 'TQ' ? (match.availabilityCacheTatkal || {}) : (match.availabilityCache || {});
+          return { code: stn.code, name: stn.name, dist: stn.distance, arr: stn.arrTime, cache };
+        }
+      } catch (err) { }
+      return null;
+    }));
+    const validDestinations = destResults.filter(d => d !== null);
+    E(`step-dst-${trainNo}`).innerHTML = `<i class="material-icons-round done">check_circle</i>Scraped ${validDestinations.length} extended-destination availabilities`;
+
+    // Step 3: Fetch 5 alternative dates
+    E(`step-dates-${trainNo}`).innerHTML = `<i class="material-icons-round spin">sync</i>Querying 5 alternative dates...`;
+    
+    const dateObj = new Date(ls.d);
+    const today = new Date(); today.setHours(0,0,0,0);
+    const dateList = [];
+    [-2, -1, 1, 2, 3].forEach(o => {
+      const d = new Date(dateObj);
+      d.setDate(d.getDate() + o);
+      if (d >= today) {
+        dateList.push({
+          ymd: ymd(d),
+          label: d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', weekday: 'short' }),
+          offset: o
+        });
+      }
+    });
+
+    const dateResults = await Promise.all(dateList.map(async (dl) => {
+      try {
+        const trains = await fetchSearch(ls.f, ls.t, dl.ymd);
+        const match = trains.find(tx => tx.trainNumber === trainNo);
+        if (match) {
+          const cache = ls.q === 'TQ' ? (match.availabilityCacheTatkal || {}) : (match.availabilityCache || {});
+          return { label: dl.label, offset: dl.offset, cache };
+        }
+      } catch (err) { }
+      return null;
+    }));
+    const validDates = dateResults.filter(d => d !== null);
+    E(`step-dates-${trainNo}`).innerHTML = `<i class="material-icons-round done">check_circle</i>Scraped ${validDates.length} alternative date availabilities`;
+
+    // Step 4: Groq compilation & reasoning
+    E(`step-groq-${trainNo}`).innerHTML = `<i class="material-icons-round spin">sync</i>Compiling dataset & reasoning with Groq...`;
+
+    const primaryCache = ls.q === 'TQ' ? (primaryTrain.availabilityCacheTatkal || {}) : (primaryTrain.availabilityCache || {});
+    
+    const primaryAvail = formatCacheBrief(primaryCache);
+    const precedingAvail = validBoardings.map(b => `${b.name} (${b.code}) [${b.dist}km away, dep: ${b.dep}]: ${formatCacheBrief(b.cache)}`).join('\n');
+    const extendedDestAvail = validDestinations.map(d => `${d.name} (${d.code}) [${d.dist}km, arr: ${d.arr}]: ${formatCacheBrief(d.cache)}`).join('\n');
+    const dateAvail = validDates.map(d => `Date: ${d.label} (offset: ${d.offset}d): ${formatCacheBrief(d.cache)}`).join('\n');
+
+const prompt = `You are a railways booking algorithm. Optimize booking for Train ${trainNo} (${primaryTrain.trainName}) from ${ls.f} to ${ls.t} on ${ls.d} (Quota: ${ls.q}).
+
+CRITICAL IRCTC LOGIC YOU MUST FOLLOW:
+- "AVAILABLE", "AVAILABLE X", "CURR_AV", or "AVL" is a CONFIRMED seat and is the ABSOLUTE BEST OUTCOME. ALWAYS prioritize AVAILABLE over Waitlist (WL).
+- "RAC X" means sharing a seat (second best).
+- "WL X", "GNWL X", "PQWL X", "RLWL X" means WAITLISTED. This is BAD. NEVER recommend a WL ticket if an AVAILABLE ticket exists anywhere else.
+- "REGRET" means booking is closed.
+
+Current Status at ${ls.f}:
+${primaryAvail}
+
+Preceding stations availability (if we book from earlier station and change boarding point to ${ls.f}):
+${precedingAvail || 'None available'}
+
+Extended destination availability (if we book the SAME train onward to a station past ${ls.t}, then simply get off at ${ls.t} — the ticket just covers a longer stretch):
+${extendedDestAvail || 'None available'}
+
+Alternative dates availability:
+${dateAvail || 'None available'}
+
+Based on this data, you MUST provide at least 2 or 3 BEST alternative options to secure a ticket. 
+Rank them from best (Option 1) to worst.
+For each option, clearly explain the exact action (e.g. 'Book from Station X, change boarding to ${ls.f}', 'Book onward to Station Y and deboard at ${ls.t}', or 'Shift date to Y') and state the availability status it yields.
+If the current status at ${ls.f} is already AVAILABLE, say so as Option 1 and only list the workarounds as fallback options in case that fills up.
+Format the output in clean HTML without markdown backticks. 
+Use this exact HTML structure for each option:
+<div class="ai-hack-card">
+  <div class="ai-hc-hdr">
+    <span class="ai-hc-badge">Option [1, 2, 3]</span>
+    <span class="ai-hc-title">[Short Title, e.g. Board earlier from BSP]</span>
+  </div>
+  <div class="ai-hc-compare">
+    <div class="ai-hc-col">
+      <div class="ai-hc-lbl">Current at ${ls.f}</div>
+      <div class="ai-hc-val" style="color:var(--rd)">[Current Status]</div>
+    </div>
+    <div class="ai-hc-vs"><i class="material-icons-round">arrow_forward</i></div>
+    <div class="ai-hc-col" style="text-align:right">
+      <div class="ai-hc-lbl">Hacked Option</div>
+      <div class="ai-hc-val" style="color:var(--gn)">[New Status]</div>
+    </div>
+  </div>
+  <div class="ai-hc-desc">
+    <div style="margin-bottom:10px">[Detailed explanation of the exact action to take]</div>
+    <table class="ai-hc-table">
+      <tr><th>Class</th><th>Current</th><th>Hacked</th><th>Diff</th></tr>
+      <tr><td>[e.g. 3A]</td><td>[e.g. WL 5]</td><td>[e.g. AVL 2]</td><td style="color:var(--gn)">[e.g. + Confirmed]</td></tr>
+      <!-- Add rows for all relevant classes -->
+    </table>
+  </div>
+</div>
+Do not include any chat preambles or greetings. Keep it concise.`;
+
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${groqKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: prompt }],
+        model: groqModel,
+        temperature: 0.1,
+        max_tokens: 600
+      })
+    });
+
+    if (!res.ok) throw new Error('Groq AI inference failed');
+    const json = await res.json();
+    const text = json.choices[0].message.content.trim();
+
+    // Render final verdict in modal
+    E('aiDeepContent').innerHTML = `
+      <div class="modal-title" style="margin-bottom:6px"><i class="material-icons-round">psychology</i>Groq AI Booking Hack</div>
+      <div style="font-size:11px;color:var(--tx3);margin-bottom:12px;text-transform:uppercase;font-weight:700">Train ${trainNo} · Llama 3.3 Verdict</div>
+      <div style="font-size:13px;line-height:1.5;color:var(--tx);margin-bottom:16px">${text}</div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="fc" style="width:auto;padding:8px 16px;cursor:pointer" onclick="closeDeepAI()">Dismiss</button>
+      </div>
+    `;
+
+  } catch (err) {
+    console.error(err);
+    E('aiDeepContent').innerHTML = `
+      <div class="modal-title" style="color:var(--rd);margin-bottom:8px"><i class="material-icons-round">error</i>Deep Scraper Error</div>
+      <p style="font-size:12.5px;color:var(--tx2);margin-bottom:14px">Failed to compile details: ${err.message}</p>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="fc" style="width:auto;padding:8px 16px;cursor:pointer" onclick="closeDeepAI()">Close</button>
+        <button class="btn" style="width:auto;padding:8px 16px" onclick="runDeepTrainAI('${trainNo}')">Retry</button>
+      </div>
+    `;
+    toast('Deep AI check failed','err');
+  }
+}
+
+function formatCacheBrief(cache) {
+  return Object.entries(cache)
+    .map(([cls, a]) => `${cls}: ${a.availabilityDisplayName || a.availability} (₹${a.fare})`)
+    .join(', ');
+}
+
+/* ═══════════════════════════════════════════
+   GLOBAL COPILOT REPORT
+   ═══════════════════════════════════════════ */
+async function askGroqCopilot() {
+  if (!groqKey) { openAIConfig(); return; }
+  if (!data.length) { toast('Search for trains first','warn'); return; }
+
+  const queryKey = `${ls.f}-${ls.t}-${ls.d}-${ls.q}`;
+  if (aiReportCache[queryKey]) {
+    renderAIReport(aiReportCache[queryKey]);
+    return;
+  }
+
+  E('aiBody').innerHTML = `
+    <div class="ai-skel">
+      <div class="ai-skel-line" style="width:90%"></div>
+      <div class="ai-skel-line" style="width:75%"></div>
+      <div class="ai-skel-line" style="width:80%"></div>
+    </div>`;
+
+  const trainsPayload = data.slice(0, 4).map(t => {
+    const no = t.trainNumber;
+    const cache = ls.q === 'TQ' ? (t.availabilityCacheTatkal || {}) : (t.availabilityCache || {});
+    const primaryAvail = {};
+    Object.entries(cache).forEach(([cls, a]) => {
+      primaryAvail[cls] = `${a.availabilityDisplayName || a.availability} (₹${a.fare})`;
+    });
+
+    const alts = trainAlts[no] || { stations: [], destinations: [], dates: [] };
+    const altStationBrief = (alts.stations || []).map(s => {
+      const altAvail = {};
+      Object.entries(s.cache).forEach(([cls, a]) => {
+        altAvail[cls] = `${a.availabilityDisplayName || a.availability} (₹${a.fare})`;
+      });
+      return { code: s.code, name: s.name, distanceKm: s.dist, availability: altAvail };
+    });
+
+    const altDestinationBrief = (alts.destinations || []).map(d => {
+      const altAvail = {};
+      Object.entries(d.cache).forEach(([cls, a]) => {
+        altAvail[cls] = `${a.availabilityDisplayName || a.availability} (₹${a.fare})`;
+      });
+      return { code: d.code, name: d.name, distanceKm: d.dist, arrival: d.arr, availability: altAvail };
+    });
+
+    const altDateBrief = (alts.dates || []).map(d => {
+      const altAvail = {};
+      Object.entries(d.cache).forEach(([cls, a]) => {
+        altAvail[cls] = `${a.availabilityDisplayName || a.availability} (₹${a.fare})`;
+      });
+      return { offset: d.offset, dateLabel: d.label, availability: altAvail };
+    });
+
+    return {
+      no,
+      name: t.trainName,
+      departure: t.departureTime,
+      arrival: t.arrivalTime,
+      duration: fDur(t.duration),
+      alreadyConfirmed: alts.skippedGood || false,
+      primaryAvailability: primaryAvail,
+      precedingBoardingAlternatives: altStationBrief,
+      extendedDestinationAlternatives: altDestinationBrief,
+      alternativeDateAlternatives: altDateBrief
+    };
+  });
+
+  const prompt = `Analyze Indian Railways options from ${ls.f} to ${ls.t} on ${ls.d} (Quota: ${ls.q}) and suggest the absolute best booking strategy.
+
+CRITICAL IRCTC LOGIC YOU MUST FOLLOW:
+- "AVAILABLE", "AVAILABLE X", "CURR_AV", or "AVL" is a CONFIRMED seat and is the ABSOLUTE BEST OUTCOME. ALWAYS prioritize AVAILABLE over Waitlist (WL).
+- "RAC X" means sharing a seat (second best).
+- "WL X", "GNWL X", "PQWL X", "RLWL X" means WAITLISTED. This is BAD. NEVER recommend a WL ticket if an AVAILABLE ticket exists.
+- "REGRET" means booking is closed.
+
+We found these trains and alternatives:
+${JSON.stringify(trainsPayload, null, 2)}
+
+Note: "alreadyConfirmed: true" means that train already has an AVAILABLE seat directly, so no alternative is needed for it — don't suggest workarounds for those.
+"precedingBoardingAlternatives" = booking from an earlier station and changing your boarding point to the searched origin.
+"extendedDestinationAlternatives" = booking all the way to a station past the searched destination (quota there can be more open) and simply getting off at your actual destination.
+
+Provide a smart analysis in clean HTML:
+1. One bullet highlighting the absolute best train and class to book right now. (Remember: AVAILABLE > RAC > WL). If a train is already confirmed, just say so plainly.
+2. One bullet on whether a preceding-station boarding-point change helps, only if relevant.
+3. One bullet on whether booking to a further station (and deboarding early) helps, only if relevant.
+4. Skip any bullet that has no useful alternative to report — do not pad with restated info.
+Do NOT mention markdown block wrappers, wrap in a simple <ul> list. Use <strong> and <code> elements for emphasis. Keep it under 140 words.`;
+
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${groqKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: prompt }],
+        model: groqModel,
+        temperature: 0.1,
+        max_tokens: 300
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error?.message || 'Groq API error');
+    }
+
+    const json = await res.json();
+    const resultText = json.choices[0].message.content;
+    aiReportCache[queryKey] = resultText;
+    renderAIReport(resultText);
+    toast('AI strategy analysis completed!','suc');
+  } catch (err) {
+    console.error(err);
+    E('aiBody').innerHTML = `
+      <p style="color:var(--rd)">AI analysis failed: ${err.message}</p>
+      <button class="ai-prompt-btn" style="background:var(--ac-g)" onclick="askGroqCopilot()"><i class="material-icons-round">refresh</i>Retry</button>
+    `;
+    toast('Groq AI failed','err');
+  }
+}
+
+function renderAIReport(htmlContent) {
+  E('aiBody').innerHTML = `
+    <div style="font-size:12.5px;color:var(--tx2);margin-bottom:10px">${htmlContent}</div>
+    <button class="ai-btn-sm" style="display:inline-flex" onclick="askGroqCopilot()"><i class="material-icons-round" style="font-size:12px">refresh</i>Recalculate</button>
+  `;
+}
+
+/* ═══ API FUNCTIONS ═══ */
+async function fetchSearch(from,to,dateYMD){
+  const key=`${from}-${to}-${dateYMD}`;
+  if(searchCache[key])return searchCache[key];
+  const ad=fmtAD(dateYMD);
+  const r=await fetch(`https://cttrainsapi.confirmtkt.com/api/v1/trains/search?sourceStationCode=${from}&destinationStationCode=${to}&dateOfJourney=${ad}`);
+  if(!r.ok)throw new Error('API error');
+  const j=await r.json();
+  const trains=j?.data?.trainList||[];
+  searchCache[key]=trains;
+  return trains;
+}
+
+async function fetchSchedule(trainNo,apiDate){
+  if(scheduleCache[trainNo])return scheduleCache[trainNo];
+  const r=await fetch(`https://api.confirmtkt.com/api/trains/schedulewithintermediatestn?date=${apiDate}&trainNo=${trainNo}&locale=en`);
+  if(!r.ok)return null;
+  const j=await r.json();
+  const sch= (j?.Schedule && j.Schedule.length > 0 && j.Schedule[0].intermediateStations) ? j.Schedule[0].intermediateStations : [];
+  scheduleCache[trainNo]=sch;
+  return sch;
+}
+
+/* ═══ SORT & FILTER ═══ */
+function sortTrains(){
+  let l=[...data];
+  const sv=E('sortSel').value;
+  if(sv==='dep')l.sort((a,b)=>tm(a.departureTime)-tm(b.departureTime));
+  else if(sv==='arr')l.sort((a,b)=>tm(a.arrivalTime)-tm(b.arrivalTime));
+  else if(sv==='dur')l.sort((a,b)=>(a.duration||0)-(b.duration||0));
+  else if(sv==='fare')l.sort((a,b)=>mf(a)-mf(b));
+  E('rc').textContent=`${l.length} train${l.length!==1?'s':''}`;
+  return l;
+}
+
+/* ═══ RENDER CARDS ═══ */
+function renderCards(trains){
+  const c=E('tl'),q=ls.q;
+  if(!trains.length){c.innerHTML=`<div class="cd emp"><i class="material-icons-round">train</i><h3>No Trains</h3><p>Try a different route or date.</p></div>`;return}
+
+  c.innerHTML=trains.map(t=>{
+    const fav=stars.some(s=>s.no===t.trainNumber);
+    const cache=q==='TQ'?(t.availabilityCacheTatkal||{}):(t.availabilityCache||{});
+    const dH=bDays(t.runningDays);
+    const dur=fDur(t.duration);
+    const rat=t.trainRating||0;
+    
+    const alt=trainAlts[t.trainNumber];
+    let altHTML;
+    if(!alt){
+      altHTML=buildAltLoading();
+    }else if(alt.skippedGood){
+      altHTML=`<div class="alt-zone"><div class="alt-good"><i class="material-icons-round" style="font-size:14px">check_circle</i>Seat already available — no need to look for alternatives</div></div>`;
+    }else{
+      const built=buildAltHTML(t.trainNumber,cache,alt);
+      altHTML=built||(alt.checked?`<div class="alt-zone"><div class="alt-none"><i class="material-icons-round" style="font-size:14px">search_off</i>Checked nearby boarding stations, extended destinations & dates — nothing better found</div></div>`:'');
+    }
+
+    // AI Insight deep button
+    const aiInsightHTML = `
+      <div id="ai-insight-${t.trainNumber}">
+        ${groqKey ? `
+          <button class="ai-btn-sm" style="margin-top:10px;border-color:rgba(236,72,153,0.3);background:rgba(236,72,153,0.03)" onclick="runDeepTrainAI('${t.trainNumber}')">
+            <i class="material-icons-round" style="font-size:14px;color:#ec4899">psychology</i>Scrape & Hack with AI
+          </button>
+        ` : ''}
+      </div>`;
+
+    return`<div class="cd tc">
+      <div class="th">
+        <div class="ti">
+          <div class="tnn"><span class="tn">${t.trainNumber}</span><span class="tname">${t.trainName}</span></div>
+          <div class="tmeta">
+            <span class="ttype">${t.trainType||'EXP'}</span>
+            ${rat?`<span class="trat"><i class="material-icons-round" style="font-size:12px">star</i>${rat}</span>`:''}
+            <div class="days">${dH}</div>
+          </div>
+        </div>
+        <button class="tfav${fav?' on':''}" onclick="tStar('${t.trainNumber}','${esc(t.trainName)}')"><i class="material-icons-round">${fav?'star':'star_border'}</i></button>
+      </div>
+      <div class="tl">
+        <div class="tls"><span class="tlt">${t.departureTime}</span><span class="tlst">${t.fromStnCode}</span></div>
+        <div class="tlm"><span class="tld">${dur}</span><div class="tll"></div></div>
+        <div class="tls" style="text-align:right"><span class="tlt">${t.arrivalTime}</span><span class="tlst">${t.toStnCode}</span></div>
+      </div>
+      <div class="cls-s">${Object.entries(cache).map(([k,a])=>{
+        const st=a.availabilityDisplayName||a.availability||'N/A';const sc=gsc(st);
+        const p=a.predictionPercentage||0;const pc=p>=70?'var(--gn)':p>=40?'var(--am)':'var(--rd)';
+        return`<div class="cls-c" onclick="book('${t.trainNumber}','${k}','${a.fare}')">
+          <div class="cls-h"><span class="cls-n">${k}</span><span class="cls-f">₹${a.fare}</span></div>
+          <div class="cls-st ${sc}">${st}</div>
+          ${p>0?`<div class="pb"><div class="pf" style="width:${p}%;background:${pc}"></div></div><div class="pl"><span>Confirm</span><span>${p}%</span></div>`:''}
+        </div>`}).join('')}</div>
+      ${altHTML}
+      ${aiInsightHTML}
+    </div>`}).join('');
+}
+
+function buildAltLoading(){
+  return`<div class="alt-zone"><div class="alt-loading"><i class="material-icons-round">sync</i>Finding smarter alternatives from route schedule...</div></div>`;
+}
+
+function buildAltHTML(trainNo,primaryCache,alt){
+  let tips='';
+
+  // Station alternatives
+  alt.stations.forEach(s=>{
+    const chips=compareChips(primaryCache,s.cache);
+    if(!chips)return;
+    tips+=`<div class="alt-tip">
+      <div class="alt-tag at-s"><i class="material-icons-round" style="font-size:10px">place</i>Board earlier</div>
+      <div class="alt-title">From ${s.name} (${s.code})</div>
+      <div class="alt-sub">Departs ${s.dep} · ${s.dist} km from origin</div>
+      <div class="alt-chips">${chips}</div>
+    </div>`;
+  });
+
+  // Destination-extension alternatives (book further, deboard at your actual stop)
+  (alt.destinations||[]).forEach(dst=>{
+    const chips=compareChips(primaryCache,dst.cache);
+    if(!chips)return;
+    tips+=`<div class="alt-tip">
+      <div class="alt-tag at-f"><i class="material-icons-round" style="font-size:10px">north_east</i>Deboard early</div>
+      <div class="alt-title">Book to ${dst.name} (${dst.code})</div>
+      <div class="alt-sub">Arrives ${dst.arr} · ${dst.dist} km · get off at ${ls.t}</div>
+      <div class="alt-chips">${chips}</div>
+    </div>`;
+  });
+
+  // Date alternatives
+  alt.dates.forEach(d=>{
+    const chips=compareChips(primaryCache,d.cache);
+    if(!chips)return;
+    const dir=d.offset<0?`${Math.abs(d.offset)}d earlier`:`${d.offset}d later`;
+    tips+=`<div class="alt-tip">
+      <div class="alt-tag at-d"><i class="material-icons-round" style="font-size:10px">event</i>${dir}</div>
+      <div class="alt-title">${d.label}</div>
+      <div class="alt-chips">${chips}</div>
+    </div>`;
+  });
+
+  if(!tips)return'';
+  return`<div class="alt-zone">
+    <div class="alt-hdr"><i class="material-icons-round">lightbulb</i>Smart Alternatives</div>
+    <div class="alt-scroll">${tips}</div>
+  </div>`;
+}
+
+function compareChips(priCache,altCache){
+  let html='',useful=false;
+  Object.entries(altCache).forEach(([cls,a])=>{
+    if(!a.fare||a.fare==='0')return;
+    const as=(a.availabilityDisplayName||a.availability||'').toUpperCase();
+    const ap=a.predictionPercentage||0;
+    const p=priCache[cls];
+    const ps=p?(p.availabilityDisplayName||p.availability||'').toUpperCase():'';
+    const pp=p?(p.predictionPercentage||0):0;
+    const isAv=as.includes('AVL')||as.includes('AVAILABLE');
+    const isWl=as.includes('WL')||as.includes('RAC');
+    const cc=isAv?'ac-g':isWl?'ac-a':'ac-r';
+    const pAv=ps.includes('AVL')||ps.includes('AVAILABLE');
+    const pWl=ps.includes('WL')||ps.includes('RAC');
+    let bt='';
+    if(isAv&&!pAv){bt=' <span class="better">✓ BETTER</span>';useful=true}
+    else if((isAv||isWl)&&!pAv&&!pWl){bt=' <span class="better">✓ BETTER</span>';useful=true}
+    else if(ap>pp+10){bt=` <span class="better">↑${ap}%</span>`;useful=true}
+    else{useful=true}
+    const short=a.availabilityDisplayName||cls;
+    html+=`<span class="ac ${cc}">${cls}: ${short} ₹${a.fare}${bt}</span>`;
+  });
+  return useful?html:'';
+}
+
+/* ═══ SKELETON ═══ */
+function skel(){E('rc').textContent='Searching...';E('tl').innerHTML=Array(3).fill().map(()=>`<div class="cd sk"><div class="sk-sh"></div><div class="sk-l" style="width:40%;height:18px"></div><div class="sk-l" style="width:25%"></div><div class="sk-l" style="width:100%;height:50px;margin-top:6px"></div></div>`).join('')}
+
+/* ═══ BOOKING ═══ */
+function book(no,cls,fare){const ov=document.createElement('div');ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:10000;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s';ov.innerHTML=`<div class="cd" style="max-width:360px;width:90%;text-align:center;border-color:var(--ac)"><i class="material-icons-round" style="font-size:40px;color:var(--ac)">confirmation_number</i><h3 style="font-family:var(--fd);margin:10px 0">Book ${no}</h3><p style="color:var(--tx2);font-size:13px;margin-bottom:16px">Class <b>${cls}</b> · Fare <b>₹${fare}</b></p><div style="display:flex;gap:8px;justify-content:center"><button class="fc" style="width:auto;padding:8px 16px;cursor:pointer" onclick="this.closest('div[style]').remove()">Cancel</button><button class="btn" style="width:auto;padding:8px 16px" onclick="toast('Booking confirmed!','suc');this.closest('div[style]').remove()">Confirm</button></div></div>`;document.body.appendChild(ov);setTimeout(()=>ov.style.opacity=1,30)}
+
+/* ═══ STARRED + HISTORY ═══ */
+function tStar(no,nm){const i=stars.findIndex(s=>s.no===no);if(i===-1){stars.push({no,name:nm});toast(`Starred ${no}`,'suc')}else{stars.splice(i,1);toast(`Unstarred ${no}`,'info')}localStorage.setItem('rf_s',JSON.stringify(stars));rSt();renderCards(sortTrains())}
+function rSt(){const h=stars.length?stars.map(s=>`<div class="li"><div><div style="font-weight:700;font-size:13px">${s.no}</div><div style="font-size:11px;color:var(--tx3)">${s.name}</div></div><i class="material-icons-round" style="color:var(--tx3);font-size:16px;cursor:pointer" onclick="event.stopPropagation();tStar('${s.no}','${esc(s.name)}')">delete</i></div>`).join(''):'<div style="font-size:12px;color:var(--tx3);text-align:center">No starred trains.</div>';['mfl','dfl'].forEach(id=>{if(E(id))E(id).innerHTML=h})}
+function addHi(f,t,d){const k=`${f}-${t}-${d}`;hist=hist.filter(h=>`${h.f}-${h.t}-${h.d}`!==k);hist.unshift({f,t,d});if(hist.length>6)hist.pop();localStorage.setItem('rf_h',JSON.stringify(hist));rHi()}
+function rHi(){const h=hist.length?hist.map(h=>`<div class="li" onclick="reSr('${h.f}','${h.t}','${h.d}')"><div><div style="font-weight:700;font-size:13px">${h.f} ➔ ${h.t}</div><div style="font-size:11px;color:var(--tx3)">${h.d}</div></div><i class="material-icons-round" style="color:var(--ac);font-size:16px">arrow_forward</i></div>`).join(''):'<div style="font-size:12px;color:var(--tx3);text-align:center">No recent searches.</div>';['mhl','dhl'].forEach(id=>{if(E(id))E(id).innerHTML=h})}
+function reSr(f,t,d){sync(f,t,d,ls.q||'GN');go()}
+
+/* ═══ HELPERS ═══ */
+function E(id){return document.getElementById(id)}
+function xc(v){const m=v.match(/\(([^)]+)\)/);return m?m[1]:v.trim().toUpperCase()}
+function ymd(d){return d.toISOString().split('T')[0]}
+function fmtAD(y){const[a,b,c]=y.split('-');return`${c}-${b}-${a}`}
+function fDur(m){if(!m)return'—';const h=Math.floor(m/60),mn=m%60;return`${h}h ${mn}m`}
+function tm(t){if(!t)return 0;const[h,m]=t.split(':');return+h*60+(+m)}
+function mf(t){const c=ls.q==='TQ'?(t.availabilityCacheTatkal||{}):(t.availabilityCache||{});const f=Object.values(c).map(a=>+a.fare).filter(v=>v>0);return f.length?Math.min(...f):99999}
+function esc(s){return(s||'').replace(/'/g,"\\'")}
+function bDays(s){if(!s)return'';const l=['M','T','W','T','F','S','S'];return l.map((d,i)=>`<span class="dy${s[i]==='1'?' a':''}">${d}</span>`).join('')}
+function gsc(s){const u=(s||'').toUpperCase();if(u.includes('AVL')||u.includes('AVAILABLE'))return'sg';if(u.includes('WL')||u.includes('RAC'))return'sa';return'sr'}
+function isGoodAvailability(cache){return Object.values(cache||{}).some(a=>{const s=(a.availabilityDisplayName||a.availability||'').toUpperCase();return s.includes('AVL')||s.includes('AVAILABLE')||s.includes('CURR_AV')})}
+function sync(f,t,d,q){['fi','df'].forEach(i=>E(i).value=f);['ti','dt'].forEach(i=>E(i).value=t);['di','dd'].forEach(i=>E(i).value=d);['qi','dq'].forEach(i=>E(i).value=q)}
+function toast(msg,type='suc'){const w=E('tw'),ic={suc:'check_circle',warn:'warning',err:'error',info:'info'};const t=document.createElement('div');t.className=`to t-${type}`;t.innerHTML=`<i class="material-icons-round">${ic[type]||'info'}</i>${msg}`;w.appendChild(t);setTimeout(()=>t.classList.add('show'),30);setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300)},2800)}
+
+/* ═══ AUTOCOMPLETE STATIONS DATA ═══ */
+const ST=[
+  {c:'NDLS',n:'New Delhi'},{c:'NZM',n:'Delhi H Nizamuddin'},{c:'DLI',n:'Old Delhi'},{c:'ANVT',n:'Anand Vihar T'},
+  {c:'BSP',n:'Bilaspur Jn'},{c:'USL',n:'Usalapur'},{c:'R',n:'Raipur Jn'},{c:'DURG',n:'Durg Jn'},{c:'G',n:'Gondia Jn'},
+  {c:'HWH',n:'Howrah Jn'},{c:'SDAH',n:'Sealdah'},{c:'KOAA',n:'Kolkata'},
+  {c:'CSMT',n:'Mumbai CSMT'},{c:'BCT',n:'Mumbai Central'},{c:'BDTS',n:'Bandra Terminus'},{c:'LTT',n:'Lokmanya TT'},
+  {c:'MAS',n:'MGR Chennai Central'},{c:'MS',n:'Chennai Egmore'},
+  {c:'SBC',n:'KSR Bengaluru'},{c:'YPR',n:'Yesvantpur Jn'},
+  {c:'SC',n:'Secunderabad Jn'},{c:'HYB',n:'Hyderabad Deccan'},{c:'KCG',n:'Kacheguda'},
+  {c:'PNBE',n:'Patna Jn'},{c:'DNR',n:'Danapur'},{c:'ADI',n:'Ahmedabad Jn'},
+  {c:'PUNE',n:'Pune Jn'},{c:'LKO',n:'Lucknow'},{c:'CNB',n:'Kanpur Central'},
+  {c:'GKP',n:'Gorakhpur Jn'},{c:'CDG',n:'Chandigarh'},{c:'BBS',n:'Bhubaneswar'},
+  {c:'VSKP',n:'Visakhapatnam'},{c:'AGC',n:'Agra Cantt'},{c:'JP',n:'Jaipur Jn'},
+  {c:'BPL',n:'Bhopal Jn'},{c:'JBP',n:'Jabalpur Jn'},{c:'NGP',n:'Nagpur Jn'},
+  {c:'TATA',n:'Tatanagar Jn'},{c:'RNC',n:'Ranchi'},{c:'GWL',n:'Gwalior Jn'},
+  {c:'ASN',n:'Asansol Jn'},{c:'ASR',n:'Amritsar Jn'},{c:'LDH',n:'Ludhiana Jn'},
+  {c:'UMB',n:'Ambala Cant Jn'},{c:'SRE',n:'Saharanpur'},{c:'KOTA',n:'Kota Jn'},
+  {c:'RTM',n:'Ratlam Jn'},{c:'NAD',n:'Nagda Jn'},{c:'BRC',n:'Vadodara Jn'},
+  {c:'ST',n:'Surat'},{c:'GZB',n:'Ghaziabad'},{c:'FDB',n:'Faridabad'},
+  {c:'MTJ',n:'Mathura Jn'},{c:'JUC',n:'Jalandhar City'},{c:'DDN',n:'Dehradun'}
+];
+</script>
+</body>
+</html>
