@@ -223,8 +223,8 @@
 <div class="topbar">
   <a href="#" class="brand"><i class="material-icons-round">train</i><span>Rail<b>Forge</b></span></a>
   <div class="topbar-actions">
-    <button class="ib" id="thBtn"><i class="material-icons-round">light_mode</i></button>
-  </div>
+    <button class="ib" id="thBtn" title="Toggle Theme"><i class="material-icons-round">light_mode</i></button>
+    <button class="ib" onclick="forceRefresh()" title="Force Live Refresh" style="margin-left:6px"><i class="material-icons-round">refresh</i></button>  </div>
 </div>
 
 <!-- SEARCH PAGE -->
@@ -368,6 +368,22 @@ function shiftDate(offset) {
 /* ═══════════════════════════════════════════
    MAIN SEARCH + PROGRESSIVE ALTERNATIVES
    ═══════════════════════════════════════════ */
+async function forceRefresh() {
+  if (!ls.f || !ls.t || !ls.d) return;
+  E('tw').innerHTML = '<div class="cd emp"><i class="material-icons-round spin">sync</i><h3>Refreshing Live Data...</h3><p>Bypassing local cache to fetch latest availability.</p></div>';
+  try {
+    const key = `${ls.f}-${ls.t}-${ls.d}`;
+    delete searchCache[key];
+    data = await fetchSearch(ls.f, ls.t, ls.d, true);
+    renderCards(sortTrains());
+    toast('Data refreshed successfully!', 'suc');
+    E('tw').innerHTML = '';
+  } catch(err) {
+    toast('Failed to refresh data', 'err');
+    go(); // fallback
+  }
+}
+
 async function go(){
   const mob=innerWidth<768;
   const fv=E(mob?'fi':'df').value,tv=E(mob?'ti':'dt').value,dv=E(mob?'di':'dd').value,qv=E(mob?'qi':'dq').value;
@@ -549,7 +565,8 @@ async function startBruteForce(travelClass) {
        const c = combos[i];
        E(`step-fetch-${trainNo}`).innerHTML = `<i class="material-icons-round spin">sync</i>Fetching ${c.from} ➔ ${c.to} (${i+1}/${combos.length})...`;
        try {
-         const trains = await fetchSearch(c.from, c.to, ls.d);
+         // Bypassing local cache ensures we get the latest data ConfirmTkt has for these combinations
+         const trains = await fetchSearch(c.from, c.to, ls.d, true);
          const match = trains.find(tx => tx.trainNumber === trainNo);
          if(match) {
             const cache = ls.q === 'TQ' ? (match.availabilityCacheTatkal || {}) : (match.availabilityCache || {});
@@ -625,11 +642,12 @@ async function startBruteForce(travelClass) {
 
 
 /* ═══ API FUNCTIONS ═══ */
-async function fetchSearch(from,to,dateYMD){
+async function fetchSearch(from,to,dateYMD, forceLive=false){
   const key=`${from}-${to}-${dateYMD}`;
-  if(searchCache[key])return searchCache[key];
+  if(!forceLive && searchCache[key])return searchCache[key];
   const ad=fmtAD(dateYMD);
-  const r=await fetch(`https://cttrainsapi.confirmtkt.com/api/v1/trains/search?sourceStationCode=${from}&destinationStationCode=${to}&dateOfJourney=${ad}`);
+  const bust = forceLive ? `&_=${Date.now()}` : '';
+  const r=await fetch(`https://cttrainsapi.confirmtkt.com/api/v1/trains/search?sourceStationCode=${from}&destinationStationCode=${to}&dateOfJourney=${ad}${bust}`);
   if(!r.ok)throw new Error('API error');
   const j=await r.json();
   const trains=j?.data?.trainList||[];
