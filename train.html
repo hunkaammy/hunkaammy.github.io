@@ -61,10 +61,13 @@
     .btn{width:100%;padding:13px;border:0;border-radius:var(--rs);background:var(--ac-g);color:#fff;font-family:var(--fd);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 12px var(--ac-gl);transition:transform .15s}
     .btn:active{transform:scale(.98)}
 
-    .rstrip{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:var(--rs);background:var(--sf);border:1px solid var(--bd);margin-bottom:12px;cursor:pointer}
-    .rs-l{display:flex;flex-direction:column;gap:2px}
-    .rs-r{font-family:var(--fd);font-weight:700;font-size:15px}
-    .rs-m{font-size:11px;color:var(--tx2);display:flex;align-items:center;gap:6px}
+    .rstrip{position:sticky;top:55px;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:var(--rs);background:#ffffff;border:1px solid rgba(0,0,0,0.1);margin-bottom:12px;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+    .rs-center{flex:1;display:flex;flex-direction:column;align-items:center;cursor:pointer}
+    .rs-btn{background:rgba(0,0,0,0.05);border:none;color:#000;padding:6px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .rs-btn:active{background:rgba(0,0,0,0.1)}
+    .rs-r{font-family:var(--fd);font-weight:800;font-size:15px;color:#000}
+    .rs-m{font-size:11px;color:#333;display:flex;align-items:center;justify-content:center;gap:6px}
+    .rs-m i{color:#555!important}
     .qb{background:rgba(139,92,246,.12);color:var(--ac);padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700}
     .sort-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
     .sort-bar .cnt{font-size:13px;font-weight:600;color:var(--tx2)}
@@ -207,7 +210,7 @@
       #spg{display:none!important}#hpg{display:none!important}#rpg{display:block!important}
       .dl{display:grid;grid-template-columns:310px 1fr;gap:24px;align-items:start;max-width:1100px;margin:0 auto}
       .dsb{position:sticky;top:calc(var(--nav) + 16px);display:flex!important;flex-direction:column;gap:16px}
-      .dmn{display:flex;flex-direction:column}.rstrip{display:none}
+      .dmn{display:flex;flex-direction:column}
       .tw{bottom:16px;left:auto;right:16px;width:340px}.pg{max-width:1100px}
     }
     @media(max-width:767px){.dsb{display:none!important}.dl{display:block}}
@@ -220,7 +223,6 @@
 <div class="topbar">
   <a href="#" class="brand"><i class="material-icons-round">train</i><span>Rail<b>Forge</b></span></a>
   <div class="topbar-actions">
-    <button class="ib ai-btn" id="aiConfigBtn" onclick="openAIConfig()"><i class="material-icons-round">psychology</i></button>
     <button class="ib" id="thBtn"><i class="material-icons-round">light_mode</i></button>
   </div>
 </div>
@@ -259,29 +261,16 @@
       <div class="cd"><div class="cd-t"><i class="material-icons-round">history</i>Recent</div><div id="dhl"></div></div>
     </div>
     <div class="dmn">
-      <!-- Route strip (mobile) -->
-      <div class="rstrip" onclick="tab('search')">
-        <div class="rs-l"><div class="rs-r" id="sr">NDLS ➔ BSP</div><div class="rs-m"><span id="sd">Loading...</span><span class="qb" id="sq">GN</span></div></div>
-        <i class="material-icons-round" style="color:var(--tx3);font-size:20px">edit</i>
+      <!-- Route strip (Sticky Date Pager) -->
+      <div class="rstrip" id="rstrip">
+        <button class="rs-btn" onclick="shiftDate(-1)"><i class="material-icons-round">chevron_left</i></button>
+        <div class="rs-center" onclick="tab('search')">
+          <div class="rs-r" id="sr">NDLS ➔ BSP</div>
+          <div class="rs-m"><span id="sd">Loading...</span><span class="qb" id="sq">GN</span><i class="material-icons-round" style="font-size:14px;color:var(--tx3)">edit</i></div>
+        </div>
+        <button class="rs-btn" onclick="shiftDate(1)"><i class="material-icons-round">chevron_right</i></button>
       </div>
 
-      <!-- GROQ AI COPILOT RECOMMENDATION CARD -->
-      <div class="ai-card" id="aiCopilotCard">
-        <div class="ai-hdr">
-          <div class="ai-hdr-left">
-            <i class="material-icons-round">psychology</i>
-            <span class="ai-title">Groq AI Copilot</span>
-            <span class="ai-badge">LPU Fast</span>
-          </div>
-          <div class="ai-actions" id="aiActions">
-             <button class="ai-btn-sm" onclick="openAIConfig()"><i class="material-icons-round" style="font-size:12px">settings</i>Setup</button>
-          </div>
-        </div>
-        <div class="ai-body" id="aiBody">
-          <p>Get instant smart route advice, preceding boarding tips, and date recommendations powered by Groq AI.</p>
-          <button class="ai-prompt-btn" onclick="askGroqCopilot()"><i class="material-icons-round" style="font-size:16px">bolt</i>Run AI Strategy Check</button>
-        </div>
-      </div>
 
       <!-- Sort bar -->
       <div class="sort-bar"><div class="cnt" id="rc">0 trains</div><select class="ss" id="sortSel" onchange="renderCards(sortTrains())"><option value="">Sort: Default</option><option value="dep">Departure</option><option value="arr">Arrival</option><option value="dur">Duration</option><option value="fare">Fare ↑</option></select></div>
@@ -305,27 +294,15 @@
   <button class="btab" data-t="history" onclick="tab('history')"><i class="material-icons-round">bookmark_border</i><span>Saved</span></button>
 </div>
 
-<!-- GROQ CONFIG MODAL -->
-<div class="modal-overlay" id="aiModal">
+<!-- CLASS SELECTION MODAL -->
+<div class="modal-overlay" id="classModal">
   <div class="modal-content">
-    <div class="modal-title"><i class="material-icons-round">psychology</i>Configure Groq AI</div>
-    <p style="font-size:12px;color:var(--tx2);margin-bottom:14px">Get incredibly fast AI recommendations using your free Groq API key.</p>
-    <div class="fg">
-      <label>Groq API Key</label>
-      <input type="password" id="groqKey" class="fc" style="padding-left:12px" placeholder="gsk_...">
-      <a href="https://console.groq.com/keys" target="_blank" style="font-size:11px;color:var(--ac);text-decoration:none;display:block;margin-top:4px">Get a free key at console.groq.com ↗</a>
+    <div class="modal-title"><i class="material-icons-round">travel_explore</i>Select Travel Class</div>
+    <p style="font-size:12px;color:var(--tx2);margin-bottom:14px">Select the exact class you want to brute-force combinations for.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px" id="classBtnContainer">
     </div>
-    <div class="fg">
-      <label>Model</label>
-      <select id="groqModel" class="fc" style="padding-left:12px">
-        <option value="llama-3.3-70b-versatile">Llama 3.3 70B (Recommended)</option>
-        <option value="llama-3.1-8b-instant">Llama 3.1 8B (Super Fast)</option>
-        <option value="mixtral-8x7b-32768">Mixtral 8x7b</option>
-      </select>
-    </div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
-      <button class="fc" style="width:auto;padding:8px 16px;cursor:pointer" onclick="closeAIConfig()">Cancel</button>
-      <button class="btn" style="width:auto;padding:8px 16px" onclick="saveAIConfig()">Save Config</button>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="fc" style="width:auto;padding:8px 16px;cursor:pointer" onclick="closeClassModal()">Cancel</button>
     </div>
   </div>
 </div>
@@ -348,10 +325,8 @@ let hist=JSON.parse(localStorage.getItem('rf_h')||'[]');
 let scheduleCache={};
 let searchCache={};
 
-/* ═══ AI STATE ═══ */
-let groqKey=localStorage.getItem('rf_groq_key')||'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';
-let groqModel=localStorage.getItem('rf_groq_model')||'llama-3.3-70b-versatile';
-let aiReportCache={};
+/* ═══ SCRAPER STATE ═══ */
+let activeScrapeTrain=null;
 
 /* ═══ INIT ═══ */
 document.addEventListener('DOMContentLoaded',()=>{
@@ -360,7 +335,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   E('di').value=ymd(t);E('dd').value=ymd(t);
   ac('fi','fs');ac('ti','ts');ac('df','dfs');ac('dt','dts');
   bdc('dc','di');bdc('ddc','dd');
-  rSt();rHi();updateAIVisibility();go();
+  rSt();rHi();go();
 });
 
 /* ═══ THEME ═══ */
@@ -379,6 +354,17 @@ function sw(a,b){const x=E(a),y=E(b);[x.value,y.value]=[y.value,x.value]}
 /* ═══ DATE CHIPS ═══ */
 function bdc(cid,iid){const c=E(cid),dn=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];c.innerHTML='';for(let i=0;i<5;i++){const d=new Date();d.setDate(d.getDate()+i);const l=i===0?'Today':i===1?'Tomorrow':`${dn[d.getDay()]} ${d.getDate()}`;const v=ymd(d);const ch=document.createElement('button');ch.type='button';ch.className=`chip${i===1?' on':''}`;ch.textContent=l;ch.onclick=()=>{c.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));ch.classList.add('on');E(iid).value=v};c.appendChild(ch)}}
 
+/* ═══ DATE PAGINATION ═══ */
+function shiftDate(offset) {
+  if (!ls.d) return;
+  const dObj = new Date(ls.d);
+  dObj.setDate(dObj.getDate() + offset);
+  const newD = ymd(dObj);
+  E('di').value = newD;
+  E('dd').value = newD;
+  go(); // Re-fetches and updates the UI
+}
+
 /* ═══════════════════════════════════════════
    MAIN SEARCH + PROGRESSIVE ALTERNATIVES
    ═══════════════════════════════════════════ */
@@ -394,8 +380,6 @@ async function go(){
   addHi(fc,tc,dv);tab('results');skel();
   trainAlts={};
 
-  resetAICopilotUI();
-
   try{
     const primary=await fetchSearch(fc,tc,dv);
     data=primary;
@@ -405,10 +389,6 @@ async function go(){
 
     // Load schedule & date alternatives in background (limit to top 2 boardings to avoid heavy query onload)
     await loadAlternatives(fc,tc,dv,qv,2);
-
-    if (groqKey) {
-      askGroqCopilot();
-    }
   }catch(e){
     console.error(e);
     E('tl').innerHTML=`<div class="cd emp"><i class="material-icons-round">error_outline</i><h3>Error</h3><p>${e.message}</p><button class="btn" style="width:auto;padding:10px 20px;margin-top:8px" onclick="go()">Retry</button></div>`;
@@ -420,10 +400,6 @@ async function go(){
    REAL-SCHEDULE PROGRESSIVE ALTERNATIVES
    ═══════════════════════════════════════════ */
 async function loadAlternatives(fromCode,toCode,dateVal,quota,limitStations=2){
-  const apiDate=fmtAD(dateVal);
-
-  // Trains that already have a confirmed seat don't need any scraping —
-  // mark them "good" immediately so the card just shows a confirmed badge.
   const needsAlt=[];
   data.forEach(t=>{
     const cache=quota==='TQ'?(t.availabilityCacheTatkal||{}):(t.availabilityCache||{});
@@ -436,86 +412,21 @@ async function loadAlternatives(fromCode,toCode,dateVal,quota,limitStations=2){
 
   renderCards(sortTrains()); // reflect "confirmed, no scraping needed" immediately
 
-  if(!needsAlt.length)return; // everything already has a seat — nothing to scrape
-
-  // Schedule fetch gives us both preceding ("back") AND following ("front") stations in one call
-  const schedPromises=needsAlt.map(t=>
-    fetchSchedule(t.trainNumber,apiDate).then(sch=>({no:t.trainNumber,sch})).catch(()=>({no:t.trainNumber,sch:null}))
-  );
+  if(!needsAlt.length)return;
 
   const dateObj=new Date(dateVal);
   const today=new Date();today.setHours(0,0,0,0);
   const altDates=[];
-  [-1,1,2].forEach(o=>{const d2=new Date(dateObj);d2.setDate(d2.getDate()+o);if(d2>=today)altDates.push({y:ymd(d2),label:d2.toLocaleDateString('en-IN',{day:'numeric',month:'short',weekday:'short'}),o})});
+  [1,2,3,4].forEach(o=>{
+    const d2=new Date(dateObj);d2.setDate(d2.getDate()+o);
+    if(d2>=today)altDates.push({y:ymd(d2),label:d2.toLocaleDateString('en-IN',{day:'numeric',month:'short',weekday:'short'}),o});
+  });
 
   const datePromises=altDates.map(ad=>
     fetchSearch(fromCode,toCode,ad.y).then(trains=>({...ad,trains})).catch(()=>null)
   );
 
-  const [schedResults,...dateResults]=await Promise.all([
-    Promise.all(schedPromises),
-    ...datePromises
-  ]);
-
-  const beforeStations={},afterStations={};
-  schedResults.forEach(({no,sch})=>{
-    if(!sch||!sch.length)return;
-    
-    const tData = data.find(tx => tx.trainNumber === no);
-    const actualSrc = tData ? (tData.source || fromCode) : fromCode;
-    const actualDst = tData ? (tData.destination || toCode) : toCode;
-    
-    const srcIdx=sch.findIndex(s=>s.StationCode===actualSrc);
-    const dstIdx=sch.findIndex(s=>s.StationCode===actualDst);
-
-    if(srcIdx>0){
-      const befores=[];
-      for(let i=Math.max(0,srcIdx-limitStations);i<srcIdx;i++){
-        befores.push({code:sch[i].StationCode,name:sch[i].StationName,dep:sch[i].DepartureTime,dist:sch[i].Distance});
-      }
-      if(befores.length)beforeStations[no]=befores;
-    }
-
-    if(dstIdx>=0&&dstIdx<sch.length-1){
-      const afters=[];
-      const endIdx=Math.min(sch.length-1,dstIdx+limitStations);
-      for(let i=dstIdx+1;i<=endIdx;i++){
-        afters.push({code:sch[i].StationCode,name:sch[i].StationName,arr:sch[i].ArrivalTime,dist:sch[i].Distance});
-      }
-      if(afters.length)afterStations[no]=afters;
-    }
-  });
-
-  const uniqueBeforeCodes=new Set();
-  Object.values(beforeStations).forEach(arr=>arr.forEach(s=>uniqueBeforeCodes.add(s.code)));
-  const uniqueAfterCodes=new Set();
-  Object.values(afterStations).forEach(arr=>arr.forEach(s=>uniqueAfterCodes.add(s.code)));
-
-  const stnSearchPromises=[...uniqueBeforeCodes].map(code=>
-    fetchSearch(code,toCode,dateVal).then(trains=>({code,trains})).catch(()=>null)
-  );
-  const dstSearchPromises=[...uniqueAfterCodes].map(code=>
-    fetchSearch(fromCode,code,dateVal).then(trains=>({code,trains})).catch(()=>null)
-  );
-
-  const [stnResults,dstResults]=await Promise.all([
-    Promise.all(stnSearchPromises),
-    Promise.all(dstSearchPromises)
-  ]);
-
-  const stnTrainMap={};
-  stnResults.forEach(r=>{
-    if(!r||!r.trains)return;
-    stnTrainMap[r.code]={};
-    r.trains.forEach(t=>{stnTrainMap[r.code][t.trainNumber]=t});
-  });
-
-  const dstTrainMap={};
-  dstResults.forEach(r=>{
-    if(!r||!r.trains)return;
-    dstTrainMap[r.code]={};
-    r.trains.forEach(t=>{dstTrainMap[r.code][t.trainNumber]=t});
-  });
+  const dateResults=await Promise.all(datePromises);
 
   const dtTrainMap={};
   dateResults.forEach(r=>{
@@ -526,28 +437,7 @@ async function loadAlternatives(fromCode,toCode,dateVal,quota,limitStations=2){
 
   needsAlt.forEach(t=>{
     const no=t.trainNumber;
-    const alts={stations:[],destinations:[],dates:[],checked:true};
-
-    if(beforeStations[no]){
-      beforeStations[no].forEach(bs=>{
-        if(stnTrainMap[bs.code]&&stnTrainMap[bs.code][no]){
-          const altTrain=stnTrainMap[bs.code][no];
-          const altCache=quota==='TQ'?(altTrain.availabilityCacheTatkal||{}):(altTrain.availabilityCache||{});
-          alts.stations.push({code:bs.code,name:bs.name,dep:bs.dep,dist:bs.dist,cache:altCache});
-        }
-      });
-    }
-
-    if(afterStations[no]){
-      afterStations[no].forEach(as=>{
-        if(dstTrainMap[as.code]&&dstTrainMap[as.code][no]){
-          const altTrain=dstTrainMap[as.code][no];
-          const altCache=quota==='TQ'?(altTrain.availabilityCacheTatkal||{}):(altTrain.availabilityCache||{});
-          alts.destinations.push({code:as.code,name:as.name,arr:as.arr,dist:as.dist,cache:altCache});
-        }
-      });
-    }
-
+    const alts={dates:[],checked:true};
     Object.entries(dtTrainMap).forEach(([y,info])=>{
       if(info.byNo[no]){
         const altTrain=info.byNo[no];
@@ -555,7 +445,6 @@ async function loadAlternatives(fromCode,toCode,dateVal,quota,limitStations=2){
         alts.dates.push({ymd:y,label:info.label,offset:info.offset,cache:altCache});
       }
     });
-
     trainAlts[no]=alts;
   });
 
@@ -563,73 +452,45 @@ async function loadAlternatives(fromCode,toCode,dateVal,quota,limitStations=2){
 }
 
 /* ═══════════════════════════════════════════
-   GROQ AI API CONFIG & UI
+   DEEP PER-TRAIN BRUTE FORCE SCRAPER
    ═══════════════════════════════════════════ */
-function updateAIVisibility() {
-  if (groqKey) {
-    E('aiConfigBtn').classList.add('ai-btn');
-  } else {
-    E('aiConfigBtn').classList.remove('ai-btn');
+function closeClassModal(){E('classModal').classList.remove('show')}
+function closeDeepAI(){E('aiDeepModal').classList.remove('show')}
+
+function runDeepTrainAI(trainNo) {
+  const primaryTrain = data.find(tx => tx.trainNumber === trainNo);
+  if(!primaryTrain) return;
+  activeScrapeTrain = trainNo;
+  
+  // Extract all available classes from the cache
+  const cache = ls.q === 'TQ' ? (primaryTrain.availabilityCacheTatkal || {}) : (primaryTrain.availabilityCache || {});
+  const classes = Object.keys(cache);
+  if(classes.length === 0) {
+    toast('No classes found for this train', 'err');
+    return;
   }
+  
+  const bc = E('classBtnContainer');
+  bc.innerHTML = classes.map(c => `<button class="btn" style="width:auto;padding:8px 16px" onclick="startBruteForce('${c}')">${c}</button>`).join('');
+  E('classModal').classList.add('show');
 }
 
-function openAIConfig(){
-  E('groqKey').value=groqKey;
-  E('groqModel').value=groqModel;
-  E('aiModal').classList.add('show');
-}
-function closeAIConfig(){E('aiModal').classList.remove('show')}
-function saveAIConfig(){
-  groqKey=E('groqKey').value.trim();
-  groqModel=E('groqModel').value;
-  localStorage.setItem('rf_groq_key',groqKey);
-  localStorage.setItem('rf_groq_model',groqModel);
-  closeAIConfig();
-  updateAIVisibility();
-  toast('Groq AI config saved!','suc');
-  resetAICopilotUI();
-}
+async function startBruteForce(travelClass) {
+  closeClassModal();
+  const trainNo = activeScrapeTrain;
+  const primaryTrain = data.find(tx => tx.trainNumber === trainNo);
+  if(!primaryTrain) return;
 
-function resetAICopilotUI() {
-  const body=E('aiBody');
-  const actions=E('aiActions');
-  if (!groqKey) {
-    body.innerHTML=`
-      <p style="font-size:12px;color:var(--tx3);margin-bottom:10px">Unlock ultra-fast Groq LLM route recommendations and smart preceding boarding checks.</p>
-      <button class="ai-prompt-btn" style="background:var(--ac-g)" onclick="openAIConfig()"><i class="material-icons-round">key</i>Configure Groq Key</button>
-    `;
-    actions.innerHTML='';
-  } else {
-    body.innerHTML=`
-      <p>Analyze fares, date adjustments, and preceding boarding tricks with Groq AI.</p>
-      <button class="ai-prompt-btn" onclick="askGroqCopilot()"><i class="material-icons-round">bolt</i>Run AI Strategy Check</button>
-    `;
-    actions.innerHTML=`<button class="ai-btn-sm" onclick="openAIConfig()"><i class="material-icons-round" style="font-size:12px">settings</i>Setup</button>`;
-  }
-}
-
-/* ═══════════════════════════════════════════
-   DEEP PER-TRAIN AI SCRAPER & REASONER
-   ═══════════════════════════════════════════ */
-function closeDeepAI() {
-  E('aiDeepModal').classList.remove('show');
-}
-
-async function runDeepTrainAI(trainNo) {
-  if (!groqKey) { openAIConfig(); return; }
-
-  // 1) Open modal and show initial progress steps
   E('aiDeepModal').classList.add('show');
   
   E('aiDeepContent').innerHTML = `
-    <div class="modal-title" style="margin-bottom:8px"><i class="material-icons-round">psychology</i>Deep AI Booking Hack</div>
-    <div style="font-size:11.5px;color:var(--tx2);margin-bottom:16px">Running route schedule checks and date analyses for Train <b>${trainNo}</b></div>
+    <div class="modal-title" style="margin-bottom:8px"><i class="material-icons-round">travel_explore</i>Brute Force Ticket Hack</div>
+    <div style="font-size:11.5px;color:var(--tx2);margin-bottom:16px">Checking ALL station combinations for Train <b>${trainNo}</b> (${travelClass} class)</div>
     <div class="ai-steps-loading">
       <div class="ais-step" id="step-sch-${trainNo}"><i class="material-icons-round spin">sync</i>Scraping train route schedule...</div>
-      <div class="ais-step" id="step-stn-${trainNo}"><i class="material-icons-round wait">pending</i>Querying preceding boarding stations...</div>
-      <div class="ais-step" id="step-dst-${trainNo}"><i class="material-icons-round wait">pending</i>Querying stations beyond your destination...</div>
-      <div class="ais-step" id="step-dates-${trainNo}"><i class="material-icons-round wait">pending</i>Querying 5 alternative dates...</div>
-      <div class="ais-step" id="step-groq-${trainNo}"><i class="material-icons-round wait">pending</i>Compiling data & reasoning with Groq...</div>
+      <div class="ais-step" id="step-combo-${trainNo}"><i class="material-icons-round wait">pending</i>Generating cross-combinations...</div>
+      <div class="ais-step" id="step-fetch-${trainNo}"><i class="material-icons-round wait">pending</i>Executing availability queries (0/0)...</div>
+      <div class="ais-step" id="step-rank-${trainNo}"><i class="material-icons-round wait">pending</i>Ranking best results...</div>
     </div>
     <div style="display:flex;justify-content:flex-end;margin-top:16px">
       <button class="fc" style="width:auto;padding:8px 16px;cursor:pointer" onclick="closeDeepAI()">Cancel</button>
@@ -644,190 +505,106 @@ async function runDeepTrainAI(trainNo) {
     E(`step-sch-${trainNo}`).innerHTML = `<i class="material-icons-round done">check_circle</i>Scraped train route schedule (${schedule ? schedule.length : 0} stops)`;
     
     if (!schedule || !schedule.length) throw new Error('Could not retrieve schedule');
-    const primaryTrain = data.find(tx => tx.trainNumber === trainNo);
-    const actualSrc = primaryTrain ? (primaryTrain.source || ls.f) : ls.f;
+    const actualSrc = primaryTrain ? (primaryTrain.fromStnCode || ls.f) : ls.f;
+    const actualDst = primaryTrain ? (primaryTrain.toStnCode || ls.t) : ls.t;
     
-    // Find user origin index
-    const originIdx = schedule.findIndex(s => s.StationCode === actualSrc);
-    if (originIdx < 0) throw new Error(`Origin station ${actualSrc} not found in train schedule`);
+    let originIdx = schedule.findIndex(s => s.StationCode.toUpperCase() === actualSrc.toUpperCase());
+    let destIdx = schedule.findIndex(s => s.StationCode.toUpperCase() === actualDst.toUpperCase());
+    
+    if (originIdx < 0) originIdx = schedule.findIndex(s => s.StationCode.toUpperCase() === ls.f.toUpperCase());
+    if (destIdx < 0) destIdx = schedule.findIndex(s => s.StationCode.toUpperCase() === ls.t.toUpperCase());
+    
+    // Ultimate fallback: check the entire route if stations are missing
+    if (originIdx < 0) originIdx = 0;
+    if (destIdx < 0) destIdx = schedule.length - 1;
+    
+    if (originIdx > destIdx) {
+       // Swap if they are backwards
+       const temp = originIdx;
+       originIdx = destIdx;
+       destIdx = temp;
+    }
 
-    // Step 2: Extract all preceding stations
-    E(`step-stn-${trainNo}`).innerHTML = `<i class="material-icons-round spin">sync</i>Querying all preceding boarding stations...`;
+    E(`step-combo-${trainNo}`).innerHTML = `<i class="material-icons-round spin">sync</i>Generating cross-combinations...`;
     
-    const precedingStns = [];
-    for (let i = 0; i < originIdx; i++) {
-      precedingStns.push({
-        code: schedule[i].StationCode,
-        name: schedule[i].StationName,
-        distance: schedule[i].Distance,
-        depTime: schedule[i].DepartureTime
+    const boardings = [];
+    for(let i=0; i<=originIdx; i++) boardings.push(schedule[i]);
+    
+    const deboardings = [];
+    for(let i=destIdx; i<schedule.length; i++) deboardings.push(schedule[i]);
+
+    const combos = [];
+    boardings.forEach(b => {
+      deboardings.forEach(d => {
+        if(b.StationCode !== d.StationCode && (b.StationCode !== actualSrc || d.StationCode !== actualDst)) {
+           combos.push({ from: b.StationCode, fromName: b.StationName, to: d.StationCode, toName: d.StationName });
+        }
       });
-    }
-
-    // Query boarding stations in parallel
-    const boardingResults = await Promise.all(precedingStns.map(async (stn) => {
-      try {
-        const trains = await fetchSearch(stn.code, ls.t, ls.d);
-        const match = trains.find(tx => tx.trainNumber === trainNo);
-        if (match) {
-          const cache = ls.q === 'TQ' ? (match.availabilityCacheTatkal || {}) : (match.availabilityCache || {});
-          return { code: stn.code, name: stn.name, dist: stn.distance, dep: stn.depTime, cache };
-        }
-      } catch (err) { }
-      return null;
-    }));
-    const validBoardings = boardingResults.filter(b => b !== null);
-    E(`step-stn-${trainNo}`).innerHTML = `<i class="material-icons-round done">check_circle</i>Scraped ${validBoardings.length} preceding station availabilities`;
-
-    // Step 2b: Extract all stations beyond the destination (the "book further, deboard early" trick)
-    E(`step-dst-${trainNo}`).innerHTML = `<i class="material-icons-round spin">sync</i>Querying stations beyond your destination...`;
-
-    const actualDst = primaryTrain ? (primaryTrain.destination || ls.t) : ls.t;
-    const destIdx = schedule.findIndex(s => s.StationCode === actualDst);
-    const followingStns = [];
-    if (destIdx >= 0) {
-      for (let i = destIdx + 1; i < schedule.length; i++) {
-        followingStns.push({
-          code: schedule[i].StationCode,
-          name: schedule[i].StationName,
-          distance: schedule[i].Distance,
-          arrTime: schedule[i].ArrivalTime
-        });
-      }
-    }
-
-    const destResults = await Promise.all(followingStns.map(async (stn) => {
-      try {
-        const trains = await fetchSearch(ls.f, stn.code, ls.d);
-        const match = trains.find(tx => tx.trainNumber === trainNo);
-        if (match) {
-          const cache = ls.q === 'TQ' ? (match.availabilityCacheTatkal || {}) : (match.availabilityCache || {});
-          return { code: stn.code, name: stn.name, dist: stn.distance, arr: stn.arrTime, cache };
-        }
-      } catch (err) { }
-      return null;
-    }));
-    const validDestinations = destResults.filter(d => d !== null);
-    E(`step-dst-${trainNo}`).innerHTML = `<i class="material-icons-round done">check_circle</i>Scraped ${validDestinations.length} extended-destination availabilities`;
-
-    // Step 3: Fetch 5 alternative dates
-    E(`step-dates-${trainNo}`).innerHTML = `<i class="material-icons-round spin">sync</i>Querying 5 alternative dates...`;
-    
-    const dateObj = new Date(ls.d);
-    const today = new Date(); today.setHours(0,0,0,0);
-    const dateList = [];
-    [-2, -1, 1, 2, 3].forEach(o => {
-      const d = new Date(dateObj);
-      d.setDate(d.getDate() + o);
-      if (d >= today) {
-        dateList.push({
-          ymd: ymd(d),
-          label: d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', weekday: 'short' }),
-          offset: o
-        });
-      }
     });
-
-    const dateResults = await Promise.all(dateList.map(async (dl) => {
-      try {
-        const trains = await fetchSearch(ls.f, ls.t, dl.ymd);
-        const match = trains.find(tx => tx.trainNumber === trainNo);
-        if (match) {
-          const cache = ls.q === 'TQ' ? (match.availabilityCacheTatkal || {}) : (match.availabilityCache || {});
-          return { label: dl.label, offset: dl.offset, cache };
-        }
-      } catch (err) { }
-      return null;
-    }));
-    const validDates = dateResults.filter(d => d !== null);
-    E(`step-dates-${trainNo}`).innerHTML = `<i class="material-icons-round done">check_circle</i>Scraped ${validDates.length} alternative date availabilities`;
-
-    // Step 4: Groq compilation & reasoning
-    E(`step-groq-${trainNo}`).innerHTML = `<i class="material-icons-round spin">sync</i>Compiling dataset & reasoning with Groq...`;
-
-    const primaryCache = ls.q === 'TQ' ? (primaryTrain.availabilityCacheTatkal || {}) : (primaryTrain.availabilityCache || {});
     
-    const primaryAvail = formatCacheBrief(primaryCache);
-    const precedingAvail = validBoardings.map(b => `${b.name} (${b.code}) [${b.dist}km away, dep: ${b.dep}]: ${formatCacheBrief(b.cache)}`).join('\n');
-    const extendedDestAvail = validDestinations.map(d => `${d.name} (${d.code}) [${d.dist}km, arr: ${d.arr}]: ${formatCacheBrief(d.cache)}`).join('\n');
-    const dateAvail = validDates.map(d => `Date: ${d.label} (offset: ${d.offset}d): ${formatCacheBrief(d.cache)}`).join('\n');
+    E(`step-combo-${trainNo}`).innerHTML = `<i class="material-icons-round done">check_circle</i>Generated ${combos.length} possible combinations`;
+    
+    const results = [];
+    for(let i=0; i<combos.length; i++) {
+       const c = combos[i];
+       E(`step-fetch-${trainNo}`).innerHTML = `<i class="material-icons-round spin">sync</i>Fetching ${c.from} ➔ ${c.to} (${i+1}/${combos.length})...`;
+       try {
+         const trains = await fetchSearch(c.from, c.to, ls.d);
+         const match = trains.find(tx => tx.trainNumber === trainNo);
+         if(match) {
+            const cache = ls.q === 'TQ' ? (match.availabilityCacheTatkal || {}) : (match.availabilityCache || {});
+            if(cache[travelClass]) {
+               results.push({ ...c, avail: cache[travelClass] });
+            }
+         }
+       } catch(e) {}
+       await new Promise(r => setTimeout(r, 200)); // Delay between requests
+    }
+    E(`step-fetch-${trainNo}`).innerHTML = `<i class="material-icons-round done">check_circle</i>Checked all ${combos.length} routes`;
+    E(`step-rank-${trainNo}`).innerHTML = `<i class="material-icons-round spin">sync</i>Ranking results...`;
 
-const prompt = `You are a railways booking algorithm. Optimize booking for Train ${trainNo} (${primaryTrain.trainName}) from ${ls.f} to ${ls.t} on ${ls.d} (Quota: ${ls.q}).
+    const scoreResult = (r) => {
+      const a = (r.avail.availabilityDisplayName || r.avail.availability || '').toUpperCase();
+      if(a.includes('AVL') || a.includes('AVAILABLE') || a.includes('CURR_AV')) return 1000 - parseInt(r.avail.fare||0)/100;
+      if(a.includes('RAC')) {
+         const m = a.match(/RAC\s*(\d+)/);
+         return 500 - (m ? parseInt(m[1]) : 0);
+      }
+      if(a.includes('WL')) {
+         const m = a.match(/WL\s*(\d+)/);
+         return 100 - (m ? parseInt(m[1]) : 99) + ((r.avail.predictionPercentage||0)/100);
+      }
+      return 0;
+    };
 
-CRITICAL IRCTC LOGIC YOU MUST FOLLOW:
-- "AVAILABLE", "AVAILABLE X", "CURR_AV", or "AVL" is a CONFIRMED seat and is the ABSOLUTE BEST OUTCOME. ALWAYS prioritize AVAILABLE over Waitlist (WL).
-- "RAC X" means sharing a seat (second best).
-- "WL X", "GNWL X", "PQWL X", "RLWL X" means WAITLISTED. This is BAD. NEVER recommend a WL ticket if an AVAILABLE ticket exists anywhere else.
-- "REGRET" means booking is closed.
+    results.sort((a,b) => scoreResult(b) - scoreResult(a));
+    const topResults = results.slice(0, 5);
 
-Current Status at ${ls.f}:
-${primaryAvail}
+    const buildCard = (r, idx) => {
+      const st = r.avail.availabilityDisplayName || r.avail.availability || 'N/A';
+      const sc = gsc(st);
+      return `<div class="ai-hack-card" style="margin-bottom:12px;background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:12px">
+        <div class="ai-hc-hdr" style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span class="ai-hc-badge" style="background:var(--ac);color:#fff;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700">Option ${idx+1}</span>
+          <span class="ai-hc-title" style="font-weight:600;font-size:14px">Book ${r.from} ➔ ${r.to}</span>
+        </div>
+        <div class="ai-hc-desc">
+           <div style="font-size:12.5px;color:var(--tx2);margin-bottom:10px;line-height:1.4">Book a ticket from <b>${r.fromName} (${r.from})</b> to <b>${r.toName} (${r.to})</b>. Then manually change your boarding point to ${actualSrc} and simply get off early at ${actualDst}.</div>
+           <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg3);padding:10px;border-radius:6px;border:1px solid var(--bd)">
+             <div style="font-weight:600;font-size:13px;color:var(--tx)">${travelClass}</div>
+             <div class="cls-st ${sc}" style="font-size:12px;padding:4px 8px;border-radius:4px">${st}</div>
+             <div style="font-size:13px;color:var(--tx);font-weight:600">₹${r.avail.fare}</div>
+           </div>
+        </div>
+      </div>`;
+    };
 
-Preceding stations availability (if we book from earlier station and change boarding point to ${ls.f}):
-${precedingAvail || 'None available'}
+    let finalHTML = topResults.length ? topResults.map((r,i) => buildCard(r,i)).join('') : `<div style="text-align:center;padding:20px;color:var(--tx2)"><i class="material-icons-round" style="font-size:32px;opacity:0.5;margin-bottom:8px">search_off</i><br>No confirmed or RAC seats found across any combination.</div>`;
 
-Extended destination availability (if we book the SAME train onward to a station past ${ls.t}, then simply get off at ${ls.t} — the ticket just covers a longer stretch):
-${extendedDestAvail || 'None available'}
-
-Alternative dates availability:
-${dateAvail || 'None available'}
-
-Based on this data, you MUST provide at least 2 or 3 BEST alternative options to secure a ticket. 
-Rank them from best (Option 1) to worst.
-For each option, clearly explain the exact action (e.g. 'Book from Station X, change boarding to ${ls.f}', 'Book onward to Station Y and deboard at ${ls.t}', or 'Shift date to Y') and state the availability status it yields.
-If the current status at ${ls.f} is already AVAILABLE, say so as Option 1 and only list the workarounds as fallback options in case that fills up.
-Format the output in clean HTML without markdown backticks. 
-Use this exact HTML structure for each option:
-<div class="ai-hack-card">
-  <div class="ai-hc-hdr">
-    <span class="ai-hc-badge">Option [1, 2, 3]</span>
-    <span class="ai-hc-title">[Short Title, e.g. Board earlier from BSP]</span>
-  </div>
-  <div class="ai-hc-compare">
-    <div class="ai-hc-col">
-      <div class="ai-hc-lbl">Current at ${ls.f}</div>
-      <div class="ai-hc-val" style="color:var(--rd)">[Current Status]</div>
-    </div>
-    <div class="ai-hc-vs"><i class="material-icons-round">arrow_forward</i></div>
-    <div class="ai-hc-col" style="text-align:right">
-      <div class="ai-hc-lbl">Hacked Option</div>
-      <div class="ai-hc-val" style="color:var(--gn)">[New Status]</div>
-    </div>
-  </div>
-  <div class="ai-hc-desc">
-    <div style="margin-bottom:10px">[Detailed explanation of the exact action to take]</div>
-    <table class="ai-hc-table">
-      <tr><th>Class</th><th>Current</th><th>Hacked</th><th>Diff</th></tr>
-      <tr><td>[e.g. 3A]</td><td>[e.g. WL 5]</td><td>[e.g. AVL 2]</td><td style="color:var(--gn)">[e.g. + Confirmed]</td></tr>
-      <!-- Add rows for all relevant classes -->
-    </table>
-  </div>
-</div>
-Do not include any chat preambles or greetings. Keep it concise.`;
-
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${groqKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        messages: [{ role: 'user', content: prompt }],
-        model: groqModel,
-        temperature: 0.1,
-        max_tokens: 600
-      })
-    });
-
-    if (!res.ok) throw new Error('Groq AI inference failed');
-    const json = await res.json();
-    const text = json.choices[0].message.content.trim();
-
-    // Render final verdict in modal
     E('aiDeepContent').innerHTML = `
-      <div class="modal-title" style="margin-bottom:6px"><i class="material-icons-round">psychology</i>Groq AI Booking Hack</div>
-      <div style="font-size:11px;color:var(--tx3);margin-bottom:12px;text-transform:uppercase;font-weight:700">Train ${trainNo} · Llama 3.3 Verdict</div>
-      <div style="font-size:13px;line-height:1.5;color:var(--tx);margin-bottom:16px">${text}</div>
+      <div class="modal-title" style="margin-bottom:6px"><i class="material-icons-round" style="color:var(--ac)">travel_explore</i>Brute Force Hacks</div>
+      <div style="font-size:11px;color:var(--tx3);margin-bottom:12px;text-transform:uppercase;font-weight:700">Train ${trainNo} · ${travelClass} Class</div>
+      <div style="margin-bottom:16px">${finalHTML}</div>
       <div style="display:flex;gap:8px;justify-content:flex-end">
         <button class="fc" style="width:auto;padding:8px 16px;cursor:pointer" onclick="closeDeepAI()">Dismiss</button>
       </div>
@@ -836,153 +613,16 @@ Do not include any chat preambles or greetings. Keep it concise.`;
   } catch (err) {
     console.error(err);
     E('aiDeepContent').innerHTML = `
-      <div class="modal-title" style="color:var(--rd);margin-bottom:8px"><i class="material-icons-round">error</i>Deep Scraper Error</div>
-      <p style="font-size:12.5px;color:var(--tx2);margin-bottom:14px">Failed to compile details: ${err.message}</p>
+      <div class="modal-title" style="color:var(--rd);margin-bottom:8px"><i class="material-icons-round">error</i>Scraper Error</div>
+      <p style="font-size:12.5px;color:var(--tx2);margin-bottom:14px">Failed: ${err.message}</p>
       <div style="display:flex;gap:8px;justify-content:flex-end">
         <button class="fc" style="width:auto;padding:8px 16px;cursor:pointer" onclick="closeDeepAI()">Close</button>
-        <button class="btn" style="width:auto;padding:8px 16px" onclick="runDeepTrainAI('${trainNo}')">Retry</button>
       </div>
     `;
-    toast('Deep AI check failed','err');
   }
 }
 
-function formatCacheBrief(cache) {
-  return Object.entries(cache)
-    .map(([cls, a]) => `${cls}: ${a.availabilityDisplayName || a.availability} (₹${a.fare})`)
-    .join(', ');
-}
 
-/* ═══════════════════════════════════════════
-   GLOBAL COPILOT REPORT
-   ═══════════════════════════════════════════ */
-async function askGroqCopilot() {
-  if (!groqKey) { openAIConfig(); return; }
-  if (!data.length) { toast('Search for trains first','warn'); return; }
-
-  const queryKey = `${ls.f}-${ls.t}-${ls.d}-${ls.q}`;
-  if (aiReportCache[queryKey]) {
-    renderAIReport(aiReportCache[queryKey]);
-    return;
-  }
-
-  E('aiBody').innerHTML = `
-    <div class="ai-skel">
-      <div class="ai-skel-line" style="width:90%"></div>
-      <div class="ai-skel-line" style="width:75%"></div>
-      <div class="ai-skel-line" style="width:80%"></div>
-    </div>`;
-
-  const trainsPayload = data.slice(0, 4).map(t => {
-    const no = t.trainNumber;
-    const cache = ls.q === 'TQ' ? (t.availabilityCacheTatkal || {}) : (t.availabilityCache || {});
-    const primaryAvail = {};
-    Object.entries(cache).forEach(([cls, a]) => {
-      primaryAvail[cls] = `${a.availabilityDisplayName || a.availability} (₹${a.fare})`;
-    });
-
-    const alts = trainAlts[no] || { stations: [], destinations: [], dates: [] };
-    const altStationBrief = (alts.stations || []).map(s => {
-      const altAvail = {};
-      Object.entries(s.cache).forEach(([cls, a]) => {
-        altAvail[cls] = `${a.availabilityDisplayName || a.availability} (₹${a.fare})`;
-      });
-      return { code: s.code, name: s.name, distanceKm: s.dist, availability: altAvail };
-    });
-
-    const altDestinationBrief = (alts.destinations || []).map(d => {
-      const altAvail = {};
-      Object.entries(d.cache).forEach(([cls, a]) => {
-        altAvail[cls] = `${a.availabilityDisplayName || a.availability} (₹${a.fare})`;
-      });
-      return { code: d.code, name: d.name, distanceKm: d.dist, arrival: d.arr, availability: altAvail };
-    });
-
-    const altDateBrief = (alts.dates || []).map(d => {
-      const altAvail = {};
-      Object.entries(d.cache).forEach(([cls, a]) => {
-        altAvail[cls] = `${a.availabilityDisplayName || a.availability} (₹${a.fare})`;
-      });
-      return { offset: d.offset, dateLabel: d.label, availability: altAvail };
-    });
-
-    return {
-      no,
-      name: t.trainName,
-      departure: t.departureTime,
-      arrival: t.arrivalTime,
-      duration: fDur(t.duration),
-      alreadyConfirmed: alts.skippedGood || false,
-      primaryAvailability: primaryAvail,
-      precedingBoardingAlternatives: altStationBrief,
-      extendedDestinationAlternatives: altDestinationBrief,
-      alternativeDateAlternatives: altDateBrief
-    };
-  });
-
-  const prompt = `Analyze Indian Railways options from ${ls.f} to ${ls.t} on ${ls.d} (Quota: ${ls.q}) and suggest the absolute best booking strategy.
-
-CRITICAL IRCTC LOGIC YOU MUST FOLLOW:
-- "AVAILABLE", "AVAILABLE X", "CURR_AV", or "AVL" is a CONFIRMED seat and is the ABSOLUTE BEST OUTCOME. ALWAYS prioritize AVAILABLE over Waitlist (WL).
-- "RAC X" means sharing a seat (second best).
-- "WL X", "GNWL X", "PQWL X", "RLWL X" means WAITLISTED. This is BAD. NEVER recommend a WL ticket if an AVAILABLE ticket exists.
-- "REGRET" means booking is closed.
-
-We found these trains and alternatives:
-${JSON.stringify(trainsPayload, null, 2)}
-
-Note: "alreadyConfirmed: true" means that train already has an AVAILABLE seat directly, so no alternative is needed for it — don't suggest workarounds for those.
-"precedingBoardingAlternatives" = booking from an earlier station and changing your boarding point to the searched origin.
-"extendedDestinationAlternatives" = booking all the way to a station past the searched destination (quota there can be more open) and simply getting off at your actual destination.
-
-Provide a smart analysis in clean HTML:
-1. One bullet highlighting the absolute best train and class to book right now. (Remember: AVAILABLE > RAC > WL). If a train is already confirmed, just say so plainly.
-2. One bullet on whether a preceding-station boarding-point change helps, only if relevant.
-3. One bullet on whether booking to a further station (and deboarding early) helps, only if relevant.
-4. Skip any bullet that has no useful alternative to report — do not pad with restated info.
-Do NOT mention markdown block wrappers, wrap in a simple <ul> list. Use <strong> and <code> elements for emphasis. Keep it under 140 words.`;
-
-  try {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${groqKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        messages: [{ role: 'user', content: prompt }],
-        model: groqModel,
-        temperature: 0.1,
-        max_tokens: 300
-      })
-    });
-
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error?.message || 'Groq API error');
-    }
-
-    const json = await res.json();
-    const resultText = json.choices[0].message.content;
-    aiReportCache[queryKey] = resultText;
-    renderAIReport(resultText);
-    toast('AI strategy analysis completed!','suc');
-  } catch (err) {
-    console.error(err);
-    E('aiBody').innerHTML = `
-      <p style="color:var(--rd)">AI analysis failed: ${err.message}</p>
-      <button class="ai-prompt-btn" style="background:var(--ac-g)" onclick="askGroqCopilot()"><i class="material-icons-round">refresh</i>Retry</button>
-    `;
-    toast('Groq AI failed','err');
-  }
-}
-
-function renderAIReport(htmlContent) {
-  E('aiBody').innerHTML = `
-    <div style="font-size:12.5px;color:var(--tx2);margin-bottom:10px">${htmlContent}</div>
-    <button class="ai-btn-sm" style="display:inline-flex" onclick="askGroqCopilot()"><i class="material-icons-round" style="font-size:12px">refresh</i>Recalculate</button>
-  `;
-}
 
 /* ═══ API FUNCTIONS ═══ */
 async function fetchSearch(from,to,dateYMD){
@@ -1002,8 +642,8 @@ async function fetchSchedule(trainNo,apiDate){
   const r=await fetch(`https://api.confirmtkt.com/api/trains/schedulewithintermediatestn?date=${apiDate}&trainNo=${trainNo}&locale=en`);
   if(!r.ok)return null;
   const j=await r.json();
-  const sch= (j?.Schedule && j.Schedule.length > 0 && j.Schedule[0].intermediateStations) ? j.Schedule[0].intermediateStations : [];
-  scheduleCache[trainNo]=sch;
+  const sch = j?.Schedule || [];
+  scheduleCache[trainNo] = sch;
   return sch;
 }
 
@@ -1039,17 +679,15 @@ function renderCards(trains){
       altHTML=`<div class="alt-zone"><div class="alt-good"><i class="material-icons-round" style="font-size:14px">check_circle</i>Seat already available — no need to look for alternatives</div></div>`;
     }else{
       const built=buildAltHTML(t.trainNumber,cache,alt);
-      altHTML=built||(alt.checked?`<div class="alt-zone"><div class="alt-none"><i class="material-icons-round" style="font-size:14px">search_off</i>Checked nearby boarding stations, extended destinations & dates — nothing better found</div></div>`:'');
+      altHTML=built||(alt.checked?`<div class="alt-zone"><div class="alt-none"><i class="material-icons-round" style="font-size:14px">search_off</i>Checked future dates — nothing better found</div></div>`:'');
     }
 
-    // AI Insight deep button
+    // Deep Brute Force button
     const aiInsightHTML = `
       <div id="ai-insight-${t.trainNumber}">
-        ${groqKey ? `
-          <button class="ai-btn-sm" style="margin-top:10px;border-color:rgba(236,72,153,0.3);background:rgba(236,72,153,0.03)" onclick="runDeepTrainAI('${t.trainNumber}')">
-            <i class="material-icons-round" style="font-size:14px;color:#ec4899">psychology</i>Scrape & Hack with AI
-          </button>
-        ` : ''}
+        <button class="ai-btn-sm" style="margin-top:10px;border-color:var(--ac);background:rgba(0,0,0,0.03)" onclick="runDeepTrainAI('${t.trainNumber}')">
+          <i class="material-icons-round" style="font-size:14px;color:var(--ac)">travel_explore</i>Deep Brute-Force Scraper
+        </button>
       </div>`;
 
     return`<div class="cd tc">
@@ -1083,43 +721,18 @@ function renderCards(trains){
 }
 
 function buildAltLoading(){
-  return`<div class="alt-zone"><div class="alt-loading"><i class="material-icons-round">sync</i>Finding smarter alternatives from route schedule...</div></div>`;
+  return`<div class="alt-zone"><div class="alt-loading"><i class="material-icons-round">sync</i>Finding future dates availability...</div></div>`;
 }
 
 function buildAltHTML(trainNo,primaryCache,alt){
   let tips='';
 
-  // Station alternatives
-  alt.stations.forEach(s=>{
-    const chips=compareChips(primaryCache,s.cache);
-    if(!chips)return;
-    tips+=`<div class="alt-tip">
-      <div class="alt-tag at-s"><i class="material-icons-round" style="font-size:10px">place</i>Board earlier</div>
-      <div class="alt-title">From ${s.name} (${s.code})</div>
-      <div class="alt-sub">Departs ${s.dep} · ${s.dist} km from origin</div>
-      <div class="alt-chips">${chips}</div>
-    </div>`;
-  });
-
-  // Destination-extension alternatives (book further, deboard at your actual stop)
-  (alt.destinations||[]).forEach(dst=>{
-    const chips=compareChips(primaryCache,dst.cache);
-    if(!chips)return;
-    tips+=`<div class="alt-tip">
-      <div class="alt-tag at-f"><i class="material-icons-round" style="font-size:10px">north_east</i>Deboard early</div>
-      <div class="alt-title">Book to ${dst.name} (${dst.code})</div>
-      <div class="alt-sub">Arrives ${dst.arr} · ${dst.dist} km · get off at ${ls.t}</div>
-      <div class="alt-chips">${chips}</div>
-    </div>`;
-  });
-
   // Date alternatives
-  alt.dates.forEach(d=>{
+  (alt.dates||[]).forEach(d=>{
     const chips=compareChips(primaryCache,d.cache);
     if(!chips)return;
-    const dir=d.offset<0?`${Math.abs(d.offset)}d earlier`:`${d.offset}d later`;
     tips+=`<div class="alt-tip">
-      <div class="alt-tag at-d"><i class="material-icons-round" style="font-size:10px">event</i>${dir}</div>
+      <div class="alt-tag at-d"><i class="material-icons-round" style="font-size:10px">event</i>${d.offset}d later</div>
       <div class="alt-title">${d.label}</div>
       <div class="alt-chips">${chips}</div>
     </div>`;
@@ -1127,7 +740,7 @@ function buildAltHTML(trainNo,primaryCache,alt){
 
   if(!tips)return'';
   return`<div class="alt-zone">
-    <div class="alt-hdr"><i class="material-icons-round">lightbulb</i>Smart Alternatives</div>
+    <div class="alt-hdr"><i class="material-icons-round">event_available</i>Future Dates Availability</div>
     <div class="alt-scroll">${tips}</div>
   </div>`;
 }
