@@ -434,7 +434,7 @@ if ('caches' in window) {
       </div>
       <div ng-if="!isLoadingSearchResults">
         <div class="product-grid">
-          <div class="product-card" ng-repeat="product in filteredSearchResults" ng-class="{'selected':isSelected(product)}">
+          <div class="product-card" ng-repeat="product in filteredSearchResults track by product.$id" ng-class="{'selected':isSelected(product)}">
             <div class="select-checkbox-wrap" ng-show="multiSelectMode"><input type="checkbox" class="select-checkbox" ng-checked="isSelected(product)" ng-click="$event.stopPropagation();toggleSelect(product)"></div>
             <img class="product-card-img" ng-src="{{product.url}}" alt="{{product.name}}" ng-click="showEnlargedImage(filteredSearchResults,$index)" loading="lazy" decoding="async">
             <div class="product-card-body">
@@ -765,10 +765,18 @@ function($scope,$firebaseArray,$filter,$window,$timeout,$sce){
     $scope.openOrderModal=function(){var el=document.getElementById('myModal');(bootstrap.Modal.getInstance(el)||new bootstrap.Modal(el)).show();};
     $scope.onSearchChange=function(){
       if($scope.searchQuery&&$scope.searchQuery.length>0){
+        var wasSearching=$scope.isSearching;
         $scope.searchLimit=16; $scope.isSearching=true;$scope.isLoadingSearchResults=true;
-        history.pushState({state:'search'},null,location.href);
-        $timeout(function(){$scope.searchResults=$filter('filter')(vm.images,{name:$scope.searchQuery})||[];$scope.searchPriceFilter={min:null,max:null};$scope.searchPriceSort=null;$scope.applySearchFilters();$scope.isLoadingSearchResults=false;$timeout(function(){window.scrollTo({top: 0, behavior: 'instant'});},50);},100);
-      } else {$scope.isSearching=false;$scope.searchResults=[];$scope.filteredSearchResults=[];history.pushState({state:'home'},null,location.href);}
+        if(!wasSearching){history.pushState({state:'search'},null,location.href);}
+        $scope.searchResults=$filter('filter')(vm.images,{name:$scope.searchQuery})||[];
+        $scope.searchPriceFilter={min:null,max:null};$scope.searchPriceSort=null;
+        $scope.applySearchFilters();
+        $scope.isLoadingSearchResults=false;
+        if(!wasSearching){window.scrollTo({top: 0, behavior: 'instant'});}
+      } else {
+        if($scope.isSearching){history.pushState({state:'home'},null,location.href);}
+        $scope.isSearching=false;$scope.searchResults=[];$scope.filteredSearchResults=[];
+      }
     };
     $scope.selectCategory=function(filter,tabId){
       $scope.searchQuery='';$scope.isSearching=false;$scope.productNameFilter=filter;
