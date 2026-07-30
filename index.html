@@ -1,36 +1,40 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Hindustan Toys - Store</title>
+  <title>Hindustan Toys</title>
 
-  <!-- Open Graph Meta Tags for WhatsApp & Social Media Preview -->
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="Hindustan Toys">
+  <meta name="description" content="Toy store, soft toys, and fancy stationery.">
+
+  <!-- Open Graph / WhatsApp Meta Tags -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://hindustantoys.in/">
   <meta property="og:title" content="Hindustan Toys">
-  <meta property="og:description" content="Toy Store, Soft Toys, and Fancy Stationery. A fun collection of soft toys, action figures, and fancy stationery in Bilaspur. Visit us!">
+  <meta property="og:description" content="Toy store, soft toys, and fancy stationery.">
   
-  <!-- VERY IMPORTANT: Update this URL with your actual logo file link -->
-  <meta property="og:image" content="https://hindustantoys.in/HT.png">
-  
+  <!-- IMPORTANT: Replace with the actual full direct link to your preview image -->
+  <meta property="og:image" content="https://hindustantoys.in/preview-image.png">
+  <meta property="og:image:secure_url" content="https://hindustantoys.in/preview-image.png">
+  <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
 
   <script>
-    // Dispatch cache clearing in the background (no waiting)
+    // Service worker & cache cleanup
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(reg => reg.unregister()));
     }
     if ('caches' in window) {
       caches.keys().then(names => names.forEach(name => caches.delete(name)));
     }
-    
-    // Redirect absolutely immediately
-    window.location.replace("https://hindustantoys.in/site2.html");
+
+    // Delay redirect slightly so web crawlers can read the meta tags
+    setTimeout(function() {
+      window.location.replace("https://hindustantoys.in/site2.html");
+    }, 500);
   </script>
-  
-  <!-- Zero-second fallback redirect -->
-  <meta http-equiv="refresh" content="0; url=https://hindustantoys.in/site2.html">
 </head>
 <body></body>
 </html>
