@@ -2,35 +2,46 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hindustan Toys</title>
 
   <!-- Primary Meta Tags -->
   <meta name="title" content="Hindustan Toys">
   <meta name="description" content="Toy store, soft toys, and fancy stationery.">
 
-  <!-- Open Graph / WhatsApp Meta Tags -->
+  <!-- Open Graph / Facebook / WhatsApp Meta Tags -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://hindustantoys.in/">
   <meta property="og:title" content="Hindustan Toys">
   <meta property="og:description" content="Toy store, soft toys, and fancy stationery.">
-  
-  <!-- IMPORTANT: Replace with the actual full direct link to your preview image -->
+
+  <!-- Direct Image Specs for Crawlers -->
   <meta property="og:image" content="https://hindustantoys.in/preview-image.png">
-  <meta property="og:image:secure_url" content="https://hindustantoys.in/HT.png">
+  <meta property="og:image:secure_url" content="https://hindustantoys.in/preview-image.png">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
 
+  <!-- Twitter Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Hindustan Toys">
+  <meta name="twitter:description" content="Toy store, soft toys, and fancy stationery.">
+  <meta name="twitter:image" content="https://hindustantoys.in/preview-image.png">
+
   <script>
     // Service worker & cache cleanup
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(reg => reg.unregister()));
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        regs.forEach(reg => reg.unregister());
+      });
     }
     if ('caches' in window) {
-      caches.keys().then(names => names.forEach(name => caches.delete(name)));
+      caches.keys().then(names => {
+        names.forEach(name => caches.delete(name));
+      });
     }
 
-    // Delay redirect slightly so web crawlers can read the meta tags
+    // Delay redirect so web crawlers can parse head tags before JS executes
     setTimeout(function() {
       window.location.replace("https://hindustantoys.in/site2.html");
     }, 500);
