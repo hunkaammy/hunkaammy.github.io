@@ -221,7 +221,7 @@ if ('caches' in window) {
 
     /* ENLARGED IMAGE */
     #enlarged-image-overlay{position:fixed;inset:0;background:rgba(10,20,15,0.85);backdrop-filter:blur(8px);display:none;justify-content:center;align-items:center;z-index:1060;cursor:zoom-out;overflow:hidden;}
-    .enlarged-image-content{max-width:92%;max-height:85vh;border-radius:12px;object-fit:contain;box-shadow:0 24px 80px rgba(0,0,0,0.5);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1),opacity 0.2s ease;user-select:none;-webkit-user-drag:none;}
+    .enlarged-image-content{max-width:92%;max-height:85vh;border-radius:12px;object-fit:contain;box-shadow:0 24px 80px rgba(0,0,0,0.5);user-select:none;-webkit-user-drag:none;image-rendering:auto;-webkit-backface-visibility:hidden;backface-visibility:hidden;transform:translate3d(0,0,0);}
     .eop-close-btn{position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.45);backdrop-filter:blur(6px);border:none;color:white;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:30;transition:background 0.2s;-webkit-tap-highlight-color:transparent;}
     .eop-close-btn:hover{background:rgba(0,0,0,0.65);}
     .eop-swipe-hint{position:absolute;bottom:84px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,0.7);font-size:12px;font-weight:500;pointer-events:none;z-index:30;letter-spacing:0.5px;text-align:center;}
@@ -358,6 +358,7 @@ if ('caches' in window) {
       .tab-item{padding:8px 3px}
     }
   </style>
+<base target="_blank">
 </head>
 <body ng-controller="imagesController as vm">
 
@@ -887,7 +888,7 @@ function($scope,$firebaseArray,$filter,$window,$timeout,$sce){
         _eopUpdate();
       }
 
-      // Preload next/prev images to ensure instant loading
+      // Preload next/prev images
       var preloadNext = new Image();
       if (_enlargedIndex < _enlargedList.length - 1) preloadNext.src = (_enlargedList[_enlargedIndex + 1] || {}).url || '';
       var preloadPrev = new Image();
@@ -895,7 +896,7 @@ function($scope,$firebaseArray,$filter,$window,$timeout,$sce){
 
       if (!dir) {
         img.style.transition = 'none';
-        img.style.transform = 'translateX(0)';
+        img.style.transform = 'translate3d(0,0,0)';
         img.style.opacity = '1';
         img.src = src || '';
         updateUI();
@@ -907,43 +908,62 @@ function($scope,$firebaseArray,$filter,$window,$timeout,$sce){
       if (_enlargedBusy) {
         img.style.transition = 'none';
         img.style.opacity = '1';
-        img.style.transform = 'translateX(0)';
+        img.style.transform = 'translate3d(0,0,0)';
         _enlargedBusy = false;
       }
 
-      var exitX = dir === 1 ? '-50px' : '50px';
-      var enterX = dir === 1 ? '50px' : '-50px';
+      var exitX = dir === 1 ? '-60px' : '60px';
+      var enterX = dir === 1 ? '60px' : '-60px';
       _enlargedBusy = true;
 
       var currentAnimId = Date.now() + Math.random().toString();
       img.dataset.animId = currentAnimId;
 
-      // Faster exit (100ms)
-      img.style.transition = 'transform 0.1s ease-in, opacity 0.08s ease-in';
-      img.style.transform = 'translateX(' + exitX + ')';
+      // EXIT animation
+      img.style.transition = 'transform 0.12s ease-in, opacity 0.1s ease-in';
+      img.style.transform = 'translate3d(' + exitX + ',0,0)';
       img.style.opacity = '0';
 
       _enlargedAnimTimer1 = setTimeout(function() {
         if (img.dataset.animId !== currentAnimId) return;
         _enlargedAnimTimer1 = null;
-        img.src = src || '';
-        img.style.transition = 'none';
-        img.style.transform = 'translateX(' + enterX + ')';
-        img.style.opacity = '0';
 
-        requestAnimationFrame(function() {
+        // Load new image and wait for decode before animating in
+        var newImg = new Image();
+        newImg.src = src || '';
+
+        function doEnter() {
+          if (img.dataset.animId !== currentAnimId) return;
+          img.src = src || '';
+          img.style.transition = 'none';
+          img.style.transform = 'translate3d(' + enterX + ',0,0)';
+          img.style.opacity = '0';
+
+          // Force reflow
+          void img.offsetWidth;
+
           requestAnimationFrame(function() {
-            if (img.dataset.animId !== currentAnimId) return;
-            // Faster enter (150ms)
-            img.style.transition = 'transform 0.15s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.12s ease-out';
-            img.style.transform = 'translateX(0)';
-            img.style.opacity = '1';
-            setTimeout(function() { if (img.dataset.animId === currentAnimId) _enlargedBusy = false; }, 160);
+            requestAnimationFrame(function() {
+              if (img.dataset.animId !== currentAnimId) return;
+              img.style.transition = 'transform 0.18s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.15s ease-out';
+              img.style.transform = 'translate3d(0,0,0)';
+              img.style.opacity = '1';
+              setTimeout(function() { 
+                if (img.dataset.animId === currentAnimId) _enlargedBusy = false; 
+              }, 200);
+            });
           });
-        });
+          updateUI();
+        }
 
-        updateUI();
-      }, 90);
+        if (newImg.complete) {
+          doEnter();
+        } else {
+          newImg.onload = newImg.onerror = doEnter;
+          // Fallback if onload hangs
+          setTimeout(doEnter, 300);
+        }
+      }, 110);
     }
     $scope.showEnlargedImage = function(listOrSrc, idx) {
       var o = document.getElementById('enlarged-image-overlay');
