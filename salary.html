@@ -309,6 +309,17 @@
   </div>
 </div>
 
+<!-- CURRENT CYCLE SUMMARY CARD -->
+<div class="card" id="cycleSummaryCard" style="display:none; border-color:var(--accent);">
+  <h2 style="color:var(--accent);">Current Cycle Summary</h2>
+  <div id="cyclePeriod" style="color:var(--muted); font-size:0.82rem; margin-bottom:10px;"></div>
+  <div class="summary" style="gap:8px;">
+    <div class="stat"><div class="val" id="cycPresent" style="color:var(--green);">0</div><div class="lbl">Present</div></div>
+    <div class="stat"><div class="val" id="cycHalf" style="color:var(--amber);">0</div><div class="lbl">Half Day</div></div>
+    <div class="stat"><div class="val" id="cycAbsent" style="color:var(--red);">0</div><div class="lbl">Absent</div></div>
+  </div>
+</div>
+
 <div class="card">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
     <h2 style="margin:0;">Running Salary Trail</h2>
@@ -584,7 +595,6 @@ async function loadStaffIntoForm(){
   if(mobileInput) mobileInput.value = staff.mobile || '';
   const nameInput = document.getElementById('editStaffName');
   if(nameInput) nameInput.value = staff.name || '';
-  // Load starting date from first salary history entry
   const hist = ensureSalaryHistory(staff);
   const startDateInput = document.getElementById('editStaffStartDate');
   if(startDateInput) startDateInput.value = hist[0].effectiveFrom || todayStr();
@@ -745,10 +755,16 @@ document.getElementById('monthlySalary').addEventListener('input', updateRateInf
 document.getElementById('daysPerMonth').addEventListener('input', updateRateInfo);
 
 async function refreshEntries(){
-  if(!currentStaffId || currentStaffId === 'all'){ entriesCache = []; renderLedger(); return; }
+  if(!currentStaffId || currentStaffId === 'all'){ 
+    entriesCache = []; 
+    renderLedger(); 
+    renderCycleSummary(null, []);
+    return; 
+  }
   entriesCache = await dbGetAllByIndex('entries', 'staffId', currentStaffId);
   renderLedger();
   renderSalaryInfo();
+  renderCycleSummary(currentStaff(), entriesCache);
 }
 
 async function renderAllStaffAttendance(){
@@ -984,6 +1000,60 @@ function renderLedger(){
   document.getElementById('sumAbsent').textContent = absentCnt;
 }
 
+function renderCycleSummary(staff, entries) {
+  const card = document.getElementById('cycleSummaryCard');
+  if (!staff) {
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = 'block';
+  
+  const hist = ensureSalaryHistory(staff);
+  const joinDate = hist[0].effectiveFrom || '2000-01-01';
+  
+  let cycleStart = new Date(joinDate + 'T12:00:00Z');
+  if (isNaN(cycleStart.getTime())) {
+    card.style.display = 'none';
+    return;
+  }
+  
+  const today = new Date(todayStr() + 'T12:00:00Z');
+  let nextCycleStart = new Date(cycleStart);
+  nextCycleStart.setMonth(nextCycleStart.getMonth() + 1);
+  
+  while(nextCycleStart <= today) {
+    cycleStart = new Date(nextCycleStart);
+    nextCycleStart.setMonth(nextCycleStart.getMonth() + 1);
+  }
+  
+  const cycleStartStr = cycleStart.toISOString().slice(0,10);
+  const nextCycleStartStr = nextCycleStart.toISOString().slice(0,10);
+  
+  const cycleEndDate = new Date(nextCycleStart);
+  cycleEndDate.setDate(cycleEndDate.getDate() - 1);
+  const cycleEndStr = cycleEndDate.toISOString().slice(0,10);
+  
+  document.getElementById('cyclePeriod').textContent = `Cycle: ${cycleStartStr} to ${cycleEndStr}`;
+  
+  const cycleEntries = entries.filter(e => e.date >= cycleStartStr && e.date < nextCycleStartStr);
+  
+  let presentCnt = 0, halfCnt = 0, absentCnt = 0;
+  
+  cycleEntries.forEach(e => {
+    if(e.type === 'earn') {
+      const rateInfo = getRateForDate(staff, e.date);
+      const rate = rateInfo ? rateInfo.dailyRate : 0;
+      if (e.amount >= rate && rate > 0) presentCnt++;
+      else if (e.amount > 0 && e.amount < rate) halfCnt++;
+      else if (e.amount === 0) absentCnt++;
+    }
+  });
+  
+  document.getElementById('cycPresent').textContent = presentCnt;
+  document.getElementById('cycHalf').textContent = halfCnt;
+  document.getElementById('cycAbsent').textContent = absentCnt;
+}
+
 async function saveStaffDetails() {
   const staff = currentStaff();
   if(!staff) return;
@@ -995,7 +1065,6 @@ async function saveStaffDetails() {
   staff.name = name;
   staff.mobile = mobile;
   
-  // Update starting date if changed
   if (newStartDate) {
     const hist = ensureSalaryHistory(staff);
     const oldStartDate = hist[0].effectiveFrom;
@@ -1134,91 +1203,58 @@ async function autoAwardBonuses() {
       changed = true;
     }
     
-    const oldIds = new Set(oldAutoBonuses.map(b => b.id));
-    for (let i = allEntries.length - 1; i >= 0; i--) {
-      if (oldIds.has(allEntries[i].id)) {
-        allEntries.splice(i, 1);
-      }
-    }
+    let nextCycleStart = new Date(cycleStart);
+    nextCycleStart.setMonth(nextCycleStart.getMonth() + 1);
 
-    let cycleNum = 0;
-    while (cycleStart < today) {
-      cycleNum++;
+    while(nextCycleStart <= today) {
+      const cycleStartStr = cycleStart.toISOString().slice(0,10);
+      const nextCycleStartStr = nextCycleStart.toISOString().slice(0,10);
       
-      const cycleEnd = new Date(cycleStart);
-      cycleEnd.setUTCMonth(cycleEnd.getUTCMonth() + 1);
-      
-      if (cycleEnd > today) break;
-      
-      const lastDay = new Date(cycleEnd);
-      lastDay.setUTCDate(lastDay.getUTCDate() - 1);
-      
-      const startStr = cycleStart.toISOString().slice(0,10);
-      const endStr = lastDay.toISOString().slice(0,10);
-      const nextCycleStartStr = cycleEnd.toISOString().slice(0,10);
-      
-      const cycleEarns = allEntries.filter(e => 
+      const cycleEntries = allEntries.filter(e => 
         e.staffId === staff.id && 
-        e.type === 'earn' && 
-        e.date >= startStr && 
-        e.date < nextCycleStartStr
+        e.date >= cycleStartStr && 
+        e.date < nextCycleStartStr && 
+        e.type === 'earn'
       );
       
-      let hasPerfectAttendance = cycleEarns.length > 0;
+      let hasAbsence = cycleEntries.some(e => e.amount === 0);
       
-      if (hasPerfectAttendance) {
-        for (const earn of cycleEarns) {
-          const rateInfo = getRateForDate(staff, earn.date);
-          const rate = rateInfo ? rateInfo.dailyRate : 0;
-          
-          if (earn.amount <= 0 || (rate > 0 && earn.amount < rate)) {
-            hasPerfectAttendance = false;
-            break;
-          }
-        }
+      if (!hasAbsence && cycleEntries.length > 0) {
+        await dbPut('entries', { 
+          id: genId(), 
+          staffId: staff.id, 
+          date: nextCycleStartStr, 
+          type: 'bonus', 
+          label: 'Auto-Bonus (Perfect Attendance)', 
+          amount: bonusAmt 
+        });
+        changed = true;
       }
       
-      if (hasPerfectAttendance) {
-        const bonusLabel = `Auto-Bonus (${startStr} to ${endStr})`;
-        
-        const existingBonus = allEntries.find(e => 
-          e.staffId === staff.id && 
-          e.type === 'bonus' && 
-          e.label === bonusLabel
-        );
-        
-        if (!existingBonus) {
-          await dbPut('entries', {
-            id: genId(),
-            staffId: staff.id,
-            date: endStr,
-            type: 'bonus',
-            label: bonusLabel,
-            amount: bonusAmt
-          });
-          changed = true;
-          console.log(`Auto-bonus awarded for ${staff.name}: ${startStr} to ${endStr}`);
-        }
-      }
-      
-      cycleStart = cycleEnd;
+      cycleStart = new Date(nextCycleStart);
+      nextCycleStart.setMonth(nextCycleStart.getMonth() + 1);
     }
   }
-  
+
+  if (changed) {
+    await refreshEntries();
+  }
   return changed;
 }
 
-async function init(){
+async function init() {
   db = await openDB();
   await refreshStaffList();
-  const autoAdded = await autoMarkPresentForToday();
-  const bonusAdded = await autoAwardBonuses();
-  if(currentStaffId && currentStaffId !== 'all'){ await loadStaffIntoForm(); }
-  await refreshEntries();
-  if((autoAdded || bonusAdded)) renderAllStaffAttendance();
+  await autoMarkPresentForToday();
+  await autoAwardBonuses();
+  await refreshStaffList();
+  if(currentStaffId && currentStaffId !== 'all') {
+    await refreshEntries();
+  }
 }
+
 init();
+
 </script>
 </body>
 </html>
-
