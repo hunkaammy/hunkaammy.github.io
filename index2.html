@@ -1203,9 +1203,172 @@
       border-radius: 100px;
       transition: width 0.3s ease;
     }
+  
+    /* ══════════════════════════════════════
+       MODERN POLISH — smooth, refined, current
+    ══════════════════════════════════════ */
+    html { scroll-behavior: smooth; }
+
+    ::selection { background: var(--green-light); color: var(--green-deep); }
+
+    :focus-visible {
+      outline: 2px solid var(--green-bright);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+
+    /* Glass topbar */
+    .topbar {
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(18px) saturate(1.6);
+      -webkit-backdrop-filter: blur(18px) saturate(1.6);
+      border-bottom: 1px solid rgba(26,61,43,0.07);
+    }
+
+    .search-wrap input {
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+      font-size: 13px;
+      height: 34px;
+    }
+    .search-wrap input:focus {
+      box-shadow: 0 0 0 4px rgba(82,183,136,0.14);
+    }
+
+    .login-input { transition: border-color 0.2s, background 0.2s; margin-bottom: 10px; font-size: 14px; }
+    .login-btn { transition: background 0.2s, transform 0.15s, box-shadow 0.2s; font-weight: 700; letter-spacing: 0.3px; }
+    .login-btn:hover { box-shadow: 0 8px 24px rgba(82,183,136,0.35); }
+    .login-btn:active { transform: scale(0.98); }
+
+    .login-error {
+      display: none;
+      background: rgba(248,113,113,0.14);
+      border: 1px solid rgba(248,113,113,0.4);
+      color: #fca5a5;
+      font-size: 12px;
+      border-radius: 10px;
+      padding: 9px 12px;
+      margin-bottom: 12px;
+      text-align: left;
+      line-height: 1.45;
+    }
+
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-5px); }
+      80% { transform: translateX(5px); }
+    }
+    .shake { animation: shake 0.4s ease; }
+
+    /* Softer, richer cards */
+    .product-card {
+      border: 1px solid rgba(26,61,43,0.05);
+      will-change: transform;
+    }
+    .product-card:hover { transform: translateY(-3px); }
+    .product-card-img {
+      transition: transform 0.45s cubic-bezier(0.16,1,0.3,1), filter 0.3s;
+      filter: saturate(1.02);
+    }
+    .product-card:hover .product-card-img { transform: scale(1.04); }
+
+    .product-card-body { padding: 12px 12px 14px; }
+
+    .qty-input {
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      background: var(--cream);
+    }
+    .qty-input:focus { box-shadow: 0 0 0 3px rgba(82,183,136,0.15); }
+
+    .wa-share-btn, .menu-btn, .qty-btn, .delete-btn, .clear-filter-btn {
+      transition: all 0.18s ease;
+    }
+    .wa-share-btn:active, .menu-btn:active, .qty-btn:active, .cart-fab:active, .bulk-bar-share-btn:active { transform: scale(0.95); }
+
+    .cart-fab {
+      background: linear-gradient(135deg, var(--green-deep) 0%, var(--green-mid) 100%);
+      box-shadow: 0 8px 28px rgba(26,61,43,0.35), 0 2px 8px rgba(26,61,43,0.2);
+      font-weight: 700;
+    }
+
+    .tab-item { transition: all 0.25s cubic-bezier(0.34,1.4,0.64,1); }
+    .tab-item:active { transform: scale(0.95); }
+
+    .dropdown-menu {
+      border: none !important;
+      box-shadow: 0 12px 40px rgba(26,61,43,0.14);
+      border-radius: 14px !important;
+      overflow: hidden;
+      padding: 6px !important;
+    }
+    .dropdown-item { border-radius: 9px; padding: 9px 14px; transition: background 0.15s; }
+
+    .welcome-chip { transition: all 0.25s ease; }
+    .welcome-chip:hover { background: var(--green-light); }
+
+    .filter-bar { border: 1px solid rgba(26,61,43,0.05); }
+
+    /* Show more */
+    .show-more-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      margin-top: 14px;
+      padding: 13px;
+      background: var(--white);
+      border: 1.5px solid var(--green-light);
+      color: var(--green-mid);
+      border-radius: 14px;
+      font-family: 'Figtree', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .show-more-btn:hover {
+      background: var(--green-pale);
+      border-color: var(--green-bright);
+      color: var(--green-deep);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(26,61,43,0.1);
+    }
+    .show-more-btn:active { transform: scale(0.98); }
+
+    /* Modal polish */
+    .modal-content { border-radius: 20px; }
+    .modal.fade .modal-dialog { transition: transform 0.28s cubic-bezier(0.16,1,0.3,1), opacity 0.28s; }
+    .order-item { transition: box-shadow 0.2s, transform 0.2s; }
+    .order-item:hover { box-shadow: var(--card-shadow-hover); }
+
+    /* Enlarged image zoom feel */
+    #enlarged-image-overlay { transition: opacity 0.25s ease; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .enlarged-image-content { animation: zoomIn 0.3s cubic-bezier(0.16,1,0.3,1); }
+    @keyframes zoomIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+
+    .empty-state { animation: fadeInUp 0.4s ease both; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    .bulk-bar { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); background: rgba(26,61,43,0.92); }
+
+    /* Skeleton subtler */
+    .skeleton { animation-duration: 1.8s; }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      html { scroll-behavior: auto; }
+    }
   </style>
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+<base target="_blank">
 </head>
 <body ng-controller="imagesController as vm">
 
@@ -1221,6 +1384,7 @@
       <div class="login-sub">Wholesale ordering made simple</div>
       <input type="text" id="name" placeholder="Your shop name" class="login-input" autocomplete="off">
       <input type="tel" id="mobile" placeholder="Mobile number" class="login-input" autocomplete="off">
+      <div id="login-error" class="login-error"></div>
       <button class="login-btn" onclick="validateLogin()">
         Enter Portal <i class="fas fa-arrow-right ms-2" style="font-size:12px;"></i>
       </button>
@@ -1298,7 +1462,7 @@
         </div>
         <div ng-if="!isLoadingSearchResults">
           <div class="product-grid">
-            <div class="product-card" ng-repeat="product in searchResults"
+            <div class="product-card" ng-repeat="product in searchResults | limitTo: searchLimit"
                  ng-class="{'selected': isSelected(product)}">
               <div class="select-checkbox-wrap">
                 <input type="checkbox" class="select-checkbox"
@@ -1330,6 +1494,9 @@
             <div class="empty-icon">🔍</div>
             <div class="empty-text">No products found for your search.</div>
           </div>
+          <button class="show-more-btn" ng-if="searchResults.length > searchLimit" ng-click="showMoreSearch()">
+            Show more <i class="fas fa-chevron-down ms-1"></i>
+          </button>
         </div>
       </div>
     </div>
@@ -1348,11 +1515,11 @@
                ng-if="!isLoadingCategories"
                ng-class="{'active': activeTabId === category.id}"
                ng-click="selectCategory(category.filter, category.id)"
-               ng-repeat="category in categories">
+               ng-repeat="category in categories track by category.id">
             <div class="tab-img-wrap">
-              <img ng-src="{{category.imageUrl}}" alt="{{category.name}}" loading="lazy">
+              <img ng-src="{{category.imageUrl}}" alt="{{::category.name}}" loading="lazy">
             </div>
-            <div class="tab-name">{{category.name}}</div>
+            <div class="tab-name">{{::category.name}}</div>
             <div class="tab-count" ng-if="category.productCount > 0">({{category.productCount}})</div>
           </div>
         </div>
@@ -1432,6 +1599,9 @@
             <div class="empty-icon">📦</div>
             <div class="empty-text">No products in this range.</div>
           </div>
+          <button class="show-more-btn" ng-if="displayTotal > (displayLimit || 48)" ng-click="showMoreProducts()">
+            Show more ({{displayTotal - (displayLimit || 48)}} remaining) <i class="fas fa-chevron-down ms-1"></i>
+          </button>
         </div>
       </div>
     </div>
@@ -1574,8 +1744,8 @@
           if (scope.isSearching || (scope.searchQuery && scope.searchQuery.length > 0)) {
             scope.searchQuery = '';
             scope.isSearching = false;
+            scope._searchPushed = false;
             scope.onSearchChange();
-            history.pushState({ state: 'home' }, null, location.href);
             return;
           }
           history.pushState({ state: 'home' }, null, location.href);
@@ -1605,11 +1775,11 @@
             var mobile = document.getElementById('mobile').value.trim();
             var isNameBlocked = blockedNames.some(n => n.toLowerCase() === name.toLowerCase());
             if (blockedNumbers.includes(mobile) || isNameBlocked) { window.location.href = blockedPageUrl; return; }
-            if (name.length < 4 || !/^[6-9]\d{9}$/.test(mobile)) { alert('Please enter valid details.'); return; }
+            if (name.length < 4 || !/^[6-9]\d{9}$/.test(mobile)) { showLoginError('Please enter a valid shop name (4+ chars) and 10-digit mobile number.'); return; }
 
             loginDb.ref('users').push({ name, mobile, timestamp: firebase.database.ServerValue.TIMESTAMP })
               .then(() => { localStorage.setItem('name', name); localStorage.setItem('mobile', mobile); showContent(name); })
-              .catch(e => { console.error(e); alert('Login failed. Please try again.'); });
+              .catch(e => { console.error(e); showLoginError('Login failed. Please try again.'); });
           } catch(e) { console.error(e); }
         };
 
@@ -1628,6 +1798,17 @@
             document.getElementById('content').style.display = 'block';
             history.pushState({ state: 'home' }, null, location.href);
           } catch(e) { console.error(e); }
+        }
+
+        function showLoginError(msg) {
+          var el = document.getElementById('login-error');
+          if (!el) return;
+          el.textContent = msg;
+          el.style.display = 'block';
+          var card = document.getElementById('inside');
+          card.classList.remove('shake');
+          void card.offsetWidth;
+          card.classList.add('shake');
         }
 
         (function checkAuthentication() {
@@ -1651,6 +1832,7 @@
       function($scope, $firebaseArray, $filter, $window, $timeout, $sce) {
       try {
         var vm = this;
+        var PAGE_SIZE = 48;
         vm.images = [];
         $scope.displayedProducts = [];
         $scope.priceFilter = { min: null, max: null };
@@ -1663,6 +1845,9 @@
         $scope.isSearching           = false;
         $scope.searchResults         = [];
         $scope.isLoadingSearchResults = false;
+        $scope.searchLimit            = 48;
+        $scope.displayLimit           = 48;
+        $scope.displayTotal           = 0;
         $scope.currentVideoUrl       = '';
         $scope.videoError            = '';
         $scope.isProductModalOpen    = false;
@@ -1682,16 +1867,21 @@
             item.$id  = child.key;
             var clean = String(item.price || 0).replace(/[^0-9.]/g, '');
             item.price = Number(clean) || 0;
+            item._name = String(item.name || '').toLowerCase();
             allData.push(item);
           });
           vm.images = allData.filter(i => !i.outOfStock);
 
           $scope.$applyAsync(function() {
-            angular.forEach($scope.categories, function(cat) {
-              cat.productCount = cat.filter === ''
-                ? vm.images.length
-                : $filter('filter')(vm.images, { name: cat.filter }).length;
+            var counts = {};
+            vm.images.forEach(function(it) {
+              counts[''] = (counts[''] || 0) + 1;
+              var nm = String(it.name || '');
+              angular.forEach($scope.categories, function(cat) {
+                if (cat.filter && nm.indexOf(cat.filter) !== -1) counts[cat.filter] = (counts[cat.filter] || 0) + 1;
+              });
             });
+            angular.forEach($scope.categories, function(cat) { cat.productCount = counts[cat.filter] || 0; });
             $scope.isLoading           = false;
             $scope.isLoadingCategories = false;
             $scope.updateDisplayedProducts();
@@ -1760,23 +1950,60 @@
           } catch(e) { console.error(e); }
         };
 
+        var PAGE_SIZE = 48;
+
         $scope.onSearchChange = function() {
           try {
-            if ($scope.searchQuery && $scope.searchQuery.length > 0) {
-              $scope.isSearching = true;
-              $scope.isLoadingSearchResults = true;
-              history.pushState({ state: 'search' }, null, location.href);
-              $timeout(function() {
-                $scope.searchResults = $filter('filter')(vm.images, { name: $scope.searchQuery }) || [];
-                $scope.isLoadingSearchResults = false;
-              }, 100);
-            } else {
+            if ($scope._searchTimer) $timeout.cancel($scope._searchTimer);
+            var q = ($scope.searchQuery || '').trim();
+            if (!q) {
               $scope.isSearching = false;
               $scope.searchResults = [];
-              history.pushState({ state: 'home' }, null, location.href);
+              $scope.searchLimit = PAGE_SIZE;
+              if ($scope._searchPushed) {
+                $scope._searchPushed = false;
+                history.pushState({ state: 'home' }, null, location.href);
+              }
+              return;
             }
+            if (!$scope._searchPushed) {
+              history.pushState({ state: 'search' }, null, location.href);
+              $scope._searchPushed = true;
+            }
+            $scope.isSearching = true;
+            $scope.isLoadingSearchResults = true;
+            $scope._searchTimer = $timeout(function() { runSearch(q); }, 250);
           } catch(e) { console.error(e); $scope.isSearching = false; $scope.isLoadingSearchResults = false; }
         };
+
+        // Chunked scan keeps the UI responsive on large catalogs
+        function runSearch(q) {
+          var ql = q.toLowerCase();
+          var results = [];
+          var images = vm.images;
+          var i = 0;
+          var MAX_MATCHES = 400;
+          function step() {
+            var end = Math.min(i + 1500, images.length);
+            for (; i < end; i++) {
+              if (images[i]._name.indexOf(ql) !== -1) {
+                results.push(images[i]);
+                if (results.length >= MAX_MATCHES) { i = images.length; break; }
+              }
+            }
+            if (i < images.length) { setTimeout(step, 0); }
+            else {
+              $scope.$applyAsync(function() {
+                $scope.searchResults = results;
+                $scope.searchLimit = PAGE_SIZE;
+                $scope.isLoadingSearchResults = false;
+              });
+            }
+          }
+          step();
+        }
+
+        $scope.showMoreSearch = function() { $scope.searchLimit += PAGE_SIZE; };
 
         $scope.selectCategory = function(filter, tabId) {
           try {
@@ -1787,14 +2014,21 @@
             $scope.activeTabId = tabId;
             $scope.priceFilter.min = null;
             $scope.priceFilter.max = null;
+            $scope.displayLimit = 48;
             $scope.updateDisplayedProducts();
-            $timeout(function() { window.scrollTo(0, 0); }, 0);
+            $timeout(function() { window.scrollTo({ top: 0, behavior: 'smooth' }); }, 0);
           } catch(e) { console.error(e); }
         };
 
         $scope.clearPriceFilter = function() {
           $scope.priceFilter.min = null;
           $scope.priceFilter.max = null;
+          $scope.displayLimit = 48;
+          $scope.updateDisplayedProducts();
+        };
+
+        $scope.showMoreProducts = function() {
+          $scope.displayLimit = ($scope.displayLimit || 48) + 48;
           $scope.updateDisplayedProducts();
         };
 
@@ -1950,7 +2184,9 @@
               return true;
             });
 
-            $scope.displayedProducts = $filter('orderBy')(filtered, '-date');
+            var sorted = $filter('orderBy')(filtered, '-date');
+            $scope.displayTotal = sorted.length;
+            $scope.displayedProducts = sorted.slice(0, $scope.displayLimit || PAGE_SIZE);
           } catch(e) { console.error(e); }
         };
 
