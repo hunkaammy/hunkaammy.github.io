@@ -1106,33 +1106,30 @@
 
     .filter-bar { border: 1px solid rgba(26,61,43,0.05); }
 
-    /* Show more */
-    .show-more-btn {
+    /* Infinite scroll loader */
+    .infinite-loader {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 8px;
       width: 100%;
       margin-top: 14px;
-      padding: 13px;
-      background: var(--white);
-      border: 1.5px solid var(--green-light);
-      color: var(--green-mid);
-      border-radius: 14px;
-      font-family: 'Figtree', sans-serif;
-      font-size: 13px;
+      padding: 16px;
+      color: var(--ink-muted);
+      font-size: 12px;
       font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
+      letter-spacing: 0.3px;
     }
-    .show-more-btn:hover {
-      background: var(--green-pale);
-      border-color: var(--green-bright);
-      color: var(--green-deep);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 14px rgba(26,61,43,0.1);
+    .infinite-loader i { color: var(--green-bright); font-size: 14px; }
+    .infinite-sentinel { height: 1px; width: 100%; }
+    .end-of-list {
+      text-align: center;
+      padding: 16px;
+      color: var(--ink-muted);
+      font-size: 11px;
+      opacity: 0.6;
+      letter-spacing: 0.3px;
     }
-    .show-more-btn:active { transform: scale(0.98); }
 
     /* Modal polish */
     .modal-content { border-radius: 20px; }
@@ -1275,9 +1272,14 @@
             <div class="empty-icon">🔍</div>
             <div class="empty-text">No products found for your search.</div>
           </div>
-          <button class="show-more-btn" ng-if="searchResults.length > searchLimit" ng-click="showMoreSearch()">
-            Show more <i class="fas fa-chevron-down ms-1"></i>
-          </button>
+          <!-- infinite scroll sentinel + loader for search results -->
+          <div id="search-sentinel" class="infinite-sentinel" ng-if="searchResults.length > 0"></div>
+          <div class="infinite-loader" ng-if="isLoadingMoreSearch">
+            <i class="fas fa-spinner fa-spin"></i> Loading more…
+          </div>
+          <div class="end-of-list" ng-if="searchResults.length > 0 && searchLimit >= searchResults.length && !isLoadingMoreSearch">
+            You've reached the end
+          </div>
         </div>
       </div>
     </div>
@@ -1369,9 +1371,14 @@
             <div class="empty-icon">📦</div>
             <div class="empty-text">No products in this range.</div>
           </div>
-          <button class="show-more-btn" ng-if="displayTotal > (displayLimit || 48)" ng-click="showMoreProducts()">
-            Show more ({{displayTotal - (displayLimit || 48)}} remaining) <i class="fas fa-chevron-down ms-1"></i>
-          </button>
+          <!-- infinite scroll sentinel + loader for main product grid -->
+          <div id="products-sentinel" class="infinite-sentinel" ng-if="displayedProducts.length > 0"></div>
+          <div class="infinite-loader" ng-if="isLoadingMoreProducts">
+            <i class="fas fa-spinner fa-spin"></i> Loading more…
+          </div>
+          <div class="end-of-list" ng-if="displayedProducts.length > 0 && displayLimit >= displayTotal && !isLoadingMoreProducts">
+            You've reached the end
+          </div>
         </div>
       </div>
     </div>
@@ -1441,12 +1448,12 @@
   </div>
 
   <!-- ════════════════════ SCRIPTS ════════════════════ -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-  <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/firebase@9.6.1/firebase-app-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/firebase@9.6.1/firebase-database-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/angularfire@2.3.0/dist/angularfire.min.js"></script>
 
   <script>
     var isEnlargedImageOpen = false;
@@ -1596,6 +1603,8 @@
         $scope.currentVideoUrl       = '';
         $scope.videoError            = '';
         $scope.isProductModalOpen    = false;
+        $scope.isLoadingMoreProducts = false;
+        $scope.isLoadingMoreSearch   = false;
 
         var fetchConfig = { databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com" };
         var submitConfig = { databaseURL: "https://notes-12519-default-rtdb.firebaseio.com" };
@@ -1630,6 +1639,14 @@
             $scope.isLoading           = false;
             $scope.isLoadingCategories = false;
             $scope.updateDisplayedProducts();
+
+            // If the person searched before (or while) the catalog was still
+            // loading, re-run the search now that fresh data is in vm.images —
+            // otherwise a search started too early gets stuck showing "no results".
+            if ($scope.isSearching && ($scope.searchQuery || '').trim()) {
+              $scope.isLoadingSearchResults = true;
+              runSearch($scope.searchQuery.trim());
+            }
           });
         }, function(error) {
           console.error("Load error:", error);
@@ -1942,6 +1959,90 @@
             $window.location.reload();
           } catch(e) { console.error(e); }
         };
+
+        // ── INFINITE SCROLL ──
+        // Replaces the old "Show more" buttons: watches scroll position and,
+        // once the user nears the bottom of the page, reveals the next page
+        // of already-fetched items (with a brief loading indicator for feel).
+        var infiniteScrollTicking = false;
+
+        function handleInfiniteScroll() {
+          infiniteScrollTicking = false;
+
+          var scrollY        = window.scrollY || window.pageYOffset || 0;
+          var viewportHeight  = window.innerHeight || document.documentElement.clientHeight;
+          var fullHeight      = document.documentElement.scrollHeight;
+          var nearBottom      = (scrollY + viewportHeight) >= (fullHeight - 400);
+
+          if (!nearBottom) return;
+
+          $scope.$applyAsync(function() {
+            if ($scope.isSearching) {
+              if (!$scope.isLoadingMoreSearch && $scope.searchResults.length > $scope.searchLimit) {
+                $scope.isLoadingMoreSearch = true;
+                $timeout(function() {
+                  $scope.showMoreSearch();
+                  $scope.isLoadingMoreSearch = false;
+                }, 300);
+              }
+            } else {
+              if (!$scope.isLoadingMoreProducts && $scope.displayTotal > ($scope.displayLimit || PAGE_SIZE)) {
+                $scope.isLoadingMoreProducts = true;
+                $timeout(function() {
+                  $scope.showMoreProducts();
+                  $scope.isLoadingMoreProducts = false;
+                }, 300);
+              }
+            }
+          });
+        }
+
+        window.addEventListener('scroll', function() {
+          if (!infiniteScrollTicking) {
+            infiniteScrollTicking = true;
+            window.requestAnimationFrame(handleInfiniteScroll);
+          }
+        }, { passive: true });
+
+        // Also use IntersectionObserver on the sentinel elements when available,
+        // as a more precise/efficient trigger than pure scroll math. Since the
+        // sentinels live inside ng-if blocks that get re-created when switching
+        // between search/browse views, we (re-)observe periodically.
+        if ('IntersectionObserver' in window) {
+          var observedProductsSentinel = null;
+          var observedSearchSentinel   = null;
+
+          var io = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+              if (!entry.isIntersecting) return;
+              handleInfiniteScroll();
+            });
+          }, { root: null, rootMargin: '400px 0px 400px 0px', threshold: 0 });
+
+          function refreshObservedSentinels() {
+            var productsSentinel = document.getElementById('products-sentinel');
+            var searchSentinel   = document.getElementById('search-sentinel');
+
+            if (productsSentinel && productsSentinel !== observedProductsSentinel) {
+              io.observe(productsSentinel);
+              observedProductsSentinel = productsSentinel;
+            }
+            if (searchSentinel && searchSentinel !== observedSearchSentinel) {
+              io.observe(searchSentinel);
+              observedSearchSentinel = searchSentinel;
+            }
+          }
+
+          // Re-check for new sentinel elements after each digest cycle tick,
+          // since Angular's ng-if swaps them in/out of the DOM.
+          $scope.$watch(function() {
+            return $scope.isSearching + ':' + $scope.displayedProducts.length + ':' + $scope.searchResults.length;
+          }, function() {
+            $timeout(refreshObservedSentinels, 0);
+          });
+
+          $timeout(refreshObservedSentinels, 0);
+        }
 
         $timeout(function() {
           var orderEl = document.getElementById('myModal');
