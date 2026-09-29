@@ -1796,10 +1796,19 @@
           $scope.allOrders.$remove(item).catch(e => console.error(e));
         };
 
-        // ── SORTING: newest first (Firebase push keys are time-ordered) ──
+        // ── SORTING: newest first by `date` field (fallback: Firebase key) ──
         function sortProducts(list) {
+          function keyOf(it) {
+            var d = it.date;
+            if (d === undefined || d === null || d === '') d = it.$id;
+            return d;
+          }
           return list.slice().sort(function(a, b) {
-            return String(b.$id).localeCompare(String(a.$id));
+            var da = keyOf(a), db = keyOf(b);
+            if (typeof da === 'number' && typeof db === 'number') return db - da;
+            da = String(da); db = String(db);
+            if (da === db) return 0;
+            return da < db ? 1 : -1;   // descending → newest on top
           });
         }
 
