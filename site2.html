@@ -479,12 +479,40 @@
     .filter-bar {
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: space-between;
+      gap: 10px;
       margin-bottom: 14px;
       background: var(--white);
       border-radius: var(--radius-sm);
       padding: 10px 14px;
       box-shadow: var(--card-shadow);
+      flex-wrap: wrap;
+    }
+
+    .filter-sort-wrap, .filter-price-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sort-select {
+      background: var(--cream);
+      border: 1.5px solid transparent;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-family: 'Figtree', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      outline: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .sort-select:focus {
+      border-color: var(--green-bright);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(82,183,136,0.15);
     }
 
     .filter-label {
@@ -743,25 +771,348 @@
 
     .cart-fab i { font-size: 14px; }
 
-    /* ── ENLARGED IMAGE ── */
+    /* ── ENLARGED IMAGE & ORDER MODAL ── */
     #enlarged-image-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(10,20,15,0.85);
-      backdrop-filter: blur(8px);
+      background: rgba(10, 20, 15, 0.92);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       display: none;
-      justify-content: center;
+      flex-direction: column;
+      justify-content: space-between;
       align-items: center;
+      padding: 12px 14px 14px;
       z-index: 1060;
-      cursor: zoom-out;
+      cursor: default;
+      overflow-y: auto;
+      overflow-x: hidden;
+      touch-action: pan-y;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .enlarged-topbar {
+      width: 100%;
+      max-width: 580px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0 10px;
+      z-index: 1070;
+      flex-shrink: 0;
+      transition: width 0.15s ease;
+      box-sizing: border-box;
+    }
+
+    .enlarged-counter {
+      color: rgba(255, 255, 255, 0.85);
+      font-family: 'Geist Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.12);
+      padding: 4px 12px;
+      border-radius: 100px;
+      backdrop-filter: blur(8px);
+    }
+
+    .enlarged-close-btn, .enlarged-video-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      border-radius: 100px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .enlarged-close-btn {
+      width: 36px;
+      height: 36px;
+      font-size: 15px;
+    }
+
+    .enlarged-video-btn {
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #b7e4c7;
+      border-color: rgba(183, 228, 199, 0.4);
+    }
+
+    .enlarged-close-btn:hover, .enlarged-video-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      color: white;
+    }
+
+    .enlarged-nav-btn {
+      position: fixed;
+      top: 45%;
+      transform: translateY(-50%);
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      z-index: 1070;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .enlarged-nav-btn:hover {
+      background: rgba(255, 255, 255, 0.4);
+      transform: translateY(-50%) scale(1.08);
+      color: white;
+    }
+
+    .enlarged-nav-btn:active {
+      transform: translateY(-50%) scale(0.95);
+    }
+
+    .enlarged-nav-btn.prev-btn { left: 16px; }
+    .enlarged-nav-btn.next-btn { right: 16px; }
+
+    .enlarged-container {
+      width: 100%;
+      max-width: 580px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      justify-content: center;
+      min-height: 0;
+      position: relative;
+    }
+
+    .enlarged-img-wrap {
+      width: 100%;
+      max-height: 48vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
     }
 
     .enlarged-image-content {
-      max-width: 92%;
-      max-height: 92%;
-      border-radius: 12px;
+      max-width: 100%;
+      max-height: 48vh;
+      border-radius: 16px;
       object-fit: contain;
-      box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+      background: rgba(255, 255, 255, 0.04);
+      user-select: none;
+      -webkit-user-drag: none;
+      animation: zoomIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .enlarged-card {
+      width: 100%;
+      max-width: 580px;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      color: var(--ink);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex-shrink: 0;
+      transition: width 0.15s ease;
+      box-sizing: border-box;
+    }
+
+    .enlarged-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .enlarged-title-wrap {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .enlarged-product-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 0 0 3px 0;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .enlarged-product-price {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--green-deep);
+    }
+
+    .enlarged-price-per {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--ink-muted);
+      font-family: 'Figtree', sans-serif;
+    }
+
+    .enlarged-saved-badge {
+      background: var(--green-bright);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 100px;
+      animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      white-space: nowrap;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    .enlarged-order-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(26, 61, 43, 0.08);
+    }
+
+    .enlarged-qty-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .enlarged-qty-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-muted);
+    }
+
+    .enlarged-stepper {
+      display: flex;
+      align-items: center;
+      background: var(--cream);
+      border-radius: 10px;
+      padding: 3px;
+      border: 1.5px solid var(--cream-dark);
+    }
+
+    .enlarged-step-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: none;
+      background: white;
+      color: var(--ink);
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      transition: all 0.15s;
+    }
+
+    .enlarged-step-btn:hover {
+      background: var(--green-pale);
+      color: var(--green-deep);
+    }
+
+    .enlarged-step-btn:active {
+      transform: scale(0.92);
+    }
+
+    .enlarged-qty-input {
+      width: 58px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      text-align: center;
+      font-family: 'Geist Mono', monospace;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+      outline: none;
+    }
+
+    .enlarged-preset-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .enlarged-preset-btn {
+      background: var(--cream-dark);
+      border: 1px solid rgba(26, 61, 43, 0.08);
+      border-radius: 8px;
+      padding: 6px 9px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--green-deep);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .enlarged-preset-btn:hover {
+      background: var(--green-pale);
+      border-color: var(--green-bright);
+    }
+
+    .enlarged-preset-btn:active {
+      transform: scale(0.94);
+    }
+
+    .enlarged-subtotal-row {
+      font-size: 12px;
+      color: var(--green-mid);
+      background: var(--green-pale);
+      padding: 6px 12px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 500;
+    }
+
+    @media (max-width: 600px) {
+      #enlarged-image-overlay {
+        padding: 8px 10px 12px;
+      }
+      .enlarged-nav-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 14px;
+      }
+      .enlarged-nav-btn.prev-btn { left: 8px; }
+      .enlarged-nav-btn.next-btn { right: 8px; }
+      .enlarged-img-wrap { max-height: 42vh; }
+      .enlarged-image-content { max-height: 42vh; }
+      .enlarged-card { padding: 12px 14px; border-radius: 16px; }
+      .enlarged-order-row { justify-content: flex-start; }
     }
 
     /* ══════════════════════════════════════
@@ -1233,8 +1584,16 @@
 
     <!-- SEARCH VIEW -->
     <div ng-if="isSearching">
-      <div class="search-header" style="padding-top: 90px;">
+      <div class="search-header" style="padding-top: 90px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
         <div class="search-title">Results for <span class="search-query">"{{ searchQuery }}"</span></div>
+        <div class="filter-sort-wrap">
+          <span class="filter-label">Sort</span>
+          <select class="sort-select" ng-model="sortConfig.sortBy" ng-change="onSortChange(sortConfig.sortBy)">
+            <option value="newest">✨ Newest First</option>
+            <option value="price_asc">💰 Price: Low to High</option>
+            <option value="price_desc">💎 Price: High to Low</option>
+          </select>
+        </div>
       </div>
       <div style="padding: 0 14px 80px;">
         <div ng-if="isLoadingSearchResults" class="product-grid">
@@ -1247,7 +1606,7 @@
         <div ng-if="!isLoadingSearchResults">
           <div class="product-grid">
             <div class="product-card" ng-repeat="product in searchResults | limitTo: searchLimit">
-              <img class="product-card-img" ng-src="{{product.url}}" alt="{{product.name}}" ng-click="showEnlargedImage(product.url)" loading="lazy">
+              <img class="product-card-img" ng-src="{{product.url}}" alt="{{product.name}}" ng-click="openEnlargedProduct(product, searchResults, $index)" loading="lazy">
               <div class="product-card-body">
                 <span class="saved-badge" ng-if="product.justSaved">Saved!</span>
                 <div class="product-price" ng-if="priceVisible">{{product.price | currency:"₹":0}}</div>
@@ -1307,16 +1666,26 @@
       <div class="products-area">
         <!-- FILTER BAR -->
         <div class="filter-bar">
-          <span class="filter-label">Price</span>
-          <input type="number" class="price-input" placeholder="Min ₹"
-                 ng-model="priceFilter.min" ng-change="updateDisplayedProducts()">
-          <span class="price-sep">–</span>
-          <input type="number" class="price-input" placeholder="Max ₹"
-                 ng-model="priceFilter.max" ng-change="updateDisplayedProducts()">
-          <button class="clear-filter-btn" ng-click="clearPriceFilter()"
-                  ng-if="priceFilter.min || priceFilter.max" title="Clear filter">
-            <i class="fas fa-times"></i>
-          </button>
+          <div class="filter-sort-wrap">
+            <span class="filter-label">Sort</span>
+            <select class="sort-select" ng-model="sortConfig.sortBy" ng-change="onSortChange(sortConfig.sortBy)">
+              <option value="newest">✨ Newest First</option>
+              <option value="price_asc">💰 Price: Low to High</option>
+              <option value="price_desc">💎 Price: High to Low</option>
+            </select>
+          </div>
+          <div class="filter-price-wrap">
+            <span class="filter-label">Price</span>
+            <input type="number" class="price-input" placeholder="Min ₹"
+                   ng-model="priceFilter.min" ng-change="updateDisplayedProducts()">
+            <span class="price-sep">–</span>
+            <input type="number" class="price-input" placeholder="Max ₹"
+                   ng-model="priceFilter.max" ng-change="updateDisplayedProducts()">
+            <button class="clear-filter-btn" ng-click="clearPriceFilter()"
+                    ng-if="priceFilter.min || priceFilter.max" title="Clear filter">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
         </div>
 
         <!-- SKELETON -->
@@ -1337,7 +1706,7 @@
               <img class="product-card-img"
                    ng-src="{{product.url}}"
                    alt="{{product.name}}"
-                   ng-click="showEnlargedImage(product.url, false)"
+                   ng-click="openEnlargedProduct(product, displayedProducts, $index)"
                    loading="lazy">
               <button class="admin-btn"
                       ng-if="dynamicField2Value === 'sammyadmin'"
@@ -1394,9 +1763,123 @@
     </div>
   </div>
 
-  <!-- ════════════════════ ENLARGED IMAGE ════════════════════ -->
-  <div id="enlarged-image-overlay" ng-click="closeEnlargedImage()">
-    <img class="enlarged-image-content" id="enlarged-image" src="">
+  <!-- ════════════════════ ENLARGED IMAGE & ORDER SLIDER ════════════════════ -->
+  <div id="enlarged-image-overlay"
+       ng-show="isEnlargedImageOpen"
+       ng-click="closeEnlargedImage()"
+       ng-touchstart="onTouchStart($event)"
+       ng-touchend="onTouchEnd($event)">
+
+    <!-- Top Action Bar -->
+    <div class="enlarged-topbar" ng-click="$event.stopPropagation()">
+      <div class="enlarged-counter" ng-if="enlargedList.length > 0">
+        <i class="fas fa-layer-group me-1"></i> {{ enlargedIndex + 1 }} / {{ enlargedList.length }}
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <button class="enlarged-video-btn"
+                ng-if="enlargedProduct.videourl"
+                ng-click="showVideoModal($event, enlargedProduct.videourl, true)">
+          <i class="fas fa-play me-1"></i> Video
+        </button>
+        <button class="enlarged-close-btn" ng-click="closeEnlargedImage()" title="Close (Esc)">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Slider Arrows -->
+    <button class="enlarged-nav-btn prev-btn"
+            type="button"
+            ng-click="prevEnlargedProduct($event)"
+            title="Previous (Left Arrow)"
+            ng-if="enlargedList.length > 1">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <button class="enlarged-nav-btn next-btn"
+            type="button"
+            ng-click="nextEnlargedProduct($event)"
+            title="Next (Right Arrow)"
+            ng-if="enlargedList.length > 1">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+
+    <!-- Main Content Container: Image + Product Order Card -->
+    <div class="enlarged-container" ng-click="$event.stopPropagation()">
+      <div class="enlarged-img-wrap">
+        <img class="enlarged-image-content"
+             id="enlarged-image"
+             ng-src="{{enlargedProduct.url}}"
+             alt="{{enlargedProduct.name}}"
+             onload="window.syncEnlargedCardWidth()"
+             draggable="false">
+      </div>
+
+      <!-- Bottom Order Card -->
+      <div class="enlarged-card" ng-if="enlargedProduct">
+        <div class="enlarged-card-header">
+          <div class="enlarged-title-wrap">
+            <h4 class="enlarged-product-name">{{ enlargedProduct.name }}</h4>
+            <div class="enlarged-product-price" ng-if="priceVisible">
+              {{ enlargedProduct.price | currency:"₹":0 }}
+              <span class="enlarged-price-per">/ piece</span>
+            </div>
+          </div>
+          <span class="enlarged-saved-badge" ng-if="enlargedProduct.justSaved">
+            <i class="fas fa-check-circle me-1"></i> Saved!
+          </span>
+        </div>
+
+        <!-- Order / Quantity Controls -->
+        <div class="enlarged-order-row">
+          <div class="enlarged-qty-controls">
+            <span class="enlarged-qty-label">Order Qty:</span>
+            <div class="enlarged-stepper">
+              <button class="enlarged-step-btn"
+                      type="button"
+                      ng-click="changeEnlargedQty(enlargedProduct, -1)"
+                      title="Decrease by 1">
+                <i class="fas fa-minus"></i>
+              </button>
+              <input type="number"
+                     class="enlarged-qty-input"
+                     placeholder="0"
+                     min="0"
+                     ng-model="enlargedProduct.field3"
+                     ng-change="submitData(enlargedProduct)"
+                     ng-model-options="{ debounce: 600 }">
+              <button class="enlarged-step-btn"
+                      type="button"
+                      ng-click="changeEnlargedQty(enlargedProduct, 1)"
+                      title="Increase by 1">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Dozen Presets for Wholesale -->
+          <div class="enlarged-preset-group">
+            <button class="enlarged-preset-btn" type="button" ng-click="changeEnlargedQty(enlargedProduct, 6)">+6</button>
+            <button class="enlarged-preset-btn" type="button" ng-click="changeEnlargedQty(enlargedProduct, 12)">+12 (1 Doz)</button>
+            <button class="enlarged-preset-btn" type="button" ng-click="changeEnlargedQty(enlargedProduct, 24)">+24 (2 Doz)</button>
+          </div>
+        </div>
+
+        <!-- Total Calculation for this Item -->
+        <div class="enlarged-subtotal-row" ng-if="enlargedProduct.field3 > 0 && priceVisible">
+          <span>Item Total: <strong>{{ (enlargedProduct.field3 * enlargedProduct.price) | currency:"₹":0 }}</strong></span>
+          <span>({{ enlargedProduct.field3 }} pcs)</span>
+        </div>
+
+        <!-- Admin Out of Stock Toggle -->
+        <button class="admin-btn mt-2"
+                type="button"
+                style="margin:0; width:auto; align-self:flex-start;"
+                ng-if="dynamicField2Value === 'sammyadmin'"
+                ng-click="markOutOfStock(enlargedProduct)">
+          <i class="fas fa-ban me-1"></i> Mark Out of Stock
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- ════════════════════ ORDER MODAL ════════════════════ -->
@@ -1472,8 +1955,8 @@
         if (!scope) return;
 
         scope.$applyAsync(function() {
-          if (isEnlargedImageOpen && enlargedEl && enlargedEl.style.display === 'flex') {
-            scope.closeEnlargedImage();
+          if (isEnlargedImageOpen && enlargedEl && (enlargedEl.style.display === 'flex' || scope.isEnlargedImageOpen)) {
+            scope.closeEnlargedImage(true);
             history.pushState({ state: 'home' }, null, location.href);
             return;
           }
@@ -1497,6 +1980,22 @@
           history.pushState({ state: 'home' }, null, location.href);
         });
       } catch(e) { console.error('Popstate error:', e); }
+    });
+
+    // Keyboard navigation for enlarged image modal (Left, Right, Escape)
+    window.addEventListener('keydown', function(event) {
+      try {
+        if (!isEnlargedImageOpen) return;
+        var scope = angular.element(document.body).scope();
+        if (!scope || !scope.isEnlargedImageOpen) return;
+        if (event.key === 'ArrowRight' || event.key === 'Right') {
+          scope.$applyAsync(function() { scope.nextEnlargedProduct(); });
+        } else if (event.key === 'ArrowLeft' || event.key === 'Left') {
+          scope.$applyAsync(function() { scope.prevEnlargedProduct(); });
+        } else if (event.key === 'Escape') {
+          scope.$applyAsync(function() { scope.closeEnlargedImage(); });
+        }
+      } catch(e) { console.error('Keydown error:', e); }
     });
 
     // ── LOGIN ──
@@ -1582,6 +2081,12 @@
         vm.images = [];
         $scope.displayedProducts = [];
         $scope.priceFilter = { min: null, max: null };
+        $scope.sortConfig            = { sortBy: 'newest' };
+        $scope.sortBy                = 'newest';
+        vm.sortConfig                = $scope.sortConfig;
+        $scope.enlargedProduct       = null;
+        $scope.enlargedList          = [];
+        $scope.enlargedIndex         = 0;
         $scope.dynamicField2Value    = localStorage.getItem('name') || '';
         $scope.priceVisible          = localStorage.getItem('priceVisible') !== 'false';
         $scope.isOrderModalOpen      = false;
@@ -1797,14 +2302,41 @@
           $scope.allOrders.$remove(item).catch(e => console.error(e));
         };
 
-        // ── SORTING: newest first by `date` field (fallback: Firebase key) ──
+        $scope.onSortChange = function(newVal) {
+          var s = newVal || ($scope.sortConfig && $scope.sortConfig.sortBy) || $scope.sortBy || 'newest';
+          $scope.sortConfig.sortBy = s;
+          $scope.sortBy = s;
+          if ($scope.isSearching) {
+            if ($scope._searchCache) {
+              $scope._searchCache = sortProducts($scope._searchCache);
+              $scope.searchLimit = PAGE_SIZE;
+              $scope.searchResults = $scope._searchCache.slice(0, PAGE_SIZE);
+            }
+          } else {
+            $scope.displayLimit = PAGE_SIZE;
+            $scope.updateDisplayedProducts();
+            $timeout(function() { window.scrollTo({ top: 0, behavior: 'smooth' }); }, 0);
+          }
+        };
+
+        // ── SORTING: newest, price_asc, or price_desc ──
         function sortProducts(list) {
+          var s = ($scope.sortConfig && $scope.sortConfig.sortBy) || $scope.sortBy || 'newest';
           function keyOf(it) {
             var d = it.date;
             if (d === undefined || d === null || d === '') d = it.$id;
             return d;
           }
           return list.slice().sort(function(a, b) {
+            if (s === 'price_asc') {
+              var pa = Number(a.price) || 0;
+              var pb = Number(b.price) || 0;
+              if (pa !== pb) return pa - pb;
+            } else if (s === 'price_desc') {
+              var pa = Number(a.price) || 0;
+              var pb = Number(b.price) || 0;
+              if (pa !== pb) return pb - pa;
+            }
             var da = keyOf(a), db = keyOf(b);
             if (typeof da === 'number' && typeof db === 'number') return db - da;
             da = String(da); db = String(db);
@@ -1883,28 +2415,160 @@
           } catch(e) { console.error(e); }
         };
 
-        $scope.showEnlargedImage = function(src, fromProductModal) {
+        window.syncEnlargedCardWidth = function() {
           try {
-            var overlay = document.getElementById('enlarged-image-overlay');
-            if (overlay) {
-              overlay.style.display = 'flex';
-              overlay.querySelector('img').src = src || '';
-              isEnlargedImageOpen = true;
-              $scope.isEnlargedImageOpen = true;
-              $scope.$applyAsync();
-              history.pushState({ state: 'enlargedImage', fromProductModal: !!fromProductModal }, null, location.href);
+            var img = document.getElementById('enlarged-image');
+            var card = document.querySelector('.enlarged-card');
+            var topbar = document.querySelector('.enlarged-topbar');
+            if (!img) return;
+            var w = img.getBoundingClientRect().width;
+            if (w > 50) {
+              var roundedW = Math.round(w);
+              if (card) {
+                card.style.width = roundedW + 'px';
+                card.style.maxWidth = '100%';
+              }
+              if (topbar) {
+                topbar.style.width = roundedW + 'px';
+                topbar.style.maxWidth = '100%';
+              }
             }
+          } catch(e) { console.error('syncEnlargedCardWidth error:', e); }
+        };
+
+        window.addEventListener('resize', function() {
+          if ($scope.isEnlargedImageOpen) window.syncEnlargedCardWidth();
+        });
+
+        function initEnlargedResizeObserver() {
+          var img = document.getElementById('enlarged-image');
+          if (img && window.ResizeObserver && !img._roAttached) {
+            img._roAttached = true;
+            var ro = new ResizeObserver(function() {
+              window.syncEnlargedCardWidth();
+            });
+            ro.observe(img);
+          }
+        }
+
+        $scope.openEnlargedProduct = function(product, list, index) {
+          try {
+            $scope.enlargedList = list || ($scope.isSearching ? $scope.searchResults : $scope.displayedProducts) || [];
+            if (index !== undefined && index !== null && index >= 0) {
+              $scope.enlargedIndex = index;
+            } else {
+              $scope.enlargedIndex = $scope.enlargedList.indexOf(product);
+              if ($scope.enlargedIndex === -1) $scope.enlargedIndex = 0;
+            }
+            $scope.enlargedProduct = product || $scope.enlargedList[$scope.enlargedIndex];
+            $scope.isEnlargedImageOpen = true;
+            isEnlargedImageOpen = true;
+            var overlay = document.getElementById('enlarged-image-overlay');
+            if (overlay) overlay.style.display = 'flex';
+            history.pushState({ state: 'enlargedImage' }, null, location.href);
+            $scope.$applyAsync();
+            setTimeout(function() {
+              initEnlargedResizeObserver();
+              window.syncEnlargedCardWidth();
+            }, 30);
+            setTimeout(window.syncEnlargedCardWidth, 150);
           } catch(e) { console.error(e); }
         };
 
-        $scope.closeEnlargedImage = function() {
+        $scope.nextEnlargedProduct = function($event) {
+          if ($event) $event.stopPropagation();
+          if (!$scope.enlargedList || $scope.enlargedList.length === 0) return;
+          if ($scope.enlargedIndex < $scope.enlargedList.length - 1) {
+            $scope.enlargedIndex++;
+          } else {
+            $scope.enlargedIndex = 0;
+          }
+          $scope.enlargedProduct = $scope.enlargedList[$scope.enlargedIndex];
+          if ($scope.enlargedIndex >= $scope.enlargedList.length - 3) {
+            if ($scope.isSearching) $scope.loadMoreSearch();
+            else $scope.loadMoreProducts();
+          }
+          $scope.$applyAsync();
+          setTimeout(window.syncEnlargedCardWidth, 30);
+          setTimeout(window.syncEnlargedCardWidth, 150);
+        };
+
+        $scope.prevEnlargedProduct = function($event) {
+          if ($event) $event.stopPropagation();
+          if (!$scope.enlargedList || $scope.enlargedList.length === 0) return;
+          if ($scope.enlargedIndex > 0) {
+            $scope.enlargedIndex--;
+          } else {
+            $scope.enlargedIndex = $scope.enlargedList.length - 1;
+          }
+          $scope.enlargedProduct = $scope.enlargedList[$scope.enlargedIndex];
+          $scope.$applyAsync();
+          setTimeout(window.syncEnlargedCardWidth, 30);
+          setTimeout(window.syncEnlargedCardWidth, 150);
+        };
+
+        $scope.changeEnlargedQty = function(product, delta) {
+          if (!product) return;
+          var curr = parseInt(product.field3 || 0, 10);
+          if (isNaN(curr)) curr = 0;
+          var next = Math.max(0, curr + delta);
+          product.field3 = next > 0 ? next : '';
+          $scope.submitData(product);
+        };
+
+        var touchStartX = 0;
+        var touchStartY = 0;
+        $scope.onTouchStart = function(e) {
+          if (e.touches && e.touches.length === 1) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+          }
+        };
+
+        $scope.onTouchEnd = function(e) {
+          if (!e.changedTouches || e.changedTouches.length === 0) return;
+          var diffX = e.changedTouches[0].clientX - touchStartX;
+          var diffY = e.changedTouches[0].clientY - touchStartY;
+          if (Math.abs(diffX) > 45 && Math.abs(diffX) > Math.abs(diffY)) {
+            if (diffX < 0) {
+              $scope.nextEnlargedProduct();
+            } else {
+              $scope.prevEnlargedProduct();
+            }
+          }
+        };
+
+        $scope.showEnlargedImage = function(srcOrProduct, fromProductModal) {
+          var list = $scope.isSearching ? $scope.searchResults : $scope.displayedProducts;
+          if (typeof srcOrProduct === 'object' && srcOrProduct !== null) {
+            $scope.openEnlargedProduct(srcOrProduct, list);
+          } else {
+            var found = list.find(function(p) { return p.url === srcOrProduct; });
+            if (found) {
+              $scope.openEnlargedProduct(found, list);
+            } else {
+              $scope.enlargedList = list;
+              $scope.enlargedIndex = 0;
+              $scope.enlargedProduct = { url: srcOrProduct, name: '', price: 0 };
+              $scope.isEnlargedImageOpen = true;
+              isEnlargedImageOpen = true;
+              var overlay = document.getElementById('enlarged-image-overlay');
+              if (overlay) overlay.style.display = 'flex';
+              history.pushState({ state: 'enlargedImage', fromProductModal: !!fromProductModal }, null, location.href);
+              $scope.$applyAsync();
+            }
+          }
+        };
+
+        $scope.closeEnlargedImage = function(fromPopstate) {
           try {
             var overlay = document.getElementById('enlarged-image-overlay');
-            if (overlay) {
-              overlay.style.display = 'none';
-              isEnlargedImageOpen = false;
-              $scope.isEnlargedImageOpen = false;
-              $scope.$applyAsync();
+            if (overlay) overlay.style.display = 'none';
+            isEnlargedImageOpen = false;
+            $scope.isEnlargedImageOpen = false;
+            $scope.enlargedProduct = null;
+            $scope.$applyAsync();
+            if (!fromPopstate) {
               history.pushState({ state: 'home' }, null, location.href);
             }
           } catch(e) { console.error(e); }
