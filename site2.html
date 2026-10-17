@@ -2663,6 +2663,18 @@
             $scope.enlargedProduct = product || $scope.enlargedList[$scope.enlargedIndex];
             $scope.isEnlargedImageOpen = true;
             isEnlargedImageOpen = true;
+            isNavigating = false;
+            wasSwiping = false;
+            isTouching = false;
+            isSwiping = false;
+
+            var img = document.getElementById('enlarged-image');
+            if (img) {
+              img.style.transform = 'translateX(0)';
+              img.style.opacity = '1';
+              img.style.transition = '';
+            }
+
             var overlay = document.getElementById('enlarged-image-overlay');
             if (overlay) overlay.style.display = 'flex';
             history.pushState({ state: 'enlargedImage' }, null, location.href);
@@ -2676,38 +2688,99 @@
           } catch(e) { console.error(e); }
         };
 
-        $scope.nextEnlargedProduct = function($event) {
+        var isNavigating = false;
+        $scope.nextEnlargedProduct = function($event, isFromSwipe) {
           if ($event) $event.stopPropagation();
           if (!$scope.enlargedList || $scope.enlargedList.length === 0) return;
-          if ($scope.enlargedIndex < $scope.enlargedList.length - 1) {
-            $scope.enlargedIndex++;
+          if (isNavigating) return;
+          isNavigating = true;
+
+          function applyNext() {
+            if ($scope.enlargedIndex < $scope.enlargedList.length - 1) {
+              $scope.enlargedIndex++;
+            } else {
+              $scope.enlargedIndex = 0;
+            }
+            $scope.enlargedProduct = $scope.enlargedList[$scope.enlargedIndex];
+            if ($scope.enlargedIndex >= $scope.enlargedList.length - 3) {
+              if ($scope.isSearching) $scope.loadMoreSearch();
+              else $scope.loadMoreProducts();
+            }
+            $scope.$applyAsync();
+
+            var newImg = document.getElementById('enlarged-image');
+            if (newImg) {
+              newImg.style.transition = 'none';
+              newImg.style.transform = 'translateX(60px)';
+              newImg.style.opacity = '0';
+              void newImg.offsetWidth;
+              newImg.style.transition = 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease';
+              newImg.style.transform = 'translateX(0)';
+              newImg.style.opacity = '1';
+            }
+
+            setTimeout(window.syncEnlargedCardWidth, 30);
+            setTimeout(window.syncEnlargedCardWidth, 150);
+            setTimeout(window.syncEnlargedCardWidth, 350);
+            setTimeout(function() { isNavigating = false; }, 180);
+          }
+
+          if (isFromSwipe) {
+            applyNext();
           } else {
-            $scope.enlargedIndex = 0;
+            var img = document.getElementById('enlarged-image');
+            if (img) {
+              img.style.transition = 'transform 0.14s ease-out, opacity 0.14s ease-out';
+              img.style.transform = 'translateX(-60px)';
+              img.style.opacity = '0';
+            }
+            setTimeout(applyNext, 120);
           }
-          $scope.enlargedProduct = $scope.enlargedList[$scope.enlargedIndex];
-          if ($scope.enlargedIndex >= $scope.enlargedList.length - 3) {
-            if ($scope.isSearching) $scope.loadMoreSearch();
-            else $scope.loadMoreProducts();
-          }
-          $scope.$applyAsync();
-          setTimeout(window.syncEnlargedCardWidth, 30);
-          setTimeout(window.syncEnlargedCardWidth, 150);
-          setTimeout(window.syncEnlargedCardWidth, 350);
         };
 
-        $scope.prevEnlargedProduct = function($event) {
+        $scope.prevEnlargedProduct = function($event, isFromSwipe) {
           if ($event) $event.stopPropagation();
           if (!$scope.enlargedList || $scope.enlargedList.length === 0) return;
-          if ($scope.enlargedIndex > 0) {
-            $scope.enlargedIndex--;
-          } else {
-            $scope.enlargedIndex = $scope.enlargedList.length - 1;
+          if (isNavigating) return;
+          isNavigating = true;
+
+          function applyPrev() {
+            if ($scope.enlargedIndex > 0) {
+              $scope.enlargedIndex--;
+            } else {
+              $scope.enlargedIndex = $scope.enlargedList.length - 1;
+            }
+            $scope.enlargedProduct = $scope.enlargedList[$scope.enlargedIndex];
+            $scope.$applyAsync();
+
+            var newImg = document.getElementById('enlarged-image');
+            if (newImg) {
+              newImg.style.transition = 'none';
+              newImg.style.transform = 'translateX(-60px)';
+              newImg.style.opacity = '0';
+              void newImg.offsetWidth;
+              newImg.style.transition = 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease';
+              newImg.style.transform = 'translateX(0)';
+              newImg.style.opacity = '1';
+            }
+
+            setTimeout(window.syncEnlargedCardWidth, 30);
+            setTimeout(window.syncEnlargedCardWidth, 150);
+            setTimeout(window.syncEnlargedCardWidth, 350);
+            setTimeout(function() { isNavigating = false; }, 180);
           }
-          $scope.enlargedProduct = $scope.enlargedList[$scope.enlargedIndex];
-          $scope.$applyAsync();
-          setTimeout(window.syncEnlargedCardWidth, 30);
-          setTimeout(window.syncEnlargedCardWidth, 150);
-          setTimeout(window.syncEnlargedCardWidth, 350);
+
+          if (isFromSwipe) {
+            applyPrev();
+          } else {
+            var img = document.getElementById('enlarged-image');
+            if (img) {
+              img.style.transition = 'transform 0.14s ease-out, opacity 0.14s ease-out';
+              img.style.transform = 'translateX(60px)';
+              img.style.opacity = '0';
+            }
+            setTimeout(applyPrev, 120);
+          }
         };
 
         $scope.changeEnlargedQty = function(product, delta) {
@@ -2719,26 +2792,143 @@
           $scope.submitData(product);
         };
 
+        // ── WHATSAPP-STYLE TOUCH SWIPE & OUTSIDE CLICK DISMISS ──
         var touchStartX = 0;
         var touchStartY = 0;
+        var touchCurrentX = 0;
+        var isTouching = false;
+        var isSwiping = false;
+        var wasSwiping = false;
+        var swipeClearTimer = null;
+
         $scope.onTouchStart = function(e) {
-          if (e.touches && e.touches.length === 1) {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
+          if (!e.touches || e.touches.length !== 1) return;
+          // Don't intercept touches on interactive controls inside the order card
+          if (e.target && e.target.closest && e.target.closest('input, button, select, textarea')) {
+            return;
+          }
+
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+          touchCurrentX = touchStartX;
+          isTouching = true;
+          isSwiping = false;
+
+          var img = document.getElementById('enlarged-image');
+          if (img) {
+            img.style.transition = 'none';
+          }
+        };
+
+        $scope.onTouchMove = function(e) {
+          if (!isTouching || !e.touches || e.touches.length !== 1) return;
+          var clientX = e.touches[0].clientX;
+          var clientY = e.touches[0].clientY;
+          var diffX = clientX - touchStartX;
+          var diffY = clientY - touchStartY;
+
+          if (!isSwiping) {
+            if (Math.abs(diffX) > 8 && Math.abs(diffX) > Math.abs(diffY)) {
+              isSwiping = true;
+              wasSwiping = true;
+              if (swipeClearTimer) clearTimeout(swipeClearTimer);
+            } else if (Math.abs(diffY) > 12) {
+              // Vertical scroll gesture, stop swipe tracking
+              isTouching = false;
+              return;
+            }
+          }
+
+          if (isSwiping) {
+            if (e.cancelable) e.preventDefault();
+            touchCurrentX = clientX;
+            var img = document.getElementById('enlarged-image');
+            if (img) {
+              img.style.transform = 'translateX(' + diffX + 'px)';
+              img.style.opacity = Math.max(0.35, 1 - Math.abs(diffX) / 450);
+            }
           }
         };
 
         $scope.onTouchEnd = function(e) {
-          if (!e.changedTouches || e.changedTouches.length === 0) return;
-          var diffX = e.changedTouches[0].clientX - touchStartX;
-          var diffY = e.changedTouches[0].clientY - touchStartY;
-          if (Math.abs(diffX) > 45 && Math.abs(diffX) > Math.abs(diffY)) {
-            if (diffX < 0) {
-              $scope.nextEnlargedProduct();
-            } else {
-              $scope.prevEnlargedProduct();
+          if (!isTouching && !isSwiping) return;
+          var wasHorizontal = isSwiping;
+          isTouching = false;
+          isSwiping = false;
+
+          var img = document.getElementById('enlarged-image');
+          if (!wasHorizontal) {
+            if (img) {
+              img.style.transform = 'translateX(0)';
+              img.style.opacity = '1';
+            }
+            return;
+          }
+
+          var endX = (e.changedTouches && e.changedTouches.length) ? e.changedTouches[0].clientX : touchCurrentX;
+          var diffX = endX - touchStartX;
+          var threshold = 40; // light, easy swipe threshold (like WhatsApp)
+
+          if (diffX < -threshold) {
+            // Swiped Left -> NEXT product
+            if (img) {
+              img.style.transition = 'transform 0.16s cubic-bezier(0.2, 0, 0, 1), opacity 0.16s ease';
+              img.style.transform = 'translateX(-120%)';
+              img.style.opacity = '0';
+            }
+            setTimeout(function() {
+              $scope.nextEnlargedProduct(null, true);
+            }, 100);
+          } else if (diffX > threshold) {
+            // Swiped Right -> PREVIOUS product
+            if (img) {
+              img.style.transition = 'transform 0.16s cubic-bezier(0.2, 0, 0, 1), opacity 0.16s ease';
+              img.style.transform = 'translateX(120%)';
+              img.style.opacity = '0';
+            }
+            setTimeout(function() {
+              $scope.prevEnlargedProduct(null, true);
+            }, 100);
+          } else {
+            // Snap back
+            if (img) {
+              img.style.transition = 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease';
+              img.style.transform = 'translateX(0)';
+              img.style.opacity = '1';
             }
           }
+
+          if (swipeClearTimer) clearTimeout(swipeClearTimer);
+          swipeClearTimer = setTimeout(function() {
+            wasSwiping = false;
+          }, 300);
+        };
+
+        $scope.onTouchCancel = function() {
+          isTouching = false;
+          isSwiping = false;
+          var img = document.getElementById('enlarged-image');
+          if (img) {
+            img.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
+            img.style.transform = 'translateX(0)';
+            img.style.opacity = '1';
+          }
+          setTimeout(function() { wasSwiping = false; }, 200);
+        };
+
+        $scope.onBackdropClick = function(event) {
+          // If a swipe gesture was just performed, do not close
+          if (wasSwiping) return;
+
+          // Do not close if clicked inside the product image, the order card, the top bar, or the nav arrow buttons
+          if (event && event.target && event.target.closest) {
+            if (event.target.closest('#enlarged-image, .enlarged-card, .enlarged-topbar, .enlarged-nav-btn')) {
+              return;
+            }
+          }
+
+          // Clicked outside product and card -> close enlarged
+          $scope.closeEnlargedImage();
         };
 
         $scope.showEnlargedImage = function(srcOrProduct, fromProductModal) {
@@ -2770,6 +2960,18 @@
             isEnlargedImageOpen = false;
             $scope.isEnlargedImageOpen = false;
             $scope.enlargedProduct = null;
+            isNavigating = false;
+            wasSwiping = false;
+            isTouching = false;
+            isSwiping = false;
+
+            var img = document.getElementById('enlarged-image');
+            if (img) {
+              img.style.transform = '';
+              img.style.opacity = '';
+              img.style.transition = '';
+            }
+
             $scope.$applyAsync();
             if (!fromPopstate) {
               history.pushState({ state: 'home' }, null, location.href);
