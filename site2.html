@@ -681,6 +681,56 @@
 
     .admin-btn:hover { background: #fecaca; }
 
+    .admin-manage-btn {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+      border: none;
+      padding: 5px 11px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25);
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .admin-manage-btn:hover {
+      background: linear-gradient(135deg, #d97706, #b45309);
+      transform: translateY(-1px);
+      color: white;
+    }
+    .sidebar-header-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+    .sidebar-admin-cat-btn {
+      background: #fef3c7;
+      color: #b45309;
+      border: 1px solid #fde68a;
+      width: 26px;
+      height: 22px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .sidebar-admin-cat-btn:hover {
+      background: #f59e0b;
+      color: white;
+    }
+    .cat-table-row:hover {
+      background: rgba(245, 158, 11, 0.05);
+    }
+
     /* ── SKELETON LOADERS ── */
     @keyframes shimmer {
       0%   { background-position: -400px 0; }
@@ -1751,7 +1801,15 @@
           <div class="welcome-avatar">{{dynamicField2Value.charAt(0).toUpperCase()}}</div>
           <span>{{dynamicField2Value}}</span>
         </div>
-        <div class="topbar-actions">
+        <div class="topbar-actions" style="display:flex; align-items:center; gap:8px;">
+          <button class="admin-manage-btn"
+                  type="button"
+                  ng-if="dynamicField2Value === 'sammyadmin'"
+                  ng-click="openCategoryManager()"
+                  title="Admin: Set category position & create new categories">
+            <i class="fas fa-layer-group"></i>
+            <span>Categories</span>
+          </button>
           <div class="price-toggle-wrap">
             <span>Price</span>
             <label class="toggle-switch">
@@ -1832,7 +1890,16 @@
 
       <!-- SIDEBAR -->
       <div class="sidebar">
-        <span class="sidebar-label">Shop</span>
+        <div class="sidebar-header-row">
+          <span class="sidebar-label" style="margin-bottom:0;">Shop</span>
+          <button class="sidebar-admin-cat-btn"
+                  type="button"
+                  ng-if="dynamicField2Value === 'sammyadmin'"
+                  ng-click="openCategoryManager()"
+                  title="Admin: Set category position & create new categories">
+            <i class="fas fa-sliders-h"></i>
+          </button>
+        </div>
         <div class="tab-list">
           <div ng-if="isLoadingCategories">
             <div class="skeleton skeleton-tab" ng-repeat="i in [1,2,3,4,5,6,7]"></div>
@@ -2113,6 +2180,230 @@
         </div>
       </div>
     </div>
+  <!-- ════════════════════ CATEGORY MANAGER MODAL (ADMIN) ════════════════════ -->
+  <div class="modal fade" id="categoryManagerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content" style="border-radius:18px; overflow:hidden; border:none; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+        <div class="modal-header" style="background:var(--green-deep); color:white; padding:14px 20px;">
+          <div>
+            <h5 class="modal-title text-white mb-0" style="font-weight:700; font-family:'Bricolage Grotesque', sans-serif;">
+              <i class="fas fa-layer-group me-2 text-warning"></i> Category Manager
+            </h5>
+            <small style="opacity:0.85; font-size:11.5px;">Set category positions and create new categories. Syncs live to all customers.</small>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body" style="background:#f8f9fa; padding:16px;">
+          <!-- Success Notification -->
+          <div class="alert alert-success d-flex align-items-center py-2 px-3 mb-3 shadow-sm border-0"
+               style="border-radius:10px;"
+               ng-if="adminCategorySuccessMsg">
+            <i class="fas fa-check-circle me-2 text-success" style="font-size:16px;"></i>
+            <div style="font-weight:600; font-size:13px;">{{ adminCategorySuccessMsg }}</div>
+          </div>
+
+          <!-- Section: Create New Category Card -->
+          <div class="card shadow-sm border-0 mb-3" style="border-radius:14px; overflow:hidden;">
+            <div class="card-header bg-white py-2 px-3 d-flex justify-content-between align-items-center cursor-pointer"
+                 ng-click="toggleNewCatForm()"
+                 style="cursor:pointer;">
+              <div class="fw-bold" style="color:var(--green-deep); font-size:13.5px;">
+                <i class="fas fa-plus-circle me-2 text-success"></i> Create New Category
+              </div>
+              <span class="badge bg-light text-dark border px-2 py-1">
+                <i class="fas" ng-class="showNewCatForm ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+              </span>
+            </div>
+
+            <div class="card-body p-3" ng-show="showNewCatForm" style="background:#fff;">
+              <div class="row g-2">
+                <div class="col-md-5">
+                  <label class="form-label small fw-bold text-muted mb-1">Category Name *</label>
+                  <input type="text" class="form-control form-control-sm"
+                         placeholder="e.g. SUMMER TOYS"
+                         ng-model="newCategory.name"
+                         ng-change="onNewCatNameChange()">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-bold text-muted mb-1">Filter Keyword *</label>
+                  <input type="text" class="form-control form-control-sm"
+                         placeholder="e.g. SUMMER"
+                         ng-model="newCategory.filter">
+                  <div class="text-muted" style="font-size:10px; margin-top:2px;">Toys with this word will appear here.</div>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-bold text-muted mb-1">Position</label>
+                  <select class="form-select form-select-sm" ng-model="newCategory.position">
+                    <option value="top">🔝 Put at Top (Pos #2)</option>
+                    <option value="bottom">⬇️ Put at Bottom</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="mt-2">
+                <label class="form-label small fw-bold text-muted mb-1">Category Image URL</label>
+                <div class="input-group input-group-sm">
+                  <input type="text" class="form-control"
+                         placeholder="https://... image link"
+                         ng-model="newCategory.imageUrl">
+                  <button class="btn btn-outline-secondary" type="button" ng-click="newCategory.imageUrl = 'https://www.hindustantoys.in/images/all.jpeg'">Default</button>
+                </div>
+                <div class="d-flex align-items-center gap-1 mt-2 flex-wrap">
+                  <span class="small text-muted me-1" style="font-size:11px;">Quick Icon:</span>
+                  <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:11px;" ng-click="newCategory.imageUrl='https://www.hindustantoys.in/images/JCB.jpeg'">🚜 JCB</button>
+                  <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:11px;" ng-click="newCategory.imageUrl='https://www.hindustantoys.in/images/remote.jpeg'">🏎️ Car</button>
+                  <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:11px;" ng-click="newCategory.imageUrl='https://www.hindustantoys.in/images/TEDDY.jpg'">🧸 Teddy</button>
+                  <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:11px;" ng-click="newCategory.imageUrl='https://www.hindustantoys.in/images/racket.jpeg'">🏸 Sports</button>
+                  <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:11px;" ng-click="newCategory.imageUrl='https://www.hindustantoys.in/images/battery.jpeg'">🔋 Battery</button>
+                  <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:11px;" ng-click="newCategory.imageUrl='https://www.hindustantoys.in/images/mix.jpeg'">🎁 Mix</button>
+                </div>
+              </div>
+
+              <div class="mt-3 text-end">
+                <button type="button" class="btn btn-sm btn-success px-3" ng-click="createCategory()">
+                  <i class="fas fa-plus me-1"></i> Add Category
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Edit Category Card (when active) -->
+          <div class="card shadow border-warning mb-3" ng-if="editingCat" style="border-radius:14px; overflow:hidden;">
+            <div class="card-header bg-warning-subtle py-2 px-3 d-flex justify-content-between align-items-center">
+              <span class="fw-bold text-dark" style="font-size:13px;">
+                <i class="fas fa-edit me-1 text-warning"></i> Edit Category: {{ editingCat.name }}
+              </span>
+              <button type="button" class="btn-close btn-sm" ng-click="cancelEditCategory()"></button>
+            </div>
+            <div class="card-body p-3 bg-white">
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <label class="form-label small fw-bold text-muted mb-1">Category Name</label>
+                  <input type="text" class="form-control form-control-sm" ng-model="editingCat.name">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-bold text-muted mb-1">Filter Keyword</label>
+                  <input type="text" class="form-control form-control-sm" ng-model="editingCat.filter">
+                </div>
+                <div class="col-12 mt-2">
+                  <label class="form-label small fw-bold text-muted mb-1">Image URL</label>
+                  <input type="text" class="form-control form-control-sm" ng-model="editingCat.imageUrl">
+                </div>
+              </div>
+              <div class="d-flex justify-content-end gap-2 mt-3">
+                <button type="button" class="btn btn-sm btn-outline-secondary" ng-click="cancelEditCategory()">Cancel</button>
+                <button type="button" class="btn btn-sm btn-primary px-3" ng-click="saveEditCategory()">
+                  <i class="fas fa-check me-1"></i> Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Category Order & Position List -->
+          <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+            <div class="fw-bold text-dark" style="font-size:13.5px;">
+              <i class="fas fa-sort-amount-down me-1 text-primary"></i> Category Position ({{ categories.length }} total)
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+              <input type="text" class="form-control form-control-sm" placeholder="Find category…"
+                     style="max-width:140px; font-size:11.5px; height:28px;" ng-model="categorySearch">
+              <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2" style="font-size:11px;"
+                      ng-click="resetCategoriesToDefault()" title="Reset to original default list">
+                <i class="fas fa-undo me-1"></i> Reset
+              </button>
+            </div>
+          </div>
+
+          <div class="list-group shadow-sm" style="border-radius:12px; overflow:hidden;">
+            <div class="list-group-item d-flex align-items-center justify-content-between py-2 px-3 cat-table-row"
+                 ng-repeat="cat in categories | filter:{name: categorySearch} track by cat.id"
+                 style="border-color:#edf2f7;"
+                 ng-class="{'bg-light': $index === 0}">
+
+              <!-- Left info: Position + Image + Title + Filter -->
+              <div class="d-flex align-items-center gap-2 min-w-0" style="flex:1;">
+                <span class="badge"
+                      ng-class="$index === 0 ? 'bg-primary' : 'bg-secondary'"
+                      style="font-family:'Geist Mono', monospace; font-size:11px; min-width:30px; text-align:center;">
+                  #{{ $index + 1 }}
+                </span>
+
+                <img ng-src="{{cat.imageUrl}}" style="width:34px; height:34px; border-radius:8px; object-fit:contain; background:#f0f0f0; flex-shrink:0;">
+
+                <div class="min-w-0" style="line-height:1.25;">
+                  <div class="fw-bold text-dark text-truncate" style="font-size:12.5px;">
+                    {{ cat.name }}
+                    <span class="badge bg-success-subtle text-success border border-success-subtle ms-1" style="font-size:9px;" ng-if="cat.isCustom">CUSTOM</span>
+                  </div>
+                  <div class="text-muted" style="font-size:10.5px;">
+                    Filter: <code>{{ cat.filter || 'ALL' }}</code>
+                    <span class="ms-1" ng-if="cat.productCount !== undefined">({{ cat.productCount }} toys)</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right controls: Move Up / Down / Top / Edit / Delete -->
+              <div class="d-flex align-items-center gap-1 ms-2" style="flex-shrink:0;">
+                <!-- Move to Top -->
+                <button class="btn btn-sm btn-light border py-1 px-2"
+                        type="button"
+                        ng-click="moveCategoryToTop($index)"
+                        ng-if="$index > 1"
+                        title="Move to top position">
+                  <i class="fas fa-angle-double-up text-primary" style="font-size:11px;"></i>
+                </button>
+
+                <!-- Move Up -->
+                <button class="btn btn-sm btn-light border py-1 px-2"
+                        type="button"
+                        ng-click="moveCategoryUp($index)"
+                        ng-disabled="$index <= 1"
+                        title="Move Up">
+                  <i class="fas fa-arrow-up" style="font-size:11px;"></i>
+                </button>
+
+                <!-- Move Down -->
+                <button class="btn btn-sm btn-light border py-1 px-2"
+                        type="button"
+                        ng-click="moveCategoryDown($index)"
+                        ng-disabled="$index === 0 || $index >= categories.length - 1"
+                        title="Move Down">
+                  <i class="fas fa-arrow-down" style="font-size:11px;"></i>
+                </button>
+
+                <!-- Edit details -->
+                <button class="btn btn-sm btn-light border py-1 px-2"
+                        type="button"
+                        ng-click="startEditCategory(cat)"
+                        ng-if="$index > 0"
+                        title="Edit Category Name & Filter">
+                  <i class="fas fa-pen text-secondary" style="font-size:11px;"></i>
+                </button>
+
+                <!-- Delete -->
+                <button class="btn btn-sm btn-light border py-1 px-2 text-danger"
+                        type="button"
+                        ng-click="deleteCategory($index)"
+                        ng-if="$index > 0"
+                        title="Delete Category">
+                  <i class="fas fa-trash-alt" style="font-size:11px;"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer d-flex justify-content-between align-items-center" style="background:#fff; padding:12px 20px;">
+          <span class="text-muted small" style="font-size:11.5px;">
+            <i class="fas fa-shield-alt text-warning me-1"></i> Admin Privileges (Live Firebase Sync)
+          </span>
+          <button type="button" class="btn btn-success px-4" data-bs-dismiss="modal" ng-click="saveCategoriesToFirebase(false)">
+            <i class="fas fa-check me-1"></i> Done & Live Save
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ════════════════════ SCRIPTS ════════════════════ -->
@@ -2138,14 +2429,21 @@
         var orderModalEl   = document.getElementById('myModal');
         var videoModalEl   = document.getElementById('videoModal');
         var enlargedEl     = document.getElementById('enlarged-image-overlay');
+        var catModalEl     = document.getElementById('categoryManagerModal');
 
         var productModal = productModalEl ? bootstrap.Modal.getInstance(productModalEl) : null;
         var orderModal   = orderModalEl   ? bootstrap.Modal.getInstance(orderModalEl)   : null;
         var videoModal   = videoModalEl   ? bootstrap.Modal.getInstance(videoModalEl)   : null;
+        var catModal     = catModalEl     ? bootstrap.Modal.getInstance(catModalEl)     : null;
         var scope        = angular.element(document.body).scope();
         if (!scope) return;
 
         scope.$applyAsync(function() {
+          if (catModal && catModalEl.classList.contains('show')) {
+            catModal.hide();
+            history.pushState({ state: 'home' }, null, location.href);
+            return;
+          }
           if (isEnlargedImageOpen && enlargedEl && (enlargedEl.style.display === 'flex' || scope.isEnlargedImageOpen)) {
             scope.closeEnlargedImage(true);
             history.pushState({ state: 'home' }, null, location.href);
@@ -2305,6 +2603,7 @@
         var productsListener = fetchDb.on('value', function(snapshot) {
           var allData = [];
           snapshot.forEach(function(child) {
+            if (child.key === 'ht_categories') return;
             var item  = child.val();
             item.$id  = child.key;
             var clean = String(item.price || 0).replace(/[^0-9.]/g, '');
@@ -2315,15 +2614,7 @@
           vm.images = allData.filter(i => !i.outOfStock);
 
           $scope.$applyAsync(function() {
-            var counts = {};
-            vm.images.forEach(function(it) {
-              counts[''] = (counts[''] || 0) + 1;
-              var nm = String(it.name || '');
-              angular.forEach($scope.categories, function(cat) {
-                if (cat.filter && nm.indexOf(cat.filter) !== -1) counts[cat.filter] = (counts[cat.filter] || 0) + 1;
-              });
-            });
-            angular.forEach($scope.categories, function(cat) { cat.productCount = counts[cat.filter] || 0; });
+            $scope.recalcCategoryCounts();
             $scope.isLoading           = false;
             $scope.isLoadingCategories = false;
             $scope.updateDisplayedProducts();
@@ -2338,48 +2629,283 @@
         $scope.activeTabId   = 0;
         $scope.activeCategoryName = 'ALL PRODUCTS';
 
-        $scope.categories = [
-          { id:0,  name:'ALL PRODUCTS',    filter:'',            imageUrl:'https://www.hindustantoys.in/images/all.jpeg' },
-          { id:3,  name:'INDIAN TOYS',     filter:'INDIAN TOYS', imageUrl:'https://www.hindustantoys.in/images/JCB.jpeg' },
-          { id:7,  name:'REMOTE CAR',      filter:'REMOTE',      imageUrl:'https://www.hindustantoys.in/images/remote.jpeg' },
-          { id:42, name:'INTEX TUB',       filter:'INTEX',       imageUrl:'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2026-01-23T13%3A05%3A21.363Z_INTEX_TUB_d38d958e-f763-4e40-9b41-521a533466d5.jpg?alt=media&token=75753bf8-70a5-46d1-a074-467dbe22b899' },
-          { id:6,  name:'RACKET',          filter:'RACKET',      imageUrl:'https://www.hindustantoys.in/images/racket.jpeg' },
-          { id:9,  name:'MIX TOYS',        filter:'MIX',         imageUrl:'https://www.hindustantoys.in/images/mix.jpeg' },
-          { id:39, name:'EDUCATIONAL TOYS',filter:'EDUCATIONAL', imageUrl:'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2025-08-23T08%3A21%3A08.778Z_KIDS%20EDUCATIONAL%20CALENDER%20(MIX)_cfb4fb41-e790-4b0a-8cbd-d0f33f1d392b.jpg?alt=media&token=97e8c36a-6efe-4812-a40a-f99ab08b7b09' },
-          { id:41, name:'BATTERY CAR/JEEP',filter:'BATTERY CAR', imageUrl:'https://www.hindustantoys.in/images/Jeep.jpg' },
-          { id:40, name:'BATTERY BIKES',   filter:'BATTERY BIKE',imageUrl:'https://www.hindustantoys.in/images/bike.jpg' },
-          { id:38, name:'UMBRELLA',        filter:'UMBRELLA',    imageUrl:'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2024-06-24T16%3A35%3A31.407Z_RAINBOW%20UMBRELLA_IMG-20240529-WA0047.jpg?alt=media&token=64ee5147-65c7-4de8-897d-55df6cb84857' },
-          { id:10, name:'LUMO & OTHER',    filter:'LUMO',        imageUrl:'https://www.hindustantoys.in/images/lumo.jpeg' },
-          { id:36, name:'BAT BALL & SET',  filter:'BAT BALL',    imageUrl:'https://www.hindustantoys.in/images/bat.jpeg' },
-          { id:35, name:'CARROM BOARD',    filter:'CARROM',      imageUrl:'https://www.hindustantoys.in/images/carrom.jpeg' },
-          { id:37, name:'SWINGS',          filter:'SWING',       imageUrl:'https://www.hindustantoys.in/images/swing.jpeg' },
-          
-          { id:13, name:'BATTERY OPERATED',filter:'BATTERY',     imageUrl:'https://www.hindustantoys.in/images/battery.jpeg' },
-          { id:34, name:'VALENTINES/TEDDY',filter:'TEDDY',       imageUrl:'https://www.hindustantoys.in/images/TEDDY.jpg' },
-          { id:31, name:'KITCHEN SETS',    filter:'KITCHEN',     imageUrl:'https://www.hindustantoys.in/images/KITCHEN.jpg' },
-          
-          { id:11, name:'MAGIC RIDDER',    filter:'RIDDER',      imageUrl:'https://www.hindustantoys.in/images/ridder.jpeg' },
-          { id:25, name:'HIGH QUALITY',    filter:'HIGH QUALITY',imageUrl:'https://www.hindustantoys.in/images/high.jpeg' },
-          { id:30, name:'HT PRODUCTS',     filter:'OWN',         imageUrl:'https://www.hindustantoys.in/images/htquality.jpg' },
-          { id:29, name:'PALNA',           filter:'PALNA',       imageUrl:'https://www.hindustantoys.in/images/palna.png' },
-          { id:5,  name:'WALKER',          filter:'WALKER',      imageUrl:'https://www.hindustantoys.in/images/walker.jpeg' },
-          { id:28, name:'LUNCH BOX',       filter:'LUNCH BOX',   imageUrl:'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2025-07-01T08%3A45%3A26.021Z_LUNCH%20BOX_667798d8-2789-471f-985a-8605b19313b1.jpg?alt=media&token=bb3a00ab-a86c-43c5-9e10-d18f4a427451' },
-          { id:27, name:'PENCIL BOX',      filter:'PENCIL BOX',  imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-          { id:23, name:'WATER BOTTLE',    filter:'BOTTLE',      imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-          { id:26, name:'BOARD GAME',      filter:'BOARD GAME',  imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-          { id:21, name:'BIG ITEMS',       filter:'BIG',         imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-          { id:19, name:'TRICYCLES',       filter:'TRICYCLE',    imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-          { id:18, name:'SPORTS ITEM',     filter:'SPORTS',      imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-          { id:17, name:'PATTA ITEMS',     filter:'PATTA',       imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-          { id:15, name:'GUNS VARIETY',    filter:'GUN',         imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-          { id:1,  name:'STATIONERY',      filter:'STATIONERY',  imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-          { id:8,  name:'DOLL',            filter:'DOLL',        imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-          { id:12, name:'FANCY ITEMS',     filter:'FANCY',       imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-          { id:14, name:'DOZEN PACKING',   filter:'DOZEN',       imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-          { id:32, name:'GODOWN-1',        filter:'G1',          imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-          { id:33, name:'GODOWN-2',        filter:'G2',          imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg' },
-          { id:16, name:'EMPTY',           filter:'GUN',         imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg' }
+        // ── CATEGORIES (DEFAULT TEMPLATE) ──
+        $scope.defaultCategories = [
+          { id:0,  name:'ALL PRODUCTS',    filter:'',            imageUrl:'https://www.hindustantoys.in/images/all.jpeg', order: 0 },
+          { id:3,  name:'INDIAN TOYS',     filter:'INDIAN TOYS', imageUrl:'https://www.hindustantoys.in/images/JCB.jpeg', order: 1 },
+          { id:7,  name:'REMOTE CAR',      filter:'REMOTE',      imageUrl:'https://www.hindustantoys.in/images/remote.jpeg', order: 2 },
+          { id:42, name:'INTEX TUB',       filter:'INTEX',       imageUrl:'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2026-01-23T13%3A05%3A21.363Z_INTEX_TUB_d38d958e-f763-4e40-9b41-521a533466d5.jpg?alt=media&token=75753bf8-70a5-46d1-a074-467dbe22b899', order: 3 },
+          { id:6,  name:'RACKET',          filter:'RACKET',      imageUrl:'https://www.hindustantoys.in/images/racket.jpeg', order: 4 },
+          { id:9,  name:'MIX TOYS',        filter:'MIX',         imageUrl:'https://www.hindustantoys.in/images/mix.jpeg', order: 5 },
+          { id:39, name:'EDUCATIONAL TOYS',filter:'EDUCATIONAL', imageUrl:'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2025-08-23T08%3A21%3A08.778Z_KIDS%20EDUCATIONAL%20CALENDER%20(MIX)_cfb4fb41-e790-4b0a-8cbd-d0f33f1d392b.jpg?alt=media&token=97e8c36a-6efe-4812-a40a-f99ab08b7b09', order: 6 },
+          { id:41, name:'BATTERY CAR/JEEP',filter:'BATTERY CAR', imageUrl:'https://www.hindustantoys.in/images/Jeep.jpg', order: 7 },
+          { id:40, name:'BATTERY BIKES',   filter:'BATTERY BIKE',imageUrl:'https://www.hindustantoys.in/images/bike.jpg', order: 8 },
+          { id:38, name:'UMBRELLA',        filter:'UMBRELLA',    imageUrl:'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2024-06-24T16%3A35%3A31.407Z_RAINBOW%20UMBRELLA_IMG-20240529-WA0047.jpg?alt=media&token=64ee5147-65c7-4de8-897d-55df6cb84857', order: 9 },
+          { id:10, name:'LUMO & OTHER',    filter:'LUMO',        imageUrl:'https://www.hindustantoys.in/images/lumo.jpeg', order: 10 },
+          { id:36, name:'BAT BALL & SET',  filter:'BAT BALL',    imageUrl:'https://www.hindustantoys.in/images/bat.jpeg', order: 11 },
+          { id:35, name:'CARROM BOARD',    filter:'CARROM',      imageUrl:'https://www.hindustantoys.in/images/carrom.jpeg', order: 12 },
+          { id:37, name:'SWINGS',          filter:'SWING',       imageUrl:'https://www.hindustantoys.in/images/swing.jpeg', order: 13 },
+          { id:13, name:'BATTERY OPERATED',filter:'BATTERY',     imageUrl:'https://www.hindustantoys.in/images/battery.jpeg', order: 14 },
+          { id:34, name:'VALENTINES/TEDDY',filter:'TEDDY',       imageUrl:'https://www.hindustantoys.in/images/TEDDY.jpg', order: 15 },
+          { id:31, name:'KITCHEN SETS',    filter:'KITCHEN',     imageUrl:'https://www.hindustantoys.in/images/KITCHEN.jpg', order: 16 },
+          { id:11, name:'MAGIC RIDDER',    filter:'RIDDER',      imageUrl:'https://www.hindustantoys.in/images/ridder.jpeg', order: 17 },
+          { id:25, name:'HIGH QUALITY',    filter:'HIGH QUALITY',imageUrl:'https://www.hindustantoys.in/images/high.jpeg', order: 18 },
+          { id:30, name:'HT PRODUCTS',     filter:'OWN',         imageUrl:'https://www.hindustantoys.in/images/htquality.jpg', order: 19 },
+          { id:29, name:'PALNA',           filter:'PALNA',       imageUrl:'https://www.hindustantoys.in/images/palna.png', order: 20 },
+          { id:5,  name:'WALKER',          filter:'WALKER',      imageUrl:'https://www.hindustantoys.in/images/walker.jpeg', order: 21 },
+          { id:28, name:'LUNCH BOX',       filter:'LUNCH BOX',   imageUrl:'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/2025-07-01T08%3A45%3A26.021Z_LUNCH%20BOX_667798d8-2789-471f-985a-8605b19313b1.jpg?alt=media&token=bb3a00ab-a86c-43c5-9e10-d18f4a427451', order: 22 },
+          { id:27, name:'PENCIL BOX',      filter:'PENCIL BOX',  imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg', order: 23 },
+          { id:23, name:'WATER BOTTLE',    filter:'BOTTLE',      imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg', order: 24 },
+          { id:26, name:'BOARD GAME',      filter:'BOARD GAME',  imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg', order: 25 },
+          { id:21, name:'BIG ITEMS',       filter:'BIG',         imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg', order: 26 },
+          { id:19, name:'TRICYCLES',       filter:'TRICYCLE',    imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg', order: 27 },
+          { id:18, name:'SPORTS ITEM',     filter:'SPORTS',      imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg', order: 28 },
+          { id:17, name:'PATTA ITEMS',     filter:'PATTA',       imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg', order: 29 },
+          { id:15, name:'GUNS VARIETY',    filter:'GUN',         imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg', order: 30 },
+          { id:1,  name:'STATIONERY',      filter:'STATIONERY',  imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg', order: 31 },
+          { id:8,  name:'DOLL',            filter:'DOLL',        imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg', order: 32 },
+          { id:12, name:'FANCY ITEMS',     filter:'FANCY',       imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg', order: 33 },
+          { id:14, name:'DOZEN PACKING',   filter:'DOZEN',       imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg', order: 34 },
+          { id:32, name:'GODOWN-1',        filter:'G1',          imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg', order: 35 },
+          { id:33, name:'GODOWN-2',        filter:'G2',          imageUrl:'https://www.hindustantoys.in/images/DUMMY.jpeg', order: 36 }
         ];
+
+        $scope.categories = angular.copy($scope.defaultCategories);
+
+        // Calculate live product count for each category
+        $scope.recalcCategoryCounts = function() {
+          if (!vm.images || !$scope.categories) return;
+          var counts = {};
+          vm.images.forEach(function(it) {
+            counts[''] = (counts[''] || 0) + 1;
+            var nm = String(it.name || '').toUpperCase();
+            angular.forEach($scope.categories, function(cat) {
+              if (cat.filter) {
+                var flt = String(cat.filter).toUpperCase();
+                if (nm.indexOf(flt) !== -1) {
+                  counts[cat.filter] = (counts[cat.filter] || 0) + 1;
+                }
+              }
+            });
+          });
+          angular.forEach($scope.categories, function(cat) {
+            cat.productCount = counts[cat.filter] || 0;
+          });
+        };
+
+        // Real-time Firebase categories listener: all customers get categories configured by admin
+        var categoriesRef = fetchApp.database().ref('ht_categories');
+        var categoriesListener = categoriesRef.on('value', function(snapshot) {
+          try {
+            var val = snapshot.val();
+            if (val && Array.isArray(val) && val.length > 0) {
+              val.sort(function(a, b) {
+                var ordA = a.order !== undefined ? a.order : 999;
+                var ordB = b.order !== undefined ? b.order : 999;
+                return ordA - ordB;
+              });
+              $scope.categories = val;
+            } else if (val && typeof val === 'object') {
+              var arr = [];
+              Object.keys(val).forEach(function(k) {
+                if (val[k]) {
+                  if (val[k].id === undefined) val[k].id = k;
+                  arr.push(val[k]);
+                }
+              });
+              arr.sort(function(a, b) {
+                var ordA = a.order !== undefined ? a.order : 999;
+                var ordB = b.order !== undefined ? b.order : 999;
+                return ordA - ordB;
+              });
+              $scope.categories = arr.length > 0 ? arr : angular.copy($scope.defaultCategories);
+            } else {
+              $scope.categories = angular.copy($scope.defaultCategories);
+            }
+            $scope.recalcCategoryCounts();
+            $scope.isLoadingCategories = false;
+            $scope.$applyAsync();
+          } catch(err) {
+            console.error("Categories listener error:", err);
+            $scope.categories = angular.copy($scope.defaultCategories);
+            $scope.isLoadingCategories = false;
+            $scope.$applyAsync();
+          }
+        });
+
+        // ── ADMIN CATEGORY MANAGER METHODS ──
+        $scope.showNewCatForm = false;
+        $scope.categorySearch = '';
+        $scope.adminCategorySuccessMsg = '';
+        $scope.editingCat = null;
+
+        $scope.newCategory = {
+          name: '',
+          filter: '',
+          imageUrl: 'https://www.hindustantoys.in/images/all.jpeg',
+          position: 'top'
+        };
+
+        $scope.openCategoryManager = function() {
+          try {
+            $scope.showNewCatForm = false;
+            $scope.editingCat = null;
+            $scope.adminCategorySuccessMsg = '';
+            var el = document.getElementById('categoryManagerModal');
+            if (el) {
+              var modal = bootstrap.Modal.getInstance(el) || new bootstrap.Modal(el);
+              modal.show();
+            }
+          } catch(e) { console.error('openCategoryManager error:', e); }
+        };
+
+        $scope.toggleNewCatForm = function() {
+          $scope.showNewCatForm = !$scope.showNewCatForm;
+        };
+
+        $scope.onNewCatNameChange = function() {
+          if ($scope.newCategory.name && (!$scope.newCategory.filter || $scope.newCategory.filter === $scope._prevAutoFilter)) {
+            $scope.newCategory.filter = $scope.newCategory.name.toUpperCase();
+            $scope._prevAutoFilter = $scope.newCategory.filter;
+          }
+        };
+
+        $scope.createCategory = function() {
+          if (!$scope.newCategory.name || !$scope.newCategory.name.trim()) {
+            alert("Please enter a category name.");
+            return;
+          }
+          var name = $scope.newCategory.name.trim().toUpperCase();
+          var filter = ($scope.newCategory.filter || name).trim().toUpperCase();
+          var imageUrl = ($scope.newCategory.imageUrl || '').trim() || 'https://www.hindustantoys.in/images/all.jpeg';
+
+          var maxId = 100;
+          $scope.categories.forEach(function(c) {
+            var cid = parseInt(c.id, 10);
+            if (!isNaN(cid) && cid > maxId) maxId = cid;
+          });
+          var newId = maxId + 1;
+
+          var newCat = {
+            id: newId,
+            name: name,
+            filter: filter,
+            imageUrl: imageUrl,
+            isCustom: true
+          };
+
+          if ($scope.newCategory.position === 'top') {
+            $scope.categories.splice(1, 0, newCat);
+          } else {
+            $scope.categories.push(newCat);
+          }
+
+          $scope.newCategory.name = '';
+          $scope.newCategory.filter = '';
+          $scope.newCategory.imageUrl = 'https://www.hindustantoys.in/images/all.jpeg';
+          $scope.showNewCatForm = false;
+
+          $scope.saveCategoriesToFirebase(false);
+          $scope.recalcCategoryCounts();
+          $scope.adminCategorySuccessMsg = "✓ Category '" + name + "' created and live for all customers!";
+          $timeout(function() { $scope.adminCategorySuccessMsg = ''; }, 3500);
+        };
+
+        $scope.moveCategoryUp = function(index) {
+          if (index <= 1) return;
+          var item = $scope.categories.splice(index, 1)[0];
+          $scope.categories.splice(index - 1, 0, item);
+          $scope.saveCategoriesToFirebase(true);
+        };
+
+        $scope.moveCategoryDown = function(index) {
+          if (index === 0 || index >= $scope.categories.length - 1) return;
+          var item = $scope.categories.splice(index, 1)[0];
+          $scope.categories.splice(index + 1, 0, item);
+          $scope.saveCategoriesToFirebase(true);
+        };
+
+        $scope.moveCategoryToTop = function(index) {
+          if (index <= 1) return;
+          var item = $scope.categories.splice(index, 1)[0];
+          $scope.categories.splice(1, 0, item);
+          $scope.saveCategoriesToFirebase(false);
+          $scope.adminCategorySuccessMsg = "✓ Moved '" + item.name + "' to top position!";
+          $timeout(function() { $scope.adminCategorySuccessMsg = ''; }, 2500);
+        };
+
+        $scope.deleteCategory = function(index) {
+          if (index === 0) {
+            alert("Cannot delete 'ALL PRODUCTS' category.");
+            return;
+          }
+          var cat = $scope.categories[index];
+          if (!confirm("Are you sure you want to remove the category '" + cat.name + "'?")) return;
+          $scope.categories.splice(index, 1);
+          $scope.saveCategoriesToFirebase(true);
+          $scope.recalcCategoryCounts();
+        };
+
+        $scope.startEditCategory = function(cat) {
+          $scope.editingCat = angular.copy(cat);
+        };
+
+        $scope.saveEditCategory = function() {
+          if (!$scope.editingCat) return;
+          var idx = $scope.categories.findIndex(function(c) { return c.id === $scope.editingCat.id; });
+          if (idx !== -1) {
+            $scope.categories[idx].name = $scope.editingCat.name.trim().toUpperCase();
+            $scope.categories[idx].filter = $scope.editingCat.filter.trim().toUpperCase();
+            $scope.categories[idx].imageUrl = $scope.editingCat.imageUrl.trim();
+            $scope.saveCategoriesToFirebase(false);
+            $scope.recalcCategoryCounts();
+            $scope.adminCategorySuccessMsg = "✓ Category '" + $scope.categories[idx].name + "' updated!";
+            $timeout(function() { $scope.adminCategorySuccessMsg = ''; }, 2500);
+          }
+          $scope.editingCat = null;
+        };
+
+        $scope.cancelEditCategory = function() {
+          $scope.editingCat = null;
+        };
+
+        $scope.saveCategoriesToFirebase = function(silent) {
+          try {
+            var toSave = $scope.categories.map(function(cat, idx) {
+              return {
+                id: cat.id,
+                name: cat.name,
+                filter: cat.filter || '',
+                imageUrl: cat.imageUrl || 'https://www.hindustantoys.in/images/all.jpeg',
+                order: idx,
+                isCustom: !!cat.isCustom
+              };
+            });
+
+            fetchApp.database().ref('ht_categories').set(toSave)
+              .then(function() {
+                if (!silent) {
+                  $scope.$applyAsync(function() {
+                    $scope.adminCategorySuccessMsg = "✓ Categories live saved to Firebase!";
+                    $timeout(function() { $scope.adminCategorySuccessMsg = ''; }, 3000);
+                  });
+                }
+              })
+              .catch(function(err) {
+                console.error("Save categories error:", err);
+                alert("Failed to save categories: " + err.message);
+              });
+          } catch(e) { console.error(e); }
+        };
+
+        $scope.resetCategoriesToDefault = function() {
+          if (!confirm("Reset all categories back to default factory list? This will overwrite your custom order.")) return;
+          $scope.categories = angular.copy($scope.defaultCategories);
+          $scope.saveCategoriesToFirebase(false);
+          $scope.recalcCategoryCounts();
+          $scope.adminCategorySuccessMsg = "✓ Reset to default categories.";
+          $timeout(function() { $scope.adminCategorySuccessMsg = ''; }, 3000);
+        };
 
         var videoModal = null;
         $timeout(function() {
