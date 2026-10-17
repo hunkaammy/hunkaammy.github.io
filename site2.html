@@ -680,6 +680,29 @@
     }
 
     .admin-btn:hover { background: #fecaca; }
+    .admin-card-actions {
+      display: flex;
+      gap: 4px;
+      padding: 4px 8px 0;
+    }
+    .admin-card-actions .admin-btn {
+      margin: 0;
+      flex: 1;
+      text-align: center;
+      padding: 4px 6px;
+      font-size: 10px;
+    }
+    .admin-btn.admin-edit-btn {
+      background: #fef3c7;
+      color: #b45309;
+      border: 1px solid #fde68a;
+    }
+    .admin-btn.admin-edit-btn:hover {
+      background: #fde68a;
+    }
+    #editProductModal {
+      z-index: 1070 !important;
+    }
 
     .admin-manage-btn {
       background: linear-gradient(135deg, #f59e0b, #d97706);
@@ -713,22 +736,43 @@
       background: #fef3c7;
       color: #b45309;
       border: 1px solid #fde68a;
-      width: 26px;
-      height: 22px;
+      padding: 3px 6px;
       border-radius: 6px;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
+      gap: 3px;
+      font-size: 10px;
+      font-weight: 700;
       cursor: pointer;
       transition: all 0.2s;
+      white-space: nowrap;
     }
     .sidebar-admin-cat-btn:hover {
       background: #f59e0b;
       color: white;
+      border-color: #f59e0b;
     }
     .cat-table-row:hover {
       background: rgba(245, 158, 11, 0.05);
+    }
+    #categoryManagerModal {
+      z-index: 1065 !important;
+    }
+    #categoryManagerModal .modal-dialog {
+      max-width: 680px;
+      margin: 1.75rem auto;
+    }
+    @media (max-width: 540px) {
+      #categoryManagerModal .modal-dialog {
+        max-width: 100% !important;
+        margin: 0 !important;
+        height: 100% !important;
+      }
+      #categoryManagerModal .modal-content {
+        height: 100% !important;
+        border-radius: 0 !important;
+      }
     }
 
     /* ── SKELETON LOADERS ── */
@@ -1806,6 +1850,8 @@
                   type="button"
                   ng-if="dynamicField2Value === 'sammyadmin'"
                   ng-click="openCategoryManager()"
+                  data-bs-toggle="modal"
+                  data-bs-target="#categoryManagerModal"
                   title="Admin: Set category position & create new categories">
             <i class="fas fa-layer-group"></i>
             <span>Categories</span>
@@ -1896,8 +1942,10 @@
                   type="button"
                   ng-if="dynamicField2Value === 'sammyadmin'"
                   ng-click="openCategoryManager()"
+                  data-bs-toggle="modal"
+                  data-bs-target="#categoryManagerModal"
                   title="Admin: Set category position & create new categories">
-            <i class="fas fa-sliders-h"></i>
+            <i class="fas fa-sort-amount-down"></i> Sort
           </button>
         </div>
         <div class="tab-list">
@@ -1906,7 +1954,7 @@
           </div>
           <div class="tab-item"
                ng-if="!isLoadingCategories"
-               ng-class="{'active': activeTabId === category.id}"
+               ng-class="{'active': activeTabId == category.id}"
                ng-click="selectCategory(category.filter, category.id)"
                ng-repeat="category in categories track by category.id">
             <div class="tab-img-wrap">
@@ -1964,11 +2012,19 @@
                    alt="{{product.name}}"
                    ng-click="openEnlargedProduct(product, displayedProducts, $index)"
                    loading="lazy">
-              <button class="admin-btn"
-                      ng-if="dynamicField2Value === 'sammyadmin'"
-                      ng-click="$event.stopPropagation(); markOutOfStock(product)">
-                <i class="fas fa-ban me-1"></i> Out of Stock
-              </button>
+              <div class="admin-card-actions" ng-if="dynamicField2Value === 'sammyadmin'">
+                <button class="admin-btn admin-edit-btn"
+                        type="button"
+                        ng-click="$event.stopPropagation(); openEditProductModal(product)"
+                        title="Edit product name and price">
+                  <i class="fas fa-pen me-1"></i> Edit
+                </button>
+                <button class="admin-btn"
+                        type="button"
+                        ng-click="$event.stopPropagation(); markOutOfStock(product)">
+                  <i class="fas fa-ban me-1"></i> Out
+                </button>
+              </div>
               <div class="product-card-body">
                 <span class="saved-badge" ng-if="product.justSaved">✓ Saved</span>
                 <div class="product-price" ng-if="priceVisible">{{product.price | currency:"₹":0}}</div>
@@ -2129,13 +2185,21 @@
           <span>({{ enlargedProduct.field3 }} pcs)</span>
         </div>
 
-        <!-- Admin Out of Stock Toggle -->
-        <button class="admin-btn mt-2"
-                type="button"
-                ng-if="dynamicField2Value === 'sammyadmin'"
-                ng-click="markOutOfStock(enlargedProduct)">
-          <i class="fas fa-ban me-1"></i> Mark Out of Stock
-        </button>
+        <!-- Admin Product Controls -->
+        <div class="d-flex gap-2 mt-2 w-100" ng-if="dynamicField2Value === 'sammyadmin'">
+          <button class="admin-btn admin-edit-btn flex-1 py-2 text-center"
+                  type="button"
+                  style="margin:0; border-radius:10px; font-size:12px; font-weight:700;"
+                  ng-click="openEditProductModal(enlargedProduct)">
+            <i class="fas fa-pen me-1"></i> Edit Name & Price
+          </button>
+          <button class="admin-btn flex-1 py-2 text-center"
+                  type="button"
+                  style="margin:0; border-radius:10px; font-size:12px;"
+                  ng-click="markOutOfStock(enlargedProduct)">
+            <i class="fas fa-ban me-1"></i> Mark Out of Stock
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -2180,6 +2244,8 @@
         </div>
       </div>
     </div>
+  </div>
+
   <!-- ════════════════════ CATEGORY MANAGER MODAL (ADMIN) ════════════════════ -->
   <div class="modal fade" id="categoryManagerModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -2241,11 +2307,34 @@
                 </div>
               </div>
 
+              <!-- Category Image Selector & Uploader -->
               <div class="mt-2">
-                <label class="form-label small fw-bold text-muted mb-1">Category Image URL</label>
+                <label class="form-label small fw-bold text-muted mb-1">Category Image</label>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <!-- Live Preview Thumbnail -->
+                  <div style="position:relative; width:44px; height:44px; border-radius:10px; background:#f0f2f5; border:1px solid #dee2e6; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
+                    <img ng-src="{{newCategory.imageUrl}}" style="width:100%; height:100%; object-fit:contain;" alt="">
+                    <div ng-if="isUploadingNewCatImg" style="position:absolute; inset:0; background:rgba(255,255,255,0.85); display:flex; align-items:center; justify-content:center;">
+                      <i class="fas fa-spinner fa-spin text-primary" style="font-size:16px;"></i>
+                    </div>
+                  </div>
+
+                  <!-- Upload Button -->
+                  <div>
+                    <label class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 mb-0 py-1 px-3" style="cursor:pointer; font-weight:600; font-size:12px;">
+                      <i class="fas" ng-class="isUploadingNewCatImg ? 'fa-spinner fa-spin' : 'fa-camera'"></i>
+                      <span>{{ isUploadingNewCatImg ? ('Uploading ' + (newCatUploadProgress || 0) + '%') : 'Upload from Phone / PC' }}</span>
+                      <input type="file" accept="image/*" style="display:none;" onchange="angular.element(this).scope().uploadCategoryImg(this, 'new')">
+                    </label>
+                    <div class="text-muted" style="font-size:10.5px; margin-top:2px;">Select photo from gallery or camera (auto-uploaded to cloud).</div>
+                  </div>
+                </div>
+
+                <!-- Custom URL input -->
                 <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light text-muted" style="font-size:11px;">Image URL</span>
                   <input type="text" class="form-control"
-                         placeholder="https://... image link"
+                         placeholder="Or paste image link"
                          ng-model="newCategory.imageUrl">
                   <button class="btn btn-outline-secondary" type="button" ng-click="newCategory.imageUrl = 'https://www.hindustantoys.in/images/all.jpeg'">Default</button>
                 </div>
@@ -2261,7 +2350,7 @@
               </div>
 
               <div class="mt-3 text-end">
-                <button type="button" class="btn btn-sm btn-success px-3" ng-click="createCategory()">
+                <button type="button" class="btn btn-sm btn-success px-3" ng-click="createCategory()" ng-disabled="isUploadingNewCatImg">
                   <i class="fas fa-plus me-1"></i> Add Category
                 </button>
               </div>
@@ -2286,14 +2375,50 @@
                   <label class="form-label small fw-bold text-muted mb-1">Filter Keyword</label>
                   <input type="text" class="form-control form-control-sm" ng-model="editingCat.filter">
                 </div>
-                <div class="col-12 mt-2">
-                  <label class="form-label small fw-bold text-muted mb-1">Image URL</label>
-                  <input type="text" class="form-control form-control-sm" ng-model="editingCat.imageUrl">
+              </div>
+
+              <!-- Edit Image: Preview + Upload Button + URL -->
+              <div class="mt-2">
+                <label class="form-label small fw-bold text-muted mb-1">Category Image</label>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <!-- Live Preview Thumbnail -->
+                  <div style="position:relative; width:44px; height:44px; border-radius:10px; background:#f0f2f5; border:1px solid #dee2e6; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
+                    <img ng-src="{{editingCat.imageUrl}}" style="width:100%; height:100%; object-fit:contain;" alt="">
+                    <div ng-if="isUploadingEditCatImg" style="position:absolute; inset:0; background:rgba(255,255,255,0.85); display:flex; align-items:center; justify-content:center;">
+                      <i class="fas fa-spinner fa-spin text-primary" style="font-size:16px;"></i>
+                    </div>
+                  </div>
+
+                  <!-- Upload Button -->
+                  <div>
+                    <label class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 mb-0 py-1 px-3" style="cursor:pointer; font-weight:600; font-size:12px;">
+                      <i class="fas" ng-class="isUploadingEditCatImg ? 'fa-spinner fa-spin' : 'fa-camera'"></i>
+                      <span>{{ isUploadingEditCatImg ? ('Uploading ' + (editCatUploadProgress || 0) + '%') : 'Upload New Image' }}</span>
+                      <input type="file" accept="image/*" style="display:none;" onchange="angular.element(this).scope().uploadCategoryImg(this, 'edit')">
+                    </label>
+                    <div class="text-muted" style="font-size:10.5px; margin-top:2px;">Select image from gallery or camera to update icon.</div>
+                  </div>
+                </div>
+
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light text-muted" style="font-size:11px;">Image URL</span>
+                  <input type="text" class="form-control" placeholder="Image URL link" ng-model="editingCat.imageUrl">
+                </div>
+
+                <div class="d-flex align-items-center gap-1 mt-2 flex-wrap">
+                  <span class="small text-muted me-1" style="font-size:11px;">Quick Icon:</span>
+                  <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:11px;" ng-click="editingCat.imageUrl='https://www.hindustantoys.in/images/JCB.jpeg'">🚜 JCB</button>
+                  <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:11px;" ng-click="editingCat.imageUrl='https://www.hindustantoys.in/images/remote.jpeg'">🏎️ Car</button>
+                  <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:11px;" ng-click="editingCat.imageUrl='https://www.hindustantoys.in/images/TEDDY.jpg'">🧸 Teddy</button>
+                  <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:11px;" ng-click="editingCat.imageUrl='https://www.hindustantoys.in/images/racket.jpeg'">🏸 Sports</button>
+                  <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:11px;" ng-click="editingCat.imageUrl='https://www.hindustantoys.in/images/battery.jpeg'">🔋 Battery</button>
+                  <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:11px;" ng-click="editingCat.imageUrl='https://www.hindustantoys.in/images/mix.jpeg'">🎁 Mix</button>
                 </div>
               </div>
+
               <div class="d-flex justify-content-end gap-2 mt-3">
                 <button type="button" class="btn btn-sm btn-outline-secondary" ng-click="cancelEditCategory()">Cancel</button>
-                <button type="button" class="btn btn-sm btn-primary px-3" ng-click="saveEditCategory()">
+                <button type="button" class="btn btn-sm btn-primary px-3" ng-click="saveEditCategory()" ng-disabled="isUploadingEditCatImg">
                   <i class="fas fa-check me-1"></i> Save Changes
                 </button>
               </div>
@@ -2319,14 +2444,14 @@
             <div class="list-group-item d-flex align-items-center justify-content-between py-2 px-3 cat-table-row"
                  ng-repeat="cat in categories | filter:{name: categorySearch} track by cat.id"
                  style="border-color:#edf2f7;"
-                 ng-class="{'bg-light': $index === 0}">
+                 ng-class="{'bg-light': getCategoryIndex(cat) === 0}">
 
               <!-- Left info: Position + Image + Title + Filter -->
               <div class="d-flex align-items-center gap-2 min-w-0" style="flex:1;">
                 <span class="badge"
-                      ng-class="$index === 0 ? 'bg-primary' : 'bg-secondary'"
+                      ng-class="getCategoryIndex(cat) === 0 ? 'bg-primary' : 'bg-secondary'"
                       style="font-family:'Geist Mono', monospace; font-size:11px; min-width:30px; text-align:center;">
-                  #{{ $index + 1 }}
+                  #{{ getCategoryIndex(cat) + 1 }}
                 </span>
 
                 <img ng-src="{{cat.imageUrl}}" style="width:34px; height:34px; border-radius:8px; object-fit:contain; background:#f0f0f0; flex-shrink:0;">
@@ -2348,8 +2473,8 @@
                 <!-- Move to Top -->
                 <button class="btn btn-sm btn-light border py-1 px-2"
                         type="button"
-                        ng-click="moveCategoryToTop($index)"
-                        ng-if="$index > 1"
+                        ng-click="moveCategoryToTop(cat)"
+                        ng-if="getCategoryIndex(cat) > 1"
                         title="Move to top position">
                   <i class="fas fa-angle-double-up text-primary" style="font-size:11px;"></i>
                 </button>
@@ -2357,8 +2482,8 @@
                 <!-- Move Up -->
                 <button class="btn btn-sm btn-light border py-1 px-2"
                         type="button"
-                        ng-click="moveCategoryUp($index)"
-                        ng-disabled="$index <= 1"
+                        ng-click="moveCategoryUp(cat)"
+                        ng-disabled="getCategoryIndex(cat) <= 1"
                         title="Move Up">
                   <i class="fas fa-arrow-up" style="font-size:11px;"></i>
                 </button>
@@ -2366,8 +2491,8 @@
                 <!-- Move Down -->
                 <button class="btn btn-sm btn-light border py-1 px-2"
                         type="button"
-                        ng-click="moveCategoryDown($index)"
-                        ng-disabled="$index === 0 || $index >= categories.length - 1"
+                        ng-click="moveCategoryDown(cat)"
+                        ng-disabled="getCategoryIndex(cat) === 0 || getCategoryIndex(cat) >= categories.length - 1"
                         title="Move Down">
                   <i class="fas fa-arrow-down" style="font-size:11px;"></i>
                 </button>
@@ -2376,7 +2501,7 @@
                 <button class="btn btn-sm btn-light border py-1 px-2"
                         type="button"
                         ng-click="startEditCategory(cat)"
-                        ng-if="$index > 0"
+                        ng-if="getCategoryIndex(cat) > 0"
                         title="Edit Category Name & Filter">
                   <i class="fas fa-pen text-secondary" style="font-size:11px;"></i>
                 </button>
@@ -2384,8 +2509,8 @@
                 <!-- Delete -->
                 <button class="btn btn-sm btn-light border py-1 px-2 text-danger"
                         type="button"
-                        ng-click="deleteCategory($index)"
-                        ng-if="$index > 0"
+                        ng-click="deleteCategory(cat)"
+                        ng-if="getCategoryIndex(cat) > 0"
                         title="Delete Category">
                   <i class="fas fa-trash-alt" style="font-size:11px;"></i>
                 </button>
@@ -2402,6 +2527,90 @@
             <i class="fas fa-check me-1"></i> Done & Live Save
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ EDIT PRODUCT MODAL (ADMIN) ════════════════════ -->
+  <div class="modal fade" id="editProductModal" tabindex="-1" aria-hidden="true" style="z-index: 1070;">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
+      <div class="modal-content" style="border-radius: 18px; overflow: hidden; border: none; box-shadow: 0 20px 60px rgba(0,0,0,0.35);">
+        <div class="modal-header" style="background: var(--green-deep); color: white; padding: 14px 20px;">
+          <div>
+            <h5 class="modal-title text-white mb-0" style="font-weight: 700; font-size: 15px; font-family:'Bricolage Grotesque', sans-serif;">
+              <i class="fas fa-edit me-2 text-warning"></i> Edit Product Name & Price
+            </h5>
+            <small style="opacity:0.85; font-size:11px;">Changes save immediately to live catalog for all customers</small>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+
+        <form ng-submit="saveProductEdit()">
+          <div class="modal-body p-3" style="background: #fff;">
+            <!-- Current Product Preview -->
+            <div class="d-flex align-items-center gap-2 p-2 mb-3 bg-light rounded-3 border">
+              <img ng-src="{{adminProductForm.url}}" style="width: 52px; height: 52px; object-fit: contain; border-radius: 8px; background: #fff;" alt="">
+              <div class="min-w-0" style="flex:1;">
+                <div class="text-muted" style="font-size: 11px;">Current Catalog: <strong>₹{{ adminProductForm.originalPrice }}</strong></div>
+                <div class="fw-bold text-dark text-truncate" style="font-size: 13px;">{{ adminProductForm.originalName }}</div>
+              </div>
+            </div>
+
+            <!-- Product Name Input -->
+            <div class="mb-3">
+              <label class="form-label fw-bold small text-muted mb-1">Product Name *</label>
+              <input type="text" class="form-control"
+                     placeholder="Enter product title..."
+                     ng-model="adminProductForm.name"
+                     required
+                     style="font-size: 13.5px; border-radius: 9px;">
+            </div>
+
+            <!-- Price Input with divide-by-2 calculation -->
+            <div class="mb-2">
+              <label class="form-label fw-bold small text-muted mb-1">
+                Enter Price (₹) <span class="badge bg-warning text-dark ms-1" style="font-size:10px;">Auto ÷ 2</span>
+              </label>
+              <div class="input-group">
+                <span class="input-group-text bg-light fw-bold" style="font-size:13px;">₹</span>
+                <input type="number" step="any" min="0" class="form-control"
+                       placeholder="e.g. 200"
+                       ng-model="adminProductForm.inputPrice"
+                       required
+                       style="font-size: 14px; font-weight: 600;">
+              </div>
+            </div>
+
+            <!-- Live Calculation Display -->
+            <div class="p-2 px-3 rounded-3 mt-2" style="background: #f0fdf4; border: 1px solid #bbf7d0;">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="text-success small fw-bold" style="font-size: 12px;">
+                  <i class="fas fa-tag me-1"></i> Shown in Catalog (÷ 2):
+                </span>
+                <span class="fw-bold text-success" style="font-size: 18px; font-family: 'Geist Mono', monospace;">
+                  ₹{{ ((adminProductForm.inputPrice || 0) / 2) | number:0 }}
+                </span>
+              </div>
+              <div class="text-muted" style="font-size: 11px; margin-top: 2px;">
+                You enter <strong>₹{{ adminProductForm.inputPrice || 0 }}</strong> → Shows as <strong>₹{{ ((adminProductForm.inputPrice || 0) / 2) | number:0 }}</strong> in catalog.
+              </div>
+            </div>
+
+            <!-- Error message if any -->
+            <div class="alert alert-danger py-1 px-2 mt-2 mb-0 small" ng-if="adminProductFormError">
+              {{ adminProductFormError }}
+            </div>
+          </div>
+
+          <div class="modal-footer d-flex justify-content-between py-2 px-3 bg-light">
+            <button type="button" class="btn btn-sm btn-outline-secondary px-3" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-sm btn-success px-4 fw-bold" ng-disabled="isSavingProduct">
+              <i class="fas fa-check me-1" ng-if="!isSavingProduct"></i>
+              <i class="fas fa-spinner fa-spin me-1" ng-if="isSavingProduct"></i>
+              {{ isSavingProduct ? 'Saving...' : 'Save & Update' }}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -2430,15 +2639,22 @@
         var videoModalEl   = document.getElementById('videoModal');
         var enlargedEl     = document.getElementById('enlarged-image-overlay');
         var catModalEl     = document.getElementById('categoryManagerModal');
+        var editModalEl    = document.getElementById('editProductModal');
 
         var productModal = productModalEl ? bootstrap.Modal.getInstance(productModalEl) : null;
         var orderModal   = orderModalEl   ? bootstrap.Modal.getInstance(orderModalEl)   : null;
         var videoModal   = videoModalEl   ? bootstrap.Modal.getInstance(videoModalEl)   : null;
         var catModal     = catModalEl     ? bootstrap.Modal.getInstance(catModalEl)     : null;
+        var editModal    = editModalEl    ? bootstrap.Modal.getInstance(editModalEl)    : null;
         var scope        = angular.element(document.body).scope();
         if (!scope) return;
 
         scope.$applyAsync(function() {
+          if (editModal && editModalEl.classList.contains('show')) {
+            editModal.hide();
+            history.pushState({ state: 'home' }, null, location.href);
+            return;
+          }
           if (catModal && catModalEl.classList.contains('show')) {
             catModal.hide();
             history.pushState({ state: 'home' }, null, location.href);
@@ -2699,16 +2915,17 @@
           try {
             var val = snapshot.val();
             if (val && Array.isArray(val) && val.length > 0) {
-              val.sort(function(a, b) {
+              var arr = val.filter(function(x) { return x && x.name; });
+              arr.sort(function(a, b) {
                 var ordA = a.order !== undefined ? a.order : 999;
                 var ordB = b.order !== undefined ? b.order : 999;
                 return ordA - ordB;
               });
-              $scope.categories = val;
+              $scope.categories = arr.length > 0 ? arr : angular.copy($scope.defaultCategories);
             } else if (val && typeof val === 'object') {
               var arr = [];
               Object.keys(val).forEach(function(k) {
-                if (val[k]) {
+                if (val[k] && val[k].name) {
                   if (val[k].id === undefined) val[k].id = k;
                   arr.push(val[k]);
                 }
@@ -2746,6 +2963,99 @@
           position: 'top'
         };
 
+        $scope.isUploadingNewCatImg = false;
+        $scope.newCatUploadProgress = 0;
+        $scope.isUploadingEditCatImg = false;
+        $scope.editCatUploadProgress = 0;
+
+        $scope.uploadCategoryImg = function(inputEl, target) {
+          try {
+            var file = inputEl.files && inputEl.files[0];
+            if (!file) return;
+
+            if (!file.type || !file.type.startsWith('image/')) {
+              alert("Please select a valid image file (JPG, PNG, WEBP, etc.)");
+              inputEl.value = '';
+              return;
+            }
+
+            if (target === 'new') {
+              $scope.isUploadingNewCatImg = true;
+              $scope.newCatUploadProgress = 0;
+            } else {
+              $scope.isUploadingEditCatImg = true;
+              $scope.editCatUploadProgress = 0;
+            }
+            $scope.$applyAsync();
+
+            var safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+            var storagePath = 'categories/' + Date.now() + '_' + safeName;
+            var uploadUrl = 'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o?name=' + encodeURIComponent(storagePath);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', uploadUrl, true);
+            xhr.setRequestHeader('Content-Type', file.type || 'image/jpeg');
+
+            xhr.upload.onprogress = function(e) {
+              if (e.lengthComputable) {
+                var pct = Math.round((e.loaded / e.total) * 100);
+                $scope.$applyAsync(function() {
+                  if (target === 'new') $scope.newCatUploadProgress = pct;
+                  else $scope.editCatUploadProgress = pct;
+                });
+              }
+            };
+
+            xhr.onload = function() {
+              $scope.$applyAsync(function() {
+                if (target === 'new') $scope.isUploadingNewCatImg = false;
+                else $scope.isUploadingEditCatImg = false;
+
+                if (xhr.status >= 200 && xhr.status < 300) {
+                  try {
+                    var resp = JSON.parse(xhr.responseText);
+                    var downloadToken = resp.downloadTokens;
+                    var publicUrl = 'https://firebasestorage.googleapis.com/v0/b/htshop-e9c51.appspot.com/o/' +
+                                    encodeURIComponent(resp.name) + '?alt=media&token=' + downloadToken;
+
+                    if (target === 'new') {
+                      $scope.newCategory.imageUrl = publicUrl;
+                    } else if ($scope.editingCat) {
+                      $scope.editingCat.imageUrl = publicUrl;
+                    }
+                    $scope.adminCategorySuccessMsg = "✓ Image uploaded and set!";
+                    $timeout(function() { $scope.adminCategorySuccessMsg = ''; }, 3000);
+                  } catch(e) {
+                    console.error('Upload parse error:', e);
+                    alert('Upload completed but response could not be parsed.');
+                  }
+                } else {
+                  console.error('Upload failed:', xhr.status, xhr.responseText);
+                  alert('Upload failed: ' + xhr.statusText);
+                }
+                inputEl.value = '';
+              });
+            };
+
+            xhr.onerror = function(err) {
+              console.error('Upload error:', err);
+              $scope.$applyAsync(function() {
+                if (target === 'new') $scope.isUploadingNewCatImg = false;
+                else $scope.isUploadingEditCatImg = false;
+                alert('Network error while uploading image.');
+                inputEl.value = '';
+              });
+            };
+
+            xhr.send(file);
+          } catch(e) {
+            console.error('Upload exception:', e);
+            if (target === 'new') $scope.isUploadingNewCatImg = false;
+            else $scope.isUploadingEditCatImg = false;
+            $scope.$applyAsync();
+          }
+        };
+
         $scope.openCategoryManager = function() {
           try {
             $scope.showNewCatForm = false;
@@ -2753,10 +3063,22 @@
             $scope.adminCategorySuccessMsg = '';
             var el = document.getElementById('categoryManagerModal');
             if (el) {
-              var modal = bootstrap.Modal.getInstance(el) || new bootstrap.Modal(el);
-              modal.show();
+              if (window.bootstrap && bootstrap.Modal) {
+                var modal = (bootstrap.Modal.getOrCreateInstance ? bootstrap.Modal.getOrCreateInstance(el) : (bootstrap.Modal.getInstance(el) || new bootstrap.Modal(el)));
+                modal.show();
+              } else if (window.$) {
+                $('#categoryManagerModal').modal('show');
+              }
             }
           } catch(e) { console.error('openCategoryManager error:', e); }
+        };
+
+        $scope.getCategoryIndex = function(cat) {
+          if (!cat || !$scope.categories) return -1;
+          for (var i = 0; i < $scope.categories.length; i++) {
+            if ($scope.categories[i].id == cat.id) return i;
+          }
+          return -1;
         };
 
         $scope.toggleNewCatForm = function() {
@@ -2811,21 +3133,24 @@
           $timeout(function() { $scope.adminCategorySuccessMsg = ''; }, 3500);
         };
 
-        $scope.moveCategoryUp = function(index) {
+        $scope.moveCategoryUp = function(catOrIndex) {
+          var index = typeof catOrIndex === 'number' ? catOrIndex : $scope.getCategoryIndex(catOrIndex);
           if (index <= 1) return;
           var item = $scope.categories.splice(index, 1)[0];
           $scope.categories.splice(index - 1, 0, item);
           $scope.saveCategoriesToFirebase(true);
         };
 
-        $scope.moveCategoryDown = function(index) {
-          if (index === 0 || index >= $scope.categories.length - 1) return;
+        $scope.moveCategoryDown = function(catOrIndex) {
+          var index = typeof catOrIndex === 'number' ? catOrIndex : $scope.getCategoryIndex(catOrIndex);
+          if (index <= 0 || index >= $scope.categories.length - 1) return;
           var item = $scope.categories.splice(index, 1)[0];
           $scope.categories.splice(index + 1, 0, item);
           $scope.saveCategoriesToFirebase(true);
         };
 
-        $scope.moveCategoryToTop = function(index) {
+        $scope.moveCategoryToTop = function(catOrIndex) {
+          var index = typeof catOrIndex === 'number' ? catOrIndex : $scope.getCategoryIndex(catOrIndex);
           if (index <= 1) return;
           var item = $scope.categories.splice(index, 1)[0];
           $scope.categories.splice(1, 0, item);
@@ -2834,8 +3159,9 @@
           $timeout(function() { $scope.adminCategorySuccessMsg = ''; }, 2500);
         };
 
-        $scope.deleteCategory = function(index) {
-          if (index === 0) {
+        $scope.deleteCategory = function(catOrIndex) {
+          var index = typeof catOrIndex === 'number' ? catOrIndex : $scope.getCategoryIndex(catOrIndex);
+          if (index <= 0) {
             alert("Cannot delete 'ALL PRODUCTS' category.");
             return;
           }
@@ -2852,7 +3178,7 @@
 
         $scope.saveEditCategory = function() {
           if (!$scope.editingCat) return;
-          var idx = $scope.categories.findIndex(function(c) { return c.id === $scope.editingCat.id; });
+          var idx = $scope.categories.findIndex(function(c) { return c.id == $scope.editingCat.id; });
           if (idx !== -1) {
             $scope.categories[idx].name = $scope.editingCat.name.trim().toUpperCase();
             $scope.categories[idx].filter = $scope.editingCat.filter.trim().toUpperCase();
@@ -2980,7 +3306,7 @@
             $scope.searchQuery = '';
             $scope.isSearching = false;
             $scope.productNameFilter = filter;
-            $scope.activeCategoryName = ($scope.categories.find(c => c.id === tabId) || {}).name || 'Products';
+            $scope.activeCategoryName = ($scope.categories.find(c => c.id == tabId) || {}).name || 'Products';
             $scope.activeTabId = tabId;
             $scope.priceFilter.min = null;
             $scope.priceFilter.max = null;
@@ -3101,6 +3427,107 @@
               .then(function() { console.log("Marked out of stock."); })
               .catch(function(err) { console.error(err); image.markedForRemoval = false; alert("Error: " + err.message); });
           } catch(e) { console.error(e); }
+        };
+
+        // ── ADMIN PRODUCT EDIT (NAME & PRICE ÷ 2) ──
+        $scope.adminProductForm = {};
+        $scope.adminProductFormError = '';
+        $scope.isSavingProduct = false;
+
+        $scope.openEditProductModal = function(product) {
+          if (!product || $scope.dynamicField2Value !== 'sammyadmin') return;
+          $scope.adminProductFormError = '';
+          $scope.isSavingProduct = false;
+
+          var currentPrice = parseFloat(product.price) || 0;
+          $scope.adminProductForm = {
+            $id: product.$id,
+            originalName: product.name,
+            originalPrice: currentPrice,
+            name: product.name,
+            inputPrice: currentPrice * 2,
+            url: product.url,
+            _ref: product
+          };
+
+          try {
+            var el = document.getElementById('editProductModal');
+            if (el) {
+              if (window.bootstrap && bootstrap.Modal) {
+                var modal = bootstrap.Modal.getOrCreateInstance ? bootstrap.Modal.getOrCreateInstance(el) : (bootstrap.Modal.getInstance(el) || new bootstrap.Modal(el));
+                modal.show();
+              } else if (window.$) {
+                $('#editProductModal').modal('show');
+              }
+            }
+          } catch(e) { console.error('openEditProductModal error:', e); }
+        };
+
+        $scope.saveProductEdit = function() {
+          if (!$scope.adminProductForm || !$scope.adminProductForm.$id) return;
+          var newName = ($scope.adminProductForm.name || '').trim();
+          if (!newName) {
+            $scope.adminProductFormError = 'Please enter a valid product name.';
+            return;
+          }
+
+          var rawPrice = parseFloat($scope.adminProductForm.inputPrice);
+          if (isNaN(rawPrice) || rawPrice < 0) {
+            $scope.adminProductFormError = 'Please enter a valid price.';
+            return;
+          }
+
+          // Divide by 2: e.g. entered 200 -> catalog displays 100
+          var finalPrice = Math.round((rawPrice / 2) * 100) / 100;
+          $scope.isSavingProduct = true;
+          $scope.adminProductFormError = '';
+
+          var targetId = $scope.adminProductForm.$id;
+          var updateData = {
+            name: newName,
+            price: finalPrice,
+            lastModified: firebase.database.ServerValue.TIMESTAMP
+          };
+
+          fetchDb.child(targetId).update(updateData)
+            .then(function() {
+              $scope.$applyAsync(function() {
+                $scope.isSavingProduct = false;
+
+                // Update in-memory reference
+                if ($scope.adminProductForm._ref) {
+                  $scope.adminProductForm._ref.name = newName;
+                  $scope.adminProductForm._ref.price = finalPrice;
+                  $scope.adminProductForm._ref._name = newName.toLowerCase();
+                }
+
+                if ($scope.enlargedProduct && $scope.enlargedProduct.$id === targetId) {
+                  $scope.enlargedProduct.name = newName;
+                  $scope.enlargedProduct.price = finalPrice;
+                }
+
+                $scope.updateDisplayedProducts();
+                $scope.recalcCategoryCounts();
+
+                // Close modal
+                try {
+                  var el = document.getElementById('editProductModal');
+                  if (el) {
+                    var inst = bootstrap.Modal.getInstance(el);
+                    if (inst) inst.hide();
+                  }
+                } catch(e) {}
+
+                alert("✓ Product updated successfully!\n\nName: " + newName + "\nCatalog Price (÷ 2): ₹" + finalPrice);
+              });
+            })
+            .catch(function(err) {
+              console.error("Save product edit error:", err);
+              $scope.$applyAsync(function() {
+                $scope.isSavingProduct = false;
+                $scope.adminProductFormError = "Failed to update product: " + err.message;
+              });
+            });
         };
 
         $scope.submitData = function(image) {
@@ -3543,7 +3970,9 @@
           try {
             if ($scope.isLoading || !$scope.dynamicField2Value) return;
             var filtered = vm.images.slice();
-            if ($scope.productNameFilter) filtered = $filter('filter')(filtered, { name: $scope.productNameFilter }) || [];
+            if ($scope.productNameFilter && $scope.productNameFilter !== 'ALL') {
+              filtered = $filter('filter')(filtered, { name: $scope.productNameFilter }) || [];
+            }
             if ($scope.searchQuery)       filtered = $filter('filter')(filtered, { name: $scope.searchQuery })       || [];
 
             var min = $scope.priceFilter.min;
