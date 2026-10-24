@@ -953,6 +953,173 @@
       }
     }
 
+    /* ══════ DEVICE MANAGER MODAL (ADMIN) ══════ */
+    #deviceManagerModal {
+      z-index: 1065 !important;
+    }
+    #deviceManagerModal .modal-dialog {
+      max-width: 780px;
+      margin: 1.75rem auto;
+    }
+    @media (max-width: 540px) {
+      #deviceManagerModal .modal-dialog {
+        max-width: 100% !important;
+        margin: 0 !important;
+        height: 100% !important;
+      }
+      #deviceManagerModal .modal-content {
+        height: 100% !important;
+        border-radius: 0 !important;
+      }
+    }
+    .admin-block-btn {
+      background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+      box-shadow: 0 2px 6px rgba(220, 38, 38, 0.25) !important;
+    }
+    .admin-block-btn:hover {
+      background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+      color: white !important;
+    }
+    .device-item-card {
+      transition: all 0.2s ease;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+    }
+    .device-item-card:hover {
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06) !important;
+      transform: translateY(-1px);
+    }
+
+    /* ══════ ACCESS DENIED FULL-SCREEN OVERLAY ══════ */
+    #access-denied-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 99999999 !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 50% 20%, #1e1b4b 0%, #0f172a 50%, #030712 100%);
+      padding: 20px;
+      overflow-y: auto;
+      font-family: 'Figtree', sans-serif;
+      color: #fff;
+      user-select: none;
+    }
+    .access-denied-card {
+      position: relative;
+      max-width: 480px;
+      width: 100%;
+      background: rgba(17, 24, 39, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(220, 38, 38, 0.2);
+      border-radius: 24px;
+      padding: 36px 28px;
+      text-align: center;
+      animation: deniedPop 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes deniedPop {
+      0% { transform: scale(0.92); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .access-denied-icon-wrap {
+      position: relative;
+      width: 84px;
+      height: 84px;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.35));
+      border: 2px solid rgba(239, 68, 68, 0.5);
+    }
+    .access-denied-pulse {
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      background: rgba(239, 68, 68, 0.25);
+      animation: deniedPulse 2s infinite ease-out;
+    }
+    @keyframes deniedPulse {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      100% { transform: scale(1.3); opacity: 0; }
+    }
+    .access-denied-icon {
+      font-size: 38px;
+      color: #ef4444;
+      position: relative;
+      z-index: 2;
+    }
+    .access-denied-title {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 10px;
+      letter-spacing: -0.5px;
+    }
+    .access-denied-msg {
+      font-size: 14.5px;
+      line-height: 1.55;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 22px;
+    }
+    .access-denied-device-box {
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 22px;
+    }
+    .access-denied-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: rgba(255, 255, 255, 0.5);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .access-denied-id {
+      font-family: 'Geist Mono', monospace;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #fb7185;
+      word-break: break-all;
+      letter-spacing: 0.5px;
+    }
+    .access-denied-status {
+      margin-top: 8px;
+      font-size: 11.5px;
+      color: #f87171;
+      font-weight: 600;
+    }
+    .access-denied-help {
+      font-size: 12.5px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 14px;
+    }
+    .access-denied-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      color: #fff !important;
+      font-weight: 700;
+      font-size: 14.5px;
+      border-radius: 12px;
+      text-decoration: none !important;
+      box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+      transition: all 0.2s ease;
+    }
+    .access-denied-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+    }
+
     /* ── SKELETON LOADERS ── */
     @keyframes shimmer {
       0%   { background-position: -400px 0; }
@@ -1968,6 +2135,33 @@
 </head>
 <body ng-controller="imagesController as vm">
 
+  <!-- ════════════════════ ACCESS DENIED OVERLAY (STRICT DEVICE BLOCK) ════════════════════ -->
+  <div id="access-denied-overlay" style="display:none;">
+    <div class="access-denied-card">
+      <div class="access-denied-icon-wrap">
+        <div class="access-denied-pulse"></div>
+        <i class="fas fa-user-slash access-denied-icon"></i>
+      </div>
+      <h2 class="access-denied-title">Access Restricted</h2>
+      <p class="access-denied-msg">
+        This device has been restricted from accessing the <strong>Hindustan Toys</strong> ordering portal.
+      </p>
+
+      <div class="access-denied-device-box">
+        <div class="access-denied-label">Device Fingerprint</div>
+        <div class="access-denied-id" id="blocked-device-id-display">dev_••••••••••••</div>
+        <div class="access-denied-status"><i class="fas fa-shield-alt text-danger me-1"></i> Blocked by Store Admin</div>
+      </div>
+
+      <div class="access-denied-footer">
+        <p class="access-denied-help">If you believe this is a mistake or need your account unblocked, please contact store support:</p>
+        <a id="blocked-whatsapp-link" href="https://wa.me/919425081881?text=Hello%20Hindustan%20Toys,%20my%20device%20is%20showing%20blocked.%20Please%20assist." target="_blank" class="access-denied-btn">
+          <i class="fab fa-whatsapp me-2" style="font-size:18px;"></i> Contact on WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+
   <!-- ════════════════════ LOGIN ════════════════════ -->
   <div id="login-container">
     <div id="login-bg-text">HT</div>
@@ -2010,6 +2204,11 @@
             <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#myModal">
               <i class="fas fa-shopping-cart me-2" style="color:var(--green-bright);"></i>Your Order
             </a></li>
+            <li ng-if="dynamicField2Value === 'sammyadmin'">
+              <a class="dropdown-item text-danger fw-bold" href="#" ng-click="openDeviceManager()" data-bs-toggle="modal" data-bs-target="#deviceManagerModal">
+                <i class="fas fa-user-shield me-2"></i>Block Users & Devices
+              </a>
+            </li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item text-danger" href="#" ng-click="logout()">
               <i class="fas fa-sign-out-alt me-2"></i>Logout
@@ -2033,6 +2232,16 @@
                   title="Admin: Set category position & create new categories">
             <i class="fas fa-layer-group"></i>
             <span>Categories</span>
+          </button>
+          <button class="admin-manage-btn admin-block-btn"
+                  type="button"
+                  ng-if="dynamicField2Value === 'sammyadmin'"
+                  ng-click="openDeviceManager()"
+                  data-bs-toggle="modal"
+                  data-bs-target="#deviceManagerModal"
+                  title="Admin: View Customers & Block/Unblock Devices">
+            <i class="fas fa-user-shield"></i>
+            <span>Block Users</span>
           </button>
           <!-- Multi-select share toggle -->
           <button class="select-mode-btn"
@@ -2143,6 +2352,16 @@
                   data-bs-target="#categoryManagerModal"
                   title="Admin: Set category position & create new categories">
             <i class="fas fa-sort-amount-down"></i> Sort
+          </button>
+          <button class="sidebar-admin-cat-btn"
+                  type="button"
+                  ng-if="dynamicField2Value === 'sammyadmin'"
+                  ng-click="openDeviceManager()"
+                  data-bs-toggle="modal"
+                  data-bs-target="#deviceManagerModal"
+                  title="Admin: View Customers & Block/Unblock Devices"
+                  style="background:#fee2e2; color:#dc2626; border-color:#fca5a5;">
+            <i class="fas fa-user-shield"></i> Block Users
           </button>
         </div>
         <div class="tab-list">
@@ -2785,6 +3004,230 @@
     </div>
   </div>
 
+  <!-- ════════════════════ DEVICE & BLOCK MANAGER MODAL (ADMIN) ════════════════════ -->
+  <div class="modal fade" id="deviceManagerModal" tabindex="-1" aria-hidden="true" style="z-index: 1065;">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content" style="border-radius:18px; overflow:hidden; border:none; box-shadow:0 20px 60px rgba(0,0,0,0.35);">
+        
+        <!-- Header -->
+        <div class="modal-header" style="background: linear-gradient(135deg, #1e293b, #0f172a); color:white; padding:16px 22px;">
+          <div>
+            <h5 class="modal-title text-white mb-1" style="font-weight:700; font-family:'Bricolage Grotesque', sans-serif; display:flex; align-items:center; gap:8px;">
+              <span style="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:8px; background:rgba(239, 68, 68, 0.2); color:#ef4444;">
+                <i class="fas fa-user-shield"></i>
+              </span>
+              Customer Devices & Block Manager
+            </h5>
+            <small style="opacity:0.8; font-size:12px;">Strict device fingerprint control. Blocked customers are instantly locked out in real time.</small>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body" style="background:#f8fafc; padding:18px;">
+          
+          <!-- Feedback Alert -->
+          <div class="alert alert-success d-flex align-items-center py-2 px-3 mb-3 shadow-sm border-0"
+               style="border-radius:10px;"
+               ng-if="adminDeviceActionMsg">
+            <i class="fas fa-check-circle me-2 text-success" style="font-size:16px;"></i>
+            <div style="font-weight:600; font-size:13px;">{{ adminDeviceActionMsg }}</div>
+          </div>
+          <div class="alert alert-danger d-flex align-items-center py-2 px-3 mb-3 shadow-sm border-0"
+               style="border-radius:10px;"
+               ng-if="adminDeviceActionError">
+            <i class="fas fa-exclamation-circle me-2 text-danger" style="font-size:16px;"></i>
+            <div style="font-weight:600; font-size:13px;">{{ adminDeviceActionError }}</div>
+          </div>
+
+          <!-- Summary Stats -->
+          <div class="row g-2 mb-3">
+            <div class="col-4">
+              <div class="p-2 text-center rounded-3 bg-white border shadow-sm">
+                <div class="text-muted small fw-semibold" style="font-size:11px;">Total Devices</div>
+                <div class="fw-bold fs-5 text-dark">{{ customerDevices.length }}</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="p-2 text-center rounded-3 bg-white border shadow-sm" style="border-left: 3px solid #10b981 !important;">
+                <div class="text-success small fw-semibold" style="font-size:11px;">Active</div>
+                <div class="fw-bold fs-5 text-success">{{ getActiveDeviceCount() }}</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="p-2 text-center rounded-3 bg-white border shadow-sm" style="border-left: 3px solid #ef4444 !important;">
+                <div class="text-danger small fw-semibold" style="font-size:11px;">Blocked</div>
+                <div class="fw-bold fs-5 text-danger">{{ getBlockedDeviceCount() }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Block by ID Card -->
+          <div class="card border-0 shadow-sm mb-3" style="border-radius:12px; background:#fff;">
+            <div class="card-body p-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-bold text-dark small">
+                  <i class="fas fa-fingerprint me-1 text-danger"></i> Block a Device Fingerprint Manually
+                </span>
+                <span class="badge bg-light text-secondary border" style="font-size:10px; font-weight:600;">Hardware Lock</span>
+              </div>
+              <div class="row g-2">
+                <div class="col-12 col-md-6">
+                  <input type="text"
+                         class="form-control form-control-sm font-monospace"
+                         placeholder="Paste Device ID (e.g. dev_a98b7c...)"
+                         ng-model="manualBlockId"
+                         style="font-size:12px;">
+                </div>
+                <div class="col-7 col-md-4">
+                  <input type="text"
+                         class="form-control form-control-sm"
+                         placeholder="Customer Name / Reason (optional)"
+                         ng-model="manualBlockNote"
+                         style="font-size:12px;">
+                </div>
+                <div class="col-5 col-md-2">
+                  <button class="btn btn-sm btn-danger w-100 fw-bold"
+                          ng-click="blockManualDevice()"
+                          ng-disabled="!manualBlockId">
+                    <i class="fas fa-ban me-1"></i> Block
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Search & Filter Controls -->
+          <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3">
+            <!-- Filter Tabs -->
+            <div class="btn-group btn-group-sm" role="group">
+              <button type="button" class="btn"
+                      ng-class="deviceFilterTab === 'all' ? 'btn-dark' : 'btn-outline-secondary'"
+                      ng-click="setDeviceFilterTab('all')">
+                All ({{ customerDevices.length }})
+              </button>
+              <button type="button" class="btn"
+                      ng-class="deviceFilterTab === 'active' ? 'btn-success' : 'btn-outline-secondary'"
+                      ng-click="setDeviceFilterTab('active')">
+                Active ({{ getActiveDeviceCount() }})
+              </button>
+              <button type="button" class="btn"
+                      ng-class="deviceFilterTab === 'blocked' ? 'btn-danger' : 'btn-outline-secondary'"
+                      ng-click="setDeviceFilterTab('blocked')">
+                Blocked ({{ getBlockedDeviceCount() }})
+              </button>
+            </div>
+
+            <!-- Search box -->
+            <div class="flex-grow-1" style="min-width: 200px; max-width: 320px;">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text bg-white border-end-0 text-muted"><i class="fas fa-search"></i></span>
+                <input type="text" class="form-control border-start-0"
+                       placeholder="Search customer, mobile, ID..."
+                       ng-model="deviceSearchQuery"
+                       style="font-size:12px;">
+                <button class="btn btn-outline-secondary" type="button" ng-if="deviceSearchQuery" ng-click="deviceSearchQuery = ''">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Loading State -->
+          <div class="text-center py-4 text-muted" ng-if="isLoadingDevices">
+            <div class="spinner-border spinner-border-sm text-danger me-2"></div>
+            <span>Loading customer devices...</span>
+          </div>
+
+          <!-- Empty State -->
+          <div class="text-center py-5 text-muted bg-white rounded-3 border" ng-if="!isLoadingDevices && filteredCustomerDevices().length === 0">
+            <i class="fas fa-user-slash text-muted mb-2" style="font-size:32px; opacity:0.4;"></i>
+            <div class="fw-semibold">No customer devices found</div>
+            <small class="text-muted">Devices will show up here as customers open the website or place orders.</small>
+          </div>
+
+          <!-- Customer Device List -->
+          <div class="device-list" ng-if="!isLoadingDevices && filteredCustomerDevices().length > 0">
+            <div class="card border-0 shadow-sm mb-2 device-item-card"
+                 ng-repeat="dev in filteredCustomerDevices()"
+                 style="border-radius:12px; overflow:hidden;"
+                 ng-style="{'border-left': dev.isBlocked ? '4px solid #ef4444' : '4px solid #10b981'}">
+              <div class="card-body p-3">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                  <!-- Customer Details -->
+                  <div class="min-w-0" style="flex:1;">
+                    <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
+                      <span class="fw-bold text-dark fs-6">{{ dev.name || 'Guest / Not Logged In' }}</span>
+                      <span class="badge" ng-class="dev.isBlocked ? 'bg-danger' : 'bg-success'" style="font-size:10px; font-weight:700;">
+                        {{ dev.isBlocked ? 'BLOCKED' : 'ACTIVE' }}
+                      </span>
+                      <span class="badge bg-primary text-white" ng-if="dev.deviceId === currentDeviceId" style="font-size:10px;">
+                        Current Admin Device
+                      </span>
+                    </div>
+
+                    <div class="text-muted small d-flex flex-wrap align-items-center gap-2 mb-2" style="font-size:12px;">
+                      <span ng-if="dev.mobile && dev.mobile !== 'N/A'" class="text-dark fw-semibold">
+                        <i class="fas fa-phone-alt me-1 text-success"></i>
+                        <a ng-href="tel:{{dev.mobile}}" class="text-decoration-none text-dark">{{ dev.mobile }}</a>
+                      </span>
+                      <span class="text-muted" ng-if="dev.mobile && dev.mobile !== 'N/A'">•</span>
+                      <span>
+                        <i class="fas" ng-class="(dev.deviceInfo || '').indexOf('Mobile') >= 0 || (dev.deviceInfo || '').indexOf('iPhone') >= 0 ? 'fa-mobile-alt' : 'fa-laptop'"></i>
+                        {{ dev.deviceInfo || 'Unknown Device' }}
+                      </span>
+                      <span class="text-muted" ng-if="dev.screen">•</span>
+                      <span ng-if="dev.screen">Screen: {{ dev.screen }}</span>
+                    </div>
+
+                    <!-- Device ID Chip -->
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="badge bg-light text-secondary border font-monospace" style="font-size:11px; padding:4px 8px;">
+                        <i class="fas fa-fingerprint me-1 text-muted"></i> {{ dev.deviceId }}
+                      </span>
+                      <button class="btn btn-sm btn-link text-muted p-0" ng-click="copyDeviceId(dev.deviceId)" title="Copy Device ID" style="font-size:12px;">
+                        <i class="fas fa-copy"></i>
+                      </button>
+                      <span class="text-muted small ms-auto" style="font-size:11px;">
+                        <i class="far fa-clock me-1"></i> {{ formatDeviceTime(dev.lastActive) }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Action Buttons -->
+                  <div class="d-flex align-items-center ms-auto">
+                    <button class="btn btn-sm btn-danger fw-bold px-3"
+                            ng-if="!dev.isBlocked"
+                            ng-click="confirmBlockDevice(dev)"
+                            title="Block this device instantly">
+                      <i class="fas fa-ban me-1"></i> Block
+                    </button>
+                    <button class="btn btn-sm btn-success fw-bold px-3"
+                            ng-if="dev.isBlocked"
+                            ng-click="unblockDevice(dev.deviceId)"
+                            title="Unblock this device and restore access">
+                      <i class="fas fa-check-circle me-1"></i> Unblock
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer" style="background:#fff; border-top:1px solid #e2e8f0; justify-content:space-between;">
+          <small class="text-muted" style="font-size:11.5px;">
+            <i class="fas fa-info-circle me-1 text-primary"></i> Changes apply in real-time. Unblocking immediately restores customer access.
+          </small>
+          <button type="button" class="btn btn-secondary btn-sm px-3" data-bs-dismiss="modal">Close</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- ════════════════════ EDIT PRODUCT MODAL (ADMIN) ════════════════════ -->
   <div class="modal fade" id="editProductModal" tabindex="-1" aria-hidden="true" style="z-index: 1070;">
     <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
@@ -2894,16 +3337,23 @@
         var enlargedEl     = document.getElementById('enlarged-image-overlay');
         var catModalEl     = document.getElementById('categoryManagerModal');
         var editModalEl    = document.getElementById('editProductModal');
+        var deviceModalEl  = document.getElementById('deviceManagerModal');
 
         var productModal = productModalEl ? bootstrap.Modal.getInstance(productModalEl) : null;
         var orderModal   = orderModalEl   ? bootstrap.Modal.getInstance(orderModalEl)   : null;
         var videoModal   = videoModalEl   ? bootstrap.Modal.getInstance(videoModalEl)   : null;
         var catModal     = catModalEl     ? bootstrap.Modal.getInstance(catModalEl)     : null;
         var editModal    = editModalEl    ? bootstrap.Modal.getInstance(editModalEl)    : null;
+        var deviceModal  = deviceModalEl  ? bootstrap.Modal.getInstance(deviceModalEl)  : null;
         var scope        = angular.element(document.body).scope();
         if (!scope) return;
 
         scope.$applyAsync(function() {
+          if (deviceModal && deviceModalEl.classList.contains('show')) {
+            deviceModal.hide();
+            history.pushState({ state: 'home' }, null, location.href);
+            return;
+          }
           if (editModal && editModalEl.classList.contains('show')) {
             editModal.hide();
             history.pushState({ state: 'home' }, null, location.href);
@@ -2957,7 +3407,157 @@
       } catch(e) { console.error('Keydown error:', e); }
     });
 
-    // ── LOGIN ──
+    // ── DEVICE FINGERPRINT & STRICT ACCESS CONTROL ──
+    function generateDeviceFingerprint() {
+      try {
+        var storedId = localStorage.getItem('ht_device_fingerprint');
+        if (storedId && /^dev_[a-f0-9]{16}$/i.test(storedId)) {
+          return storedId;
+        }
+
+        var signals = [];
+        signals.push(navigator.userAgent || '');
+        signals.push(navigator.language || '');
+        signals.push(navigator.platform || '');
+        signals.push((navigator.hardwareConcurrency || '') + '');
+        signals.push((navigator.deviceMemory || '') + '');
+        if (window.screen) {
+          signals.push(screen.width + 'x' + screen.height + 'x' + screen.colorDepth);
+          signals.push((window.devicePixelRatio || 1) + '');
+        }
+        signals.push(new Date().getTimezoneOffset() + '');
+
+        try {
+          if (window.Intl && Intl.DateTimeFormat) {
+            signals.push(Intl.DateTimeFormat().resolvedOptions().timeZone || '');
+          }
+        } catch(e) {}
+
+        // Canvas fingerprinting
+        try {
+          var canvas = document.createElement('canvas');
+          canvas.width = 240;
+          canvas.height = 60;
+          var ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.textBaseline = 'top';
+            ctx.font = "14px 'Arial', sans-serif";
+            ctx.textBaseline = 'alphabetic';
+            ctx.fillStyle = '#f60';
+            ctx.fillRect(125, 1, 62, 20);
+            ctx.fillStyle = '#069';
+            ctx.fillText('HT-SHOP-🔒-2026', 2, 15);
+            ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
+            ctx.fillText('HT-SHOP-🔒-2026', 4, 17);
+            signals.push(canvas.toDataURL());
+          }
+        } catch(ce) {
+          signals.push('no-canvas');
+        }
+
+        // Deterministic 64-bit Hex Hash (Murmur/FNV dual-mix)
+        var str = signals.join('~~~');
+        var hash1 = 0x811c9dc5;
+        var hash2 = 0x12345678;
+        for (var i = 0; i < str.length; i++) {
+          var ch = str.charCodeAt(i);
+          hash1 ^= ch;
+          hash1 = (hash1 * 0x01000193) >>> 0;
+          hash2 = ((hash2 << 5) - hash2 + ch) >>> 0;
+        }
+        var hex1 = ('00000000' + hash1.toString(16)).slice(-8);
+        var hex2 = ('00000000' + hash2.toString(16)).slice(-8);
+        var generatedId = 'dev_' + hex1 + hex2;
+
+        try {
+          localStorage.setItem('ht_device_fingerprint', generatedId);
+        } catch(e) {}
+
+        return generatedId;
+      } catch(e) {
+        var fallback = 'dev_' + Math.random().toString(36).substring(2, 15);
+        try { localStorage.setItem('ht_device_fingerprint', fallback); } catch(err) {}
+        return fallback;
+      }
+    }
+
+    function getDeviceInfo() {
+      var ua = navigator.userAgent || '';
+      var os = 'Unknown OS';
+      if (/Android/i.test(ua)) os = 'Android';
+      else if (/iPhone|iPod/i.test(ua)) os = 'iPhone';
+      else if (/iPad/i.test(ua)) os = 'iPad';
+      else if (/Windows NT/i.test(ua)) os = 'Windows PC';
+      else if (/Macintosh|Mac OS X/i.test(ua)) os = 'Mac';
+      else if (/Linux/i.test(ua)) os = 'Linux PC';
+
+      var browser = 'Browser';
+      if (/Edg\//i.test(ua)) browser = 'Edge';
+      else if (/Chrome\//i.test(ua)) browser = 'Chrome';
+      else if (/Safari\//i.test(ua) && !/Chrome/i.test(ua)) browser = 'Safari';
+      else if (/Firefox\//i.test(ua)) browser = 'Firefox';
+      else if (/SamsungBrowser/i.test(ua)) browser = 'Samsung Browser';
+
+      var deviceType = (/Mobi|Android|iPhone|iPod/i.test(ua)) ? 'Mobile' : (/iPad|Tablet/i.test(ua) ? 'Tablet' : 'Desktop');
+      var screenRes = (window.screen ? window.screen.width + 'x' + window.screen.height : 'N/A');
+
+      var label = os;
+      if (os !== 'iPhone' && os !== 'iPad' && os !== 'Windows PC' && os !== 'Mac') {
+        label += ' ' + deviceType;
+      }
+      label += ' (' + browser + ')';
+
+      return {
+        os: os,
+        browser: browser,
+        deviceType: deviceType,
+        screen: screenRes,
+        label: label
+      };
+    }
+
+    window.currentDeviceId = generateDeviceFingerprint();
+    window.currentDeviceInfo = getDeviceInfo();
+
+    function showAccessDenied(devId, blockData) {
+      try {
+        var overlay = document.getElementById('access-denied-overlay');
+        if (overlay) {
+          overlay.style.display = 'flex';
+          var idDisplay = document.getElementById('blocked-device-id-display');
+          if (idDisplay) idDisplay.textContent = devId;
+          var waLink = document.getElementById('blocked-whatsapp-link');
+          if (waLink) {
+            var msg = encodeURIComponent("Hello Hindustan Toys, my device is blocked (Device ID: " + devId + "). Please assist with access.");
+            waLink.href = "https://wa.me/919425081881?text=" + msg;
+          }
+        }
+        var loginEl = document.getElementById('login-container');
+        if (loginEl) loginEl.style.display = 'none';
+        var contentEl = document.getElementById('content');
+        if (contentEl) contentEl.style.display = 'none';
+      } catch(e) { console.error('showAccessDenied error:', e); }
+    }
+
+    function hideAccessDenied() {
+      try {
+        var overlay = document.getElementById('access-denied-overlay');
+        if (overlay && overlay.style.display !== 'none') {
+          overlay.style.display = 'none';
+          var name = localStorage.getItem('name');
+          var mobile = localStorage.getItem('mobile');
+          if (name && mobile) {
+            var contentEl = document.getElementById('content');
+            if (contentEl) contentEl.style.display = 'block';
+          } else {
+            var loginEl = document.getElementById('login-container');
+            if (loginEl) loginEl.style.display = 'flex';
+          }
+        }
+      } catch(e) { console.error('hideAccessDenied error:', e); }
+    }
+
+    // ── LOGIN & FIREBASE INITIALIZATION ──
     (function() {
       var loginConfig = {
         apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
@@ -2965,25 +3565,85 @@
         databaseURL: "https://shop-reminder-3ce10-default-rtdb.firebaseio.com",
       };
 
-      var blockedNumbers = ['7000913701','9846434664','8269731362','9876543210','9123456789','8987854256','9039199794','9166220046','9035019421','8269731352','6263821242','6616495946','6266242180','9109390639','7000619513','8576911011','9999999999'];
-      var blockedNames   = ['Spammer','Mhgghj hyhh','TestUser'];
-      var blockedPageUrl = 'https://www.hindustantoys.in/mywebsite/NEWWEBSITE/blocked.html';
-
       try {
         var loginApp = firebase.apps.find(a => a.name === 'loginApp') || firebase.initializeApp(loginConfig, 'loginApp');
         var loginDb  = loginApp.database();
+        window.loginApp = loginApp;
+        window.loginDb  = loginDb;
+
+        var devId = window.currentDeviceId;
+        var info  = window.currentDeviceInfo;
+
+        // Record or update this device on initial page load
+        function recordDeviceActivity(customName, customMobile) {
+          try {
+            var name = customName || localStorage.getItem('name') || 'Guest (Visiting)';
+            var mobile = customMobile || localStorage.getItem('mobile') || 'N/A';
+            loginDb.ref('customer_devices/' + devId).update({
+              deviceId: devId,
+              name: name,
+              mobile: mobile,
+              deviceInfo: info.label,
+              screen: info.screen,
+              userAgent: navigator.userAgent,
+              lastActive: firebase.database.ServerValue.TIMESTAMP
+            });
+          } catch(e) { console.error('recordDeviceActivity error:', e); }
+        }
+
+        // Live Real-Time Block Listener: locks or unlocks customer instantly
+        var deviceBlockRef = loginDb.ref('blocked_devices/' + devId);
+        deviceBlockRef.on('value', function(snapshot) {
+          var isBlocked = snapshot.exists() && snapshot.val();
+          var userName = localStorage.getItem('name') || '';
+          if (userName === 'sammyadmin') {
+            // Admin is immune from being blocked
+            hideAccessDenied();
+            return;
+          }
+          if (isBlocked) {
+            showAccessDenied(devId, snapshot.val());
+          } else {
+            hideAccessDenied();
+          }
+        });
+
+        recordDeviceActivity();
 
         window.validateLogin = function() {
           try {
             var name   = document.getElementById('name').value.trim();
             var mobile = document.getElementById('mobile').value.trim();
-            var isNameBlocked = blockedNames.some(n => n.toLowerCase() === name.toLowerCase());
-            if (blockedNumbers.includes(mobile) || isNameBlocked) { window.location.href = blockedPageUrl; return; }
-            if (name.length < 4 || !/^[6-9]\d{9}$/.test(mobile)) { showLoginError('Please enter a valid shop name (4+ chars) and 10-digit mobile number.'); return; }
+            if (name.length < 4 || !/^[6-9]\d{9}$/.test(mobile)) {
+              showLoginError('Please enter a valid shop name (4+ chars) and 10-digit mobile number.');
+              return;
+            }
 
-            loginDb.ref('users').push({ name, mobile, timestamp: firebase.database.ServerValue.TIMESTAMP })
-              .then(() => { localStorage.setItem('name', name); localStorage.setItem('mobile', mobile); showContent(name); })
-              .catch(e => { console.error(e); showLoginError('Login failed. Please try again.'); });
+            // Check if device is blocked before logging in
+            loginDb.ref('blocked_devices/' + devId).once('value', function(snap) {
+              if (snap.exists() && name !== 'sammyadmin') {
+                showAccessDenied(devId, snap.val());
+                return;
+              }
+
+              recordDeviceActivity(name, mobile);
+              loginDb.ref('users').push({
+                name: name,
+                mobile: mobile,
+                deviceId: devId,
+                deviceInfo: info.label,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+              })
+              .then(() => {
+                localStorage.setItem('name', name);
+                localStorage.setItem('mobile', mobile);
+                showContent(name);
+              })
+              .catch(e => {
+                console.error(e);
+                showLoginError('Login failed. Please try again.');
+              });
+            });
           } catch(e) { console.error(e); }
         };
 
@@ -3019,12 +3679,24 @@
           var name   = localStorage.getItem('name');
           var mobile = localStorage.getItem('mobile');
           if (name && mobile) {
-            var isNameBlocked = blockedNames.some(n => n.toLowerCase() === name.toLowerCase());
-            if (blockedNumbers.includes(mobile) || isNameBlocked) { window.location.href = blockedPageUrl; return; }
-            document.getElementById('name').value   = name;
-            document.getElementById('mobile').value = mobile;
-            loginDb.ref('users').push({ name, mobile, timestamp: firebase.database.ServerValue.TIMESTAMP, loginType: 'auto' }).catch(e => console.error(e));
-            showContent(name);
+            // Check if device is blocked
+            loginDb.ref('blocked_devices/' + devId).once('value', function(snap) {
+              if (snap.exists() && name !== 'sammyadmin') {
+                showAccessDenied(devId, snap.val());
+                return;
+              }
+              document.getElementById('name').value   = name;
+              document.getElementById('mobile').value = mobile;
+              recordDeviceActivity(name, mobile);
+              loginDb.ref('users').push({
+                name: name,
+                mobile: mobile,
+                deviceId: devId,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                loginType: 'auto'
+              }).catch(e => console.error(e));
+              showContent(name);
+            });
           }
         })();
       } catch(e) { console.error(e); alert('Failed to initialize application.'); }
@@ -3793,6 +4465,240 @@
               });
             });
         };
+
+        /* ═══════ CUSTOMER DEVICE MANAGEMENT & STRICT BLOCK (ADMIN) ═══════ */
+        $scope.customerDevices = [];
+        $scope.blockedDevicesMap = {};
+        $scope.deviceSearchQuery = '';
+        $scope.deviceFilterTab = 'all';
+        $scope.manualBlockId = '';
+        $scope.manualBlockNote = '';
+        $scope.adminDeviceActionMsg = '';
+        $scope.adminDeviceActionError = '';
+        $scope.isLoadingDevices = false;
+        $scope.currentDeviceId = window.currentDeviceId || (localStorage.getItem('ht_device_fingerprint') || '');
+
+        $scope.openDeviceManager = function() {
+          try {
+            $scope.adminDeviceActionMsg = '';
+            $scope.adminDeviceActionError = '';
+            $scope.loadCustomerDevices();
+            var el = document.getElementById('deviceManagerModal');
+            if (el) {
+              if (window.bootstrap && bootstrap.Modal) {
+                var modal = (bootstrap.Modal.getOrCreateInstance ? bootstrap.Modal.getOrCreateInstance(el) : (bootstrap.Modal.getInstance(el) || new bootstrap.Modal(el)));
+                modal.show();
+              } else if (window.$) {
+                $('#deviceManagerModal').modal('show');
+              }
+            }
+          } catch(e) { console.error('openDeviceManager error:', e); }
+        };
+
+        $scope.loadCustomerDevices = function() {
+          $scope.isLoadingDevices = true;
+          var db = window.loginDb;
+          if (!db) {
+            try {
+              var app = firebase.apps.find(a => a.name === 'loginApp') || firebase.initializeApp({
+                apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
+                authDomain: "shop-reminder-3ce10.firebaseapp.com",
+                databaseURL: "https://shop-reminder-3ce10-default-rtdb.firebaseio.com"
+              }, 'loginApp');
+              db = app.database();
+              window.loginDb = db;
+            } catch(e) { console.error(e); }
+          }
+          if (!db) {
+            $scope.isLoadingDevices = false;
+            return;
+          }
+
+          db.ref('blocked_devices').on('value', function(bSnap) {
+            var blockedMap = bSnap.val() || {};
+            $scope.blockedDevicesMap = blockedMap;
+
+            db.ref('customer_devices').on('value', function(cSnap) {
+              var devMap = cSnap.val() || {};
+              var list = [];
+              var seenIds = {};
+
+              Object.keys(devMap).forEach(function(k) {
+                var d = devMap[k];
+                d.deviceId = d.deviceId || k;
+                d.isBlocked = !!blockedMap[d.deviceId];
+                list.push(d);
+                seenIds[d.deviceId] = true;
+              });
+
+              Object.keys(blockedMap).forEach(function(bk) {
+                if (!seenIds[bk]) {
+                  var b = blockedMap[bk];
+                  list.push({
+                    deviceId: bk,
+                    name: b.name || 'Manually Blocked Device',
+                    mobile: b.mobile || 'N/A',
+                    deviceInfo: b.deviceInfo || 'Manual Block',
+                    isBlocked: true,
+                    lastActive: b.blockedAt || 0
+                  });
+                }
+              });
+
+              list.sort(function(a, b) {
+                if (a.isBlocked !== b.isBlocked) return a.isBlocked ? -1 : 1;
+                return (b.lastActive || 0) - (a.lastActive || 0);
+              });
+
+              $scope.$applyAsync(function() {
+                $scope.customerDevices = list;
+                $scope.isLoadingDevices = false;
+              });
+            }, function(err) {
+              console.error("Error loading customer devices:", err);
+              $scope.$applyAsync(function() { $scope.isLoadingDevices = false; });
+            });
+          }, function(err) {
+            console.error("Error loading blocked devices:", err);
+            $scope.$applyAsync(function() { $scope.isLoadingDevices = false; });
+          });
+        };
+
+        $scope.confirmBlockDevice = function(dev) {
+          if (!dev || !dev.deviceId) return;
+          if (dev.deviceId === $scope.currentDeviceId && $scope.dynamicField2Value === 'sammyadmin') {
+            alert("Security Notice: You cannot block your current active Admin device.");
+            return;
+          }
+          var custLabel = (dev.name && dev.name !== 'Guest / Not Logged In') ? dev.name : dev.deviceId;
+          var msg = "STRICT DEVICE BLOCK CONFIRMATION\n\n" +
+                    "Are you sure you want to block this customer?\n\n" +
+                    "• Customer: " + custLabel + "\n" +
+                    "• Mobile: " + (dev.mobile || 'N/A') + "\n" +
+                    "• Device: " + (dev.deviceInfo || 'Unknown') + "\n" +
+                    "• ID: " + dev.deviceId + "\n\n" +
+                    "This customer will be locked out with an Access Denied screen in real time.";
+          if (confirm(msg)) {
+            $scope.blockDevice(dev.deviceId, dev.name, dev.mobile, dev.deviceInfo);
+          }
+        };
+
+        $scope.blockDevice = function(deviceId, name, mobile, deviceInfo) {
+          if (!deviceId) return;
+          var db = window.loginDb;
+          if (!db) return;
+          db.ref('blocked_devices/' + deviceId).set({
+            deviceId: deviceId,
+            name: name || 'Customer',
+            mobile: mobile || 'N/A',
+            deviceInfo: deviceInfo || '',
+            blockedAt: firebase.database.ServerValue.TIMESTAMP,
+            blockedBy: 'sammyadmin'
+          }).then(function() {
+            db.ref('customer_devices/' + deviceId + '/blocked').set(true);
+            $scope.$applyAsync(function() {
+              $scope.adminDeviceActionMsg = "✓ Device " + deviceId + " has been strictly blocked.";
+              $scope.adminDeviceActionError = "";
+              $timeout(function() { $scope.adminDeviceActionMsg = ""; }, 4000);
+            });
+          }).catch(function(err) {
+            console.error("Block device error:", err);
+            $scope.$applyAsync(function() {
+              $scope.adminDeviceActionError = "Failed to block device: " + err.message;
+            });
+          });
+        };
+
+        $scope.unblockDevice = function(deviceId) {
+          if (!deviceId) return;
+          var db = window.loginDb;
+          if (!db) return;
+          db.ref('blocked_devices/' + deviceId).remove()
+            .then(function() {
+              db.ref('customer_devices/' + deviceId + '/blocked').set(false);
+              $scope.$applyAsync(function() {
+                $scope.adminDeviceActionMsg = "✓ Device " + deviceId + " has been unblocked. Customer access is restored.";
+                $scope.adminDeviceActionError = "";
+                $timeout(function() { $scope.adminDeviceActionMsg = ""; }, 4000);
+              });
+            }).catch(function(err) {
+              console.error("Unblock device error:", err);
+              $scope.$applyAsync(function() {
+                $scope.adminDeviceActionError = "Failed to unblock device: " + err.message;
+              });
+            });
+        };
+
+        $scope.blockManualDevice = function() {
+          var id = ($scope.manualBlockId || '').trim();
+          if (!id) return;
+          if (!id.startsWith('dev_')) id = 'dev_' + id;
+          $scope.blockDevice(id, $scope.manualBlockNote || 'Manually Blocked', 'N/A', 'Manual Entry');
+          $scope.manualBlockId = '';
+          $scope.manualBlockNote = '';
+        };
+
+        $scope.getActiveDeviceCount = function() {
+          return ($scope.customerDevices || []).filter(function(d) { return !d.isBlocked; }).length;
+        };
+
+        $scope.getBlockedDeviceCount = function() {
+          return ($scope.customerDevices || []).filter(function(d) { return d.isBlocked; }).length;
+        };
+
+        $scope.setDeviceFilterTab = function(tab) {
+          $scope.deviceFilterTab = tab;
+        };
+
+        $scope.filteredCustomerDevices = function() {
+          var list = $scope.customerDevices || [];
+          if ($scope.deviceFilterTab === 'active') {
+            list = list.filter(function(d) { return !d.isBlocked; });
+          } else if ($scope.deviceFilterTab === 'blocked') {
+            list = list.filter(function(d) { return d.isBlocked; });
+          }
+          var q = ($scope.deviceSearchQuery || '').toLowerCase().trim();
+          if (q) {
+            list = list.filter(function(d) {
+              return (d.name && d.name.toLowerCase().indexOf(q) >= 0) ||
+                     (d.mobile && d.mobile.indexOf(q) >= 0) ||
+                     (d.deviceId && d.deviceId.toLowerCase().indexOf(q) >= 0) ||
+                     (d.deviceInfo && d.deviceInfo.toLowerCase().indexOf(q) >= 0);
+            });
+          }
+          return list;
+        };
+
+        $scope.copyDeviceId = function(id) {
+          if (!id) return;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(id).then(function() {
+              $scope.$applyAsync(function() {
+                $scope.adminDeviceActionMsg = "✓ Device ID copied: " + id;
+                $timeout(function() { $scope.adminDeviceActionMsg = ""; }, 2500);
+              });
+            });
+          } else {
+            var ta = document.createElement('textarea');
+            ta.value = id;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            $scope.adminDeviceActionMsg = "✓ Device ID copied: " + id;
+            $timeout(function() { $scope.adminDeviceActionMsg = ""; }, 2500);
+          }
+        };
+
+        $scope.formatDeviceTime = function(ts) {
+          if (!ts) return 'Never';
+          try {
+            var d = new Date(ts);
+            return d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) + ' ' +
+                   d.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', hour12:true });
+          } catch(e) { return 'Unknown'; }
+        };
+        /* ═════════════════════════════════════════════════════════════════ */
 
         $scope.submitData = function(image) {
           try {
