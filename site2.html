@@ -4,12 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hindustan Toys - Order Portal</title>
+  <script>
+    (function() {
+      try {
+        if (localStorage.getItem('name') && localStorage.getItem('mobile')) {
+          document.documentElement.classList.add('user-logged-in');
+        }
+      } catch(e) {}
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Figtree:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
   <style>
+    /* Immediate 0ms prevention of login screen flash for logged-in users */
+    html.user-logged-in #login-container {
+      display: none !important;
+    }
+    html.user-logged-in #content {
+      display: block !important;
+    }
+
     :root {
       --green-deep: #1a3d2b;
       --green-mid: #2d6a4f;
@@ -2155,7 +2172,7 @@
 
       <div class="access-denied-footer">
         <p class="access-denied-help">If you believe this is a mistake or need your account unblocked, please contact store support:</p>
-        <a id="blocked-whatsapp-link" href="https://wa.me/919827734802?text=Hello%20Hindustan%20Toys,%20my%20device%20is%20showing%20blocked.%20Please%20assist." target="_blank" class="access-denied-btn">
+        <a id="blocked-whatsapp-link" href="https://wa.me/919425081881?text=Hello%20Hindustan%20Toys,%20my%20device%20is%20showing%20blocked.%20Please%20assist." target="_blank" class="access-denied-btn">
           <i class="fab fa-whatsapp me-2" style="font-size:18px;"></i> Contact on WhatsApp
         </a>
       </div>
@@ -3521,6 +3538,7 @@
 
     function showAccessDenied(devId, blockData) {
       try {
+        document.documentElement.classList.remove('user-logged-in');
         var overlay = document.getElementById('access-denied-overlay');
         if (overlay) {
           overlay.style.display = 'flex';
@@ -3529,7 +3547,7 @@
           var waLink = document.getElementById('blocked-whatsapp-link');
           if (waLink) {
             var msg = encodeURIComponent("Hello Hindustan Toys, my device is blocked (Device ID: " + devId + "). Please assist with access.");
-            waLink.href = "https://wa.me/919827734802?text=" + msg;
+            waLink.href = "https://wa.me/919425081881?text=" + msg;
           }
         }
         var loginEl = document.getElementById('login-container');
@@ -3547,9 +3565,11 @@
           var name = localStorage.getItem('name');
           var mobile = localStorage.getItem('mobile');
           if (name && mobile) {
+            document.documentElement.classList.add('user-logged-in');
             var contentEl = document.getElementById('content');
             if (contentEl) contentEl.style.display = 'block';
           } else {
+            document.documentElement.classList.remove('user-logged-in');
             var loginEl = document.getElementById('login-container');
             if (loginEl) loginEl.style.display = 'flex';
           }
@@ -3649,6 +3669,7 @@
 
         function showContent(name) {
           try {
+            document.documentElement.classList.add('user-logged-in');
             var scope = angular.element(document.body).scope();
             if (scope) {
               scope.$applyAsync(function() {
@@ -3679,24 +3700,18 @@
           var name   = localStorage.getItem('name');
           var mobile = localStorage.getItem('mobile');
           if (name && mobile) {
-            // Check if device is blocked
-            loginDb.ref('blocked_devices/' + devId).once('value', function(snap) {
-              if (snap.exists() && name !== 'sammyadmin') {
-                showAccessDenied(devId, snap.val());
-                return;
-              }
-              document.getElementById('name').value   = name;
-              document.getElementById('mobile').value = mobile;
-              recordDeviceActivity(name, mobile);
-              loginDb.ref('users').push({
-                name: name,
-                mobile: mobile,
-                deviceId: devId,
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
-                loginType: 'auto'
-              }).catch(e => console.error(e));
-              showContent(name);
-            });
+            // Instantly transition to portal without waiting for network calls
+            showContent(name);
+            document.getElementById('name').value   = name;
+            document.getElementById('mobile').value = mobile;
+            recordDeviceActivity(name, mobile);
+            loginDb.ref('users').push({
+              name: name,
+              mobile: mobile,
+              deviceId: devId,
+              timestamp: firebase.database.ServerValue.TIMESTAMP,
+              loginType: 'auto'
+            }).catch(e => console.error(e));
           }
         })();
       } catch(e) { console.error(e); alert('Failed to initialize application.'); }
@@ -5270,6 +5285,7 @@
 
         $scope.logout = function() {
           try {
+            document.documentElement.classList.remove('user-logged-in');
             fetchDb.off('value', productsListener);
             localStorage.clear();
             $window.location.reload();
