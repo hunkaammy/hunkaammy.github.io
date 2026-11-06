@@ -93,7 +93,6 @@
       overflow: hidden;
     }
     
-    /* Light Background blobs */
     .bg-blob {
       position: fixed;
       filter: blur(120px);
@@ -105,13 +104,11 @@
     .blob-2 { bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: #fbcfe8; animation-delay: 2s; }
     .blob-3 { top: 40%; left: 40%; width: 40vw; height: 40vw; background: #bfdbfe; animation-delay: 4s; }
     
-    /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-    /* Range slider styling */
     input[type=range] {
       -webkit-appearance: none;
       width: 100%;
@@ -147,12 +144,10 @@
 </head>
 <body class="min-h-screen font-sans selection:bg-brand-500 selection:text-white relative">
 
-  <!-- Animated Background Orbs -->
   <div class="bg-blob blob-1 animate-blob"></div>
   <div class="bg-blob blob-2 animate-blob"></div>
   <div class="bg-blob blob-3 animate-blob"></div>
 
-  <!-- Global Drop Overlay -->
   <div id="globalDropOverlay" class="fixed inset-0 bg-white/80 z-50 items-center justify-center text-brand-600 text-3xl font-bold tracking-wider uppercase">
     <div class="flex flex-col items-center drop-shadow-md">
       <svg class="w-24 h-24 mb-6 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
@@ -160,7 +155,6 @@
     </div>
   </div>
 
-  <!-- Lightbox Modal -->
   <div id="imageModal" class="fixed inset-0 z-[100] bg-slate-900/95 backdrop-blur-sm hidden items-center justify-center p-4" onclick="closeModal()">
     <button class="absolute top-6 right-6 text-white bg-slate-800/50 hover:bg-rose-500 p-2 rounded-full transition-colors z-10" onclick="closeModal()">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -181,7 +175,6 @@
 
   <div class="max-w-[1400px] mx-auto px-4 sm:px-6 py-6 sm:py-10 relative z-10">
     
-    <!-- Header -->
     <header class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
       <div>
         <h1 class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand-600 via-fuchsia-500 to-pink-500 drop-shadow-sm tracking-tight">
@@ -198,7 +191,6 @@
 
     <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 sm:gap-8 items-start">
       
-      <!-- Upload Panel -->
       <div class="xl:col-span-4 glass-panel rounded-3xl p-5 sm:p-6 relative overflow-hidden group">
         <h2 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2 relative z-10">
           <svg class="w-6 h-6 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
@@ -244,8 +236,8 @@
 
         <div class="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
            <label class="flex justify-between items-center text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-2">
-             Image Compression Quality
-             <span id="qualityDisplay" class="text-brand-600 font-bold bg-brand-50 border border-brand-100 px-2 py-0.5 rounded-full">70%</span>
+              Image Compression Quality
+              <span id="qualityDisplay" class="text-brand-600 font-bold bg-brand-50 border border-brand-100 px-2 py-0.5 rounded-full">70%</span>
            </label>
            <input type="range" id="compressionQuality" min="10" max="100" value="70" class="w-full">
            <div class="text-[9px] sm:text-[10px] text-slate-400 mt-2 text-center leading-tight">Lower % reduces quality, saves massive storage space, and makes images load incredibly fast.</div>
@@ -266,13 +258,10 @@
         </button>
       </div>
 
-      <!-- Main Content Area -->
       <div class="xl:col-span-8 flex flex-col gap-6 sm:gap-8">
         
-        <!-- Search, Sort & Queue Row -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
           
-          <!-- Filter Panel -->
           <div class="glass-panel rounded-3xl p-5 sm:p-6">
              <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2">
               <div class="p-1.5 bg-brand-50 rounded-lg text-brand-600">
@@ -299,7 +288,6 @@
             </div>
           </div>
 
-          <!-- Queue Panel -->
           <div class="glass-panel rounded-3xl p-5 sm:p-6 flex flex-col h-full min-h-[200px]">
             <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center justify-between">
               <span class="flex items-center gap-2">
@@ -319,14 +307,11 @@
 
         </div>
 
-        <!-- Gallery -->
         <div class="mt-2">
            <div class="flex items-center justify-between mb-6">
               <h2 class="text-2xl font-extrabold text-slate-800">Product Gallery</h2>
            </div>
-          <!-- 2 Columns on Mobile, 3 on Desktop -->
           <div id="galleryGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6">
-            <!-- Initial Loading State -->
             <div class="col-span-2 md:col-span-3 flex flex-col items-center justify-center py-24 text-slate-400" id="galleryLoadingState">
                <svg class="w-12 h-12 animate-spin text-brand-500 mb-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                <div class="text-xs font-bold uppercase tracking-widest animate-pulse text-brand-600">Loading Inventory...</div>
@@ -340,7 +325,6 @@
   </div>
 
   <script>
-    // 1) Firebase init
     try {
       const firebaseConfig = {
         apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
@@ -353,16 +337,13 @@
         measurementId: "G-FJ4Q0FHBEG"
       };
       firebase.initializeApp(firebaseConfig);
-      console.log('Firebase initialized successfully');
     } catch (err) {
       console.error('Firebase initialization failed:', err);
-      alert('Failed to initialize Firebase. Please check your configuration and try again.');
     }
 
     const database = firebase.database();
     const storage = firebase.storage();
 
-    // 2) Element references
     const imageDropZone = document.getElementById('imageDropZone');
     const imageInput = document.getElementById('imageInput');
     const preview = document.getElementById('preview');
@@ -389,14 +370,12 @@
       qualityDisplay.textContent = e.target.value + '%';
     });
 
-    // 3) State
     const uploadQueue = [];
     let isUploading = false;
     let products = [];
-    let selectedImageFiles = []; // Accumulator for multiple selections
-    let currentFilteredProducts = []; // To keep track of the gallery for the lightbox
+    let selectedImageFiles = [];
+    let currentFilteredProducts = [];
 
-    // Lightbox functions
     let currentLightboxIndex = -1;
 
     function updateModalImage() {
@@ -441,17 +420,15 @@
       }
     }
 
-    // Touch Swipe Logic for Modal
     let touchStartX = 0;
     let touchEndX = 0;
     imageModal.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
     imageModal.addEventListener('touchend', e => { 
       touchEndX = e.changedTouches[0].screenX; 
-      if (touchEndX < touchStartX - 50) nextModalImage(); // swipe left -> next
-      if (touchEndX > touchStartX + 50) prevModalImage(); // swipe right -> prev
+      if (touchEndX < touchStartX - 50) nextModalImage();
+      if (touchEndX > touchStartX + 50) prevModalImage();
     }, {passive: true});
 
-    // 4) Debounce utility
     function debounce(func, wait) {
       let timeout;
       return function (...args) {
@@ -460,7 +437,6 @@
       };
     }
 
-    // --- Image Compression Helper ---
     async function compressImage(file, quality = 0.7) {
         if (!file.type.startsWith('image/')) return file;
         return new Promise((resolve) => {
@@ -483,7 +459,6 @@
                 canvas.toBlob((blob) => {
                     URL.revokeObjectURL(src);
                     if (blob) {
-                         // Force JPG extension for better compatibility with compression
                         const newName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
                         resolve(new File([blob], newName, { type: 'image/jpeg', lastModified: Date.now() }));
                     } else {
@@ -495,7 +470,6 @@
         });
     }
 
-    // 5) UI helpers
     function previewImages() {
       preview.innerHTML = '';
       selectedImageFiles.forEach((file, index) => {
@@ -541,7 +515,6 @@
       `;
     }
 
-    // 7) Drag & Drop and Click-to-Upload
     function setupDropZone(zone, input, isImage) {
       zone.addEventListener('click', (e) => {
         if(e.target.tagName !== 'BUTTON' && !e.target.closest('button')) input.click();
@@ -636,7 +609,6 @@
       }
     }
 
-    // 8) Upload flow
     uploadBtn.addEventListener('click', () => {
       uploadBatch();
     });
@@ -697,7 +669,8 @@
 
           const finalSizeKB = (compressedFile.size / 1024).toFixed(1);
 
-          const thumbDataURL = await fileToDataURL(file);
+          // Use the compressed file data URL for preview thumbnail so you actually see the compressed version
+          const thumbDataURL = await fileToDataURL(compressedFile);
           const progressContainer = document.createElement('div');
           progressContainer.className = 'p-3 bg-white rounded-xl border border-slate-200 shadow-sm';
           progressContainer.innerHTML = `
@@ -727,7 +700,6 @@
           });
         }
 
-        // Reset state
         selectedImageFiles = [];
         imageInput.value = '';
         videoInput.value = '';
@@ -814,10 +786,7 @@
       }
     }
 
-    // 9) Render cards
     function renderCard(key, data) {
-      
-      // Feature: Check if size exists, if not, fetch it asynchronously to enable sorting.
       if (!data.sizeKB && isFirebaseStorageUrl(data.url)) {
         storage.refFromURL(data.url).getMetadata().then(metadata => {
           const sizeKB = (metadata.size / 1024).toFixed(1);
@@ -890,8 +859,8 @@
               </div>
               <div class="flex items-center justify-between pt-3 sm:pt-4 mt-1 sm:mt-2">
                    <div class="flex items-center gap-1 sm:gap-1.5 group/date cursor-pointer bg-slate-50 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg border border-slate-200 hover:border-brand-300 transition-all" onclick="updateUploadDate('${key}')" title="Click to refresh date">
-                       <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400 group-hover/date:text-brand-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                       <span class="text-[8px] sm:text-[10px] text-slate-500 font-bold tracking-wide group-hover/date:text-brand-600 transition-colors uploaded-date-${key}">${new Date(data.date || Date.now()).toLocaleDateString(undefined, {month: 'short', day:'numeric', year:'2-digit'})}</span>
+                        <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400 group-hover/date:text-brand-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        <span class="text-[8px] sm:text-[10px] text-slate-500 font-bold tracking-wide group-hover/date:text-brand-600 transition-colors uploaded-date-${key}">${new Date(data.date || Date.now()).toLocaleDateString(undefined, {month: 'short', day:'numeric', year:'2-digit'})}</span>
                    </div>
                    <button onclick="confirmDelete('${key}')" class="text-slate-400 hover:text-white p-1.5 sm:p-2 rounded-lg hover:bg-rose-500 hover:shadow-md transition-all duration-200 border border-transparent hover:border-rose-600" title="Delete Product">
                      <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -913,7 +882,6 @@
       }[s]));
     }
 
-    // Gallery state
     let currentGalleryLimit = 12;
     let prevNameQuery = '';
     let prevCodeQuery = '';
@@ -1005,7 +973,6 @@
       batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
     });
 
-    // Event listeners for search & sort
     nameSearchInput.addEventListener('input', debounce(() => {
         batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
     }, 300));
@@ -1018,7 +985,6 @@
         batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
     });
 
-    // Inline editing functions
     window.makeEditable = function(el, key, field) {
       const isPrice = field === 'price';
       const prev = el.textContent.replace(/^₹\s*/i, '').trim();
@@ -1059,7 +1025,6 @@
       database.ref(key).remove();
     }
 
-    // New Compress Existing Image Feature
     window.compressExistingImage = async function(key, currentUrlEncoded) {
       const currentUrl = decodeURIComponent(currentUrlEncoded);
       if (!isFirebaseStorageUrl(currentUrl)) {
@@ -1096,7 +1061,7 @@
         
       } catch (err) {
         console.error("Compression failed:", err);
-        alert("Compression failed! To compress via browser, your Firebase Storage bucket must have CORS configured. If it's not, you must use the Replace Image button to re-upload manually.");
+        alert("Compression failed! To compress via browser, your Firebase Storage bucket must have CORS configured.");
       } finally {
         if(document.body.contains(compressBtn)) {
            compressBtn.innerHTML = originalText;
@@ -1138,7 +1103,6 @@
     };
 
     window.removeVideo = async (key) => { if(confirm('Remove video?')) database.ref(key).update({videourl: ''}); };
-
   </script>
 </body>
 </html>
