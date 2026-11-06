@@ -1026,7 +1026,11 @@
 
     window.compressExistingImage = async function(key, currentUrlEncoded) {
       const currentUrl = decodeURIComponent(currentUrlEncoded);
-      
+      if (!currentUrl || currentUrl === 'undefined' || currentUrl.includes('[object File]')) {
+        alert("INVALID IMAGE URL FOUND. PLEASE USE 'IMAGE' TO REPLACE IT MANUALLY.");
+        return;
+      }
+
       const qualityValue = parseInt(compressionQualitySlider.value) / 100;
       if (!confirm(`COMPRESS THIS IMAGE USING ${qualityValue * 100}% QUALITY FROM THE SLIDER?`)) return;
       
@@ -1034,37 +1038,31 @@
       if(!card) return;
       const compressBtn = card.querySelector('.btn-compress');
       const originalText = compressBtn.innerHTML;
-      compressBtn.innerHTML = '<span class="animate-pulse">BYPASSING...</span>';
+      compressBtn.innerHTML = '<span class="animate-pulse">COMPRESSING...</span>';
       compressBtn.disabled = true;
 
       try {
-        const compressedFile = await new Promise((resolve, reject) => {
-          const img = new Image();
-          img.crossOrigin = "anonymous";
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            let width = img.width;
-            let height = img.height;
-            const MAX_WIDTH = 1920;
-            if (width > MAX_WIDTH) {
-              height *= MAX_WIDTH / width;
-              width = MAX_WIDTH;
-            }
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            canvas.toBlob((blob) => {
-              if (blob) {
-                resolve(new File([blob], "compressed_image.jpg", { type: 'image/jpeg', lastModified: Date.now() }));
-              } else {
-                reject(new Error("CANVAS TO BLOB FAILED"));
-              }
-            }, 'image/jpeg', qualityValue);
-          };
-          img.onerror = () => reject(new Error("IMAGE LOAD FAILED DUE TO CORS"));
-          img.src = currentUrl;
-        });
+        const fetchedBlob = await fetch(currentUrl, { mode: 'cors' })
+          .then(res => res.blob())
+          .catch(async () => {
+            return await new Promise((resolve, reject) => {
+              const img = new Image();
+              img.crossOrigin = "anonymous";
+              img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("CANVAS FAILED")), 'image/jpeg', qualityValue);
+              };
+              img.onerror = err => reject(err);
+              img.src = currentUrl + (currentUrl.includes('?') ? '&' : '?') + 't=' + Date.now();
+            });
+          });
+
+        const originalFile = new File([fetchedBlob], "image.jpg", { type: 'image/jpeg' });
+        const compressedFile = await compressImage(originalFile, qualityValue);
 
         const ref = storage.ref().child(`images/${new Date().toISOString()}_COMP_${compressedFile.name}`);
         await ref.put(compressedFile);
@@ -1074,10 +1072,11 @@
         
         const newSizeKB = (compressedFile.size / 1024).toFixed(1);
         await database.ref(key).update({ url: newUrl, sizeKB: newSizeKB });
+        alert("IMAGE COMPRESSED AND UPDATED SUCCESSFULLY!");
         
       } catch (err) {
-        console.error("CANVAS BYPASS FAILED:", err);
-        alert("AUTOMATIC COMPRESSION FAILED DUE TO BROWSER SECURITY. PLEASE USE THE 'IMAGE' BUTTON TO UPLOAD A NEW COMPRESSED FILE DIRECTLY.");
+        console.error("COMPRESSION ERROR:", err);
+        alert("CORS/NETWORK BLOCK: PLEASE CLICK THE 'IMAGE' BUTTON TO UPLOAD A FRESH COMPRESSED FILE FROM YOUR COMPUTER INSTEAD.");
       } finally {
         if(document.body.contains(compressBtn)) {
            compressBtn.innerHTML = originalText;
