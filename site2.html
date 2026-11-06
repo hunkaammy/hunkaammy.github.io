@@ -2428,8 +2428,7 @@
                   <div class="pif-bottom-row">
                     <div class="pif-price-box">
                       <span class="pif-no-label">NO.</span>
-                      <span class="pif-no-val" ng-if="priceVisible">{{ getDoubledPrice(product.price) }}</span>
-                      <span class="pif-no-val" ng-if="!priceVisible">--</span>
+                      <span class="pif-no-val">{{ getDoubledPrice(product.price) }}</span>
                     </div>
                     <button class="pif-download-btn"
                             type="button"
@@ -2578,8 +2577,7 @@
                   <div class="pif-bottom-row">
                     <div class="pif-price-box">
                       <span class="pif-no-label">NO.</span>
-                      <span class="pif-no-val" ng-if="priceVisible">{{ getDoubledPrice(product.price) }}</span>
-                      <span class="pif-no-val" ng-if="!priceVisible">--</span>
+                      <span class="pif-no-val">{{ getDoubledPrice(product.price) }}</span>
                     </div>
                     <button class="pif-download-btn"
                             type="button"
@@ -5610,8 +5608,7 @@
             setTimeout(function() {
               var lines = batch.map(function(p, i) {
                 var dPrice = $scope.getDoubledPrice(p.price);
-                return (bi * BATCH_SIZE + i + 1) + '. ' + p.name +
-                       ($scope.priceVisible ? ' \u2014 NO. ' + dPrice : '');
+                return (bi * BATCH_SIZE + i + 1) + '. ' + p.name + ' \u2014 NO. ' + dPrice;
               });
               var msg = 'Products from Hindustan Toys (Part ' + (bi + 1) + '/' + batches.length + '):\n' + lines.join('\n');
               window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
