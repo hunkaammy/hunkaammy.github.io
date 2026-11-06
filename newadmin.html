@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="EN">
 <head>
   <meta charset="UTF-8" />
   <title>ADMIN DASHBOARD PRO | PREMIUM</title>
@@ -508,7 +508,7 @@
         <div class="relative rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-white p-2">
           <video src="${url}" controls class="mx-auto w-full rounded-lg bg-slate-100" style="max-height: 160px;"></video>
           <div class="flex justify-between items-center mt-2 px-1">
-            <span class="text-xs text-slate-500 truncate font-medium max-w-[70%]">${file.name}</span>
+            <span class="text-xs text-slate-500 truncate font-medium max-w-[70%]"${file.name}</span>
             <span class="text-[10px] text-brand-600 font-bold bg-brand-50 px-2 py-0.5 rounded-full border border-brand-100">${sizeMB} MB</span>
           </div>
         </div>
@@ -849,7 +849,7 @@
                    <button onclick="replaceImage('${key}', '${encodeURIComponent(data.url || '')}')" class="flex-1 min-w-[30%] bg-white hover:bg-slate-50 text-slate-600 border border-slate-300 hover:border-slate-400 text-[9px] sm:text-[11px] font-bold py-1.5 sm:py-2 px-1 rounded-lg shadow-sm transition-all duration-200">
                      IMAGE
                    </button>
-                   <button onclick="compressExistingImage('${key}', '${encodeURIComponent(data.url || '')}')" class="btn-compress flex-1 min-w-[30%] bg-brand-50 hover:bg-brand-500 text-brand-600 hover:text-white border border-brand-200 hover:border-brand-500 text-[9px] sm:text-[11px] font-bold py-1.5 sm:py-2 px-1 rounded-lg shadow-sm transition-all duration-200 truncate">
+                   <button onclick="compressExistingImage('${key}')" class="btn-compress flex-1 min-w-[30%] bg-brand-50 hover:bg-brand-500 text-brand-600 hover:text-white border border-brand-200 hover:border-brand-500 text-[9px] sm:text-[11px] font-bold py-1.5 sm:py-2 px-1 rounded-lg shadow-sm transition-all duration-200 truncate">
                      COMPRESS
                    </button>
                    <button onclick="replaceVideo('${key}', '${encodeURIComponent(data.videourl || '')}')" class="flex-1 min-w-[30%] bg-white hover:bg-slate-50 text-slate-600 border border-slate-300 hover:border-slate-400 text-[9px] sm:text-[11px] font-bold py-1.5 sm:py-2 px-1 rounded-lg shadow-sm transition-all duration-200">
@@ -1024,13 +1024,7 @@
       database.ref(key).remove();
     }
 
-    window.compressExistingImage = async function(key, currentUrlEncoded) {
-      const currentUrl = decodeURIComponent(currentUrlEncoded);
-      if (!currentUrl || currentUrl === 'undefined' || currentUrl.includes('[object File]')) {
-        alert("INVALID IMAGE URL FOUND. PLEASE USE 'IMAGE' TO REPLACE IT MANUALLY.");
-        return;
-      }
-
+    window.compressExistingImage = async function(key) {
       const qualityValue = parseInt(compressionQualitySlider.value) / 100;
       if (!confirm(`COMPRESS THIS IMAGE USING ${qualityValue * 100}% QUALITY FROM THE SLIDER?`)) return;
       
@@ -1038,10 +1032,20 @@
       if(!card) return;
       const compressBtn = card.querySelector('.btn-compress');
       const originalText = compressBtn.innerHTML;
-      compressBtn.innerHTML = '<span class="animate-pulse">COMPRESSING...</span>';
+      compressBtn.innerHTML = '<span class="animate-pulse">FETCHING...</span>';
       compressBtn.disabled = true;
 
       try {
+        const snapshot = await database.ref(key).once('value');
+        const productData = snapshot.val();
+        const currentUrl = productData && productData.url ? String(productData.url) : '';
+
+        if (!currentUrl || currentUrl.includes('[object File]')) {
+          throw new Error("INVALID DATABASE URL");
+        }
+
+        compressBtn.innerHTML = '<span class="animate-pulse">COMPRESSING...</span>';
+
         const fetchedBlob = await fetch(currentUrl, { mode: 'cors' })
           .then(res => res.blob())
           .catch(async () => {
@@ -1076,7 +1080,7 @@
         
       } catch (err) {
         console.error("COMPRESSION ERROR:", err);
-        alert("CORS/NETWORK BLOCK: PLEASE CLICK THE 'IMAGE' BUTTON TO UPLOAD A FRESH COMPRESSED FILE FROM YOUR COMPUTER INSTEAD.");
+        alert("CORS/URL ERROR: PLEASE CLICK THE 'IMAGE' BUTTON TO UPLOAD A FRESH COMPRESSED FILE FROM YOUR COMPUTER DIRECTLY.");
       } finally {
         if(document.body.contains(compressBtn)) {
            compressBtn.innerHTML = originalText;
