@@ -839,6 +839,101 @@
       background: white;
     }
 
+    /* ══════ PRODUCT IMAGE FOOTER BANNER (ITEM NAME & NO. PRICE*2) ══════ */
+    .product-img-wrap {
+      position: relative;
+      cursor: pointer;
+      background: var(--cream);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .product-img-footer-banner {
+      background: linear-gradient(180deg, #0e1e36 0%, #0a1526 100%);
+      color: #ffffff;
+      padding: 6px 9px 7px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      user-select: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .pif-item-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      min-width: 0;
+    }
+    .pif-item-tag {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 10.5px;
+      font-weight: 800;
+      color: #7dd3fc;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+    .pif-item-title {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-transform: uppercase;
+      letter-spacing: 0.2px;
+    }
+    .pif-divider {
+      width: 100%;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.15);
+      margin: 1px 0;
+    }
+    .pif-bottom-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .pif-price-box {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+    }
+    .pif-no-label {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #94a3b8;
+      letter-spacing: 0.5px;
+    }
+    .pif-no-val {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 14.5px;
+      font-weight: 800;
+      color: #38bdf8;
+      letter-spacing: 0.3px;
+      line-height: 1;
+    }
+    .pif-download-btn {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #e2e8f0;
+      border-radius: 6px;
+      padding: 3px 7px;
+      font-size: 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .pif-download-btn:hover {
+      background: #0284c7;
+      border-color: #0284c7;
+      color: #ffffff;
+      transform: scale(1.05);
+    }
+
     .saved-badge {
       position: absolute;
       top: 8px;
@@ -1359,8 +1454,8 @@
 
     .enlarged-img-wrap {
       width: 100%;
-      max-height: 48vh;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       position: relative;
@@ -1371,10 +1466,10 @@
 
     .enlarged-image-content {
       max-width: 100%;
-      max-height: 48vh;
-      border-radius: 16px;
+      max-height: 44vh;
+      border-radius: 16px 16px 0 0;
       object-fit: contain;
-      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
       background: rgba(255, 255, 255, 0.04);
       user-select: none;
       -webkit-user-drag: none;
@@ -1382,6 +1477,106 @@
       touch-action: pan-y;
       will-change: transform, opacity;
       animation: zoomIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      display: block;
+    }
+
+    /* Attached Footer Banner below Enlarged Image */
+    .enlarged-img-footer-banner {
+      background: linear-gradient(180deg, #0e1e36 0%, #0a1526 100%);
+      color: #ffffff;
+      padding: 9px 14px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      border-radius: 0 0 16px 16px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+      box-sizing: border-box;
+      transition: width 0.15s ease;
+      width: 100%;
+      max-width: 580px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      cursor: default;
+      user-select: none;
+    }
+    .eif-item-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .eif-item-tag {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      color: #7dd3fc;
+      letter-spacing: 0.6px;
+      flex-shrink: 0;
+    }
+    .eif-item-title {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .eif-divider {
+      width: 100%;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.18);
+      margin: 2px 0;
+    }
+    .eif-bottom-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .eif-price-box {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .eif-no-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #94a3b8;
+      letter-spacing: 0.6px;
+    }
+    .eif-no-val {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: #38bdf8;
+      letter-spacing: 0.4px;
+    }
+    .eif-download-btn {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      border: none;
+      color: #ffffff;
+      border-radius: 8px;
+      padding: 5px 13px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+      transition: all 0.2s ease;
+    }
+    .eif-download-btn:hover {
+      background: linear-gradient(135deg, #0369a1, #075985);
+      transform: translateY(-1px);
+    }
+    .eif-brand {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.45);
+      letter-spacing: 0.6px;
     }
 
     .enlarged-card {
@@ -1611,21 +1806,28 @@
         font-size: 11px;
       }
       .enlarged-img-wrap {
-        max-height: 38vh;
-        max-height: 38dvh;
+        max-height: 44vh;
+        max-height: 44dvh;
         width: 100%;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
       }
       .enlarged-image-content {
-        max-height: 38vh;
-        max-height: 38dvh;
+        max-height: 32vh;
+        max-height: 32dvh;
         max-width: calc(100vw - 20px);
         width: auto;
         height: auto;
-        border-radius: 12px;
+        border-radius: 12px 12px 0 0;
         object-fit: contain;
+      }
+      .enlarged-img-footer-banner {
+        border-radius: 0 0 12px 12px;
+        max-width: calc(100vw - 20px);
+        padding: 7px 10px 8px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
       }
       .enlarged-card {
         width: auto;
@@ -2320,9 +2522,30 @@
               <div class="select-check" ng-if="selectMode" ng-click="toggleProductSelect($event, product)">
                 <i class="fas fa-check"></i>
               </div>
-              <img class="product-card-img" ng-src="{{product.url}}" alt="{{product.name}}"
-                   ng-click="selectMode ? toggleProductSelect($event, product) : openEnlargedProduct(product, searchResults, $index)"
-                   loading="lazy">
+              <div class="product-img-wrap" ng-click="selectMode ? toggleProductSelect($event, product) : openEnlargedProduct(product, searchResults, $index)">
+                <img class="product-card-img" ng-src="{{product.url}}" alt="{{product.name}}" loading="lazy">
+                <!-- Attached Product Footer Banner -->
+                <div class="product-img-footer-banner">
+                  <div class="pif-item-row">
+                    <span class="pif-item-tag">ITEM</span>
+                    <span class="pif-item-title">{{product.name}}</span>
+                  </div>
+                  <div class="pif-divider"></div>
+                  <div class="pif-bottom-row">
+                    <div class="pif-price-box">
+                      <span class="pif-no-label">NO.</span>
+                      <span class="pif-no-val" ng-if="priceVisible">{{ getDoubledPrice(product.price) }}</span>
+                      <span class="pif-no-val" ng-if="!priceVisible">--</span>
+                    </div>
+                    <button class="pif-download-btn"
+                            type="button"
+                            ng-click="$event.stopPropagation(); downloadProductImageWithFooter(product)"
+                            title="Download Image with Footer">
+                      <i class="fas" ng-class="isDownloadingId === (product.$id || product.url) ? 'fa-spinner fa-spin' : 'fa-download'"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
               <div class="product-card-body">
                 <span class="saved-badge" ng-if="product.justSaved">Saved!</span>
                 <div class="product-price" ng-if="priceVisible">{{product.price | currency:"₹":0}}</div>
@@ -2446,11 +2669,33 @@
               <div class="select-check" ng-if="selectMode" ng-click="toggleProductSelect($event, product)">
                 <i class="fas fa-check"></i>
               </div>
-              <img class="product-card-img"
-                   ng-src="{{product.url}}"
-                   alt="{{product.name}}"
-                   ng-click="selectMode ? toggleProductSelect($event, product) : openEnlargedProduct(product, displayedProducts, $index)"
-                   loading="lazy">
+              <div class="product-img-wrap" ng-click="selectMode ? toggleProductSelect($event, product) : openEnlargedProduct(product, displayedProducts, $index)">
+                <img class="product-card-img"
+                     ng-src="{{product.url}}"
+                     alt="{{product.name}}"
+                     loading="lazy">
+                <!-- Attached Product Footer Banner -->
+                <div class="product-img-footer-banner">
+                  <div class="pif-item-row">
+                    <span class="pif-item-tag">ITEM</span>
+                    <span class="pif-item-title">{{product.name}}</span>
+                  </div>
+                  <div class="pif-divider"></div>
+                  <div class="pif-bottom-row">
+                    <div class="pif-price-box">
+                      <span class="pif-no-label">NO.</span>
+                      <span class="pif-no-val" ng-if="priceVisible">{{ getDoubledPrice(product.price) }}</span>
+                      <span class="pif-no-val" ng-if="!priceVisible">--</span>
+                    </div>
+                    <button class="pif-download-btn"
+                            type="button"
+                            ng-click="$event.stopPropagation(); downloadProductImageWithFooter(product)"
+                            title="Download Image with Footer">
+                      <i class="fas" ng-class="isDownloadingId === (product.$id || product.url) ? 'fa-spinner fa-spin' : 'fa-download'"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
               <div class="admin-card-actions" ng-if="dynamicField2Value === 'sammyadmin' && !selectMode">
                 <button class="admin-btn admin-edit-btn"
                         type="button"
@@ -2581,6 +2826,14 @@
       </div>
       <div class="d-flex align-items-center gap-2">
         <button class="enlarged-video-btn"
+                type="button"
+                style="background:linear-gradient(135deg, #0284c7, #0369a1); border:none;"
+                ng-click="downloadProductImageWithFooter(enlargedProduct)"
+                title="Download Image with Footer">
+          <i class="fas" ng-class="isDownloadingId === (enlargedProduct.$id || enlargedProduct.url) ? 'fa-spinner fa-spin' : 'fa-download'"></i>
+          <span class="d-none d-sm-inline ms-1">Download</span>
+        </button>
+        <button class="enlarged-video-btn"
                 ng-if="enlargedProduct.videourl"
                 ng-click="showVideoModal($event, enlargedProduct.videourl, true)">
           <i class="fas fa-play me-1"></i> Video
@@ -2617,6 +2870,29 @@
              onload="window.syncEnlargedCardWidth()"
              ng-click="$event.stopPropagation()"
              draggable="false">
+
+        <!-- Attached Footer Banner below Enlarged Image -->
+        <div class="enlarged-img-footer-banner" id="enlarged-img-footer" ng-click="$event.stopPropagation()">
+          <div class="eif-item-row">
+            <span class="eif-item-tag">ITEM</span>
+            <span class="eif-item-title">{{ enlargedProduct.name }}</span>
+          </div>
+          <div class="eif-divider"></div>
+          <div class="eif-bottom-row">
+            <div class="eif-price-box">
+              <span class="eif-no-label">NO.</span>
+              <span class="eif-no-val" ng-if="priceVisible">{{ getDoubledPrice(enlargedProduct.price) }}</span>
+              <span class="eif-no-val" ng-if="!priceVisible">--</span>
+            </div>
+            <button class="eif-download-btn"
+                    type="button"
+                    ng-click="downloadProductImageWithFooter(enlargedProduct)"
+                    title="Download image with footer">
+              <i class="fas" ng-class="isDownloadingId === (enlargedProduct.$id || enlargedProduct.url) ? 'fa-spinner fa-spin' : 'fa-download'"></i>
+              <span>Download Image</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Bottom Order Card -->
@@ -4749,15 +5025,20 @@
             var img = document.getElementById('enlarged-image');
             var card = document.querySelector('.enlarged-card');
             var topbar = document.querySelector('.enlarged-topbar');
+            var footer = document.getElementById('enlarged-img-footer');
             if (!img) return;
 
-            // Match card and topbar width to the exact rendered image width on all devices (mobile and desktop)
+            // Match card, footer and topbar width to the exact rendered image width on all devices (mobile and desktop)
             var w = img.getBoundingClientRect().width;
             if (w > 50) {
               var roundedW = Math.round(w);
               if (card) {
                 card.style.setProperty('width', roundedW + 'px', 'important');
                 card.style.maxWidth = 'calc(100vw - 20px)';
+              }
+              if (footer) {
+                footer.style.setProperty('width', roundedW + 'px', 'important');
+                footer.style.maxWidth = 'calc(100vw - 20px)';
               }
               if (topbar) {
                 topbar.style.setProperty('width', roundedW + 'px', 'important');
@@ -5183,6 +5464,188 @@
 
         $scope.clearSelection = function() { $scope.selectedProducts = []; };
 
+        /* ═══════ IMAGE FOOTER GENERATOR & DOWNLOAD (ITEM NAME & NO. PRICE*2) ═══════ */
+        $scope.getDoubledPrice = function(price) {
+          var p = parseFloat(price);
+          if (isNaN(p) || p <= 0) return '0';
+          var doubled = p * 2;
+          return (doubled % 1 === 0) ? String(doubled) : (Math.round(doubled * 100) / 100).toFixed(2);
+        };
+
+        $scope.renderImageWithFooter = function(source, product) {
+          return new Promise(function(resolve, reject) {
+            try {
+              var loadBlobPromise;
+              if (source instanceof Blob) {
+                loadBlobPromise = Promise.resolve(source);
+              } else if (typeof source === 'string') {
+                loadBlobPromise = fetch(source, { mode: 'cors' })
+                  .then(function(res) {
+                    if (!res.ok) throw new Error('Fetch failed: ' + res.status);
+                    return res.blob();
+                  });
+              } else {
+                return reject(new Error('Invalid image source'));
+              }
+
+              loadBlobPromise
+                .then(function(blob) {
+                  var objectUrl = URL.createObjectURL(blob);
+                  var img = new Image();
+                  img.onload = function() {
+                    try {
+                      var naturalW = img.naturalWidth || img.width || 800;
+                      var naturalH = img.naturalHeight || img.height || 800;
+
+                      var W = Math.max(800, naturalW);
+                      var scale = W / naturalW;
+                      var H = Math.round(naturalH * scale);
+
+                      var footerH = Math.max(140, Math.round(W * 0.18));
+
+                      var canvas = document.createElement('canvas');
+                      canvas.width = W;
+                      canvas.height = H + footerH;
+                      var ctx = canvas.getContext('2d');
+                      if (!ctx) {
+                        URL.revokeObjectURL(objectUrl);
+                        return resolve(blob);
+                      }
+
+                      // 1. Draw image with white background
+                      ctx.fillStyle = '#ffffff';
+                      ctx.fillRect(0, 0, W, H);
+                      ctx.drawImage(img, 0, 0, W, H);
+
+                      // 2. Draw footer background (Deep Navy Blue matching design)
+                      ctx.fillStyle = '#0a1628';
+                      ctx.fillRect(0, H, W, footerH);
+
+                      // Top border highlight
+                      ctx.fillStyle = 'rgba(255, 255, 255, 0.14)';
+                      ctx.fillRect(0, H, W, Math.max(1, Math.round(W * 0.002)));
+
+                      var padX = Math.round(W * 0.04);
+                      var maxContentW = W - (padX * 2);
+
+                      // 3. Line 1: ITEM  [NAME]
+                      var line1Y = H + Math.round(footerH * 0.33);
+                      ctx.textBaseline = 'middle';
+                      ctx.textAlign = 'left';
+
+                      var tagFontSize = Math.max(14, Math.round(W * 0.034));
+                      var titleFontSize = Math.max(15, Math.round(W * 0.036));
+
+                      ctx.font = '800 ' + tagFontSize + "px 'Bricolage Grotesque', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+                      ctx.fillStyle = '#7dd3fc';
+                      var tagText = 'ITEM  ';
+                      ctx.fillText(tagText, padX, line1Y);
+                      var tagW = ctx.measureText(tagText).width;
+
+                      ctx.font = '700 ' + titleFontSize + "px 'Bricolage Grotesque', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+                      ctx.fillStyle = '#ffffff';
+                      var fullTitle = String((product && product.name) || 'PRODUCT').toUpperCase();
+                      var availTitleW = maxContentW - tagW;
+                      if (ctx.measureText(fullTitle).width > availTitleW) {
+                        while (fullTitle.length > 3 && ctx.measureText(fullTitle + '...').width > availTitleW) {
+                          fullTitle = fullTitle.slice(0, -1);
+                        }
+                        fullTitle += '...';
+                      }
+                      ctx.fillText(fullTitle, padX + tagW, line1Y);
+
+                      // 4. Divider line
+                      var divY = H + Math.round(footerH * 0.54);
+                      ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+                      ctx.lineWidth = Math.max(1, Math.round(W * 0.0016));
+                      ctx.beginPath();
+                      ctx.moveTo(padX, divY);
+                      ctx.lineTo(W - padX, divY);
+                      ctx.stroke();
+
+                      // 5. Line 2: NO.  [DOUBLED PRICE]
+                      var line2Y = H + Math.round(footerH * 0.78);
+
+                      var noLabelSize = Math.max(12, Math.round(W * 0.024));
+                      ctx.font = '700 ' + noLabelSize + "px 'Segoe UI', Roboto, sans-serif";
+                      ctx.fillStyle = '#94a3b8';
+                      ctx.fillText('NO.', padX, line2Y);
+                      var noLabelW = ctx.measureText('NO.').width;
+
+                      var valSize = Math.max(22, Math.round(W * 0.052));
+                      ctx.font = '800 ' + valSize + "px 'Bricolage Grotesque', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+                      ctx.fillStyle = '#38bdf8';
+                      var dPrice = $scope.getDoubledPrice(product && product.price);
+                      ctx.fillText('  ' + dPrice, padX + noLabelW, line2Y);
+
+                      // Right branding
+                      ctx.textAlign = 'right';
+                      ctx.font = '700 ' + Math.max(11, Math.round(W * 0.022)) + "px 'Segoe UI', Roboto, sans-serif";
+                      ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+                      ctx.fillText('HINDUSTAN TOYS', W - padX, line2Y);
+                      ctx.textAlign = 'left';
+
+                      URL.revokeObjectURL(objectUrl);
+
+                      canvas.toBlob(function(renderedBlob) {
+                        if (renderedBlob) resolve(renderedBlob);
+                        else resolve(blob);
+                      }, 'image/jpeg', 0.94);
+                    } catch(drawErr) {
+                      console.error('Canvas draw error:', drawErr);
+                      URL.revokeObjectURL(objectUrl);
+                      resolve(blob);
+                    }
+                  };
+                  img.onerror = function() {
+                    URL.revokeObjectURL(objectUrl);
+                    resolve(blob);
+                  };
+                  img.src = objectUrl;
+                })
+                .catch(function(err) {
+                  console.error('renderImageWithFooter error:', err);
+                  reject(err);
+                });
+            } catch(outerErr) {
+              reject(outerErr);
+            }
+          });
+        };
+
+        $scope.isDownloadingId = null;
+        $scope.downloadProductImageWithFooter = function(product) {
+          if (!product || !product.url) return;
+          var prodKey = product.$id || product.url;
+          $scope.isDownloadingId = prodKey;
+          $scope.$applyAsync();
+
+          $scope.renderImageWithFooter(product.url, product)
+            .then(function(renderedBlob) {
+              $scope.$applyAsync(function() { $scope.isDownloadingId = null; });
+              var dPrice = $scope.getDoubledPrice(product.price);
+              var safeName = (product.name || 'product').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 30);
+              var filename = safeName + '_NO_' + dPrice + '.jpg';
+
+              var url = URL.createObjectURL(renderedBlob);
+              var a = document.createElement('a');
+              a.href = url;
+              a.download = filename;
+              document.body.appendChild(a);
+              a.click();
+              setTimeout(function() {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+              }, 600);
+            })
+            .catch(function(err) {
+              console.error('Download error:', err);
+              $scope.$applyAsync(function() { $scope.isDownloadingId = null; });
+              alert('Could not download image. Opening in new tab instead.');
+              window.open(product.url, '_blank');
+            });
+        };
+
         $scope.shareToWhatsApp = function() {
           var products = $scope.selectedProducts;
           if (!products || products.length === 0) return;
@@ -5197,12 +5660,20 @@
             var fetchPromises = products.map(function(product, idx) {
               return fetch(product.url, { mode: 'cors' })
                 .then(function(res) { if (!res.ok) throw new Error('fetch failed'); return res.blob(); })
-                .then(function(blob) {
-                  $scope.$applyAsync(function() { $scope.shareProgressCurrent = idx + 1; });
-                  var ext = blob.type.includes('png') ? 'png' : blob.type.includes('gif') ? 'gif' : 'jpg';
-                  return new File([blob], (product.name || 'product') + '.' + ext, { type: blob.type });
+                .then(function(rawBlob) {
+                  return $scope.renderImageWithFooter(rawBlob, product);
                 })
-                .catch(function() { return null; });
+                .then(function(renderedBlob) {
+                  $scope.$applyAsync(function() { $scope.shareProgressCurrent = idx + 1; });
+                  var dPrice = $scope.getDoubledPrice(product.price);
+                  var safeName = (product.name || 'product').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 30);
+                  var filename = safeName + '_NO_' + dPrice + '.jpg';
+                  return new File([renderedBlob], filename, { type: 'image/jpeg' });
+                })
+                .catch(function(err) {
+                  console.error('Fetch/render image error:', err);
+                  return null;
+                });
             });
 
             Promise.all(fetchPromises).then(function(files) {
@@ -5272,8 +5743,9 @@
           batches.forEach(function(batch, bi) {
             setTimeout(function() {
               var lines = batch.map(function(p, i) {
+                var dPrice = $scope.getDoubledPrice(p.price);
                 return (bi * BATCH_SIZE + i + 1) + '. ' + p.name +
-                       ($scope.priceVisible ? ' \u2014 \u20b9' + p.price : '');
+                       ($scope.priceVisible ? ' \u2014 NO. ' + dPrice : '');
               });
               var msg = 'Products from Hindustan Toys (Part ' + (bi + 1) + '/' + batches.length + '):\n' + lines.join('\n');
               window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
