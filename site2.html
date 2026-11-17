@@ -2417,7 +2417,7 @@
                 <i class="fas fa-check"></i>
               </div>
               <div class="product-img-wrap" ng-click="selectMode ? toggleProductSelect($event, product) : openEnlargedProduct(product, searchResults, $index)">
-                <img class="product-card-img" ng-src="{{product.url}}" alt="{{product.name}}" loading="lazy">
+                <img class="product-card-img" ng-src="{{product.url}}" alt="{{product.name}}" loading="lazy" onerror="this.onerror=null; var c = this.closest('.product-card'); if (c) c.style.display='none';">
                 <!-- Attached Product Footer Banner -->
                 <div class="product-img-footer-banner">
                   <div class="pif-item-row">
@@ -2566,7 +2566,8 @@
                 <img class="product-card-img"
                      ng-src="{{product.url}}"
                      alt="{{product.name}}"
-                     loading="lazy">
+                     loading="lazy"
+                     onerror="this.onerror=null; var c = this.closest('.product-card'); if (c) c.style.display='none';">
                 <!-- Attached Product Footer Banner -->
                 <div class="product-img-footer-banner">
                   <div class="pif-item-row">
@@ -3914,13 +3915,22 @@
 
         var productsListener = fetchDb.on('value', function(snapshot) {
           var allData = [];
+          var excludedKeys = ['ht_categories', 'pagdi', 'cataegory_pagdi', 'channel', 'channels', 'users', 'orders', 'cart', 'carts', 'admin', 'settings'];
           snapshot.forEach(function(child) {
-            if (child.key === 'ht_categories') return;
-            var item  = child.val();
-            item.$id  = child.key;
+            var key = child.key;
+            if (!key) return;
+            if (excludedKeys.indexOf(key) !== -1) return;
+
+            var item = child.val();
+            // Strictly validate that this node is an actual product object and not a folder, list, or invalid entry
+            if (!item || typeof item !== 'object' || Array.isArray(item)) return;
+            if (!item.url || typeof item.url !== 'string' || !item.url.trim().toLowerCase().startsWith('http')) return;
+            if (!item.name || typeof item.name !== 'string' || !item.name.trim()) return;
+
+            item.$id  = key;
             var clean = String(item.price || 0).replace(/[^0-9.]/g, '');
             item.price = Number(clean) || 0;
-            item._name = String(item.name || '').toLowerCase();
+            item._name = String(item.name || '').toLowerCase().trim();
             allData.push(item);
           });
           vm.images = allData.filter(i => !i.outOfStock);
@@ -5491,6 +5501,16 @@
               var safeName = (product.name || 'product').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 30);
               var filename = safeName + '_NO_' + dPrice + '.jpg';
 
+              // If running in Native Android APK, save directly to phone Gallery
+              if (window.AndroidShareBridge && window.AndroidShareBridge.downloadImage) {
+                var reader = new FileReader();
+                reader.onloadend = function() {
+                  window.AndroidShareBridge.downloadImage(reader.result, filename);
+                };
+                reader.readAsDataURL(renderedBlob);
+                return;
+              }
+
               var url = URL.createObjectURL(renderedBlob);
               var a = document.createElement('a');
               a.href = url;
@@ -5513,6 +5533,56 @@
         $scope.shareToWhatsApp = function() {
           var products = $scope.selectedProducts;
           if (!products || products.length === 0) return;
+
+          // ── NATIVE ANDROID APK: SHARE UNLIMITED IMAGES AT ONCE DIRECTLY TO WHATSAPP ──
+          if (window.AndroidShareBridge && window.AndroidShareBridge.shareImagesToWhatsApp) {
+            $scope.shareInProgress = true;
+            $scope.shareProgressCurrent = 0;
+            $scope.shareProgressTotal = products.length;
+            $scope.$applyAsync();
+
+            var nativePromises = products.map(function(product, idx) {
+              return fetch(product.url, { mode: 'cors' })
+                .then(function(res) { if (!res.ok) throw new Error('fetch failed'); return res.blob(); })
+                .then(function(rawBlob) {
+                  return $scope.renderImageWithFooter(rawBlob, product);
+                })
+                .then(function(renderedBlob) {
+                  $scope.$applyAsync(function() { $scope.shareProgressCurrent = idx + 1; });
+                  return new Promise(function(resolve) {
+                    var dPrice = $scope.getDoubledPrice(product.price);
+                    var safeName = (product.name || 'product').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 30);
+                    var filename = safeName + '_NO_' + dPrice + '.jpg';
+                    var reader = new FileReader();
+                    reader.onloadend = function() {
+                      resolve({ name: filename, data: reader.result });
+                    };
+                    reader.readAsDataURL(renderedBlob);
+                  });
+                })
+                .catch(function(err) {
+                  console.error('Fetch/render image error:', err);
+                  return null;
+                });
+            });
+
+            Promise.all(nativePromises).then(function(results) {
+              var validItems = results.filter(Boolean);
+              $scope.$applyAsync(function() {
+                $scope.shareInProgress = false;
+                $scope.selectMode = false;
+                $scope.selectedProducts = [];
+              });
+              if (validItems.length > 0) {
+                window.AndroidShareBridge.shareImagesToWhatsApp(JSON.stringify(validItems));
+              } else {
+                alert('Could not prepare images for sharing.');
+              }
+            });
+            return;
+          }
+
+          // ── REGULAR BROWSER FALLBACK (BATCH SHARING OF 10) ──
           var BATCH_SIZE = 10;
 
           if (navigator.canShare && navigator.share) {
