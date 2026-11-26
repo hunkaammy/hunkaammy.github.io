@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hindustan Toys — User Approval Panel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --card: #131a26;
+      --card-2: #192233;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #3b82f6;
+      --green: #22c55e;
+      --red: #ef4444;
+      --amber: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px 16px 60px;
+    }
+    .container { max-width: 920px; margin: 0 auto; }
+
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 18px 22px; margin-bottom: 20px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-icon {
+      width: 42px; height: 42px; border-radius: 12px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+    }
+    .brand h1 { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
+    .brand p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 7px 13px; border-radius: 999px; font-size: 12px; font-weight: 600;
+      background: rgba(34, 197, 94, 0.12); color: #86efac; border: 1px solid rgba(34, 197, 94, 0.25);
+    }
+    .status-pill.locked {
+      background: rgba(245, 158, 11, 0.12); color: #fcd34d; border-color: rgba(245, 158, 11, 0.25);
+    }
+
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px; margin-bottom: 20px;
+    }
+
+    /* Login Box */
+    .login-wrap { max-width: 420px; margin: 40px auto; }
+    .login-wrap h2 { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+    .login-wrap p { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+    .field input {
+      width: 100%; padding: 11px 14px; border-radius: 10px;
+      background: var(--card-2); border: 1px solid var(--border);
+      color: var(--text); font-size: 14px; outline: none;
+    }
+    .field input:focus { border-color: var(--accent); }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 10px 16px; border-radius: 10px; border: none; cursor: pointer;
+      font-size: 13px; font-weight: 700; transition: 0.15s ease;
+    }
+    .btn-primary { background: var(--accent); color: #fff; width: 100%; padding: 12px; font-size: 14px; }
+    .btn-primary:hover { filter: brightness(1.1); }
+    .btn-approve { background: rgba(34, 197, 94, 0.16); color: #86efac; border: 1px solid rgba(34, 197, 94, 0.35); }
+    .btn-approve:hover { background: var(--green); color: #052e16; }
+    .btn-reject { background: rgba(239, 68, 68, 0.14); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .btn-reject:hover { background: var(--red); color: #fff; }
+    .btn-sm { padding: 7px 12px; font-size: 12px; }
+
+    .err-msg {
+      margin-top: 12px; padding: 10px 12px; border-radius: 10px;
+      background: rgba(239, 68, 68, 0.14); border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5; font-size: 12.5px; display: none;
+    }
+
+    .uid-box {
+      background: var(--card-2); border: 1px dashed rgba(245, 158, 11, 0.45);
+      border-radius: 12px; padding: 14px; margin-top: 14px;
+    }
+    .uid-box code {
+      display: block; margin-top: 6px; padding: 8px 10px; border-radius: 8px;
+      background: #090d14; color: #fde68a; font-size: 12.5px; word-break: break-all;
+    }
+
+    /* Dashboard */
+    .tabs { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+    .tab-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tab-btn {
+      padding: 9px 16px; border-radius: 10px; border: 1px solid var(--border);
+      background: var(--card); color: var(--muted); font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+    .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .badge {
+      display: inline-block; margin-left: 6px; padding: 2px 7px; border-radius: 999px;
+      font-size: 11px; background: rgba(255, 255, 255, 0.15);
+    }
+    .search-input {
+      padding: 9px 14px; border-radius: 10px; border: 1px solid var(--border);
+      background: var(--card-2); color: var(--text); font-size: 13px; min-width: 220px; outline: none;
+    }
+
+    .user-list { display: flex; flex-direction: column; gap: 10px; }
+    .user-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      flex-wrap: wrap; background: var(--card-2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 16px;
+    }
+    .user-info h3 { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .user-meta { font-size: 12px; color: var(--muted); margin-top: 4px; display: flex; flex-wrap: wrap; gap: 12px; }
+    .user-uid { font-family: monospace; font-size: 11.5px; color: #93c5fd; margin-top: 5px; word-break: break-all; }
+    .actions { display: flex; gap: 8px; }
+    .empty { text-align: center; padding: 38px 16px; color: var(--muted); font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-icon"><i class="fas fa-shield-halved"></i></div>
+        <div>
+          <h1>Hindustan Toys — User Approval</h1>
+          <p>Manage Pending, Approved &amp; Pre-Approved Users in htshop-e9c51</p>
+        </div>
+      </div>
+      <div id="auth-status-pill" class="status-pill locked">
+        <i class="fas fa-lock"></i> <span>Not Connected</span>
+      </div>
+    </div>
+
+    <!-- ADMIN LOGIN -->
+    <div id="login-card" class="card login-wrap">
+      <h2>Admin Sign In</h2>
+      <p>Sign in with your database-stored admin credentials</p>
+      <div class="field">
+        <label>Admin Username</label>
+        <input id="admin-name" type="text" placeholder="Enter admin username" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label>Admin Mobile Number</label>
+        <input id="admin-mobile" type="password" placeholder="Enter admin mobile" autocomplete="off" />
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);margin-bottom:14px;cursor:pointer;">
+        <input id="admin-remember" type="checkbox" style="width:15px;height:15px;accent-color:var(--accent);" />
+        Remember ID &amp; Password
+      </label>
+      <button class="btn btn-primary" onclick="adminSignIn()">
+        <i class="fas fa-right-to-bracket"></i> Open Approval Panel
+      </button>
+      <div id="login-err" class="err-msg"></div>
+
+      <div id="admin-uid-help" class="uid-box" style="display:none;">
+        <div style="font-size:12.5px;font-weight:700;color:#fcd34d;">
+          <i class="fas fa-key"></i> This browser's UID needs Admin permission in Firebase Rules
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;">
+          Add this UID under <strong>admin_uids/&lt;UID&gt;: true</strong> in Firebase Realtime Database, then click Open Approval Panel again:
+        </div>
+        <code id="my-admin-uid">...</code>
+        <button class="btn btn-approve btn-sm" style="margin-top:10px;" onclick="copyAdminUid()">
+          <i class="fas fa-copy"></i> Copy UID
+        </button>
+      </div>
+    </div>
+
+    <!-- APPROVAL DASHBOARD -->
+    <div id="dashboard" style="display:none;">
+      <div class="tabs">
+        <div class="tab-group">
+          <button id="tab-pending" class="tab-btn active" onclick="switchTab('pending')">
+            Pending Requests <span id="pending-count" class="badge">0</span>
+          </button>
+          <button id="tab-approved" class="tab-btn" onclick="switchTab('approved')">
+            Approved Users <span id="approved-count" class="badge">0</span>
+          </button>
+          <button id="tab-pre" class="tab-btn" onclick="switchTab('pre')">
+            Pre-Approved Numbers <span id="pre-count" class="badge">0</span>
+          </button>
+          <button id="tab-settings" class="tab-btn" onclick="switchTab('settings')">
+            <i class="fas fa-gear"></i> Admin Login
+          </button>
+        </div>
+        <input id="search-box" class="search-input" type="text" placeholder="Search name, mobile, or UID..." oninput="renderLists()" />
+      </div>
+
+      <div id="pending-panel" class="card">
+        <div id="pending-list" class="user-list"></div>
+      </div>
+
+      <div id="approved-panel" class="card" style="display:none;">
+        <div id="approved-list" class="user-list"></div>
+      </div>
+
+      <div id="pre-panel" class="card" style="display:none;">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+          <input id="pre-mobile-input" class="search-input" style="flex:1;min-width:180px;" type="text" maxlength="10" placeholder="10-digit mobile number (e.g. 9876543210)" />
+          <input id="pre-note-input" class="search-input" style="flex:1;min-width:160px;" type="text" placeholder="Shop name / note (optional)" />
+          <button class="btn btn-approve" onclick="addPreApproved()">
+            <i class="fas fa-plus"></i> Pre-Approve Number
+          </button>
+        </div>
+        <div id="pre-list" class="user-list"></div>
+      </div>
+
+      <div id="settings-panel" class="card" style="display:none;">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:6px;">Change Admin Credentials (Database)</h3>
+        <p style="font-size:12.5px;color:var(--muted);margin-bottom:16px;">Stored in Firebase at <code>admin_config/</code>. Only authorized admin UIDs can read or change this.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;max-width:520px;">
+          <input id="cfg-username" class="search-input" style="flex:1;min-width:180px;" type="text" placeholder="New admin username" />
+          <input id="cfg-mobile" class="search-input" style="flex:1;min-width:180px;" type="text" placeholder="New admin mobile" />
+          <button class="btn btn-approve" onclick="saveAdminConfig()">
+            <i class="fas fa-save"></i> Save
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+  <script>
+    var firebaseConfig = {
+      apiKey: "AIzaSyC_QZrbYmHp2uM0y1gKPxTIGDgm_asUnA4",
+      authDomain: "htshop-e9c51.firebaseapp.com",
+      databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com",
+      projectId: "htshop-e9c51",
+      storageBucket: "htshop-e9c51.appspot.com",
+      messagingSenderId: "653137640907",
+      appId: "1:653137640907:web:672fd6a9e85ca448a70a4e"
+    };
+
+    var app = firebase.apps.find(function(a) { return a.name === 'approveApp'; }) || firebase.initializeApp(firebaseConfig, 'approveApp');
+    var auth = app.auth();
+    var db = app.database();
+
+    var DEFAULT_ADMIN_NAME = 'sammyadmin';
+    var DEFAULT_ADMIN_MOBILE = '930216897';
+
+    var currentTab = 'pending';
+    var pendingData = {};
+    var whitelistData = {};
+    var whitelistInfo = {};
+    var preApprovedData = {};
+    var didInitialPreSync = false;
+    var loadedWhitelistInfo = false;
+    var loadedPreApproved = false;
+
+    function showErr(msg) {
+      var el = document.getElementById('login-err');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    function hideErr() {
+      document.getElementById('login-err').style.display = 'none';
+    }
+
+    function copyAdminUid() {
+      var txt = document.getElementById('my-admin-uid').textContent;
+      if (navigator.clipboard) navigator.clipboard.writeText(txt);
+    }
+
+    (function loadSavedAdminCreds() {
+      try {
+        var saved = JSON.parse(localStorage.getItem('ht_admin_saved_creds') || 'null');
+        if (saved && saved.username && saved.mobile) {
+          document.getElementById('admin-name').value = saved.username;
+          document.getElementById('admin-mobile').value = saved.mobile;
+          document.getElementById('admin-remember').checked = true;
+        }
+      } catch(e) {}
+    })();
+
+    function adminSignIn() {
+      hideErr();
+      var name = document.getElementById('admin-name').value.trim();
+      var mobile = document.getElementById('admin-mobile').value.trim();
+      var remember = document.getElementById('admin-remember').checked;
+
+      if (!name || !mobile) {
+        showErr('Please enter admin username and mobile.');
+        return;
+      }
+
+      var p = auth.currentUser ? Promise.resolve({ user: auth.currentUser }) : auth.signInAnonymously();
+      p.then(function(cred) {
+        var uid = cred.user.uid;
+        return db.ref('admin_config').once('value').then(function(cfgSnap) {
+          var cfg = cfgSnap.val();
+          if (!cfg) {
+            cfg = { username: DEFAULT_ADMIN_NAME, mobile: DEFAULT_ADMIN_MOBILE };
+            db.ref('admin_config').set(cfg).catch(function() {});
+          }
+          if (name !== String(cfg.username || '') || mobile !== String(cfg.mobile || '')) {
+            showErr('Invalid admin username or mobile number.');
+            return;
+          }
+          try {
+            if (remember) {
+              localStorage.setItem('ht_admin_saved_creds', JSON.stringify({ username: name, mobile: mobile }));
+            } else {
+              localStorage.removeItem('ht_admin_saved_creds');
+            }
+          } catch(e) {}
+          document.getElementById('cfg-username').value = cfg.username || '';
+          document.getElementById('cfg-mobile').value = cfg.mobile || '';
+          document.getElementById('login-card').style.display = 'none';
+          document.getElementById('dashboard').style.display = 'block';
+          var pill = document.getElementById('auth-status-pill');
+          pill.className = 'status-pill';
+          pill.innerHTML = '<i class="fas fa-check-circle"></i> <span>Admin Connected (' + uid.slice(0, 8) + '...)</span>';
+          startRealtimeListeners();
+        }, function(err) {
+          document.getElementById('my-admin-uid').textContent = uid;
+          document.getElementById('admin-uid-help').style.display = 'block';
+          showErr('Firebase Rules denied access for this browser UID. Add it to admin_uids/ in Firebase Console.');
+          console.error(err);
+        });
+      }).catch(function(err) {
+        showErr('Auth failed: ' + err.message);
+      });
+    }
+
+    function startRealtimeListeners() {
+      db.ref('pending_users').on('value', function(snap) {
+        pendingData = snap.val() || {};
+        renderLists();
+      });
+      db.ref('whitelist_uids').on('value', function(snap) {
+        whitelistData = snap.val() || {};
+        renderLists();
+      });
+      db.ref('whitelist_info').on('value', function(snap) {
+        whitelistInfo = snap.val() || {};
+        loadedWhitelistInfo = true;
+        syncExistingApprovedMobiles();
+        renderLists();
+      });
+      db.ref('pre_approved_mobiles').on('value', function(snap) {
+        preApprovedData = snap.val() || {};
+        loadedPreApproved = true;
+        syncExistingApprovedMobiles();
+        renderLists();
+      });
+    }
+
+    function syncExistingApprovedMobiles() {
+      if (didInitialPreSync || !loadedWhitelistInfo || !loadedPreApproved) return;
+      didInitialPreSync = true;
+      var updates = {};
+      var count = 0;
+      Object.keys(whitelistInfo).forEach(function(uid) {
+        if (whitelistData[uid] !== true) return;
+        var info = whitelistInfo[uid] || {};
+        var mob = String(info.mobile || '').trim();
+        if (/^[6-9]\d{9}$/.test(mob) && !preApprovedData[mob]) {
+          updates['pre_approved_mobiles/' + mob] = {
+            mobile: mob,
+            note: info.name || 'Approved User',
+            addedAt: firebase.database.ServerValue.TIMESTAMP
+          };
+          count++;
+        }
+      });
+      if (count > 0) {
+        db.ref().update(updates).catch(function(e) { console.error('syncExistingApprovedMobiles:', e); });
+      }
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('tab-pending').classList.toggle('active', tab === 'pending');
+      document.getElementById('tab-approved').classList.toggle('active', tab === 'approved');
+      document.getElementById('tab-pre').classList.toggle('active', tab === 'pre');
+      document.getElementById('tab-settings').classList.toggle('active', tab === 'settings');
+      document.getElementById('pending-panel').style.display = tab === 'pending' ? 'block' : 'none';
+      document.getElementById('approved-panel').style.display = tab === 'approved' ? 'block' : 'none';
+      document.getElementById('pre-panel').style.display = tab === 'pre' ? 'block' : 'none';
+      document.getElementById('settings-panel').style.display = tab === 'settings' ? 'block' : 'none';
+    }
+
+    function saveAdminConfig() {
+      var u = (document.getElementById('cfg-username').value || '').trim();
+      var m = (document.getElementById('cfg-mobile').value || '').trim();
+      if (u.length < 3 || m.length < 6) {
+        alert('Enter a valid username (3+ chars) and mobile number.');
+        return;
+      }
+      db.ref('admin_config').set({
+        username: u,
+        mobile: m,
+        updatedAt: firebase.database.ServerValue.TIMESTAMP
+      }).then(function() {
+        alert('Admin credentials updated in database!');
+      }).catch(function(err) {
+        alert('Failed to update: ' + err.message);
+      });
+    }
+
+    function addPreApproved() {
+      var mob = (document.getElementById('pre-mobile-input').value || '').trim();
+      var note = (document.getElementById('pre-note-input').value || '').trim();
+      if (!/^[6-9]\d{9}$/.test(mob)) {
+        alert('Enter a valid 10-digit Indian mobile number.');
+        return;
+      }
+      db.ref('pre_approved_mobiles/' + mob).set({
+        mobile: mob,
+        note: note || 'Pre-approved',
+        addedAt: firebase.database.ServerValue.TIMESTAMP
+      }).then(function() {
+        document.getElementById('pre-mobile-input').value = '';
+        document.getElementById('pre-note-input').value = '';
+      }).catch(function(err) {
+        alert('Failed to add: ' + err.message);
+      });
+    }
+
+    function removePreApproved(mob) {
+      db.ref('pre_approved_mobiles/' + mob).remove().catch(function(err) {
+        alert('Failed to remove: ' + err.message);
+      });
+    }
+
+    function approveUser(uid) {
+      var u = pendingData[uid] || {};
+      var updates = {};
+      updates['whitelist_uids/' + uid] = true;
+      updates['whitelist_info/' + uid] = {
+        uid: uid,
+        name: u.name || 'Approved User',
+        mobile: u.mobile || 'N/A',
+        deviceInfo: u.deviceInfo || '',
+        approvedAt: firebase.database.ServerValue.TIMESTAMP
+      };
+      if (u.mobile && /^[6-9]\d{9}$/.test(String(u.mobile).trim())) {
+        var mob = String(u.mobile).trim();
+        updates['pre_approved_mobiles/' + mob] = {
+          mobile: mob,
+          note: u.name || 'Approved User',
+          addedAt: firebase.database.ServerValue.TIMESTAMP
+        };
+      }
+      updates['pending_users/' + uid] = null;
+      db.ref().update(updates).catch(function(err) {
+        alert('Failed to approve: ' + err.message);
+      });
+    }
+
+    function rejectPending(uid) {
+      db.ref('pending_users/' + uid).remove().catch(function(err) {
+        alert('Failed to reject: ' + err.message);
+      });
+    }
+
+    function revokeApproved(uid) {
+      if (!confirm('Remove access for UID ' + uid + '?')) return;
+      var info = whitelistInfo[uid] || {};
+      var updates = {};
+      updates['whitelist_uids/' + uid] = null;
+      updates['whitelist_info/' + uid] = null;
+      if (info.mobile && /^[6-9]\d{9}$/.test(String(info.mobile).trim())) {
+        updates['pre_approved_mobiles/' + String(info.mobile).trim()] = null;
+      }
+      db.ref().update(updates).catch(function(err) {
+        alert('Failed to revoke: ' + err.message);
+      });
+    }
+
+    function esc(s) {
+      return String(s || '').replace(/[&<>"']/g, function(c) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+      });
+    }
+
+    function formatTime(ts) {
+      if (!ts) return 'Just now';
+      try { return new Date(ts).toLocaleString(); } catch(e) { return ''; }
+    }
+
+    function renderLists() {
+      var q = (document.getElementById('search-box').value || '').toLowerCase().trim();
+
+      // Pending
+      var pKeys = Object.keys(pendingData).filter(function(k) {
+        var u = pendingData[k];
+        if (!u || typeof u !== 'object') return false;
+        if (!q) return true;
+        return (u.name || '').toLowerCase().includes(q) ||
+               (u.mobile || '').toLowerCase().includes(q) ||
+               k.toLowerCase().includes(q);
+      });
+      document.getElementById('pending-count').textContent = Object.keys(pendingData).length;
+
+      var pEl = document.getElementById('pending-list');
+      if (pKeys.length === 0) {
+        pEl.innerHTML = '<div class="empty"><i class="fas fa-inbox" style="font-size:24px;margin-bottom:8px;display:block;"></i>No pending user requests.</div>';
+      } else {
+        pEl.innerHTML = pKeys.map(function(k) {
+          var u = pendingData[k];
+          var uid = u.uid || k;
+          return '<div class="user-row">' +
+            '<div class="user-info">' +
+              '<h3>' + esc(u.name || 'Unknown') + '</h3>' +
+              '<div class="user-meta">' +
+                '<span><i class="fas fa-phone"></i> ' + esc(u.mobile || 'N/A') + '</span>' +
+                '<span><i class="fas fa-laptop"></i> ' + esc(u.deviceInfo || 'Unknown device') + '</span>' +
+                '<span><i class="fas fa-clock"></i> ' + esc(formatTime(u.requestedAt)) + '</span>' +
+              '</div>' +
+              '<div class="user-uid">UID: ' + esc(uid) + '</div>' +
+            '</div>' +
+            '<div class="actions">' +
+              '<button class="btn btn-approve btn-sm" onclick="approveUser(\'' + esc(uid) + '\')"><i class="fas fa-check"></i> Approve</button>' +
+              '<button class="btn btn-reject btn-sm" onclick="rejectPending(\'' + esc(uid) + '\')"><i class="fas fa-xmark"></i> Reject</button>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      }
+
+      // Approved
+      var aKeys = Object.keys(whitelistData).filter(function(k) {
+        if (whitelistData[k] !== true) return false;
+        var info = whitelistInfo[k] || {};
+        if (!q) return true;
+        return (info.name || '').toLowerCase().includes(q) ||
+               (info.mobile || '').toLowerCase().includes(q) ||
+               k.toLowerCase().includes(q);
+      });
+      document.getElementById('approved-count').textContent = Object.keys(whitelistData).filter(function(k) { return whitelistData[k] === true; }).length;
+
+      var aEl = document.getElementById('approved-list');
+      if (aKeys.length === 0) {
+        aEl.innerHTML = '<div class="empty">No approved UIDs found.</div>';
+      } else {
+        aEl.innerHTML = aKeys.map(function(uid) {
+          var info = whitelistInfo[uid] || {};
+          return '<div class="user-row">' +
+            '<div class="user-info">' +
+              '<h3>' + esc(info.name || 'Whitelisted User') + '</h3>' +
+              '<div class="user-meta">' +
+                '<span><i class="fas fa-phone"></i> ' + esc(info.mobile || 'N/A') + '</span>' +
+                (info.approvedAt ? '<span><i class="fas fa-check-double"></i> ' + esc(formatTime(info.approvedAt)) + '</span>' : '') +
+              '</div>' +
+              '<div class="user-uid">UID: ' + esc(uid) + '</div>' +
+            '</div>' +
+            '<div class="actions">' +
+              '<button class="btn btn-reject btn-sm" onclick="revokeApproved(\'' + esc(uid) + '\')"><i class="fas fa-ban"></i> Revoke</button>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      }
+
+      // Pre-approved
+      var preKeys = Object.keys(preApprovedData).filter(function(k) {
+        var p = preApprovedData[k];
+        if (!p) return false;
+        if (!q) return true;
+        return k.toLowerCase().includes(q) || ((p.note || '') + '').toLowerCase().includes(q);
+      });
+      document.getElementById('pre-count').textContent = Object.keys(preApprovedData).length;
+      var preEl = document.getElementById('pre-list');
+      if (preKeys.length === 0) {
+        preEl.innerHTML = '<div class="empty">No pre-approved mobile numbers yet.</div>';
+      } else {
+        preEl.innerHTML = preKeys.map(function(mob) {
+          var p = preApprovedData[mob] || {};
+          return '<div class="user-row">' +
+            '<div class="user-info">' +
+              '<h3>' + esc(mob) + '</h3>' +
+              '<div class="user-meta">' +
+                '<span><i class="fas fa-tag"></i> ' + esc(p.note || 'Pre-approved') + '</span>' +
+                (p.addedAt ? '<span><i class="fas fa-clock"></i> ' + esc(formatTime(p.addedAt)) + '</span>' : '') +
+              '</div>' +
+            '</div>' +
+            '<div class="actions">' +
+              '<button class="btn btn-reject btn-sm" onclick="removePreApproved(\'' + esc(mob) + '\')"><i class="fas fa-trash"></i> Remove</button>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      }
+    }
+  </script>
+</body>
+</html>
