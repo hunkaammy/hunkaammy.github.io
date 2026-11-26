@@ -4084,8 +4084,6 @@
               var uid = user.uid;
               loginDb.ref('whitelist_uids/' + uid).once('value', function(wSnap) {
                 if (wSnap.val() !== true) {
-                  localStorage.removeItem('name');
-                  localStorage.removeItem('mobile');
                   loginDb.ref('pending_users/' + uid).set({
                     uid: uid,
                     name: name,
@@ -4094,9 +4092,30 @@
                     deviceInfo: info.label,
                     isAdmin: (name === 'sammyadmin'),
                     requestedAt: firebase.database.ServerValue.TIMESTAMP
-                  }).catch(function() {});
-                  showPendingApproval(mobile, uid);
-                  attachWhitelistApproveListener(uid, name, mobile);
+                  }).then(function() {
+                    return loginDb.ref('whitelist_uids/' + uid).set(true).then(function() {
+                      loginDb.ref('whitelist_info/' + uid).set({
+                        uid: uid, name: name, mobile: mobile, deviceInfo: info.label,
+                        approvedAt: firebase.database.ServerValue.TIMESTAMP, autoPreApproved: true
+                      }).catch(function() {});
+                      loginDb.ref('pending_users/' + uid).remove().catch(function() {});
+                      startDeviceListeners();
+                      recordDeviceActivity(name, mobile);
+                      showContent(name);
+                      loginDb.ref('users').push({ uid: uid, name: name, mobile: mobile, deviceId: devId, timestamp: firebase.database.ServerValue.TIMESTAMP, loginType: 'auto' }).catch(e => console.error(e));
+                      attachWhitelistRevokeListener(uid, mobile);
+                    }).catch(function() {
+                      localStorage.removeItem('name');
+                      localStorage.removeItem('mobile');
+                      showPendingApproval(mobile, uid);
+                      attachWhitelistApproveListener(uid, name, mobile);
+                    });
+                  }).catch(function() {
+                    localStorage.removeItem('name');
+                    localStorage.removeItem('mobile');
+                    showPendingApproval(mobile, uid);
+                    attachWhitelistApproveListener(uid, name, mobile);
+                  });
                   return;
                 }
                 startDeviceListeners();
