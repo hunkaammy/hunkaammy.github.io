@@ -432,6 +432,43 @@
       });
     }
 
+    function editPreApprovedName(mob) {
+      var cur = (preApprovedData[mob] && preApprovedData[mob].note) ? preApprovedData[mob].note : '';
+      var next = prompt('Enter new name / note for ' + mob + ':', cur);
+      if (next === null) return;
+      next = next.trim();
+      if (!next) return;
+      var updates = {};
+      updates['pre_approved_mobiles/' + mob + '/note'] = next;
+      Object.keys(whitelistInfo).forEach(function(uid) {
+        if (whitelistInfo[uid] && String(whitelistInfo[uid].mobile || '').trim() === mob) {
+          updates['whitelist_info/' + uid + '/name'] = next;
+        }
+      });
+      db.ref().update(updates).catch(function(err) {
+        alert('Failed to update name: ' + err.message);
+      });
+    }
+
+    function editApprovedName(uid) {
+      var info = whitelistInfo[uid] || {};
+      var cur = info.name || '';
+      var next = prompt('Enter new name for this user:', cur);
+      if (next === null) return;
+      next = next.trim();
+      if (!next) return;
+      var updates = {};
+      updates['whitelist_info/' + uid + '/name'] = next;
+      if (!info.uid) updates['whitelist_info/' + uid + '/uid'] = uid;
+      var mob = String(info.mobile || '').trim();
+      if (/^[6-9]\d{9}$/.test(mob) && preApprovedData[mob]) {
+        updates['pre_approved_mobiles/' + mob + '/note'] = next;
+      }
+      db.ref().update(updates).catch(function(err) {
+        alert('Failed to update name: ' + err.message);
+      });
+    }
+
     function approveUser(uid) {
       var u = pendingData[uid] || {};
       var updates = {};
@@ -554,6 +591,7 @@
               '<div class="user-uid">UID: ' + esc(uid) + '</div>' +
             '</div>' +
             '<div class="actions">' +
+              '<button class="btn btn-approve btn-sm" onclick="editApprovedName(\'' + esc(uid) + '\')"><i class="fas fa-pen"></i> Edit Name</button>' +
               '<button class="btn btn-reject btn-sm" onclick="revokeApproved(\'' + esc(uid) + '\')"><i class="fas fa-ban"></i> Revoke</button>' +
             '</div>' +
           '</div>';
@@ -583,6 +621,7 @@
               '</div>' +
             '</div>' +
             '<div class="actions">' +
+              '<button class="btn btn-approve btn-sm" onclick="editPreApprovedName(\'' + esc(mob) + '\')"><i class="fas fa-pen"></i> Edit Name</button>' +
               '<button class="btn btn-reject btn-sm" onclick="removePreApproved(\'' + esc(mob) + '\')"><i class="fas fa-trash"></i> Remove</button>' +
             '</div>' +
           '</div>';
