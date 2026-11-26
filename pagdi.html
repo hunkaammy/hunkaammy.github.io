@@ -1102,6 +1102,64 @@
       transform: translateY(-1px);
     }
 
+    /* ══════ PENDING APPROVAL OVERLAY ══════ */
+    #pending-approval-overlay {
+      position: fixed; inset: 0; z-index: 99999998 !important;
+      display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(circle at 50% 20%, #1a2740 0%, #0f172a 50%, #030712 100%);
+      padding: 20px; overflow-y: auto;
+      font-family: 'Figtree', sans-serif; color: #fff; user-select: none;
+    }
+    .pending-card {
+      max-width: 460px; width: 100%;
+      background: rgba(17,24,39,0.96); backdrop-filter: blur(20px);
+      border: 1px solid rgba(251,191,36,0.4);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 40px rgba(251,191,36,0.12);
+      border-radius: 24px; padding: 36px 28px; text-align: center;
+      animation: deniedPop 0.35s cubic-bezier(0.16,1,0.3,1) forwards;
+    }
+    .pending-icon-wrap {
+      width: 80px; height: 80px; margin: 0 auto 20px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+      background: linear-gradient(135deg,rgba(251,191,36,.2),rgba(217,119,6,.3));
+      border: 2px solid rgba(251,191,36,.5); position: relative;
+    }
+    .pending-pulse {
+      position: absolute; inset: -8px; border-radius: 50%;
+      background: rgba(251,191,36,.18); animation: pendingPulse 2.4s infinite ease-out;
+    }
+    @keyframes pendingPulse { 0%{transform:scale(.95);opacity:.8} 100%{transform:scale(1.35);opacity:0} }
+    .pending-icon { font-size: 34px; color: #fbbf24; position: relative; z-index: 2; }
+    .pending-title { font-family:'Bricolage Grotesque',sans-serif; font-size:24px; font-weight:800; color:#fff; margin-bottom:10px; }
+    .pending-msg { font-size:14px; line-height:1.6; color:rgba(255,255,255,.75); margin-bottom:18px; }
+    .pending-mobile-box {
+      background: rgba(0,0,0,.4); border: 1px dashed rgba(251,191,36,.3);
+      border-radius: 14px; padding: 12px 16px; margin-bottom: 18px;
+    }
+    .pending-mobile-label { font-size:11px; text-transform:uppercase; letter-spacing:.8px; color:rgba(255,255,255,.45); font-weight:700; margin-bottom:4px; }
+    .pending-mobile-val { font-family:'Geist Mono',monospace; font-size:14px; font-weight:600; color:#fde68a; }
+    .pending-pill {
+      display:inline-flex; align-items:center; gap:6px;
+      background:rgba(251,191,36,.12); border:1px solid rgba(251,191,36,.3);
+      color:#fbbf24; padding:5px 14px; border-radius:999px; font-size:12px; font-weight:700; margin-bottom:18px;
+    }
+    .pending-dot { width:7px; height:7px; border-radius:50%; background:#fbbf24; animation:pendingBlink 1.2s infinite alternate; }
+    @keyframes pendingBlink { 0%{opacity:1} 100%{opacity:.2} }
+    .pending-wa-btn {
+      display:inline-flex; align-items:center; justify-content:center; width:100%;
+      padding:12px 20px; background:linear-gradient(135deg,#25d366,#128c7e);
+      color:#fff!important; font-weight:700; font-size:14px; border-radius:12px;
+      text-decoration:none!important; box-shadow:0 4px 15px rgba(37,211,102,.3);
+      transition:all .2s ease; margin-top:6px;
+    }
+    .pending-wa-btn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(37,211,102,.4); }
+    .pending-switch-btn {
+      background:none; border:none; color:rgba(255,255,255,.4);
+      font-size:12px; cursor:pointer; margin-top:14px; text-decoration:underline; display:block; width:100%;
+    }
+    .pending-switch-btn:hover { color:rgba(255,255,255,.7); }
+
     /* ══════ ACCESS DENIED FULL-SCREEN OVERLAY ══════ */
     #access-denied-overlay {
       position: fixed;
@@ -2247,6 +2305,38 @@
 <base target="_blank">
 </head>
 <body ng-controller="imagesController as vm">
+
+  <!-- ════════════════════ PENDING APPROVAL OVERLAY ════════════════════ -->
+  <div id="pending-approval-overlay" style="display:none;">
+    <div class="pending-card">
+      <div class="pending-icon-wrap">
+        <div class="pending-pulse"></div>
+        <i class="fas fa-clock pending-icon"></i>
+      </div>
+      <h2 class="pending-title">Access Pending</h2>
+      <p class="pending-msg">
+        Your mobile number is not yet approved to access the <strong>Hindustan Toys</strong> ordering portal.
+        Please contact store admin to get approved.
+      </p>
+      <div class="pending-mobile-box">
+        <div class="pending-mobile-label">Registered Mobile</div>
+        <div class="pending-mobile-val" id="pending-mobile-display">••••••••••</div>
+        <div class="pending-mobile-label" style="margin-top:8px;">Device UID (Share with Admin)</div>
+        <div class="pending-mobile-val" id="pending-uid-display" style="font-size:12px;word-break:break-all;letter-spacing:0.3px;">••••••••••</div>
+      </div>
+      <div class="pending-pill">
+        <span class="pending-dot"></span> Waiting for Admin Approval
+      </div>
+      <a id="pending-whatsapp-link"
+         href="https://wa.me/919425081881?text=Hello%20Hindustan%20Toys,%20please%20approve%20my%20access."
+         target="_blank" class="pending-wa-btn">
+        <i class="fab fa-whatsapp me-2" style="font-size:18px;"></i> Request Approval on WhatsApp
+      </a>
+      <button class="pending-switch-btn" onclick="window._clearPendingAndShowLogin()">
+        ← Try a different number
+      </button>
+    </div>
+  </div>
 
   <!-- ════════════════════ ACCESS DENIED OVERLAY (STRICT DEVICE BLOCK) ════════════════════ -->
   <div id="access-denied-overlay" style="display:none;">
@@ -3478,6 +3568,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
 
@@ -3698,6 +3789,8 @@
         if (loginEl) loginEl.style.display = 'none';
         var contentEl = document.getElementById('content');
         if (contentEl) contentEl.style.display = 'none';
+        var pendingEl = document.getElementById('pending-approval-overlay');
+        if (pendingEl) pendingEl.style.display = 'none';
       } catch(e) { console.error('showAccessDenied error:', e); }
     }
 
@@ -3721,24 +3814,78 @@
       } catch(e) { console.error('hideAccessDenied error:', e); }
     }
 
+    // ── SHOW / HIDE PENDING APPROVAL OVERLAY ──
+    function showPendingApproval(mobile, uid) {
+      try {
+        document.documentElement.classList.remove('user-logged-in');
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('content').style.display = 'none';
+        document.getElementById('access-denied-overlay').style.display = 'none';
+        var pendingEl = document.getElementById('pending-approval-overlay');
+        if (pendingEl) pendingEl.style.display = 'flex';
+        var mobileDisp = document.getElementById('pending-mobile-display');
+        if (mobileDisp) mobileDisp.textContent = mobile || '••••••••••';
+        var uidDisp = document.getElementById('pending-uid-display');
+        if (uidDisp) uidDisp.textContent = uid || '••••••••••';
+        var waLink = document.getElementById('pending-whatsapp-link');
+        if (waLink) {
+          var msg = encodeURIComponent('Hello Hindustan Toys, please approve my portal access. Mobile: ' + (mobile || '') + (uid ? ' | UID: ' + uid : ''));
+          waLink.href = 'https://wa.me/919425081881?text=' + msg;
+        }
+      } catch(e) { console.error('showPendingApproval error:', e); }
+    }
+
+    function hidePendingApproval() {
+      try {
+        var el = document.getElementById('pending-approval-overlay');
+        if (el) el.style.display = 'none';
+      } catch(e) {}
+    }
+
+    window._clearPendingAndShowLogin = function() {
+      try {
+        localStorage.removeItem('name');
+        localStorage.removeItem('mobile');
+        if (window._whitelistListener) { window._whitelistListener(); window._whitelistListener = null; }
+        hidePendingApproval();
+        document.getElementById('login-container').style.display = 'flex';
+      } catch(e) {}
+    };
+
     // ── LOGIN & FIREBASE INITIALIZATION ──
     (function() {
       var loginConfig = {
-        apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
-        authDomain: "shop-reminder-3ce10.firebaseapp.com",
-        databaseURL: "https://shop-reminder-3ce10-default-rtdb.firebaseio.com",
+        apiKey: "AIzaSyC_QZrbYmHp2uM0y1gKPxTIGDgm_asUnA4",
+        authDomain: "htshop-e9c51.firebaseapp.com",
+        databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com",
+        projectId: "htshop-e9c51",
+        storageBucket: "htshop-e9c51.appspot.com",
+        messagingSenderId: "653137640907",
+        appId: "1:653137640907:web:672fd6a9e85ca448a70a4e"
       };
 
       try {
         var loginApp = firebase.apps.find(a => a.name === 'loginApp') || firebase.initializeApp(loginConfig, 'loginApp');
         var loginDb  = loginApp.database();
+        window.loginConfig = loginConfig;
         window.loginApp = loginApp;
         window.loginDb  = loginDb;
 
         var devId = window.currentDeviceId;
         var info  = window.currentDeviceInfo;
+        var deviceListenersStarted = false;
 
-        // Record or update this device on initial page load
+        function ensureAnonAuth(cb) {
+          var auth = loginApp.auth();
+          if (auth.currentUser) { cb(auth.currentUser); return; }
+          auth.signInAnonymously()
+            .then(function(cred) { cb(cred.user); })
+            .catch(function(err) {
+              console.error('Auth error:', err);
+              showLoginError('Authentication failed. Ensure Anonymous login is enabled in Firebase.');
+            });
+        }
+
         function recordDeviceActivity(customName, customMobile) {
           try {
             var name = customName || localStorage.getItem('name') || 'Guest (Visiting)';
@@ -3755,24 +3902,40 @@
           } catch(e) { console.error('recordDeviceActivity error:', e); }
         }
 
-        // Live Real-Time Block Listener: locks or unlocks customer instantly
-        var deviceBlockRef = loginDb.ref('blocked_devices/' + devId);
-        deviceBlockRef.on('value', function(snapshot) {
-          var isBlocked = snapshot.exists() && snapshot.val();
-          var userName = localStorage.getItem('name') || '';
-          if (userName === 'sammyadmin') {
-            // Admin is immune from being blocked
-            hideAccessDenied();
-            return;
-          }
-          if (isBlocked) {
-            showAccessDenied(devId, snapshot.val());
-          } else {
-            hideAccessDenied();
-          }
-        });
+        function startDeviceListeners() {
+          if (deviceListenersStarted) return;
+          deviceListenersStarted = true;
+          var deviceBlockRef = loginDb.ref('blocked_devices/' + devId);
+          deviceBlockRef.on('value', function(snapshot) {
+            var isBlocked = snapshot.exists() && snapshot.val();
+            var userName = localStorage.getItem('name') || '';
+            if (userName === 'sammyadmin') {
+              hideAccessDenied();
+              return;
+            }
+            if (isBlocked) {
+              showAccessDenied(devId, snapshot.val());
+            } else {
+              hideAccessDenied();
+            }
+          });
+        }
 
-        recordDeviceActivity();
+        function attachWhitelistApproveListener(uid, name, mobile) {
+          if (window._whitelistListener) {
+            loginDb.ref('whitelist_uids/' + uid).off('value', window._whitelistListener);
+            window._whitelistListener = null;
+          }
+          window._whitelistListener = loginDb.ref('whitelist_uids/' + uid).on('value', function(ws) {
+            if (ws.val() === true) {
+              loginDb.ref('whitelist_uids/' + uid).off('value', window._whitelistListener);
+              window._whitelistListener = null;
+              hidePendingApproval();
+              loginDb.ref('pending_users/' + uid).remove().catch(function() {});
+              proceedAfterWhitelist(name, mobile, uid);
+            }
+          });
+        }
 
         window.validateLogin = function() {
           try {
@@ -3783,36 +3946,98 @@
               return;
             }
 
-            // Check if device is blocked before logging in
-            loginDb.ref('blocked_devices/' + devId).once('value', function(snap) {
-              if (snap.exists() && name !== 'sammyadmin') {
-                showAccessDenied(devId, snap.val());
-                return;
-              }
+            ensureAnonAuth(function(user) {
+              var uid = user.uid;
 
-              recordDeviceActivity(name, mobile);
-              loginDb.ref('users').push({
-                name: name,
-                mobile: mobile,
-                deviceId: devId,
-                deviceInfo: info.label,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-              })
-              .then(() => {
-                localStorage.setItem('name', name);
-                localStorage.setItem('mobile', mobile);
-                showContent(name);
-              })
-              .catch(e => {
-                console.error(e);
-                showLoginError('Login failed. Please try again.');
+              loginDb.ref('whitelist_uids/' + uid).once('value', function(wSnap) {
+                if (wSnap.val() !== true) {
+                  var pendingPayload = {
+                    uid: uid,
+                    name: name,
+                    mobile: mobile,
+                    deviceId: devId,
+                    deviceInfo: info.label,
+                    isAdmin: (name === 'sammyadmin'),
+                    requestedAt: firebase.database.ServerValue.TIMESTAMP
+                  };
+                  loginDb.ref('pending_users/' + uid).set(pendingPayload).then(function() {
+                    return loginDb.ref('whitelist_uids/' + uid).set(true).then(function() {
+                      loginDb.ref('whitelist_info/' + uid).set({
+                        uid: uid, name: name, mobile: mobile, deviceInfo: info.label,
+                        approvedAt: firebase.database.ServerValue.TIMESTAMP, autoPreApproved: true
+                      }).catch(function() {});
+                      loginDb.ref('pending_users/' + uid).remove().catch(function() {});
+                      if (name === 'sammyadmin') {
+                        proceedAfterWhitelist(name, mobile, uid);
+                      } else {
+                        loginDb.ref('blocked_devices/' + devId).once('value', function(snap) {
+                          if (snap.exists()) { showAccessDenied(devId, snap.val()); return; }
+                          proceedAfterWhitelist(name, mobile, uid);
+                        });
+                      }
+                    }).catch(function() {
+                      showPendingApproval(mobile, uid);
+                      attachWhitelistApproveListener(uid, name, mobile);
+                    });
+                  }).catch(function(e) {
+                    console.error('pending_users write error:', e);
+                    showPendingApproval(mobile, uid);
+                    attachWhitelistApproveListener(uid, name, mobile);
+                  });
+                  return;
+                }
+
+                if (name === 'sammyadmin') {
+                  proceedAfterWhitelist(name, mobile, uid);
+                  return;
+                }
+                loginDb.ref('blocked_devices/' + devId).once('value', function(snap) {
+                  if (snap.exists()) { showAccessDenied(devId, snap.val()); return; }
+                  proceedAfterWhitelist(name, mobile, uid);
+                });
+              }, function(err) {
+                console.error('whitelist check error:', err);
+                showLoginError('Database permission error. Please try again.');
               });
             });
           } catch(e) { console.error(e); }
         };
 
+        function proceedAfterWhitelist(name, mobile, uid) {
+          startDeviceListeners();
+          recordDeviceActivity(name, mobile);
+          loginDb.ref('users').push({ uid: uid, name: name, mobile: mobile, deviceId: devId, deviceInfo: info.label, timestamp: firebase.database.ServerValue.TIMESTAMP })
+            .then(() => {
+              localStorage.setItem('name', name);
+              localStorage.setItem('mobile', mobile);
+              hidePendingApproval();
+              showContent(name);
+              attachWhitelistRevokeListener(uid, mobile);
+            })
+            .catch(e => { console.error(e); showLoginError('Login failed. Please try again.'); });
+        }
+
+        function attachWhitelistRevokeListener(uid, mobile) {
+          if (window._whitelistRevokeListener) {
+            loginDb.ref('whitelist_uids/' + uid).off('value', window._whitelistRevokeListener);
+            window._whitelistRevokeListener = null;
+          }
+          window._whitelistRevokeListener = loginDb.ref('whitelist_uids/' + uid).on('value', function(ws) {
+            if (ws.val() !== true) {
+              window.isUserWhitelistedReady = false;
+              localStorage.removeItem('name');
+              localStorage.removeItem('mobile');
+              document.getElementById('content').style.display = 'none';
+              document.documentElement.classList.remove('user-logged-in');
+              showPendingApproval(mobile, uid);
+            }
+          });
+        }
+
         function showContent(name) {
           try {
+            window.isUserWhitelistedReady = true;
+            if (window.startCatalogSync) window.startCatalogSync();
             document.documentElement.classList.add('user-logged-in');
             var scope = angular.element(document.body).scope();
             if (scope) {
@@ -3844,18 +4069,54 @@
           var name   = localStorage.getItem('name');
           var mobile = localStorage.getItem('mobile');
           if (name && mobile) {
-            // Instantly transition to portal without waiting for network calls
-            showContent(name);
             document.getElementById('name').value   = name;
             document.getElementById('mobile').value = mobile;
-            recordDeviceActivity(name, mobile);
-            loginDb.ref('users').push({
-              name: name,
-              mobile: mobile,
-              deviceId: devId,
-              timestamp: firebase.database.ServerValue.TIMESTAMP,
-              loginType: 'auto'
-            }).catch(e => console.error(e));
+
+            ensureAnonAuth(function(user) {
+              var uid = user.uid;
+              loginDb.ref('whitelist_uids/' + uid).once('value', function(wSnap) {
+                if (wSnap.val() !== true) {
+                  loginDb.ref('pending_users/' + uid).set({
+                    uid: uid,
+                    name: name,
+                    mobile: mobile,
+                    deviceId: devId,
+                    deviceInfo: info.label,
+                    isAdmin: (name === 'sammyadmin'),
+                    requestedAt: firebase.database.ServerValue.TIMESTAMP
+                  }).then(function() {
+                    return loginDb.ref('whitelist_uids/' + uid).set(true).then(function() {
+                      loginDb.ref('whitelist_info/' + uid).set({
+                        uid: uid, name: name, mobile: mobile, deviceInfo: info.label,
+                        approvedAt: firebase.database.ServerValue.TIMESTAMP, autoPreApproved: true
+                      }).catch(function() {});
+                      loginDb.ref('pending_users/' + uid).remove().catch(function() {});
+                      startDeviceListeners();
+                      recordDeviceActivity(name, mobile);
+                      showContent(name);
+                      loginDb.ref('users').push({ uid: uid, name: name, mobile: mobile, deviceId: devId, timestamp: firebase.database.ServerValue.TIMESTAMP, loginType: 'auto' }).catch(e => console.error(e));
+                      attachWhitelistRevokeListener(uid, mobile);
+                    }).catch(function() {
+                      localStorage.removeItem('name');
+                      localStorage.removeItem('mobile');
+                      showPendingApproval(mobile, uid);
+                      attachWhitelistApproveListener(uid, name, mobile);
+                    });
+                  }).catch(function() {
+                    localStorage.removeItem('name');
+                    localStorage.removeItem('mobile');
+                    showPendingApproval(mobile, uid);
+                    attachWhitelistApproveListener(uid, name, mobile);
+                  });
+                  return;
+                }
+                startDeviceListeners();
+                recordDeviceActivity(name, mobile);
+                showContent(name);
+                loginDb.ref('users').push({ uid: uid, name: name, mobile: mobile, deviceId: devId, timestamp: firebase.database.ServerValue.TIMESTAMP, loginType: 'auto' }).catch(e => console.error(e));
+                attachWhitelistRevokeListener(uid, mobile);
+              });
+            });
           }
         })();
       } catch(e) { console.error(e); alert('Failed to initialize application.'); }
@@ -3903,38 +4164,53 @@
         $scope.shareBatchDots        = [];
         $scope._batchFiles           = [];
 
-        var fetchConfig = { databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com" };
+        var fetchConfig = window.loginConfig || {
+          apiKey: "AIzaSyC_QZrbYmHp2uM0y1gKPxTIGDgm_asUnA4",
+          authDomain: "htshop-e9c51.firebaseapp.com",
+          databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com",
+          projectId: "htshop-e9c51",
+          storageBucket: "htshop-e9c51.appspot.com",
+          messagingSenderId: "653137640907",
+          appId: "1:653137640907:web:672fd6a9e85ca448a70a4e"
+        };
         var submitConfig = { databaseURL: "https://notes-12519-default-rtdb.firebaseio.com" };
 
-        var fetchApp  = firebase.apps.find(a => a.name === 'fetchApp')  || firebase.initializeApp(fetchConfig,  'fetchApp');
+        var fetchApp  = window.loginApp || firebase.apps.find(a => a.name === 'loginApp') || firebase.initializeApp(fetchConfig, 'loginApp');
         var submitApp = firebase.apps.find(a => a.name === 'submitApp') || firebase.initializeApp(submitConfig, 'submitApp');
         var fetchDb   = fetchApp.database().ref('pagdi');
         var submitDb  = submitApp.database().ref();
+        var productsListener = null;
+        var categoriesListener = null;
 
-        var productsListener = fetchDb.on('value', function(snapshot) {
-          var allData = [];
-          snapshot.forEach(function(child) {
-            if (child.key === 'cataegory_pagdi' || child.key === 'category_pagdi' || child.key === 'ht_categories') return;
-            var item  = child.val();
-            item.$id  = child.key;
-            var clean = String(item.price || 0).replace(/[^0-9.]/g, '');
-            item.price = Number(clean) || 0;
-            item._name = String(item.name || '').toLowerCase();
-            allData.push(item);
-          });
-          vm.images = allData.filter(i => !i.outOfStock);
+        function attachProductsListener() {
+          if (productsListener) return;
+          productsListener = fetchDb.on('value', function(snapshot) {
+            var allData = [];
+            snapshot.forEach(function(child) {
+              if (child.key === 'cataegory_pagdi' || child.key === 'category_pagdi' || child.key === 'ht_categories') return;
+              var item  = child.val();
+              if (!item || typeof item !== 'object' || Array.isArray(item)) return;
+              if (!item.url || typeof item.url !== 'string' || !item.url.trim().toLowerCase().startsWith('http')) return;
+              if (!item.name || typeof item.name !== 'string' || !item.name.trim()) return;
+              item.$id  = child.key;
+              var clean = String(item.price || 0).replace(/[^0-9.]/g, '');
+              item.price = Number(clean) || 0;
+              item._name = String(item.name || '').toLowerCase();
+              allData.push(item);
+            });
+            vm.images = allData.filter(i => !i.outOfStock);
 
-          $scope.$applyAsync(function() {
-            $scope.recalcCategoryCounts();
-            $scope.isLoading           = false;
-            $scope.isLoadingCategories = false;
-            $scope.updateDisplayedProducts();
+            $scope.$applyAsync(function() {
+              $scope.recalcCategoryCounts();
+              $scope.isLoading           = false;
+              $scope.isLoadingCategories = false;
+              $scope.updateDisplayedProducts();
+            });
+          }, function(error) {
+            console.error("Load error:", error);
+            $scope.$applyAsync(function() { $scope.isLoading = false; $scope.isLoadingCategories = false; });
           });
-        }, function(error) {
-          console.error("Load error:", error);
-          $scope.$applyAsync(function() { $scope.isLoading = false; $scope.isLoadingCategories = false; });
-          alert('Failed to load products.');
-        });
+        }
 
         $scope.allOrders     = $firebaseArray(submitDb);
 
@@ -4050,51 +4326,62 @@
           }
         }
 
-        var categoriesListener = categoriesRef.on('value', function(snapshot) {
-          try {
-            var val = snapshot.val();
-            var parsed = parseCategoriesSnapshot(val);
-            if (!parsed) {
-              // Fallback check if categories were saved under /pagdi/cataegory_pagdi or /category_pagdi
-              fetchApp.database().ref('pagdi/cataegory_pagdi').once('value', function(pSnap) {
-                var pParsed = parseCategoriesSnapshot(pSnap.val());
-                if (pParsed) {
-                  $scope.categories = pParsed;
-                  ensureActiveCategory();
-                  $scope.recalcCategoryCounts();
-                  $scope.updateDisplayedProducts();
-                  $scope.isLoadingCategories = false;
-                  $scope.$applyAsync();
-                } else {
-                  fetchApp.database().ref('category_pagdi').once('value', function(cSnap) {
-                    var cParsed = parseCategoriesSnapshot(cSnap.val());
-                    $scope.categories = cParsed || angular.copy($scope.defaultCategories);
+        function attachCategoriesListener() {
+          if (categoriesListener) return;
+          categoriesListener = categoriesRef.on('value', function(snapshot) {
+            try {
+              var val = snapshot.val();
+              var parsed = parseCategoriesSnapshot(val);
+              if (!parsed) {
+                // Fallback check if categories were saved under /pagdi/cataegory_pagdi or /category_pagdi
+                fetchApp.database().ref('pagdi/cataegory_pagdi').once('value', function(pSnap) {
+                  var pParsed = parseCategoriesSnapshot(pSnap.val());
+                  if (pParsed) {
+                    $scope.categories = pParsed;
                     ensureActiveCategory();
                     $scope.recalcCategoryCounts();
                     $scope.updateDisplayedProducts();
                     $scope.isLoadingCategories = false;
                     $scope.$applyAsync();
-                  });
-                }
-              });
-              return;
+                  } else {
+                    fetchApp.database().ref('category_pagdi').once('value', function(cSnap) {
+                      var cParsed = parseCategoriesSnapshot(cSnap.val());
+                      $scope.categories = cParsed || angular.copy($scope.defaultCategories);
+                      ensureActiveCategory();
+                      $scope.recalcCategoryCounts();
+                      $scope.updateDisplayedProducts();
+                      $scope.isLoadingCategories = false;
+                      $scope.$applyAsync();
+                    });
+                  }
+                });
+                return;
+              }
+              $scope.categories = parsed;
+              ensureActiveCategory();
+              $scope.recalcCategoryCounts();
+              $scope.updateDisplayedProducts();
+              $scope.isLoadingCategories = false;
+              $scope.$applyAsync();
+            } catch(err) {
+              console.error("Categories listener error:", err);
+              $scope.categories = angular.copy($scope.defaultCategories);
+              ensureActiveCategory();
+              $scope.recalcCategoryCounts();
+              $scope.updateDisplayedProducts();
+              $scope.isLoadingCategories = false;
+              $scope.$applyAsync();
             }
-            $scope.categories = parsed;
-            ensureActiveCategory();
-            $scope.recalcCategoryCounts();
-            $scope.updateDisplayedProducts();
-            $scope.isLoadingCategories = false;
-            $scope.$applyAsync();
-          } catch(err) {
-            console.error("Categories listener error:", err);
-            $scope.categories = angular.copy($scope.defaultCategories);
-            ensureActiveCategory();
-            $scope.recalcCategoryCounts();
-            $scope.updateDisplayedProducts();
-            $scope.isLoadingCategories = false;
-            $scope.$applyAsync();
-          }
-        });
+          });
+        }
+
+        window.startCatalogSync = function() {
+          attachProductsListener();
+          attachCategoriesListener();
+        };
+        if (window.isUserWhitelistedReady) {
+          window.startCatalogSync();
+        }
 
         // ── ADMIN CATEGORY MANAGER METHODS ──
         $scope.showNewCatForm = false;
@@ -4717,10 +5004,8 @@
           var db = window.loginDb;
           if (!db) {
             try {
-              var app = firebase.apps.find(a => a.name === 'loginApp') || firebase.initializeApp({
-                apiKey: "AIzaSyAr8dYBz_D1DVnGfT_fQhTwD1YmtTvuzMk",
-                authDomain: "shop-reminder-3ce10.firebaseapp.com",
-                databaseURL: "https://shop-reminder-3ce10-default-rtdb.firebaseio.com"
+              var app = window.loginApp || firebase.apps.find(a => a.name === 'loginApp') || firebase.initializeApp(window.loginConfig || {
+                databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com"
               }, 'loginApp');
               db = app.database();
               window.loginDb = db;
@@ -5678,7 +5963,7 @@
         $scope.logout = function() {
           try {
             document.documentElement.classList.remove('user-logged-in');
-            fetchDb.off('value', productsListener);
+            if (productsListener) fetchDb.off('value', productsListener);
             localStorage.clear();
             $window.location.reload();
           } catch(e) { console.error(e); }
