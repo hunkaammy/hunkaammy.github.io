@@ -145,14 +145,15 @@
     <!-- ADMIN LOGIN -->
     <div id="login-card" class="card login-wrap">
       <h2>Admin Sign In</h2>
-      <p>Sign in with your database-stored admin credentials</p>
+      <p>Sign in from any device with your admin username &amp; password</p>
       <div class="field">
         <label>Admin Username</label>
         <input id="admin-name" type="text" placeholder="Enter admin username" autocomplete="off" />
       </div>
       <div class="field">
-        <label>Admin Mobile Number</label>
-        <input id="admin-mobile" type="password" placeholder="Enter admin mobile" autocomplete="off" />
+        <label>Admin Password</label>
+        <input id="admin-mobile" type="password" placeholder="Enter admin password" autocomplete="off"
+               onkeydown="if(event.key==='Enter') adminSignIn()" />
       </div>
       <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);margin-bottom:14px;cursor:pointer;">
         <input id="admin-remember" type="checkbox" style="width:15px;height:15px;accent-color:var(--accent);" />
@@ -217,13 +218,12 @@
       </div>
 
       <div id="settings-panel" class="card" style="display:none;">
-        <h3 style="font-size:16px;font-weight:700;margin-bottom:6px;">Change Admin Credentials (Database)</h3>
-        <p style="font-size:12.5px;color:var(--muted);margin-bottom:16px;">Stored in Firebase at <code>admin_config/</code>. Only authorized admin UIDs can read or change this.</p>
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:6px;">Change Admin Password</h3>
+        <p style="font-size:12.5px;color:var(--muted);margin-bottom:16px;">Updates your Firebase admin login password across all devices.</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap;max-width:520px;">
-          <input id="cfg-username" class="search-input" style="flex:1;min-width:180px;" type="text" placeholder="New admin username" />
-          <input id="cfg-mobile" class="search-input" style="flex:1;min-width:180px;" type="text" placeholder="New admin mobile" />
-          <button class="btn btn-approve" onclick="saveAdminConfig()">
-            <i class="fas fa-save"></i> Save
+          <input id="cfg-password" class="search-input" style="flex:1;min-width:200px;" type="password" placeholder="New password (6+ chars)" />
+          <button class="btn btn-approve" onclick="saveAdminPassword()">
+            <i class="fas fa-save"></i> Update Password
           </button>
         </div>
       </div>
@@ -287,54 +287,48 @@
       } catch(e) {}
     })();
 
+    function toAdminEmail(input) {
+      var v = String(input || '').trim().toLowerCase();
+      return v.indexOf('@') !== -1 ? v : (v + '@htshop.admin');
+    }
+
     function adminSignIn() {
       hideErr();
       var name = document.getElementById('admin-name').value.trim();
-      var mobile = document.getElementById('admin-mobile').value.trim();
+      var pass = document.getElementById('admin-mobile').value.trim();
       var remember = document.getElementById('admin-remember').checked;
 
-      if (!name || !mobile) {
-        showErr('Please enter admin username and mobile.');
+      if (!name || !pass) {
+        showErr('Please enter admin username and password.');
         return;
       }
 
-      var p = auth.currentUser ? Promise.resolve({ user: auth.currentUser }) : auth.signInAnonymously();
-      p.then(function(cred) {
-        var uid = cred.user.uid;
-        return db.ref('admin_config').once('value').then(function(cfgSnap) {
-          var cfg = cfgSnap.val();
-          if (!cfg) {
-            cfg = { username: DEFAULT_ADMIN_NAME, mobile: DEFAULT_ADMIN_MOBILE };
-            db.ref('admin_config').set(cfg).catch(function() {});
-          }
-          if (name !== String(cfg.username || '') || mobile !== String(cfg.mobile || '')) {
-            showErr('Invalid admin username or mobile number.');
-            return;
-          }
-          try {
-            if (remember) {
-              localStorage.setItem('ht_admin_saved_creds', JSON.stringify({ username: name, mobile: mobile }));
-            } else {
-              localStorage.removeItem('ht_admin_saved_creds');
-            }
-          } catch(e) {}
-          document.getElementById('cfg-username').value = cfg.username || '';
-          document.getElementById('cfg-mobile').value = cfg.mobile || '';
-          document.getElementById('login-card').style.display = 'none';
-          document.getElementById('dashboard').style.display = 'block';
-          var pill = document.getElementById('auth-status-pill');
-          pill.className = 'status-pill';
-          pill.innerHTML = '<i class="fas fa-check-circle"></i> <span>Admin Connected (' + uid.slice(0, 8) + '...)</span>';
-          startRealtimeListeners();
-        }, function(err) {
-          document.getElementById('my-admin-uid').textContent = uid;
-          document.getElementById('admin-uid-help').style.display = 'block';
-          showErr('Firebase Rules denied access for this browser UID. Add it to admin_uids/ in Firebase Console.');
-          console.error(err);
+      var email = toAdminEmail(name);
+      auth.signInWithEmailAndPassword(email, pass)
+        .then(function(cred) {
+          var uid = cred.user.uid;
+          return db.ref('whitelist_uids').once('value').then(function() {
+            try {
+              if (remember) {
+                localStorage.setItem('ht_admin_saved_creds', JSON.stringify({ username: name, mobile: pass }));
+              } else {
+                localStorage.removeItem('ht_admin_saved_creds');
+              }
+            } catch(e) {}
+            document.getElementById('login-card').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            var pill = document.getElementById('auth-status-pill');
+            pill.className = 'status-pill';
+            pill.innerHTML = '<i class="fas fa-check-circle"></i> <span>Admin (' + esc(name) + ')</span>';
+            startRealtimeListeners();
+          }, function(err) {
+            showErr('Firebase Rules denied access. Make sure the Email/Password rule is published in Realtime Database Rules.');
+            console.error(err);
+          });
+        })
+        .catch(function(err) {
+          showErr('Sign in failed: ' + (err.message || 'Check username & password.'));
         });
-      }).catch(function(err) {
-        showErr('Auth failed: ' + err.message);
-      });
     }
 
     function startRealtimeListeners() {
@@ -395,21 +389,21 @@
       document.getElementById('settings-panel').style.display = tab === 'settings' ? 'block' : 'none';
     }
 
-    function saveAdminConfig() {
-      var u = (document.getElementById('cfg-username').value || '').trim();
-      var m = (document.getElementById('cfg-mobile').value || '').trim();
-      if (u.length < 3 || m.length < 6) {
-        alert('Enter a valid username (3+ chars) and mobile number.');
+    function saveAdminPassword() {
+      var p = (document.getElementById('cfg-password').value || '').trim();
+      if (p.length < 6) {
+        alert('Password must be at least 6 characters.');
         return;
       }
-      db.ref('admin_config').set({
-        username: u,
-        mobile: m,
-        updatedAt: firebase.database.ServerValue.TIMESTAMP
-      }).then(function() {
-        alert('Admin credentials updated in database!');
+      if (!auth.currentUser) {
+        alert('Please sign in first.');
+        return;
+      }
+      auth.currentUser.updatePassword(p).then(function() {
+        document.getElementById('cfg-password').value = '';
+        alert('Admin password updated across all devices!');
       }).catch(function(err) {
-        alert('Failed to update: ' + err.message);
+        alert('Failed to update password: ' + err.message);
       });
     }
 
