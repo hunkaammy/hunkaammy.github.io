@@ -40,6 +40,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
@@ -324,10 +325,49 @@
     </div>
   </div>
 
+  <!-- ADMIN LOGIN OVERLAY -->
+  <div id="newadmin-login-overlay" class="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/90 backdrop-blur-md p-4">
+    <div class="w-full max-w-md rounded-2xl bg-slate-800 border border-slate-700 p-7 text-slate-100 shadow-2xl">
+      <h2 class="text-xl font-extrabold mb-1">Admin Sign In</h2>
+      <p class="text-xs text-slate-400 mb-5">Sign in with your existing admin username &amp; mobile/password</p>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Admin Username</label>
+          <input id="na-username" type="text" placeholder="Enter admin username" autocomplete="off"
+                 class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white outline-none focus:border-blue-500" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Admin Mobile / Password</label>
+          <input id="na-mobile" type="password" placeholder="Enter admin mobile / password" autocomplete="off"
+                 class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white outline-none focus:border-blue-500"
+                 onkeydown="if(event.key==='Enter') newadminSignIn()" />
+        </div>
+        <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer select-none pt-1">
+          <input id="na-remember" type="checkbox" class="w-4 h-4 rounded accent-blue-600" />
+          Remember ID &amp; Password
+        </label>
+        <button onclick="newadminSignIn()"
+                class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm transition cursor-pointer">
+          Sign In &amp; Open Admin
+        </button>
+      </div>
+      <div id="na-login-err" class="hidden mt-3 p-2.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 text-xs"></div>
+      <div id="na-uid-box" class="hidden mt-4 p-3 rounded-xl bg-slate-900 border border-amber-500/40 text-xs">
+        <div class="font-bold text-amber-300 mb-1">This page's UID needs Admin permission in Firebase Console:</div>
+        <div class="text-slate-400 mb-2">Add under <strong>admin_uids/&lt;UID&gt;: true</strong>, then click Sign In again:</div>
+        <code id="na-my-uid" class="block p-2 rounded bg-black/50 text-amber-200 break-all mb-2">...</code>
+        <button onclick="navigator.clipboard && navigator.clipboard.writeText(document.getElementById('na-my-uid').textContent)"
+                class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs cursor-pointer">
+          Copy UID
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     try {
       const firebaseConfig = {
-        apiKey: "AIzaSyAvlig_xWJNP1hFsl4qfisC01VTkOAVhT8",
+        apiKey: "AIzaSyC_QZrbYmHp2uM0y1gKPxTIGDgm_asUnA4",
         authDomain: "htshop-e9c51.firebaseapp.com",
         databaseURL: "https://htshop-e9c51-default-rtdb.firebaseio.com",
         projectId: "htshop-e9c51",
@@ -964,13 +1004,89 @@
       window.addEventListener('scroll', window.scrollHandler);
     }
 
-    database.ref().on('value', (snapshot) => {
-      products = [];
-      snapshot.forEach(childSnapshot => {
-        products.push({ key: childSnapshot.key, data: childSnapshot.val() || {} });
+    const ADMIN_EXCLUDED_KEYS = new Set([
+      'ht_categories', 'pagdi', 'cataegory_pagdi', 'category_pagdi',
+      'whitelist_uids', 'whitelist_info', 'whitelist_mobiles', 'pending_users',
+      'pre_approved_mobiles', 'admin_uids', 'admin_config', 'customer_devices',
+      'blocked_devices', 'users', 'orders', 'cart', 'carts', 'admin', 'settings'
+    ]);
+
+    function startProductsListener() {
+      database.ref().on('value', (snapshot) => {
+        products = [];
+        snapshot.forEach(childSnapshot => {
+          const k = childSnapshot.key;
+          if (!k || ADMIN_EXCLUDED_KEYS.has(k)) return;
+          const val = childSnapshot.val();
+          if (!val || typeof val !== 'object' || Array.isArray(val) || !val.url || !val.name) return;
+          products.push({ key: k, data: val });
+        });
+        batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
+      }, (err) => {
+        console.error('Database read error:', err);
+        const uid = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'unknown';
+        alert('Database permission denied for UID: ' + uid + '\nAdd this UID to admin_uids/ in Firebase Console.');
       });
-      batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
-    });
+    }
+
+    (function loadSavedNewadminCreds() {
+      try {
+        const saved = JSON.parse(localStorage.getItem('ht_newadmin_saved_creds') || 'null');
+        if (saved && saved.username && saved.mobile) {
+          document.getElementById('na-username').value = saved.username;
+          document.getElementById('na-mobile').value = saved.mobile;
+          document.getElementById('na-remember').checked = true;
+        }
+      } catch(e) {}
+    })();
+
+    window.newadminSignIn = function() {
+      const errEl = document.getElementById('na-login-err');
+      const uidBox = document.getElementById('na-uid-box');
+      errEl.classList.add('hidden');
+      uidBox.classList.add('hidden');
+
+      const u = (document.getElementById('na-username').value || '').trim();
+      const m = (document.getElementById('na-mobile').value || '').trim();
+      const remember = document.getElementById('na-remember').checked;
+      if (!u || !m) {
+        errEl.textContent = 'Please enter admin username and mobile/password.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      const auth = firebase.auth();
+      const p = auth.currentUser ? Promise.resolve({ user: auth.currentUser }) : auth.signInAnonymously();
+      p.then((cred) => {
+        const uid = cred.user.uid;
+        return database.ref('admin_config').once('value').then((snap) => {
+          const cfg = snap.val();
+          if (!cfg || u !== String(cfg.username || '') || m !== String(cfg.mobile || '')) {
+            errEl.textContent = 'Invalid admin username or mobile/password.';
+            errEl.classList.remove('hidden');
+            return;
+          }
+          try {
+            if (remember) {
+              localStorage.setItem('ht_newadmin_saved_creds', JSON.stringify({ username: u, mobile: m }));
+            } else {
+              localStorage.removeItem('ht_newadmin_saved_creds');
+            }
+          } catch(e) {}
+          document.getElementById('newadmin-login-overlay').style.display = 'none';
+          startProductsListener();
+        }, (err) => {
+          console.error('admin_config read error:', err);
+          document.getElementById('na-my-uid').textContent = uid;
+          uidBox.classList.remove('hidden');
+          errEl.textContent = 'Firebase Rules denied access for this page UID. Add it to admin_uids/ in Firebase Console.';
+          errEl.classList.remove('hidden');
+        });
+      }).catch((err) => {
+        errEl.textContent = 'Firebase Auth failed: ' + err.message;
+        errEl.classList.remove('hidden');
+      });
+    };
 
     nameSearchInput.addEventListener('input', debounce(() => {
         batchRenderGallery(nameSearchInput.value, partyCodeSearchInput.value);
