@@ -210,6 +210,10 @@
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
           <input id="pre-mobile-input" class="search-input" style="flex:1;min-width:180px;" type="text" maxlength="10" placeholder="10-digit mobile number (e.g. 9876543210)" />
           <input id="pre-note-input" class="search-input" style="flex:1;min-width:160px;" type="text" placeholder="Shop name / note (optional)" />
+          <select id="pre-tier-input" class="search-input" style="min-width:140px;">
+            <option value="wholesale">Wholesale (Actual)</option>
+            <option value="retail">Retail (×2 − 40%)</option>
+          </select>
           <button class="btn btn-approve" onclick="addPreApproved()">
             <i class="fas fa-plus"></i> Pre-Approve Number
           </button>
@@ -410,6 +414,7 @@
     function addPreApproved() {
       var mob = (document.getElementById('pre-mobile-input').value || '').trim();
       var note = (document.getElementById('pre-note-input').value || '').trim();
+      var tier = (document.getElementById('pre-tier-input').value || 'wholesale');
       if (!/^[6-9]\d{9}$/.test(mob)) {
         alert('Enter a valid 10-digit Indian mobile number.');
         return;
@@ -417,6 +422,7 @@
       db.ref('pre_approved_mobiles/' + mob).set({
         mobile: mob,
         note: note || 'Pre-approved',
+        tier: tier,
         addedAt: firebase.database.ServerValue.TIMESTAMP
       }).then(function() {
         document.getElementById('pre-mobile-input').value = '';
@@ -469,14 +475,17 @@
       });
     }
 
-    function approveUser(uid) {
+    function approveUser(uid, tier) {
+      tier = (tier === 'retail') ? 'retail' : 'wholesale';
       var u = pendingData[uid] || {};
       var updates = {};
       updates['whitelist_uids/' + uid] = true;
+      updates['user_tiers/' + uid] = tier;
       updates['whitelist_info/' + uid] = {
         uid: uid,
         name: u.name || 'Approved User',
         mobile: u.mobile || 'N/A',
+        tier: tier,
         deviceInfo: u.deviceInfo || '',
         approvedAt: firebase.database.ServerValue.TIMESTAMP
       };
@@ -485,12 +494,41 @@
         updates['pre_approved_mobiles/' + mob] = {
           mobile: mob,
           note: u.name || 'Approved User',
+          tier: tier,
           addedAt: firebase.database.ServerValue.TIMESTAMP
         };
       }
       updates['pending_users/' + uid] = null;
       db.ref().update(updates).catch(function(err) {
         alert('Failed to approve: ' + err.message);
+      });
+    }
+
+    function toggleUserTier(uid, nextTier) {
+      var info = whitelistInfo[uid] || {};
+      var updates = {};
+      updates['user_tiers/' + uid] = nextTier;
+      updates['whitelist_info/' + uid + '/tier'] = nextTier;
+      var mob = String(info.mobile || '').trim();
+      if (/^[6-9]\d{9}$/.test(mob) && preApprovedData[mob]) {
+        updates['pre_approved_mobiles/' + mob + '/tier'] = nextTier;
+      }
+      db.ref().update(updates).catch(function(err) {
+        alert('Failed to switch tier: ' + err.message);
+      });
+    }
+
+    function togglePreTier(mob, nextTier) {
+      var updates = {};
+      updates['pre_approved_mobiles/' + mob + '/tier'] = nextTier;
+      Object.keys(whitelistInfo).forEach(function(uid) {
+        if (whitelistInfo[uid] && String(whitelistInfo[uid].mobile || '').trim() === mob) {
+          updates['user_tiers/' + uid] = nextTier;
+          updates['whitelist_info/' + uid + '/tier'] = nextTier;
+        }
+      });
+      db.ref().update(updates).catch(function(err) {
+        alert('Failed to switch tier: ' + err.message);
       });
     }
 
@@ -557,7 +595,8 @@
               '<div class="user-uid">UID: ' + esc(uid) + '</div>' +
             '</div>' +
             '<div class="actions">' +
-              '<button class="btn btn-approve btn-sm" onclick="approveUser(\'' + esc(uid) + '\')"><i class="fas fa-check"></i> Approve</button>' +
+              '<button class="btn btn-approve btn-sm" onclick="approveUser(\'' + esc(uid) + '\', \'wholesale\')"><i class="fas fa-check"></i> Wholesale</button>' +
+              '<button class="btn btn-sm" style="background:rgba(245,158,11,0.18);color:#fcd34d;border:1px solid rgba(245,158,11,0.35);" onclick="approveUser(\'' + esc(uid) + '\', \'retail\')"><i class="fas fa-tag"></i> Retail</button>' +
               '<button class="btn btn-reject btn-sm" onclick="rejectPending(\'' + esc(uid) + '\')"><i class="fas fa-xmark"></i> Reject</button>' +
             '</div>' +
           '</div>';
@@ -581,9 +620,14 @@
       } else {
         aEl.innerHTML = aKeys.map(function(uid) {
           var info = whitelistInfo[uid] || {};
+          var tier = (info.tier === 'retail') ? 'retail' : 'wholesale';
+          var nextTier = tier === 'retail' ? 'wholesale' : 'retail';
+          var tierBadge = tier === 'retail'
+            ? '<span style="font-size:10px;padding:2px 8px;border-radius:999px;background:rgba(245,158,11,0.18);color:#fcd34d;border:1px solid rgba(245,158,11,0.35);">RETAIL</span>'
+            : '<span style="font-size:10px;padding:2px 8px;border-radius:999px;background:rgba(59,130,246,0.18);color:#93c5fd;border:1px solid rgba(59,130,246,0.35);">WHOLESALE</span>';
           return '<div class="user-row">' +
             '<div class="user-info">' +
-              '<h3>' + esc(info.name || 'Whitelisted User') + '</h3>' +
+              '<h3>' + esc(info.name || 'Whitelisted User') + ' ' + tierBadge + '</h3>' +
               '<div class="user-meta">' +
                 '<span><i class="fas fa-phone"></i> ' + esc(info.mobile || 'N/A') + '</span>' +
                 (info.approvedAt ? '<span><i class="fas fa-check-double"></i> ' + esc(formatTime(info.approvedAt)) + '</span>' : '') +
@@ -591,6 +635,7 @@
               '<div class="user-uid">UID: ' + esc(uid) + '</div>' +
             '</div>' +
             '<div class="actions">' +
+              '<button class="btn btn-sm" style="background:rgba(59,130,246,0.16);color:#93c5fd;border:1px solid rgba(59,130,246,0.35);" onclick="toggleUserTier(\'' + esc(uid) + '\', \'' + nextTier + '\')"><i class="fas fa-repeat"></i> Make ' + (nextTier === 'retail' ? 'Retail' : 'Wholesale') + '</button>' +
               '<button class="btn btn-approve btn-sm" onclick="editApprovedName(\'' + esc(uid) + '\')"><i class="fas fa-pen"></i> Edit Name</button>' +
               '<button class="btn btn-reject btn-sm" onclick="revokeApproved(\'' + esc(uid) + '\')"><i class="fas fa-ban"></i> Revoke</button>' +
             '</div>' +
@@ -612,15 +657,21 @@
       } else {
         preEl.innerHTML = preKeys.map(function(mob) {
           var p = preApprovedData[mob] || {};
+          var tier = (p.tier === 'retail') ? 'retail' : 'wholesale';
+          var nextTier = tier === 'retail' ? 'wholesale' : 'retail';
+          var tierBadge = tier === 'retail'
+            ? '<span style="font-size:10px;padding:2px 8px;border-radius:999px;background:rgba(245,158,11,0.18);color:#fcd34d;border:1px solid rgba(245,158,11,0.35);">RETAIL</span>'
+            : '<span style="font-size:10px;padding:2px 8px;border-radius:999px;background:rgba(59,130,246,0.18);color:#93c5fd;border:1px solid rgba(59,130,246,0.35);">WHOLESALE</span>';
           return '<div class="user-row">' +
             '<div class="user-info">' +
-              '<h3>' + esc(mob) + '</h3>' +
+              '<h3>' + esc(mob) + ' ' + tierBadge + '</h3>' +
               '<div class="user-meta">' +
                 '<span><i class="fas fa-tag"></i> ' + esc(p.note || 'Pre-approved') + '</span>' +
                 (p.addedAt ? '<span><i class="fas fa-clock"></i> ' + esc(formatTime(p.addedAt)) + '</span>' : '') +
               '</div>' +
             '</div>' +
             '<div class="actions">' +
+              '<button class="btn btn-sm" style="background:rgba(59,130,246,0.16);color:#93c5fd;border:1px solid rgba(59,130,246,0.35);" onclick="togglePreTier(\'' + esc(mob) + '\', \'' + nextTier + '\')"><i class="fas fa-repeat"></i> Make ' + (nextTier === 'retail' ? 'Retail' : 'Wholesale') + '</button>' +
               '<button class="btn btn-approve btn-sm" onclick="editPreApprovedName(\'' + esc(mob) + '\')"><i class="fas fa-pen"></i> Edit Name</button>' +
               '<button class="btn btn-reject btn-sm" onclick="removePreApproved(\'' + esc(mob) + '\')"><i class="fas fa-trash"></i> Remove</button>' +
             '</div>' +
