@@ -2378,7 +2378,7 @@
       <input type="text" id="name" placeholder="Your shop name" class="login-input" autocomplete="off">
       <input type="tel" id="mobile" placeholder="Mobile number" class="login-input" autocomplete="off">
       <div id="login-error" class="login-error"></div>
-      <button class="login-btn" onclick="validateLogin()">
+      <button id="login-submit-btn" class="login-btn" onclick="validateLogin()">
         Enter Portal <i class="fas fa-arrow-right ms-2" style="font-size:12px;"></i>
       </button>
     </div>
@@ -3825,6 +3825,13 @@
         document.getElementById('access-denied-overlay').style.display = 'none';
         var pendingEl = document.getElementById('pending-approval-overlay');
         if (pendingEl) pendingEl.style.display = 'flex';
+        var loginSubmitBtn = document.getElementById('login-submit-btn');
+        if (loginSubmitBtn) {
+          loginSubmitBtn.disabled = false;
+          loginSubmitBtn.style.opacity = '';
+          loginSubmitBtn.style.pointerEvents = '';
+          loginSubmitBtn.innerHTML = 'Enter Portal <i class="fas fa-arrow-right ms-2" style="font-size:12px;"></i>';
+        }
         var mobileDisp = document.getElementById('pending-mobile-display');
         if (mobileDisp) mobileDisp.textContent = mobile || '••••••••••';
         var uidDisp = document.getElementById('pending-uid-display');
@@ -3974,6 +3981,17 @@
           });
         }
 
+        function setLoginBtnLoading(isLoading) {
+          var btn = document.getElementById('login-submit-btn');
+          if (!btn) return;
+          btn.disabled = !!isLoading;
+          btn.style.opacity = isLoading ? '0.8' : '';
+          btn.style.pointerEvents = isLoading ? 'none' : '';
+          btn.innerHTML = isLoading
+            ? '<i class="fas fa-circle-notch fa-spin me-2" style="font-size:13px;"></i> Entering Portal...'
+            : 'Enter Portal <i class="fas fa-arrow-right ms-2" style="font-size:12px;"></i>';
+        }
+
         window.validateLogin = function() {
           try {
             var name   = document.getElementById('name').value.trim();
@@ -3982,6 +4000,7 @@
               showLoginError('Please enter a valid shop name (4+ chars) and 10-digit mobile number.');
               return;
             }
+            setLoginBtnLoading(true);
 
             ensureAnonAuth(function(user) {
               var uid = user.uid;
@@ -4088,6 +4107,7 @@
 
         function showContent(name) {
           try {
+            setLoginBtnLoading(false);
             window.isUserWhitelistedReady = true;
             if (window.startCatalogSync) window.startCatalogSync();
             document.documentElement.classList.add('user-logged-in');
@@ -4107,6 +4127,7 @@
         }
 
         function showLoginError(msg) {
+          setLoginBtnLoading(false);
           var el = document.getElementById('login-error');
           if (!el) return;
           el.textContent = msg;
