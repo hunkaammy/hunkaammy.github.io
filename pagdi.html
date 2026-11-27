@@ -2518,7 +2518,7 @@
                   <div class="pif-bottom-row">
                     <div class="pif-price-box">
                       <span class="pif-no-label">NO.</span>
-                      <span class="pif-no-val">{{ getDoubledPrice(product.price) }}</span>
+                      <span class="pif-no-val">{{ getDoubledPrice(product._basePrice !== undefined ? product._basePrice : product.price) }}</span>
                     </div>
                     <button class="pif-download-btn"
                             type="button"
@@ -2667,7 +2667,7 @@
                   <div class="pif-bottom-row">
                     <div class="pif-price-box">
                       <span class="pif-no-label">NO.</span>
-                      <span class="pif-no-val">{{ getDoubledPrice(product.price) }}</span>
+                      <span class="pif-no-val">{{ getDoubledPrice(product._basePrice !== undefined ? product._basePrice : product.price) }}</span>
                     </div>
                     <button class="pif-download-btn"
                             type="button"
@@ -3874,6 +3874,39 @@
         var devId = window.currentDeviceId;
         var info  = window.currentDeviceInfo;
         var deviceListenersStarted = false;
+        window.currentUserTier = 'wholesale';
+        window.calcTierPrice = function(basePrice, title) {
+          var base = Number(basePrice) || 0;
+          if (window.currentUserTier === 'retail') {
+            var retail = Math.round(base * 2 * 0.6); // price * 2, minus 40%
+            var t = String(title || '').toLowerCase();
+            if ((t.indexOf('remote') !== -1 && t.indexOf('car') !== -1) || /\brc\s*car\b/.test(t)) {
+              if (t.indexOf('recharg') !== -1 || t.indexOf('rechrg') !== -1 || t.indexOf('recharj') !== -1) {
+                retail += 14;
+              } else {
+                retail += 35;
+              }
+            } else if (t.indexOf('battery') !== -1 || /\bb\/o\b/.test(t)) {
+              retail += 21;
+            }
+            return retail;
+          }
+          return base;
+        };
+
+        function attachTierListener(uid) {
+          if (window._tierListener) {
+            loginDb.ref('user_tiers/' + uid).off('value', window._tierListener);
+            window._tierListener = null;
+          }
+          window._tierListener = loginDb.ref('user_tiers/' + uid).on('value', function(ts) {
+            var nextTier = (ts.val() === 'retail') ? 'retail' : 'wholesale';
+            if (window.currentUserTier !== nextTier) {
+              window.currentUserTier = nextTier;
+              if (window.applyUserTierPricing) window.applyUserTierPricing();
+            }
+          });
+        }
 
         function ensureAnonAuth(cb) {
           var auth = loginApp.auth();
@@ -3962,19 +3995,25 @@
                   };
                   loginDb.ref('pending_users/' + uid).set(pendingPayload).then(function() {
                     return loginDb.ref('whitelist_uids/' + uid).set(true).then(function() {
-                      loginDb.ref('whitelist_info/' + uid).set({
-                        uid: uid, name: name, mobile: mobile, deviceInfo: info.label,
-                        approvedAt: firebase.database.ServerValue.TIMESTAMP, autoPreApproved: true
-                      }).catch(function() {});
-                      loginDb.ref('pending_users/' + uid).remove().catch(function() {});
-                      if (name === 'sammyadmin') {
-                        proceedAfterWhitelist(name, mobile, uid);
-                      } else {
-                        loginDb.ref('blocked_devices/' + devId).once('value', function(snap) {
-                          if (snap.exists()) { showAccessDenied(devId, snap.val()); return; }
-                          proceedAfterWhitelist(name, mobile, uid);
+                      return loginDb.ref('pre_approved_mobiles/' + mobile + '/tier').once('value').then(function(tSnap) {
+                        var tier = (tSnap.val() === 'retail') ? 'retail' : 'wholesale';
+                        window.currentUserTier = tier;
+                        return loginDb.ref('user_tiers/' + uid).set(tier).catch(function() {}).then(function() {
+                          loginDb.ref('whitelist_info/' + uid).set({
+                            uid: uid, name: name, mobile: mobile, tier: tier, deviceInfo: info.label,
+                            approvedAt: firebase.database.ServerValue.TIMESTAMP, autoPreApproved: true
+                          }).catch(function() {});
+                          loginDb.ref('pending_users/' + uid).remove().catch(function() {});
+                          if (name === 'sammyadmin') {
+                            proceedAfterWhitelist(name, mobile, uid);
+                          } else {
+                            loginDb.ref('blocked_devices/' + devId).once('value', function(snap) {
+                              if (snap.exists()) { showAccessDenied(devId, snap.val()); return; }
+                              proceedAfterWhitelist(name, mobile, uid);
+                            });
+                          }
                         });
-                      }
+                      });
                     }).catch(function() {
                       showPendingApproval(mobile, uid);
                       attachWhitelistApproveListener(uid, name, mobile);
@@ -4006,15 +4045,20 @@
         function proceedAfterWhitelist(name, mobile, uid) {
           startDeviceListeners();
           recordDeviceActivity(name, mobile);
-          loginDb.ref('users').push({ uid: uid, name: name, mobile: mobile, deviceId: devId, deviceInfo: info.label, timestamp: firebase.database.ServerValue.TIMESTAMP })
-            .then(() => {
-              localStorage.setItem('name', name);
-              localStorage.setItem('mobile', mobile);
-              hidePendingApproval();
-              showContent(name);
-              attachWhitelistRevokeListener(uid, mobile);
-            })
-            .catch(e => { console.error(e); showLoginError('Login failed. Please try again.'); });
+          loginDb.ref('user_tiers/' + uid).once('value', function(tSnap) {
+            window.currentUserTier = (tSnap.val() === 'retail') ? 'retail' : 'wholesale';
+            if (window.applyUserTierPricing) window.applyUserTierPricing();
+            attachTierListener(uid);
+            loginDb.ref('users').push({ uid: uid, name: name, mobile: mobile, tier: window.currentUserTier, deviceId: devId, deviceInfo: info.label, timestamp: firebase.database.ServerValue.TIMESTAMP })
+              .then(() => {
+                localStorage.setItem('name', name);
+                localStorage.setItem('mobile', mobile);
+                hidePendingApproval();
+                showContent(name);
+                attachWhitelistRevokeListener(uid, mobile);
+              })
+              .catch(e => { console.error(e); showLoginError('Login failed. Please try again.'); });
+          });
         }
 
         function attachWhitelistRevokeListener(uid, mobile) {
@@ -4086,16 +4130,23 @@
                     requestedAt: firebase.database.ServerValue.TIMESTAMP
                   }).then(function() {
                     return loginDb.ref('whitelist_uids/' + uid).set(true).then(function() {
-                      loginDb.ref('whitelist_info/' + uid).set({
-                        uid: uid, name: name, mobile: mobile, deviceInfo: info.label,
-                        approvedAt: firebase.database.ServerValue.TIMESTAMP, autoPreApproved: true
-                      }).catch(function() {});
-                      loginDb.ref('pending_users/' + uid).remove().catch(function() {});
-                      startDeviceListeners();
-                      recordDeviceActivity(name, mobile);
-                      showContent(name);
-                      loginDb.ref('users').push({ uid: uid, name: name, mobile: mobile, deviceId: devId, timestamp: firebase.database.ServerValue.TIMESTAMP, loginType: 'auto' }).catch(e => console.error(e));
-                      attachWhitelistRevokeListener(uid, mobile);
+                      return loginDb.ref('pre_approved_mobiles/' + mobile + '/tier').once('value').then(function(tSnap) {
+                        var tier = (tSnap.val() === 'retail') ? 'retail' : 'wholesale';
+                        window.currentUserTier = tier;
+                        return loginDb.ref('user_tiers/' + uid).set(tier).catch(function() {}).then(function() {
+                          loginDb.ref('whitelist_info/' + uid).set({
+                            uid: uid, name: name, mobile: mobile, tier: tier, deviceInfo: info.label,
+                            approvedAt: firebase.database.ServerValue.TIMESTAMP, autoPreApproved: true
+                          }).catch(function() {});
+                          loginDb.ref('pending_users/' + uid).remove().catch(function() {});
+                          startDeviceListeners();
+                          recordDeviceActivity(name, mobile);
+                          attachTierListener(uid);
+                          showContent(name);
+                          loginDb.ref('users').push({ uid: uid, name: name, mobile: mobile, tier: tier, deviceId: devId, timestamp: firebase.database.ServerValue.TIMESTAMP, loginType: 'auto' }).catch(e => console.error(e));
+                          attachWhitelistRevokeListener(uid, mobile);
+                        });
+                      });
                     }).catch(function() {
                       localStorage.removeItem('name');
                       localStorage.removeItem('mobile');
@@ -4110,11 +4161,16 @@
                   });
                   return;
                 }
-                startDeviceListeners();
-                recordDeviceActivity(name, mobile);
-                showContent(name);
-                loginDb.ref('users').push({ uid: uid, name: name, mobile: mobile, deviceId: devId, timestamp: firebase.database.ServerValue.TIMESTAMP, loginType: 'auto' }).catch(e => console.error(e));
-                attachWhitelistRevokeListener(uid, mobile);
+                loginDb.ref('user_tiers/' + uid).once('value', function(tSnap) {
+                  window.currentUserTier = (tSnap.val() === 'retail') ? 'retail' : 'wholesale';
+                  if (window.applyUserTierPricing) window.applyUserTierPricing();
+                  attachTierListener(uid);
+                  startDeviceListeners();
+                  recordDeviceActivity(name, mobile);
+                  showContent(name);
+                  loginDb.ref('users').push({ uid: uid, name: name, mobile: mobile, tier: window.currentUserTier, deviceId: devId, timestamp: firebase.database.ServerValue.TIMESTAMP, loginType: 'auto' }).catch(e => console.error(e));
+                  attachWhitelistRevokeListener(uid, mobile);
+                });
               });
             });
           }
@@ -4194,7 +4250,8 @@
               if (!item.name || typeof item.name !== 'string' || !item.name.trim()) return;
               item.$id  = child.key;
               var clean = String(item.price || 0).replace(/[^0-9.]/g, '');
-              item.price = Number(clean) || 0;
+              item._basePrice = Number(clean) || 0;
+              item.price = window.calcTierPrice ? window.calcTierPrice(item._basePrice, item.name) : item._basePrice;
               item._name = String(item.name || '').toLowerCase();
               allData.push(item);
             });
@@ -4211,6 +4268,18 @@
             $scope.$applyAsync(function() { $scope.isLoading = false; $scope.isLoadingCategories = false; });
           });
         }
+
+        window.applyUserTierPricing = function() {
+          if (!vm.images || !vm.images.length) return;
+          vm.images.forEach(function(item) {
+            if (item._basePrice !== undefined && window.calcTierPrice) {
+              item.price = window.calcTierPrice(item._basePrice, item.name);
+            }
+          });
+          $scope.$applyAsync(function() {
+            if ($scope.updateDisplayedProducts) $scope.updateDisplayedProducts();
+          });
+        };
 
         $scope.allOrders     = $firebaseArray(submitDb);
 
@@ -5781,7 +5850,7 @@
                       var valSize = Math.max(22, Math.round(W * 0.052));
                       ctx.font = '800 ' + valSize + "px 'Bricolage Grotesque', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
                       ctx.fillStyle = '#38bdf8';
-                      var dPrice = $scope.getDoubledPrice(product && product.price);
+                      var dPrice = $scope.getDoubledPrice(product ? (product._basePrice !== undefined ? product._basePrice : product.price) : 0);
                       ctx.fillText('  ' + dPrice, padX + noLabelW, line2Y);
 
                       // Right branding
@@ -5829,7 +5898,7 @@
           $scope.renderImageWithFooter(product.url, product)
             .then(function(renderedBlob) {
               $scope.$applyAsync(function() { $scope.isDownloadingId = null; });
-              var dPrice = $scope.getDoubledPrice(product.price);
+              var dPrice = $scope.getDoubledPrice(product._basePrice !== undefined ? product._basePrice : product.price);
               var safeName = (product.name || 'product').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 30);
               var filename = safeName + '_NO_' + dPrice + '.jpg';
 
@@ -5871,7 +5940,7 @@
                 })
                 .then(function(renderedBlob) {
                   $scope.$applyAsync(function() { $scope.shareProgressCurrent = idx + 1; });
-                  var dPrice = $scope.getDoubledPrice(product.price);
+                  var dPrice = $scope.getDoubledPrice(product._basePrice !== undefined ? product._basePrice : product.price);
                   var safeName = (product.name || 'product').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 30);
                   var filename = safeName + '_NO_' + dPrice + '.jpg';
                   return new File([renderedBlob], filename, { type: 'image/jpeg' });
@@ -5949,7 +6018,7 @@
           batches.forEach(function(batch, bi) {
             setTimeout(function() {
               var lines = batch.map(function(p, i) {
-                var dPrice = $scope.getDoubledPrice(p.price);
+                var dPrice = $scope.getDoubledPrice(p._basePrice !== undefined ? p._basePrice : p.price);
                 return (bi * BATCH_SIZE + i + 1) + '. ' + p.name + ' \u2014 NO. ' + dPrice;
               });
               var msg = 'Products from Hindustan Toys (Part ' + (bi + 1) + '/' + batches.length + '):\n' + lines.join('\n');
