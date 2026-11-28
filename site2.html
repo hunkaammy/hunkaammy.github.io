@@ -2413,9 +2413,9 @@
               </a>
             </li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item text-danger" href="#" ng-click="logout()">
+            <li><button type="button" class="dropdown-item text-danger" ng-click="logout()">
               <i class="fas fa-sign-out-alt me-2"></i>Logout
-            </a></li>
+            </button></li>
           </ul>
         </div>
       </div>
@@ -3856,8 +3856,23 @@
       try {
         localStorage.removeItem('name');
         localStorage.removeItem('mobile');
-        if (window._whitelistListener) { window._whitelistListener(); window._whitelistListener = null; }
+        localStorage.removeItem('approved_mobile');
+        if (window.loginApp && window.loginApp.auth) {
+          window.loginApp.auth().signOut().catch(function() {});
+        }
+        if (window._whitelistListener && window.loginDb && window._whitelistListenerUid) {
+          window.loginDb.ref('whitelist_uids/' + window._whitelistListenerUid).off('value', window._whitelistListener);
+        }
+        window._whitelistListener = null;
+        window._whitelistListenerUid = null;
         hidePendingApproval();
+        var loginSubmitBtn = document.getElementById('login-submit-btn');
+        if (loginSubmitBtn) {
+          loginSubmitBtn.disabled = false;
+          loginSubmitBtn.style.opacity = '';
+          loginSubmitBtn.style.pointerEvents = '';
+          loginSubmitBtn.innerHTML = 'Enter Portal <i class="fas fa-arrow-right ms-2" style="font-size:12px;"></i>';
+        }
         document.getElementById('login-container').style.display = 'flex';
       } catch(e) {}
     };
@@ -3918,11 +3933,13 @@
           });
         }
 
-        function ensureAnonAuth(cb) {
+        function ensureAnonAuth(cb, forceFresh) {
           var auth = loginApp.auth();
-          if (auth.currentUser) { cb(auth.currentUser); return; }
-          auth.signInAnonymously()
-            .then(function(cred) { cb(cred.user); })
+          if (!forceFresh && auth.currentUser) { cb(auth.currentUser); return; }
+          var p = (forceFresh && auth.currentUser)
+            ? auth.signOut().then(function() { return auth.signInAnonymously(); })
+            : auth.signInAnonymously();
+          p.then(function(cred) { cb(cred.user); })
             .catch(function(err) {
               console.error('Auth error:', err);
               showLoginError('Authentication failed. Ensure Anonymous login is enabled in Firebase.');
@@ -3966,10 +3983,11 @@
         }
 
         function attachWhitelistApproveListener(uid, name, mobile) {
-          if (window._whitelistListener) {
-            loginDb.ref('whitelist_uids/' + uid).off('value', window._whitelistListener);
-            window._whitelistListener = null;
+          if (window._whitelistListener && window._whitelistListenerUid) {
+            loginDb.ref('whitelist_uids/' + window._whitelistListenerUid).off('value', window._whitelistListener);
           }
+          window._whitelistListener = null;
+          window._whitelistListenerUid = uid;
           window._whitelistListener = loginDb.ref('whitelist_uids/' + uid).on('value', function(ws) {
             if (ws.val() === true) {
               loginDb.ref('whitelist_uids/' + uid).off('value', window._whitelistListener);
@@ -4002,6 +4020,8 @@
             }
             setLoginBtnLoading(true);
 
+            var prevApprovedMob = localStorage.getItem('approved_mobile');
+            var forceFresh = (prevApprovedMob !== mobile);
             ensureAnonAuth(function(user) {
               var uid = user.uid;
 
@@ -4080,6 +4100,7 @@
               .then(() => {
                 localStorage.setItem('name', name);
                 localStorage.setItem('mobile', mobile);
+                localStorage.setItem('approved_mobile', mobile);
                 hidePendingApproval();
                 showContent(name);
                 attachWhitelistRevokeListener(uid, mobile);
@@ -4196,6 +4217,7 @@
                   attachTierListener(uid);
                   startDeviceListeners();
                   recordDeviceActivity(name, mobile);
+                  localStorage.setItem('approved_mobile', mobile);
                   showContent(name);
                   loginDb.ref('users').push({ uid: uid, name: name, mobile: mobile, tier: window.currentUserTier, deviceId: devId, timestamp: firebase.database.ServerValue.TIMESTAMP, loginType: 'auto' }).catch(e => console.error(e));
                   attachWhitelistRevokeListener(uid, mobile);
@@ -6071,7 +6093,13 @@
             document.documentElement.classList.remove('user-logged-in');
             if (productsListener) fetchDb.off('value', productsListener);
             localStorage.clear();
-            $window.location.reload();
+            if (window.loginApp && window.loginApp.auth) {
+              window.loginApp.auth().signOut().catch(function() {}).finally(function() {
+                $window.location.reload();
+              });
+            } else {
+              $window.location.reload();
+            }
           } catch(e) { console.error(e); }
         };
 
